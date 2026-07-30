@@ -15,7 +15,7 @@ const posts = (await getCollection('blog')).sort(
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<BaseHead title={`Blog — ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
 		<style>
 			main {
 				width: 960px;
@@ -52,10 +52,20 @@ const posts = (await getCollection('blog')).sort(
 			ul li a {
 				display: block;
 			}
+			/* Card titles are h2 for the document outline but sit at the h3 size, since
+			   the global h2 register is far too loud inside a list item. */
 			.title {
 				margin: 0;
 				color: var(--green);
+				font-size: var(--type-h3);
+				font-variation-settings: 'opsz' 36, 'SOFT' 0, 'WONK' 0;
 				line-height: 1.05;
+			}
+			.empty {
+				font-family: var(--font-numeric);
+				font-size: var(--type-label);
+				letter-spacing: 0.12em;
+				text-transform: uppercase;
 			}
 			.date {
 				margin: 0;
@@ -91,25 +101,32 @@ const posts = (await getCollection('blog')).sort(
 	<body>
 		<Header />
 		<main>
-			<section>
-				<ul>
-					{
-						posts.map((post) => (
-							<li>
-								<a href={`/blog/${post.id}/`}>
-									{post.data.heroImage && (
-										<Image width={720} height={360} src={post.data.heroImage} alt="" />
-									)}
-									<h4 class="title">{post.data.title}</h4>
-									<p class="date">
-										<FormattedDate date={post.data.pubDate} />
-									</p>
-								</a>
-							</li>
-						))
-					}
-				</ul>
-			</section>
+			<h1>Blog</h1>
+			{
+				posts.length === 0 ? (
+					/* Deliberate empty state. No "coming soon" cards, no filler entries, and no
+					   empty list container sitting under a heading. */
+					<p class="empty">Nothing here yet.</p>
+				) : (
+					<section>
+						<ul>
+							{posts.map((post) => (
+								<li>
+									<a href={`/blog/${post.id}/`}>
+										{post.data.heroImage && (
+											<Image width={720} height={360} src={post.data.heroImage} alt="" />
+										)}
+										<h2 class="title">{post.data.title}</h2>
+										<p class="date">
+											<FormattedDate date={post.data.pubDate} />
+										</p>
+									</a>
+								</li>
+							))}
+						</ul>
+					</section>
+				)
+			}
 		</main>
 		<Footer />
 	</body>

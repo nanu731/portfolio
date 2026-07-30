@@ -139,6 +139,9 @@ Blog posts carry `pubDate`; projects aren't chronological, so RSS is blog-only.
 - Ask before restructuring directories, renaming content files, or changing the
   palette and type choices once they are set.
 - Make one change at a time and let me see it in the browser before moving on.
+- Rewrite `docs/status.md` at the end of any session where something meaningful
+  changed, without being asked. It is a handoff snapshot for a reader with no
+  access to the code, so no file paths, no code, no implementation detail.
 - Use custom properties for spacing as well as colour.
 - Never invent copy, project details, results, or numbers. Every claim on the
   site comes from me. Where copy is missing, leave a marker like
@@ -146,10 +149,13 @@ Blog posts carry `pubDate`; projects aren't chronological, so RSS is blog-only.
 
 ## Launch state
 
-No projects at launch. Ships with the About page, an empty projects index, and
-the blog section. Build the index so zero entries doesn't look broken: no
-"coming soon" cards, no dummy projects, no filler. An empty state that reads as
-deliberate beats fake content.
+No projects and no posts at launch. Ships with the home page, the About page, and
+both indexes empty.
+
+Both collections handle zero entries the same way: no "coming soon" cards, no
+dummy entries, no filler, and no empty list container sitting under a heading. An
+empty state that reads as deliberate beats fake content. This applies to the blog
+index as much as the projects index.
 
 ## Still to decide
 
