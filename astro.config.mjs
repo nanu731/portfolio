@@ -7,7 +7,12 @@ import { defineConfig, fontProviders } from 'astro/config';
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://example.com',
-	integrations: [mdx(), sitemap()],
+	integrations: [
+		mdx(),
+		// /styleguide is an internal reference page. Keep it out of the sitemap so
+		// it stays unindexed and unlinked.
+		sitemap({ filter: (page) => !page.includes('/styleguide') }),
+	],
 	fonts: [
 		{
 			provider: fontProviders.local(),

@@ -1,0 +1,449 @@
+---
+// Internal reference page for the colour and type system.
+// Deliberately unlinked: absent from the nav, filtered out of the sitemap in
+// astro.config.mjs, and never in the RSS feed (rss.xml.js reads the blog
+// collection only). Not public content.
+//
+// Self-contained on purpose. It does not import global.css and declares its own
+// tokens, so it can be compared against the live system rather than inheriting
+// from it. Once the palette lands in global.css, switch the token blocks below
+// to consume the global custom properties instead.
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<meta name="robots" content="noindex, nofollow" />
+		<title>Style guide — colour and type</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,100..900,0..100,0..1&family=Source+Serif+4:opsz,wght@8..60,200..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+			rel="stylesheet"
+		/>
+		<style is:global>
+/* ============================================================
+   PALETTE C — MASONRY. Draft tokens.
+   Two variants below. Everything except --cream and --sand is
+   identical in both, so the comparison isolates the page ground.
+   ============================================================ */
+
+.variant-original {
+  --cream:  #F5F0E1;  /* page ground — original C */
+  --sand:   #D4C4A8;  /* second surface: plot areas, zebra rows, pulled-out sections */
+  --green:  #14532D;  /* type, rules, full-bleed blocks. 8.00:1 on cream (AAA) */
+  --accent: #9C3D1E;  /* rust. links, active nav, third chart series. 5.95:1 on cream (AA) */
+  --muted:  #C9BCA0;  /* secondary type ON green blocks only. 4.85:1 on green (AA) */
+}
+
+/* CHOSEN. These are the values recorded in CLAUDE.md under Color. The variant
+   above is kept only as the comparison that led here. */
+.variant-warm {
+  --cream:  #F2E9CE;  /* page ground — warmed one step: sat 50%->58%, L 92.2%->87.8%, hue held at 45 */
+  --sand:   #D0BE9E;  /* stepped down in parallel to hold the cream/sand separation at 1.50:1 */
+  --green:  #14532D;  /* 7.52:1 on cream (AAA) */
+  --accent: #9C3D1E;  /* 5.59:1 on cream (AA) */
+  --muted:  #C9BCA0;  /* 4.85:1 on green (AA) */
+}
+
+/* ---- CONSTRAINT 1 -------------------------------------------
+   The accent NEVER sits on the green. Measured 1.34:1, which is
+   invisible. Reversed green blocks use --cream or --muted for
+   type and nothing else. Accent belongs on --cream only.
+   ------------------------------------------------------------- */
+
+/* ---- CONSTRAINT 2 -------------------------------------------
+   Multi-series charts separate by green / accent / sand, never
+   by two greens. Every mid-green tested landed at 1.7-2.8:1
+   against --green, under the 3:1 needed to tell two series
+   apart. Add shape and fill pattern as the second channel so
+   the encoding survives colorblind readers and grayscale print.
+   ------------------------------------------------------------- */
+
+/* Secondary note, not a hard constraint: the accent on --sand is
+   3.96:1 (original) / 3.72:1 (warm). Graphic marks yes, text no. */
+
+:root {
+  --rule: 2px;
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Source Serif 4', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-optical-sizing: auto;
+  font-size: 18px;
+  line-height: 1.6;
+  background: #14532D;
+  color: #14532D;
+}
+h1, h2, h3 { margin: 0; line-height: 1.05; font-family: var(--font-display); }
+
+/* ---------- page chrome (not part of the palette) ---------- */
+.bar {
+  background: #14532D;
+  color: #F2E9CE;
+  padding: 1.6rem clamp(1rem, 3vw, 3rem) 1.4rem;
+  border-bottom: 4px solid #9C3D1E;
+}
+.bar h1 {
+  font-size: clamp(1.75rem, 3.4vw, 3rem);
+  font-variation-settings: 'SOFT' 100, 'WONK' 1, 'opsz' 96;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.bar p {
+  margin: 0.5rem 0 0;
+  max-width: 62ch;
+  font-size: 0.95rem;
+  color: #C9BCA0;
+}
+.bar code { font-family: var(--font-mono); font-size: 0.85em; color: #F2E9CE; }
+
+.split { display: grid; grid-template-columns: 1fr 1fr; }
+@media (max-width: 900px) { .split { grid-template-columns: 1fr; } }
+
+/* ---------- a themed column ---------- */
+.col {
+  background: var(--cream);
+  color: var(--green);
+  padding: 0 0 4rem;
+  min-width: 0;
+}
+.col + .col { border-left: 4px solid #14532D; }
+@media (max-width: 900px) { .col + .col { border-left: 0; border-top: 4px solid #14532D; } }
+
+.col-head {
+  background: var(--green);
+  color: var(--cream);
+  padding: 1rem clamp(1rem, 2.5vw, 2.25rem);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.col-head strong {
+  font-family: var(--font-display);
+  font-variation-settings: 'SOFT' 60, 'WONK' 0, 'opsz' 48;
+  font-weight: 600;
+  font-size: 1.3rem;
+}
+.col-head span { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); }
+
+.pad { padding: 0 clamp(1rem, 2.5vw, 2.25rem); }
+
+/* ---------- swatch chips ---------- */
+.chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); margin: 1.75rem 0 0; }
+.chip { padding: 0.7rem 0.65rem 0.8rem; border: 2px solid var(--green); border-right-width: 0; }
+.chip:last-child { border-right-width: 2px; }
+.chip b { display: block; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+.chip span { display: block; font-family: var(--font-mono); font-size: 0.78rem; margin-top: 0.15rem; }
+.chip i { display: block; height: 46px; margin-top: 0.5rem; border: 1px solid rgba(20,83,45,0.35); }
+
+/* ---------- type specimen ---------- */
+.specimen { margin-top: 2.5rem; }
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: 0 0 0.9rem;
+  padding-bottom: 0.4rem;
+  border-bottom: var(--rule) solid var(--green);
+}
+.display {
+  font-size: clamp(2.1rem, 4.4vw, 3.6rem);
+  font-variation-settings: 'SOFT' 100, 'WONK' 1, 'opsz' 120;
+  font-weight: 600;
+  letter-spacing: -0.022em;
+  margin-bottom: 0.15em;
+}
+.subhead {
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 1.5vw, 1.3rem);
+  font-variation-settings: 'SOFT' 0, 'WONK' 0, 'opsz' 24;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+  margin: 0 0 1.1rem;
+}
+.specimen p { margin: 0 0 1rem; max-width: 60ch; }
+a { color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+a:hover { background: var(--accent); color: var(--cream); text-decoration-color: transparent; }
+
+/* ---------- reversed green block ---------- */
+.reverse {
+  background: var(--green);
+  color: var(--cream);
+  padding: 1.5rem clamp(1rem, 2.5vw, 2.25rem) 1.6rem;
+  margin-top: 2.5rem;
+}
+.reverse .eyebrow { border-bottom-color: var(--muted); color: var(--muted); }
+.reverse p { margin: 0; max-width: 58ch; }
+.reverse .dim { color: var(--muted); font-size: 0.9rem; margin-top: 0.6rem; }
+.reverse .dim code { font-family: var(--font-mono); font-size: 0.85em; }
+
+/* ---------- table ---------- */
+table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; font-size: 0.9rem; }
+caption {
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding-bottom: 0.5rem;
+}
+th, td { text-align: left; padding: 0.45rem 0.6rem 0.45rem 0; border-bottom: 1px solid rgba(20,83,45,0.22); }
+th {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  border-bottom: var(--rule) solid var(--green);
+}
+td.n, th.n { text-align: right; padding-right: 0.9rem; }
+td.n {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+  font-size: 0.92rem;
+}
+tbody tr:nth-child(even) { background: var(--sand); }
+td.pass { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.04em; }
+td.fail { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.04em; color: var(--accent); font-weight: 600; }
+
+/* ---------- mock chart on the sand surface ---------- */
+.plotwrap { margin-top: 2.5rem; }
+.plot { background: var(--sand); padding: 1.1rem 1.2rem 0.9rem; }
+.plot svg { display: block; width: 100%; height: auto; }
+.legend {
+  display: flex;
+  gap: 1.4rem;
+  flex-wrap: wrap;
+  margin: 0.85rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.03em;
+}
+.legend span { display: inline-flex; align-items: center; gap: 0.45rem; }
+.figcap { font-size: 0.85rem; margin: 0.75rem 0 0; max-width: 58ch; }
+.figcap b { font-family: var(--font-mono); font-size: 0.8rem; font-weight: 600; }
+
+/* ---------- constraints footer ---------- */
+.rules { background: #14532D; color: #F2E9CE; padding: 2.5rem clamp(1rem, 3vw, 3rem) 3.5rem; }
+.rules h2 {
+  font-size: clamp(1.4rem, 2.2vw, 2rem);
+  font-variation-settings: 'SOFT' 80, 'WONK' 1, 'opsz' 72;
+  font-weight: 600;
+  margin-bottom: 1.4rem;
+}
+.rules ol { margin: 0; padding-left: 1.3rem; max-width: 78ch; }
+.rules li { margin-bottom: 1.1rem; }
+.rules li b { font-family: var(--font-mono); font-size: 0.82rem; letter-spacing: 0.04em; text-transform: uppercase; display: block; margin-bottom: 0.25rem; color: #C9BCA0; }
+.rules code { font-family: var(--font-mono); font-size: 0.85em; }
+.rules .note { color: #C9BCA0; font-size: 0.92rem; max-width: 78ch; margin: 1.6rem 0 0; padding-top: 1.2rem; border-top: 2px solid #9C3D1E; }
+		</style>
+	</head>
+	<body>
+<div class="bar">
+  <h1>Palette C, Masonry — which cream?</h1>
+  <p>Same green <code>#14532D</code>, same accent <code>#9C3D1E</code>, same muted <code>#C9BCA0</code> in both columns. Only the page ground and the sand surface differ. Type is Fraunces (display, with <code>SOFT</code> and <code>WONK</code> driven per role), Source Serif 4 (body), IBM Plex Mono (numerals and labels). Every ratio shown is computed, not estimated.</p>
+</div>
+
+<div class="split">
+
+  <!-- ==================== ORIGINAL ==================== -->
+  <section class="col variant-original">
+    <div class="col-head"><strong>Original C</strong><span>cream #F5F0E1 &middot; sand #D4C4A8</span></div>
+
+    <div class="pad">
+      <div class="chips">
+        <div class="chip"><b>Cream</b><span>#F5F0E1</span><i style="background:#F5F0E1"></i></div>
+        <div class="chip"><b>Sand</b><span>#D4C4A8</span><i style="background:#D4C4A8"></i></div>
+        <div class="chip"><b>Green</b><span>#14532D</span><i style="background:#14532D"></i></div>
+        <div class="chip"><b>Accent</b><span>#9C3D1E</span><i style="background:#9C3D1E"></i></div>
+        <div class="chip"><b>Muted</b><span>#C9BCA0</span><i style="background:#C9BCA0"></i></div>
+      </div>
+
+      <div class="specimen">
+        <p class="eyebrow">Display / Fraunces wonk 1 soft 100</p>
+        <h2 class="display">Cream as a surface, not an off-white</h2>
+        <p class="subhead">Fraunces at wonk 0, soft 0, optical size 24 for the subhead voice</p>
+        <p>This ground sits at 92.2% lightness and 50% saturation on a 45&deg; hue. It reads as paper stock rather than as colour, which is the objection worth testing: the brief asks for cream to be leaned into rather than used as a neutral. Body copy is Source Serif 4 at 18px on 1.6, and the measure is held near 60 characters.</p>
+        <p>An <a href="#">inline link carries the rust accent</a> at 5.95:1 against this ground, which clears AA for body text. Hover floods the accent behind cream type.</p>
+      </div>
+    </div>
+
+    <div class="reverse">
+      <p class="eyebrow">Reversed block</p>
+      <p>Full-bleed green with cream type at 8.00:1. This is where the palette gets its graphic weight, and it is also where the first constraint bites.</p>
+      <p class="dim">Muted <code>#C9BCA0</code> for dates and bylines, 4.85:1 on green. The accent is absent here on purpose.</p>
+    </div>
+
+    <div class="pad">
+      <table>
+        <caption>Measured ratios — IBM Plex Mono, tabular numerals</caption>
+        <thead>
+          <tr><th>Pair</th><th class="n">Ratio</th><th>Verdict</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Green on cream</td><td class="n">8.00</td><td class="pass">AAA</td></tr>
+          <tr><td>Accent on cream</td><td class="n">5.95</td><td class="pass">AA text</td></tr>
+          <tr><td>Cream on green</td><td class="n">8.00</td><td class="pass">AAA</td></tr>
+          <tr><td>Muted on green</td><td class="n">4.85</td><td class="pass">AA text</td></tr>
+          <tr><td>Green on sand</td><td class="n">5.32</td><td class="pass">AA text</td></tr>
+          <tr><td>Accent on sand</td><td class="n">3.96</td><td class="pass">graphic only</td></tr>
+          <tr><td>Cream / sand step</td><td class="n">1.50</td><td class="pass">surfaces read apart</td></tr>
+          <tr><td>Accent on green</td><td class="n">1.34</td><td class="fail">banned</td></tr>
+        </tbody>
+      </table>
+
+      <div class="plotwrap">
+        <p class="eyebrow">Plot area on the sand surface</p>
+        <div class="plot">
+          <svg viewBox="0 0 420 240" role="img" aria-label="Mark specimen: three series distinguished by colour and shape on the sand surface.">
+            <g stroke="#14532D" stroke-opacity="0.16" stroke-width="1">
+              <line x1="34" y1="30" x2="410" y2="30"/><line x1="34" y1="76" x2="410" y2="76"/>
+              <line x1="34" y1="122" x2="410" y2="122"/><line x1="34" y1="168" x2="410" y2="168"/>
+            </g>
+            <line x1="34" y1="206" x2="410" y2="206" stroke="#14532D" stroke-width="2"/>
+            <line x1="34" y1="24" x2="34" y2="206" stroke="#14532D" stroke-width="2"/>
+            <g fill="#14532D" font-family="'IBM Plex Mono',monospace" font-size="10">
+              <text x="8" y="34">40</text><text x="8" y="126">20</text><text x="12" y="210">0</text>
+              <text x="196" y="230" font-size="10.5">x &middot; specimen</text>
+            </g>
+            <g fill="#14532D" fill-opacity="0.75">
+              <circle cx="72" cy="176" r="5"/><circle cx="108" cy="150" r="5"/><circle cx="141" cy="161" r="5"/>
+              <circle cx="176" cy="121" r="5"/><circle cx="212" cy="132" r="5"/><circle cx="247" cy="96" r="5"/>
+            </g>
+            <g fill="#9C3D1E" fill-opacity="0.85">
+              <polygon points="130,120 136,131 124,131"/><polygon points="168,96 174,107 162,107"/>
+              <polygon points="205,104 211,115 199,115"/><polygon points="243,71 249,82 237,82"/>
+              <polygon points="281,80 287,91 275,91"/><polygon points="322,52 328,63 316,63"/>
+            </g>
+            <g fill="none" stroke="#14532D" stroke-width="2">
+              <rect x="256" y="150" width="9" height="9"/><rect x="292" y="132" width="9" height="9"/>
+              <rect x="329" y="141" width="9" height="9"/><rect x="365" y="112" width="9" height="9"/>
+            </g>
+          </svg>
+          <p class="legend">
+            <span><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#14532D" fill-opacity="0.75"/></svg> green, filled</span>
+            <span><svg width="12" height="12"><polygon points="6,1 11,11 1,11" fill="#9C3D1E"/></svg> accent, triangle</span>
+            <span><svg width="12" height="12"><rect x="1.5" y="1.5" width="9" height="9" fill="none" stroke="#14532D" stroke-width="2"/></svg> green, open square</span>
+          </p>
+        </div>
+        <p class="figcap"><b>Mark specimen. Not data.</b> Gridlines at 16% green stay under the marks instead of competing with them. Three series separate by hue and by shape, so the encoding holds in grayscale.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== WARM ==================== -->
+  <section class="col variant-warm">
+    <div class="col-head"><strong>Warm variant</strong><span>cream #F2E9CE &middot; sand #D0BE9E</span></div>
+
+    <div class="pad">
+      <div class="chips">
+        <div class="chip"><b>Cream</b><span>#F2E9CE</span><i style="background:#F2E9CE"></i></div>
+        <div class="chip"><b>Sand</b><span>#D0BE9E</span><i style="background:#D0BE9E"></i></div>
+        <div class="chip"><b>Green</b><span>#14532D</span><i style="background:#14532D"></i></div>
+        <div class="chip"><b>Accent</b><span>#9C3D1E</span><i style="background:#9C3D1E"></i></div>
+        <div class="chip"><b>Muted</b><span>#C9BCA0</span><i style="background:#C9BCA0"></i></div>
+      </div>
+
+      <div class="specimen">
+        <p class="eyebrow">Display / Fraunces wonk 1 soft 100</p>
+        <h2 class="display">Cream as a surface, not an off-white</h2>
+        <p class="subhead">Fraunces at wonk 0, soft 0, optical size 24 for the subhead voice</p>
+        <p>This ground drops to 87.8% lightness and climbs to 58% saturation, holding the same 45&deg; hue. The step is deliberate rather than incidental: the page now announces a colour, and the green sitting on it reads warmer by contrast even though the green did not move.</p>
+        <p>An <a href="#">inline link carries the rust accent</a> at 5.59:1 against this ground, still clear of AA for body text. Hover floods the accent behind cream type.</p>
+      </div>
+    </div>
+
+    <div class="reverse">
+      <p class="eyebrow">Reversed block</p>
+      <p>Full-bleed green with cream type at 7.52:1. This is where the palette gets its graphic weight, and it is also where the first constraint bites.</p>
+      <p class="dim">Muted <code>#C9BCA0</code> for dates and bylines, 4.85:1 on green. The accent is absent here on purpose.</p>
+    </div>
+
+    <div class="pad">
+      <table>
+        <caption>Measured ratios — IBM Plex Mono, tabular numerals</caption>
+        <thead>
+          <tr><th>Pair</th><th class="n">Ratio</th><th>Verdict</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Green on cream</td><td class="n">7.52</td><td class="pass">AAA</td></tr>
+          <tr><td>Accent on cream</td><td class="n">5.59</td><td class="pass">AA text</td></tr>
+          <tr><td>Cream on green</td><td class="n">7.52</td><td class="pass">AAA</td></tr>
+          <tr><td>Muted on green</td><td class="n">4.85</td><td class="pass">AA text</td></tr>
+          <tr><td>Green on sand</td><td class="n">5.01</td><td class="pass">AA text</td></tr>
+          <tr><td>Accent on sand</td><td class="n">3.72</td><td class="pass">graphic only</td></tr>
+          <tr><td>Cream / sand step</td><td class="n">1.50</td><td class="pass">identical to original</td></tr>
+          <tr><td>Accent on green</td><td class="n">1.34</td><td class="fail">banned</td></tr>
+        </tbody>
+      </table>
+
+      <div class="plotwrap">
+        <p class="eyebrow">Plot area on the sand surface</p>
+        <div class="plot">
+          <svg viewBox="0 0 420 240" role="img" aria-label="Mark specimen: three series distinguished by colour and shape on the warmer sand surface.">
+            <g stroke="#14532D" stroke-opacity="0.16" stroke-width="1">
+              <line x1="34" y1="30" x2="410" y2="30"/><line x1="34" y1="76" x2="410" y2="76"/>
+              <line x1="34" y1="122" x2="410" y2="122"/><line x1="34" y1="168" x2="410" y2="168"/>
+            </g>
+            <line x1="34" y1="206" x2="410" y2="206" stroke="#14532D" stroke-width="2"/>
+            <line x1="34" y1="24" x2="34" y2="206" stroke="#14532D" stroke-width="2"/>
+            <g fill="#14532D" font-family="'IBM Plex Mono',monospace" font-size="10">
+              <text x="8" y="34">40</text><text x="8" y="126">20</text><text x="12" y="210">0</text>
+              <text x="196" y="230" font-size="10.5">x &middot; specimen</text>
+            </g>
+            <g fill="#14532D" fill-opacity="0.75">
+              <circle cx="72" cy="176" r="5"/><circle cx="108" cy="150" r="5"/><circle cx="141" cy="161" r="5"/>
+              <circle cx="176" cy="121" r="5"/><circle cx="212" cy="132" r="5"/><circle cx="247" cy="96" r="5"/>
+            </g>
+            <g fill="#9C3D1E" fill-opacity="0.85">
+              <polygon points="130,120 136,131 124,131"/><polygon points="168,96 174,107 162,107"/>
+              <polygon points="205,104 211,115 199,115"/><polygon points="243,71 249,82 237,82"/>
+              <polygon points="281,80 287,91 275,91"/><polygon points="322,52 328,63 316,63"/>
+            </g>
+            <g fill="none" stroke="#14532D" stroke-width="2">
+              <rect x="256" y="150" width="9" height="9"/><rect x="292" y="132" width="9" height="9"/>
+              <rect x="329" y="141" width="9" height="9"/><rect x="365" y="112" width="9" height="9"/>
+            </g>
+          </svg>
+          <p class="legend">
+            <span><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#14532D" fill-opacity="0.75"/></svg> green, filled</span>
+            <span><svg width="12" height="12"><polygon points="6,1 11,11 1,11" fill="#9C3D1E"/></svg> accent, triangle</span>
+            <span><svg width="12" height="12"><rect x="1.5" y="1.5" width="9" height="9" fill="none" stroke="#14532D" stroke-width="2"/></svg> green, open square</span>
+          </p>
+        </div>
+        <p class="figcap"><b>Mark specimen. Not data.</b> The deeper sand pulls the plot area further off the page, which is the practical argument for this variant. Accent marks drop to 3.72:1 here, still above the 3:1 graphic floor.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="rules">
+  <h2>Constraints, as written into the token block</h2>
+  <ol>
+    <li>
+      <b>Constraint 1 — accent never on green</b>
+      The accent on the green measures <code>1.34:1</code>, which is invisible. Reversed green blocks take <code>--cream</code> or <code>--muted</code> for type and nothing else. The accent belongs on <code>--cream</code> only.
+    </li>
+    <li>
+      <b>Constraint 2 — charts separate by green / accent / sand</b>
+      Never by two greens. Every mid-green tested landed between <code>1.7:1</code> and <code>2.8:1</code> against <code>--green</code>, under the <code>3:1</code> needed to tell two series apart. Shape and fill pattern carry the second channel so the encoding survives colourblind readers and grayscale print.
+    </li>
+  </ol>
+  <p class="note">One softer note, recorded next to the tokens but not a hard rule: the accent on <code>--sand</code> is 3.96:1 in the original and 3.72:1 in the warm variant. Both clear the 3:1 floor for graphic marks. Neither clears 4.5:1, so accent text must not be set on the sand surface.</p>
+</div>
+	</body>
+</html>
