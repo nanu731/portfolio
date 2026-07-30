@@ -87,9 +87,9 @@ custom property in one place; both constraints sit as comments beside them.
 
 ### Type
 
-- Display: Fraunces, weights 500 and 600. Axes by role: `WONK 1` with `SOFT
-  80-100` at display sizes, `WONK 0` and `SOFT 0` below roughly 1.5rem, where
-  wonky letterforms stop reading as intentional. Track `opsz` to rendered size.
+- Display: Fraunces, weights 500 and 600. Axes by role, not by size: `WONK 1`
+  with `SOFT 80-100` on display and h1-h2, both flat at h3 and below, where wonky
+  letterforms stop reading as intentional. Track `opsz` to rendered size.
 - Body: Source Serif 4, weight 400, `font-optical-sizing: auto`.
 - Numerals and labels: IBM Plex Mono, weights 400, 500, 600. Tabular data needs
   `font-variant-numeric: tabular-nums` explicitly; proportional digits break columns.

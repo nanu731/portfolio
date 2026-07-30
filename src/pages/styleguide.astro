@@ -20,13 +20,13 @@ const swatches = [
 ];
 
 const scale = [
-	['--type-display', '.display', '5.625rem', '90px', 'opsz 144, SOFT 100, WONK 1'],
-	['--type-h1', 'h1', '3.75rem', '60px', 'opsz 96, SOFT 100, WONK 1'],
-	['--type-h2', 'h2', '2.5rem', '40px', 'opsz 72, SOFT 80, WONK 1'],
-	['--type-h3', 'h3', '1.6875rem', '27px', 'opsz 36, SOFT 0, WONK 0'],
-	['--type-body', 'body', '1.125rem', '18px', 'Source Serif 4'],
-	['--type-small', 'small', '0.875rem', '14px', 'Source Serif 4'],
-	['--type-label', '.label', '0.75rem', '12px', 'IBM Plex Mono'],
+	['--type-display', '.display', '5.625rem', '90', '4.50', 'opsz 144, SOFT 100, WONK 1'],
+	['--type-h1', 'h1', '4.21875rem', '67.5', '3.375', 'opsz 96, SOFT 100, WONK 1'],
+	['--type-h2', 'h2', '2.8125rem', '45', '2.25', 'opsz 72, SOFT 80, WONK 1'],
+	['--type-h3', 'h3', '1.875rem', '30', '1.50', 'opsz 36, SOFT 0, WONK 0'],
+	['--type-body', 'body', '1.25rem', '20', '1.00', 'Source Serif 4'],
+	['--type-small', 'small', '0.9375rem', '15', '0.75', 'Source Serif 4'],
+	['--type-label', '.label', '0.75rem', '12', '0.60', 'IBM Plex Mono'],
 ];
 
 const ratios = [
@@ -77,8 +77,11 @@ const ratios = [
 
 			<h2>Type scale</h2>
 			<p>
-				Ratio 1.5 on an 18px body, so display lands at 5x body and reads as a different
-				register rather than one notch above h1. Wonk is on at h2 and above and flat below,
+				Ratio 1.5 on a 20px body, derived by calc from a single ratio token. Display is
+				pinned at 90px rather than being the run's next step: in a pure geometric run
+				display over h1 is the ratio itself, which left a cliff below the largest size.
+				Pinning it and letting the run climb to 67.5px closes that drop to 1.33 while
+				h1, h2, and h3 stay exactly 1.5 apart. Wonk is on at h2 and above and flat below,
 				where the wonky letterforms stop reading as intentional.
 			</p>
 
@@ -90,12 +93,12 @@ const ratios = [
 				<p class="h2">Possession value by lineup</p>
 				<p class="h3">Method and its problems</p>
 				<p>
-					Body copy in Source Serif 4 at 18px on 1.6, holding the measure near 60
+					Body copy in Source Serif 4 at 20px on 1.6, holding the measure near 60
 					characters. An <a href="#accent">inline link carries the accent</a> at 5.59:1
 					against this ground, which clears AA for body text. Hover floods the accent
 					behind cream type.
 				</p>
-				<p class="small">Small text at 14px, for captions and secondary notes.</p>
+				<p class="small">Small text at 15px, for captions and secondary notes.</p>
 				<p class="label">Label at 12px, mono, uppercase, tracked</p>
 			</div>
 
@@ -107,17 +110,19 @@ const ratios = [
 						<th>Role</th>
 						<th class="n">rem</th>
 						<th class="n">px</th>
+						<th class="n">&times; body</th>
 						<th>Axes</th>
 					</tr>
 				</thead>
 				<tbody>
 					{
-						scale.map(([token, role, rem, px, axes]) => (
+						scale.map(([token, role, rem, px, mult, axes]) => (
 							<tr>
 								<td><code>{token}</code></td>
 								<td>{role}</td>
 								<td class="n">{rem}</td>
 								<td class="n">{px}</td>
+								<td class="n">{mult}</td>
 								<td>{axes}</td>
 							</tr>
 						))

@@ -34,16 +34,26 @@
 	--space-2xl: 6rem; /*  96px */
 	--space-3xl: 9rem; /* 144px */
 
-	/* --- Type scale. Ratio 1.5 on an 18px body, so display lands at 5x body and
-	   reads as a different register rather than one notch above h1. Each step
-	   clamps so 90px display does not overflow a phone. ---------------------- */
-	--type-display: clamp(3rem, 9vw, 5.625rem); /* 48 -> 90px */
-	--type-h1: clamp(2.4rem, 6vw, 3.75rem); /* 38 -> 60px */
-	--type-h2: clamp(1.9rem, 4vw, 2.5rem); /* 30 -> 40px */
-	--type-h3: clamp(1.4rem, 2vw, 1.6875rem); /* 22 -> 27px */
-	--type-body: 1.125rem; /*        18px */
-	--type-small: 0.875rem; /*        14px */
-	--type-label: 0.75rem; /*        12px */
+	/* --- Type scale. Ratio 1.5 on a 20px body, derived by calc from a single
+	   ratio so the whole scale moves from one edit.
+
+	   Display is pinned at 90px rather than being the run's next step. In a pure
+	   geometric run, display/h1 is the ratio itself, which put a 1.5 cliff below
+	   the largest size. Pinning it and letting the run climb to 67.5px closes
+	   that gap to 1.33 while h1/h2/h3 stay exactly 1.5 apart. ---------------- */
+	--type-ratio: 1.5;
+	--type-body: 1.25rem; /*  20px */
+	--step-h3: calc(var(--type-body) * var(--type-ratio)); /*  30px */
+	--step-h2: calc(var(--step-h3) * var(--type-ratio)); /*  45px */
+	--step-h1: calc(var(--step-h2) * var(--type-ratio)); /*  67.5px */
+
+	/* Each step clamps so the ceiling does not overflow a phone. */
+	--type-display: clamp(3.2rem, 9vw, 5.625rem); /* 51 -> 90px, off-run */
+	--type-h1: clamp(2.6rem, 6.4vw, var(--step-h1)); /* 42 -> 67.5px */
+	--type-h2: clamp(2rem, 4.2vw, var(--step-h2)); /* 32 -> 45px */
+	--type-h3: clamp(1.5rem, 2.2vw, var(--step-h3)); /* 24 -> 30px */
+	--type-small: 0.9375rem; /*  15px */
+	--type-label: 0.75rem; /*  12px */
 
 	/* --- Rules. Depth comes from these, never from shadows. ---------------- */
 	--rule-thin: 1px;
