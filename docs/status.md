@@ -4,14 +4,14 @@ Snapshot for a reader new to the site, rewritten each time. Updated 30 July 2026
 
 ## Where things stand
 
-A portfolio for sports analytics work, basketball and football: home, About, blog,
-projects. Readers split between college admissions officers and analytics hirers.
+A portfolio for sports analytics work: home, About, blog, projects. Readers split
+between college admissions officers and analytics hirers. Current work is with a
+school basketball team.
 
 The design system is built and working. The palette is cream and dark green, borrowed
-from the Milwaukee Bucks Cream City jerseys, with a rust accent for links and for a
-third value in charts. Cream carries the page, dark green the type and solid blocks,
-and a deeper sand tone gives charts and tables a surface. Headings are Fraunces,
-reading text is Source Serif 4, numbers are IBM Plex Mono.
+from the Milwaukee Bucks Cream City jerseys, with a rust accent. Cream carries the
+page, dark green the type and solid blocks, and a deeper sand tone gives charts and
+tables a surface. Headings are Fraunces, reading text Source Serif 4, numbers Plex Mono.
 
 Real writing is in place for the home page, About, the site description, and the
 footer. The home page is a headline, "Signal Through Noise", and one short paragraph.
