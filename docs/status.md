@@ -4,8 +4,8 @@ Snapshot for a reader new to the site, rewritten each time. Updated 30 July 2026
 
 ## Where things stand
 
-A personal portfolio for sports analytics work: home, About, blog, projects. Readers
-split between college admissions officers and people hiring for analytics roles.
+A portfolio for sports analytics work, basketball and football: home, About, blog,
+projects. Readers split between college admissions officers and analytics hirers.
 
 The design system is built and working. The palette is cream and dark green, borrowed
 from the Milwaukee Bucks Cream City jerseys, with a rust accent for links and for a
@@ -13,8 +13,9 @@ third value in charts. Cream carries the page, dark green the type and solid blo
 and a deeper sand tone gives charts and tables a surface. Headings are Fraunces,
 reading text is Source Serif 4, numbers are IBM Plex Mono.
 
-Real writing is in place for the home page, the About page, the site description,
-and the footer. The home page is two sentences and stops there.
+Real writing is in place for the home page, About, the site description, and the
+footer. The home page is a headline, "Signal Through Noise", and one short paragraph.
+That headline belongs to the home page alone; the site itself carries the author's name.
 
 Nothing is published yet. There are no projects and no posts, so both indexes show
 empty states written to look intentional rather than unfinished. Shared links now
@@ -34,16 +35,15 @@ separate series using green, accent, and sand rather than two shades of green, a
 shape carries the difference too, so a chart survives print and colourblind readers.
 
 Headings step up by half again each time. The largest size sits outside that
-progression on purpose: when it followed the pattern, the drop from the biggest
-heading to the next one read as a cliff.
+progression on purpose: following the pattern made the drop from it read as a cliff.
 
-The starter template's sample posts and placeholder images were deleted as filler, and
-one of those images had been serving as the preview for every shared link.
+The starter template's sample posts and placeholder images were deleted as filler; one
+had been serving as the preview for every shared link.
 
 ## Waiting on you
 
-The domain name. Until it is chosen, shared links point at a placeholder address, so
-previews will not resolve. It is the last thing between the site and working previews.
+Buying the domain. The name is chosen and the site is already configured for it, but
+nobody owns it yet, so links and previews resolve only once it is registered.
 
 Whether the seasons a project covers should be plain text or a start and end pair.
 That decides whether the projects list can be sorted or filtered by season.

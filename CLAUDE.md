@@ -19,7 +19,11 @@ hand-waving immediately. Be concrete and skip jargon that isn't doing work.
 - Plain CSS. No Tailwind, no component libraries, no UI kits.
 - Static plots exported from R (ggplot2) as SVG, stored in `public/plots/`
 - Analysis code lives in separate repos, linked from each project page
-- Deployed on Netlify from GitHub
+- Deployed on Netlify from GitHub, at `narayanlekhi.com`
+
+`site` in `astro.config.mjs` is set to `https://narayanlekhi.com` ahead of
+registration. The domain is not bought yet, so canonical URLs, the sitemap, RSS,
+and link previews stay broken until it exists and points at Netlify.
 
 MDX stays configured, but write plain `.md` with plots as `<img>` tags. Leaving
 MDX in place keeps componentised charts available later without a migration.
@@ -159,8 +163,5 @@ index as much as the projects index.
 
 ## Still to decide
 
-- Domain name. Something professional from lekhi, sports, and analytics, subject
-  to availability. Until it's set, `site` stays a placeholder and canonical URLs,
-  the sitemap, and RSS are all wrong.
 - Whether `seasons` is free text or a structured start and end pair. Decides
   whether the projects index can sort or filter by it.

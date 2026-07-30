@@ -6,7 +6,9 @@ import { defineConfig, fontProviders } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://example.com',
+	// Set ahead of registration. The domain is not bought yet, so canonical URLs,
+	// the sitemap, RSS, and link previews only resolve once it exists and points here.
+	site: 'https://narayanlekhi.com',
 	integrations: [
 		mdx(),
 		// /styleguide is an internal reference page. Keep it out of the sitemap so

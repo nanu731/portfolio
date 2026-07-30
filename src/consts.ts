@@ -3,4 +3,4 @@
 
 export const SITE_TITLE = 'Narayan Lekhi';
 export const SITE_DESCRIPTION =
-	'Sports analytics projects and writing by Narayan Lekhi, a high school student translating data into things coaches can use.';
+	'Sports analytics projects and writing by Narayan Lekhi, a high school student translating data into things coaches can use. Basketball and football.';
