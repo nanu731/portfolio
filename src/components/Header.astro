@@ -45,13 +45,15 @@ import HeaderLink from './HeaderLink.astro';
 <style>
 	header {
 		margin: 0;
-		padding: 0 1em;
-		background: white;
-		box-shadow: 0 2px 8px rgba(var(--black), 5%);
+		padding: 0 var(--space-s);
+		background: var(--cream);
+		border-bottom: var(--rule) solid var(--green);
 	}
 	h2 {
 		margin: 0;
-		font-size: 1em;
+		font-family: var(--font-display);
+		font-size: var(--type-body);
+		font-variation-settings: 'opsz' 18, 'SOFT' 0, 'WONK' 0;
 	}
 
 	h2 a,
@@ -64,10 +66,14 @@ import HeaderLink from './HeaderLink.astro';
 		justify-content: space-between;
 	}
 	nav a {
-		padding: 1em 0.5em;
-		color: var(--black);
-		border-bottom: 4px solid transparent;
+		padding: var(--space-s) var(--space-2xs);
+		color: var(--green);
+		border-bottom: var(--rule-thick) solid transparent;
 		text-decoration: none;
+	}
+	nav a:hover {
+		background: none;
+		color: var(--accent);
 	}
 	nav a.active {
 		text-decoration: none;

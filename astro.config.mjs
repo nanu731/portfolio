@@ -14,27 +14,46 @@ export default defineConfig({
 		sitemap({ filter: (page) => !page.includes('/styleguide') }),
 	],
 	fonts: [
+		// Fraunces is self-hosted rather than fetched from the google provider on
+		// purpose. Astro puts `variationSettings` on the family, not the element, so
+		// config alone cannot vary WONK between an h1 and an h3. Loading the real
+		// variable file with a weight range instead lets global.css drive the axes
+		// per role with font-variation-settings. Verified to carry all four axes:
+		// opsz, wght, SOFT, WONK.
 		{
 			provider: fontProviders.local(),
-			name: 'Atkinson',
-			cssVariable: '--font-atkinson',
-			fallbacks: ['sans-serif'],
+			name: 'Fraunces',
+			cssVariable: '--font-fraunces',
+			fallbacks: ['Georgia', 'serif'],
 			options: {
 				variants: [
 					{
-						src: ['./src/assets/fonts/atkinson-regular.woff'],
-						weight: 400,
-						style: 'normal',
-						display: 'swap',
-					},
-					{
-						src: ['./src/assets/fonts/atkinson-bold.woff'],
-						weight: 700,
+						src: ['./src/assets/fonts/fraunces-variable.woff2'],
+						weight: '100 900',
 						style: 'normal',
 						display: 'swap',
 					},
 				],
 			},
+		},
+		// These two have no custom axes, so the google provider is enough. It
+		// downloads at build time and serves from our own origin, so there is no
+		// runtime request to Google.
+		{
+			provider: fontProviders.google(),
+			name: 'Source Serif 4',
+			cssVariable: '--font-serif',
+			fallbacks: ['Georgia', 'serif'],
+			weights: [400],
+			styles: ['normal', 'italic'],
+		},
+		{
+			provider: fontProviders.google(),
+			name: 'IBM Plex Mono',
+			cssVariable: '--font-mono',
+			fallbacks: ['ui-monospace', 'monospace'],
+			weights: [400, 500, 600],
+			styles: ['normal'],
 		},
 	],
 });
