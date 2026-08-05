@@ -1,63 +1,41 @@
-# Astro Starter Kit: Blog
+# narayanlekhi.com
+
+Source for Narayan Lekhi's personal site: sports analytics projects, and writing
+about them. Each project page carries the question it asks, the data behind it, the
+method, and a link to the analysis code.
+
+The site will live at [narayanlekhi.com](https://narayanlekhi.com). The domain is not
+registered yet, so that link stays dead for now.
+
+## Built with
+
+- [Astro](https://astro.build), static output, markdown content collections
+- Plain CSS. No framework, no component library
+- Fraunces, Source Serif 4, and IBM Plex Mono, self-hosted
+- Charts exported from R and ggplot2 as SVG
+- Deployed on Netlify
+
+Analysis code lives in its own repositories, linked from the project it belongs to.
+
+## Running it
 
 ```sh
-npm create astro@latest -- --template blog
+npm install
+npm run dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+`npm run build` writes the static site to `dist/`.
 
-Features:
+## Where things are
 
-- ✅ Minimal styling (make it your own!)
-- ✅ 100/100 Lighthouse performance
-- ✅ SEO-friendly with canonical URLs and Open Graph data
-- ✅ Sitemap support
-- ✅ RSS Feed support
-- ✅ Markdown & MDX support
+`CLAUDE.md` holds the design system and the writing rules: the palette and its
+contrast constraints, the type scale, and the rules that keep the banded layout
+coherent. `docs/status.md` is a plain-language snapshot of where the project stands.
 
-## 🚀 Project Structure
+`/styleguide` renders the colour and type system from the live tokens. It is unlinked
+and kept out of the sitemap, so it stays a reference rather than a page.
 
-Inside of your Astro project, you'll see the following folders and files:
+## Licence
 
-```text
-├── public/
-├── src/
-│   ├── assets/
-│   ├── components/
-│   ├── content/
-│   ├── layouts/
-│   └── pages/
-├── astro.config.mjs
-├── README.md
-├── package.json
-└── tsconfig.json
-```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-The `src/content/` directory contains "collections" of related Markdown and MDX documents. Use `getCollection()` to retrieve posts from `src/content/blog/`, and type-check your frontmatter using an optional schema. See [Astro's Content Collections docs](https://docs.astro.build/en/guides/content-collections/) to learn more.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
-
-## Credit
-
-This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
+Fraunces is used under the SIL Open Font License; see `src/assets/fonts/OFL.txt`.
+Site content and writing are © Narayan Lekhi.
