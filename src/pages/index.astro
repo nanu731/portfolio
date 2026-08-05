@@ -2,7 +2,12 @@
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { isPublished, SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { getCollection } from 'astro:content';
+
+// Reserved for recent projects. While nothing is published the band renders
+// nothing at all: no container, and no heading with nothing beneath it.
+const projects = await getCollection('projects', isPublished);
 ---
 
 <!doctype html>
@@ -13,11 +18,57 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 	<body>
 		<Header />
 		<main>
-			<h1>Signal Through Noise</h1>
-			<p>
-				Attempting to answer questions about sports that we think about but never act upon.
-			</p>
+			<div class="band headline-band">
+				<div class="band-inner band-inner--wide at-edge">
+					<h1 class="display">Signal Through Noise</h1>
+				</div>
+			</div>
+
+			<div class="band band--green">
+				<div class="band-inner at-deep">
+					<p class="subhead">
+						Attempting to answer questions about sports that we think about but never act
+						upon.
+					</p>
+				</div>
+			</div>
+
+			{
+				projects.length > 0 && (
+					<div class="band">
+						<div class="band-inner band-inner--wide at-edge">
+							<h2>Projects</h2>
+							<ul class="rows">
+								{projects.map((project) => (
+									<li>
+										<a href={`/projects/${project.id}/`}>
+											<span class="row-title">{project.data.title}</span>
+											<span class="label row-meta">{project.data.seasons}</span>
+										</a>
+									</li>
+								))}
+							</ul>
+						</div>
+					</div>
+				)
+			}
 		</main>
 		<Footer />
 	</body>
 </html>
+<style>
+	/* Hard left, close enough to the viewport edge to read as deliberate rather
+	   than as padding. */
+	.headline-band {
+		padding-block: var(--space-2xl) var(--space-xl);
+	}
+	.display {
+		margin-bottom: 0;
+	}
+	.subhead {
+		margin: 0;
+		font-size: var(--type-h3);
+		font-family: var(--font-display);
+		font-variation-settings: 'opsz' 36, 'SOFT' 0, 'WONK' 0;
+	}
+</style>

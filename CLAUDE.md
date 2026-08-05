@@ -67,6 +67,25 @@ What bold should mean here instead:
 - Charts treated as the graphic element. The plots are the visual identity of
   a sports analytics site. Design around them rather than decorating near them.
 
+### Layout
+
+Pages are a stack of full-width bands, cream and green alternating as structure,
+with content at a different horizontal offset in each so the eye zigzags down.
+Nothing is centred. Three rules hold the system together; breaking any of them
+looks like a small change and quietly dismantles it.
+
+- **The figure gutter.** Figures never take an offset. Every figure sits at one
+  fixed left inset while prose bands shift around it, so figure numbers align down
+  the page and the charts are the spine the moving text reads against. A figure
+  inside a prose band cancels that band's offset to return to the gutter, and
+  outgrows the text measure so the chart is the widest element on the page.
+- **The green budget.** One green band per ordinary page, plus the footer. Two plus
+  the footer on a project page. More and cream stops being the dominant surface.
+- **Offsets come from the spacing scale**, never eyeballed, and exist only above
+  48rem. Narrow gets one consistent inset, which is why this layout survives it.
+
+Sand is for chart and table surfaces only. Never a layout panel.
+
 Before implementing any visual decision, use the ui-ux-pro-max skill to search
 for style and palette references rather than defaulting to model instincts.
 

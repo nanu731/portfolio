@@ -1,0 +1,134 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+
+type Props = CollectionEntry<'projects'>['data'];
+
+const { title, description, question, dataset, method, seasons, repo, draft } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={`${title} — Narayan Lekhi`} description={description} />
+		{draft && <meta name="robots" content="noindex, nofollow" />}
+	</head>
+	<body>
+		<Header />
+		<main>
+			{
+				draft && (
+					<div class="draft-flag">
+						<p class="label">
+							Draft. Metadata values are placeholders and this entry is excluded from the
+							production build.
+						</p>
+					</div>
+				)
+			}
+
+			<!-- The question is the h1. The write-up opens with the question rather than
+			     with context-setting, so repeating the short title here would be a
+			     redundant second headline. -->
+			<div class="band band--green question-band">
+				<div class="band-inner at-edge">
+					<h1>{question}</h1>
+				</div>
+			</div>
+
+			<!-- Metadata laid out horizontally across a band: the same information a
+			     vertical rail would stack beside the prose, rotated ninety degrees. Cream,
+			     not green, because green under green merges into one block and because the
+			     repo link needs the accent, which is banned on green. -->
+			<div class="band meta-band">
+				<div class="band-inner band-inner--wide at-edge">
+					<dl class="meta">
+						<div>
+							<dt class="label">Dataset</dt>
+							<dd class="numeric">{dataset}</dd>
+						</div>
+						<div>
+							<dt class="label">Method</dt>
+							<dd class="numeric">{method}</dd>
+						</div>
+						<div>
+							<dt class="label">Seasons</dt>
+							<dd class="numeric">{seasons}</dd>
+						</div>
+						<div>
+							<dt class="label">Code</dt>
+							<dd class="numeric">
+								{repo ? <a href={repo}>Repository</a> : 'TODO_REPO_URL'}
+							</dd>
+						</div>
+					</dl>
+				</div>
+			</div>
+
+			<!-- Prose sits at one offset; figures inside cancel it and return to the
+			     gutter, so every figure shares a left edge down the page. -->
+			<div class="band prose-band">
+				<div class="band-inner at-step">
+					<slot />
+				</div>
+			</div>
+		</main>
+		<Footer />
+	</body>
+</html>
+<style>
+	.draft-flag {
+		padding: var(--space-2xs) var(--space-m);
+		border-bottom: var(--rule) solid var(--accent);
+		color: var(--accent);
+	}
+	.draft-flag p {
+		margin: 0;
+	}
+	.question-band {
+		padding-block: var(--space-xl);
+	}
+	/* Deliberately narrower than the metadata band beneath it, so the question wraps
+	   into a block and the mono row visibly overruns it to the right. */
+	.question-band .band-inner {
+		max-width: 44rem;
+	}
+	.question-band h1 {
+		margin-bottom: 0;
+		color: var(--cream);
+	}
+
+	/* Breaks alignment by width rather than position: it starts at the question's
+	   left edge and overruns the question's measure to the right, so it reads as a
+	   masthead credit line rather than another paragraph. */
+	.meta-band {
+		padding-block: var(--space-m);
+		border-bottom: var(--rule) solid var(--green);
+	}
+	.meta {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: var(--space-s);
+		margin: 0;
+	}
+	.meta dt {
+		margin-bottom: var(--space-3xs);
+	}
+	.meta dd {
+		margin: 0;
+		font-size: var(--type-small);
+	}
+	@media (min-width: 30rem) {
+		.meta {
+			grid-template-columns: repeat(2, 1fr);
+			gap: var(--space-m);
+		}
+	}
+	@media (min-width: 48rem) {
+		.meta {
+			grid-template-columns: repeat(4, 1fr);
+		}
+	}
+</style>

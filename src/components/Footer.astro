@@ -4,21 +4,19 @@ import { SITE_TITLE } from '../consts';
 const today = new Date();
 ---
 
-<footer>
-	<p>&copy; {today.getFullYear()} {SITE_TITLE}</p>
+<!-- The one green band guaranteed on every page. It terminates the page, so the
+     colour change is the division and no top rule is needed. -->
+<footer class="band band--green">
+	<div class="band-inner band-inner--wide at-step">
+		<p class="label">&copy; {today.getFullYear()} {SITE_TITLE}</p>
+	</div>
 </footer>
 <style>
 	footer {
-		padding: var(--space-l) var(--space-s) var(--space-2xl);
-		border-top: var(--rule) solid var(--green);
-		color: var(--green);
-		text-align: center;
+		margin-top: var(--space-2xl);
+		padding-block: var(--space-xl);
 	}
-	footer p {
+	p {
 		margin: 0;
-		font-family: var(--font-numeric);
-		font-size: var(--type-label);
-		letter-spacing: 0.1em;
-		text-transform: uppercase;
 	}
 </style>

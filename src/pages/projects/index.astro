@@ -2,44 +2,42 @@
 import { getCollection } from 'astro:content';
 import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
-import FormattedDate from '../../components/FormattedDate.astro';
 import Header from '../../components/Header.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { isPublished, SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 
-const posts = (await getCollection('blog')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
+const projects = await getCollection('projects', isPublished);
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title={`Blog — ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
+		<BaseHead title={`Projects — ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
 	</head>
 	<body>
 		<Header />
 		<main>
 			<div class="band heading-band">
 				<div class="band-inner band-inner--wide at-edge">
-					<h1>Blog</h1>
+					<h1>Projects</h1>
 				</div>
 			</div>
 
 			<div class="band list-band">
 				<div class="band-inner band-inner--wide at-edge">
 					{
-						posts.length === 0 ? (
-							/* Deliberate empty state. No "coming soon" cards, no filler entries, and no
+						projects.length === 0 ? (
+							/* Deliberate empty state. No "coming soon" cards, no dummy entries, and no
 							   empty list container sitting under a heading. */
 							<p class="label">Nothing here yet.</p>
 						) : (
 							<ul class="rows">
-								{posts.map((post) => (
+								{projects.map((project) => (
 									<li>
-										<a href={`/blog/${post.id}/`}>
-											<span class="row-title">{post.data.title}</span>
+										<a href={`/projects/${project.id}/`}>
+											<span class="row-question">{project.data.question}</span>
 											<span class="row-meta label">
-												<FormattedDate date={post.data.pubDate} />
+												{project.data.title}
+												{project.data.draft && ' · draft'}
 											</span>
 										</a>
 									</li>
@@ -85,10 +83,10 @@ const posts = (await getCollection('blog')).sort(
 	.rows a:hover {
 		background: none;
 	}
-	.rows a:hover .row-title {
+	.rows a:hover .row-question {
 		color: var(--accent);
 	}
-	.row-title {
+	.row-question {
 		max-width: 40rem;
 		font-family: var(--font-display);
 		font-size: var(--type-h3);

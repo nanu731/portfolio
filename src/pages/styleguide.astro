@@ -130,15 +130,30 @@ const ratios = [
 				</tbody>
 			</table>
 
-			<h2>Reversed block</h2>
-			<div class="reverse">
-				<p class="label">Constraint 1</p>
-				<p>
-					Green with cream type at 7.52:1. The accent is absent here on purpose: it
-					measures 1.34:1 against the green, which is invisible. Reversed blocks take
-					cream or muted for type and nothing else.
-				</p>
-				<p class="dim small">Muted carries dates and bylines at 4.85:1 on green.</p>
+			<h2>Bands and offsets</h2>
+			<p>
+				The page is a stack of full-width bands. Content sits at a different horizontal
+				offset in each, so the eye zigzags down the page. Offsets exist only above 48rem;
+				narrow gets one consistent inset. Green is structural, budgeted at one band per
+				ordinary page plus the footer, two plus the footer on a project page.
+			</p>
+			<div class="offset-demo">
+				<p class="label at-edge">at-edge &middot; flush to the inset</p>
+				<p class="label at-step">at-step &middot; one offset step</p>
+				<p class="label at-deep">at-deep &middot; pushed well right</p>
+			</div>
+
+			<h2>Green band</h2>
+			<div class="band band--green bleed">
+				<div class="band-inner at-step">
+					<p class="label">Constraint 1</p>
+					<p>
+						Green with cream type at 7.52:1. The accent is absent here on purpose: it
+						measures 1.34:1 against the green, which is invisible. Green bands take cream
+						or muted for type and nothing else.
+					</p>
+					<p class="dim small">Muted carries dates and bylines at 4.85:1 on green.</p>
+				</div>
 			</div>
 
 			<h2>Measured ratios</h2>
@@ -165,7 +180,15 @@ const ratios = [
 			</table>
 
 			<h2>Plot surface</h2>
-			<figure>
+			<p>
+				Figures never take an offset. Every figure on a page sits at one fixed left
+				inset while the prose bands zigzag around it, so the figure numbers align down
+				the page and the charts become the stable spine the moving text reads against.
+				A figure inside a prose band cancels that band's offset to get back to the
+				gutter, and it outgrows the text measure so the chart is the widest element on
+				the page.
+			</p>
+			<figure class="figure">
 				<div class="plot">
 					<svg
 						viewBox="0 0 420 240"
@@ -238,6 +261,19 @@ const ratios = [
 				width: 100%;
 				max-width: 68rem;
 				padding: var(--space-xl) var(--space-m);
+			}
+			/* The specimen page keeps a constrained main so the reference reads as a
+			   document. A band inside it escapes that constraint to show what a real
+			   full-bleed band does, without needing a second main element. */
+			.bleed {
+				margin-inline: calc(-1 * var(--space-m));
+				padding-block: var(--space-l);
+			}
+			.offset-demo p {
+				margin: 0 0 var(--space-2xs) 0;
+				padding-block: var(--space-3xs);
+				border-left: var(--rule) solid var(--accent);
+				padding-left: var(--space-2xs);
 			}
 			.lede {
 				max-width: 60ch;

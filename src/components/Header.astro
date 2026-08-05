@@ -8,6 +8,7 @@ import HeaderLink from './HeaderLink.astro';
 		<h2><a href="/">{SITE_TITLE}</a></h2>
 		<div class="internal-links">
 			<HeaderLink href="/">Home</HeaderLink>
+			<HeaderLink href="/projects">Projects</HeaderLink>
 			<HeaderLink href="/blog">Blog</HeaderLink>
 			<HeaderLink href="/about">About</HeaderLink>
 		</div>
@@ -25,14 +26,17 @@ import HeaderLink from './HeaderLink.astro';
 	</nav>
 </header>
 <style>
+	/* Full-width bar, but its contents align to the same inset every band below
+	   uses, so the header shares the page's left edge instead of spreading to the
+	   viewport corners. */
 	header {
 		margin: 0;
-		padding: 0 var(--space-s);
 		background: var(--cream);
 		border-bottom: var(--rule) solid var(--green);
 	}
 	h2 {
 		margin: 0;
+		margin-inline-end: auto;
 		font-family: var(--font-display);
 		font-size: var(--type-body);
 		font-variation-settings: 'opsz' 18, 'SOFT' 0, 'WONK' 0;
@@ -45,7 +49,13 @@ import HeaderLink from './HeaderLink.astro';
 	nav {
 		display: flex;
 		align-items: center;
-		justify-content: space-between;
+		gap: var(--space-m);
+		padding-inline: var(--space-m);
+	}
+	@media (min-width: 48rem) {
+		nav {
+			padding-inline: var(--space-l);
+		}
 	}
 	nav a {
 		padding: var(--space-s) var(--space-2xs);

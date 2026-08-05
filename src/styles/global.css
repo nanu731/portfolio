@@ -90,11 +90,137 @@ body {
 	overflow-wrap: break-word;
 }
 
+/* ============================================================================
+   Bands. The page is a stack of full-width bands, cream and green alternating as
+   structure, with content at a different horizontal offset in each so the eye
+   zigzags down the page. Nothing is centred.
+   ========================================================================= */
+
 main {
-	width: 720px;
-	max-width: calc(100% - var(--space-m));
-	margin: auto;
-	padding: var(--space-xl) var(--space-s);
+	width: 100%;
+}
+
+/* width: 100%, never 100vw. 100vw ignores the scrollbar and causes horizontal
+   scroll on every desktop browser that reserves gutter space for one. */
+.band {
+	width: 100%;
+	padding-block: var(--space-xl);
+}
+
+/* Green is structural, never decorative. Budget: one per ordinary page plus the
+   footer, two plus the footer on a project page. More than that and cream stops
+   being the dominant surface. */
+.band--green {
+	background: var(--green);
+	color: var(--cream);
+}
+
+.band--green a {
+	color: var(--cream);
+}
+
+.band--green a:hover {
+	background: var(--cream);
+	color: var(--green);
+}
+
+/* Carries the page inset and the measure. Mobile-first: no offsets at this
+   width, one consistent inset.
+
+   --offset must be declared here, before the offset classes below. Both are
+   single-class selectors, so a later `.band-inner` rule would win the tie and
+   silently flatten every offset to zero. */
+.band-inner {
+	--offset: 0px;
+	/* 44rem measures ~63 characters at the 20px body size in Source Serif 4,
+	   measured in the browser rather than estimated. 38rem looked right on paper
+	   and came out at 55, under the 60-75 target. */
+	max-width: 44rem;
+	padding-inline: var(--space-s);
+}
+
+/* Below 24rem the inset costs more than it earns: every pixel spent on the gutter
+   comes straight off the measure, which is already tight there. The body also
+   steps down to 18px, still well above the 16px floor, which buys back several
+   characters per line on a 320px screen. */
+@media (max-width: 23.999rem) {
+	body {
+		font-size: 1.125rem;
+	}
+}
+
+@media (min-width: 24rem) {
+	.band-inner {
+		padding-inline: var(--space-m);
+	}
+}
+
+.band-inner--wide {
+	max-width: 68rem;
+}
+
+/* Offsets come from the spacing scale so the rhythm is systematic rather than
+   eyeballed. They exist only above 48rem; narrow gets a single inset. */
+@media (min-width: 48rem) {
+	.band-inner {
+		padding-inline: var(--space-l);
+	}
+	.at-edge {
+		--offset: 0px;
+		margin-inline-start: var(--offset);
+	}
+	.at-step {
+		--offset: var(--space-xl);
+		margin-inline-start: var(--offset);
+	}
+	.at-deep {
+		--offset: var(--space-3xl);
+		margin-inline-start: var(--offset);
+	}
+}
+
+/* ---------------------------------------------------------------------------
+   Figure gutter. LOAD-BEARING: figures never take an offset. Every figure sits
+   at this one inset while the prose bands zigzag around it, so the FIG numbers
+   align down the page and the charts become the stable spine the moving text
+   reads against. Shifting a figure destroys that alignment silently.
+
+   Prose bands declare their own offset as --offset. A figure inside one cancels
+   exactly that amount, so it returns to the gutter no matter which offset the
+   surrounding prose is using.
+   ------------------------------------------------------------------------ */
+/* A prose band is wide, and the measure is held on the text elements instead of
+   the wrapper. That is what lets a figure outgrow the text column and become the
+   widest thing on the page, which is the point: the charts are the visual
+   identity, so the layout is built around them rather than beside them. */
+.prose-band .band-inner {
+	max-width: 68rem;
+}
+
+.prose-band :is(p, h2, h3, h4, h5, h6, ul, ol, blockquote) {
+	max-width: 44rem;
+}
+
+.figure {
+	margin: var(--space-l) 0;
+}
+
+@media (min-width: 48rem) {
+	.figure {
+		margin-inline-start: calc(-1 * var(--offset));
+		width: calc(100% + var(--offset));
+	}
+}
+
+.figure figcaption {
+	margin-top: var(--space-s);
+	max-width: 46rem;
+	font-size: var(--type-small);
+}
+
+.figure figcaption .label {
+	display: block;
+	margin-bottom: var(--space-3xs);
 }
 
 /* ============================================================================
@@ -220,8 +346,15 @@ a:focus-visible {
    surface, and tabular figures need to be opted into explicitly.
    ========================================================================= */
 
+/* display: block turns the table itself into the scroll container, so a wide
+   table scrolls inside its own box instead of pushing the page sideways. Done
+   this way rather than with a wrapper element because tables also arrive from
+   markdown, where there is nowhere to put a wrapper without adding a plugin. */
 table {
+	display: block;
 	width: 100%;
+	max-width: 100%;
+	overflow-x: auto;
 	border-collapse: collapse;
 	margin-bottom: var(--space-l);
 	font-size: var(--type-small);
@@ -279,23 +412,9 @@ th.n {
    Blocks and marks
    ========================================================================= */
 
-/* Full-bleed reversed block. Cream or muted type only, never accent. */
-.reverse {
-	background: var(--green);
-	color: var(--cream);
-	padding: var(--space-l) var(--space-m);
-}
-
-.reverse a {
-	color: var(--cream);
-}
-
-.reverse a:hover {
-	background: var(--cream);
-	color: var(--green);
-}
-
-.reverse .dim {
+/* Secondary type on a green ground. Never the accent, which measures 1.34:1
+   against the green. */
+.dim {
 	color: var(--muted);
 }
 
@@ -362,12 +481,6 @@ input {
 
 textarea {
 	width: 100%;
-}
-
-@media (max-width: 720px) {
-	main {
-		padding: var(--space-l) var(--space-s);
-	}
 }
 
 .sr-only {
