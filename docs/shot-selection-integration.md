@@ -6,7 +6,42 @@ translation step. Nothing here assumes you have seen the site.
 
 Written 24 August 2026 against the site at commit `9e3fd59`.
 
+## Read this first
+
+Twelve rules. Break one and the work gets rejected or, worse, quietly dismantles
+something. Everything else in this document is detail hanging off these.
+
+1. **No dependency without asking Narayan.** Charting libraries and framework
+   integrations both count. The site runs on five dependencies and no devDependencies.
+2. **The accent never sits on green.** `#9C3D1E` on `#14532D` measures 1.34:1. Green
+   blocks take `--cream` or `--muted` for type, nothing else.
+3. **Charts never separate series by two greens.** Every mid-green tested landed between
+   1.7 and 2.8:1 against `--green`, under the 3:1 needed. Shape and fill carry the
+   second channel.
+4. **Figures never take an offset.** A chart goes inside `.figure` or it loses the
+   gutter, and nothing errors when it does.
+5. **The green budget is one band per page plus the footer, two plus the footer on a
+   project page.** `Project.astro` already spends one on the question band.
+6. **Sand is a chart and table surface.** Never a layout panel, never a full-width band.
+7. **Every colour, space, and type value comes from a custom property** in
+   `src/styles/global.css`. No hex literals, no pixel literals in new CSS.
+8. **Never invent copy, numbers, or results.** Leave a `TODO_` marker. Every claim on
+   this site comes from Narayan.
+9. **The build is static.** No server, no API routes, no runtime environment variables.
+   Everything is build-time or browser.
+10. **Offsets exist only above 48rem.** Design every component to work at one inset with
+    no offset at all, because that is what a phone gets.
+11. **Plain CSS.** No Tailwind, no UI kit, no CSS-in-JS, no preprocessor.
+12. **The banned list is real:** gradients as backgrounds, glassmorphism, rounded
+    three-column icon cards, emoji as icons, centred hero with two buttons, Inter or
+    Poppins or Montserrat, drop shadows, fade-in-on-scroll.
+
+Prose follows the writing rules in `CLAUDE.md`: no em dashes, active voice, no adverbs,
+no throat-clearing openers.
+
 ## Contents
+
+**Decisions and rationale**
 
 1. [Static assets](#1-static-assets)
 2. [Data loading at 3 MB](#2-data-loading-at-3-mb)
@@ -20,6 +55,14 @@ Written 24 August 2026 against the site at commit `9e3fd59`.
 10. [One project page or a section](#10-one-project-page-or-a-section)
 11. [What to emit from the analysis repo](#11-what-to-emit-from-the-analysis-repo)
 12. [Decisions Narayan has to make](#12-decisions-narayan-has-to-make)
+
+**Raw reference**
+
+13. [Verbatim file contents](#13-verbatim-file-contents)
+14. [The full src/ tree](#14-the-full-src-tree)
+15. [Existing patterns, verbatim](#15-existing-patterns-verbatim)
+16. [Responsive approach](#16-responsive-approach)
+17. [Gotchas](#17-gotchas)
 
 ---
 
@@ -984,3 +1027,714 @@ Nothing below should ship without him saying yes.
 
 Every word of prose on the site comes from him. Leave `TODO_` markers rather than
 plausible copy.
+
+---
+
+## 13. Verbatim file contents
+
+Four files, complete. Nothing summarised.
+
+### `astro.config.mjs`
+
+```js
+// @ts-check
+
+import mdx from '@astrojs/mdx';
+import sitemap from '@astrojs/sitemap';
+import { defineConfig, fontProviders } from 'astro/config';
+
+// https://astro.build/config
+export default defineConfig({
+	// Set ahead of registration. The domain is not bought yet, so canonical URLs,
+	// the sitemap, RSS, and link previews only resolve once it exists and points here.
+	site: 'https://narayanlekhi.com',
+	integrations: [
+		mdx(),
+		// /styleguide is an internal reference page. Keep it out of the sitemap so
+		// it stays unindexed and unlinked.
+		sitemap({ filter: (page) => !page.includes('/styleguide') }),
+	],
+	fonts: [
+		// Fraunces is self-hosted rather than fetched from the google provider on
+		// purpose. Astro puts `variationSettings` on the family, not the element, so
+		// config alone cannot vary WONK between an h1 and an h3. Loading the real
+		// variable file with a weight range instead lets global.css drive the axes
+		// per role with font-variation-settings. Verified to carry all four axes:
+		// opsz, wght, SOFT, WONK.
+		{
+			provider: fontProviders.local(),
+			name: 'Fraunces',
+			cssVariable: '--font-fraunces',
+			fallbacks: ['Georgia', 'serif'],
+			options: {
+				variants: [
+					{
+						src: ['./src/assets/fonts/fraunces-variable.woff2'],
+						weight: '100 900',
+						style: 'normal',
+						display: 'swap',
+					},
+				],
+			},
+		},
+		// These two have no custom axes, so the google provider is enough. It
+		// downloads at build time and serves from our own origin, so there is no
+		// runtime request to Google.
+		{
+			provider: fontProviders.google(),
+			name: 'Source Serif 4',
+			cssVariable: '--font-serif',
+			fallbacks: ['Georgia', 'serif'],
+			weights: [400],
+			styles: ['normal', 'italic'],
+		},
+		{
+			provider: fontProviders.google(),
+			name: 'IBM Plex Mono',
+			cssVariable: '--font-mono',
+			fallbacks: ['ui-monospace', 'monospace'],
+			weights: [400, 500, 600],
+			styles: ['normal'],
+		},
+	],
+});
+```
+
+Note the absence of `output`, `adapter`, `trailingSlash`, `build`, `prefetch`, and
+`vite`. Every one of those sits at its Astro 7 default.
+
+### `package.json`
+
+```json
+{
+  "name": "portfolio-site",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^7.0.5",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.3",
+    "astro": "^7.1.5",
+    "sharp": "^0.35.0"
+  }
+}
+```
+
+**There is no `devDependencies` field.** The key does not exist in the file. No test
+runner, no linter, no formatter, no TypeScript package of its own (Astro brings its
+own). Resolved versions from `package-lock.json`:
+
+| Package | Declared | Installed |
+|---|---|---|
+| `astro` | `^7.1.5` | 7.1.5 |
+| `@astrojs/mdx` | `^7.0.5` | 7.0.5 |
+| `@astrojs/rss` | `^4.0.19` | 4.0.19 |
+| `@astrojs/sitemap` | `^3.7.3` | 3.7.3 |
+| `sharp` | `^0.35.0` | 0.35.3 |
+| `vite` (transitive) | | 8.1.5 |
+
+### `src/content.config.ts`
+
+```ts
+import { defineCollection } from 'astro:content';
+import { glob } from 'astro/loaders';
+import { z } from 'astro/zod';
+
+const blog = defineCollection({
+	// Load Markdown and MDX files in the `src/content/blog/` directory.
+	loader: glob({ base: './src/content/blog', pattern: '**/*.{md,mdx}' }),
+	// Type-check frontmatter using a schema
+	schema: ({ image }) =>
+		z.object({
+			title: z.string(),
+			description: z.string(),
+			// Transform string to Date object
+			pubDate: z.coerce.date(),
+			updatedDate: z.coerce.date().optional(),
+			heroImage: z.optional(image()),
+		}),
+});
+
+// Projects are finished analyses, not a stream of dated entries. They carry fields
+// blog posts have no use for, which is why this is a separate collection: merging
+// them would make every field optional and enforce nothing.
+const projects = defineCollection({
+	loader: glob({ base: './src/content/projects', pattern: '**/*.{md,mdx}' }),
+	schema: z.object({
+		// Short name, used for listings, the browser title, and Open Graph. The page's
+		// own visible headline is the question, not this.
+		title: z.string(),
+		description: z.string(),
+		// The write-up opens with this, which is why it is a field and not a heading.
+		question: z.string(),
+		dataset: z.string(),
+		method: z.string(),
+		seasons: z.string(),
+		repo: z.string().url().optional(),
+		// Keeps an entry out of the production build while its numbers are still
+		// unverified, so a placeholder can never ship as a claim.
+		draft: z.boolean().default(false),
+	}),
+});
+
+export const collections = { blog, projects };
+```
+
+`z` comes from `astro/zod`, not from a `zod` dependency. Import it the same way.
+
+### `tsconfig.json`
+
+```json
+{
+  "extends": "astro/tsconfigs/strict",
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist"],
+  "compilerOptions": {
+    "strictNullChecks": true
+  }
+}
+```
+
+Strict mode. `.astro/types.d.ts` is generated, so a fresh clone has no collection types
+until something runs `astro sync`, `astro dev`, or `astro build`.
+
+---
+
+## 14. The full `src/` tree
+
+```
+src/
+├── assets/
+│   └── fonts/
+│       ├── fraunces-variable.woff2   Fraunces variable file, all four axes (opsz, wght, SOFT, WONK)
+│       └── OFL.txt                   SIL Open Font License for Fraunces
+├── components/
+│   ├── BaseHead.astro                <head> contents: meta, canonical, OG, favicons, font preloads
+│   ├── Footer.astro                  The green band that closes every page
+│   ├── FormattedDate.astro           Wraps a Date in <time> with a readable label
+│   ├── Header.astro                  Site name, four nav links, GitHub icon, bottom rule
+│   └── HeaderLink.astro              One nav link, marks itself active from the URL
+├── consts.ts                         SITE_TITLE, SITE_DESCRIPTION, and the isPublished draft filter
+├── content.config.ts                 The blog and projects collections and their schemas
+├── content/
+│   ├── blog/.gitkeep                 Empty. No posts at launch
+│   └── projects/.gitkeep             Empty. No projects at launch
+├── layouts/
+│   ├── BlogPost.astro                Date and title band, then one prose band at .at-step
+│   └── Project.astro                 Green question band, metadata band, then one prose band
+├── pages/
+│   ├── about.astro                   /about. Hand-composed bands, not a layout
+│   ├── index.astro                   / . Display headline, green subhead band, projects list when non-empty
+│   ├── styleguide.astro              /styleguide. Live colour and type specimen, unlinked, unindexed
+│   ├── rss.xml.js                    /rss.xml. Blog only, since projects are not chronological
+│   ├── blog/
+│   │   ├── index.astro               /blog. Sorted list, or a deliberate empty state
+│   │   └── [...slug].astro           /blog/<id>/ from the blog collection
+│   └── projects/
+│       ├── index.astro               /projects. Question-led rows, or a deliberate empty state
+│       └── [...slug].astro           /projects/<id>/ from the projects collection
+└── styles/
+    └── global.css                    Every token. Bands, offsets, figure gutter, type, tables, marks
+```
+
+Twenty-one files. That is the whole site.
+
+### Outside `src/`
+
+```
+public/                    Copied into dist/ byte for byte. favicon.ico, favicon.svg, og.png, plots/
+docs/status.md             Plain-language handoff snapshot, rewritten each session
+CLAUDE.md                  Design system, writing rules, working conventions. Governs
+AGENTS.md                  Symlink to CLAUDE.md
+.astro/                    Generated. Types, collection schemas, downloaded font files. Gitignored
+dist/                      Build output. Gitignored
+```
+
+---
+
+## 15. Existing patterns, verbatim
+
+Pattern-match these rather than inventing a house style.
+
+### The simplest component: a typed prop
+
+`src/components/FormattedDate.astro`, complete:
+
+```astro
+---
+interface Props {
+	date: Date;
+}
+
+const { date } = Astro.props;
+---
+
+<time datetime={date.toISOString()}>
+	{
+		date.toLocaleDateString('en-us', {
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric',
+		})
+	}
+</time>
+```
+
+Frontmatter runs at build time between the `---` fences. `interface Props` is the
+convention for typing, and the file exports nothing.
+
+### A component with scoped styles: `src/components/Footer.astro`, complete
+
+```astro
+---
+import { SITE_TITLE } from '../consts';
+
+const today = new Date();
+---
+
+<!-- The one green band guaranteed on every page. It terminates the page, so the
+     colour change is the division and no top rule is needed. -->
+<footer class="band band--green">
+	<div class="band-inner band-inner--wide at-step">
+		<p class="label">&copy; {today.getFullYear()} {SITE_TITLE}</p>
+	</div>
+</footer>
+<style>
+	footer {
+		margin-top: var(--space-2xl);
+		padding-block: var(--space-xl);
+	}
+	p {
+		margin: 0;
+	}
+</style>
+```
+
+Three things to copy. The `<style>` block is scoped to this component, so `p { margin: 0 }`
+touches nothing else. Every value comes from a custom property. The comment says why
+the element looks the way it does, not what the code does.
+
+### Extending an HTML element's props: `src/components/HeaderLink.astro`
+
+```astro
+---
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = HTMLAttributes<'a'>;
+
+const { href, class: className, ...props } = Astro.props;
+const pathname = Astro.url.pathname.replace(import.meta.env.BASE_URL, '');
+const subpath = pathname.match(/[^\/]+/g);
+const isActive = href === pathname || href === '/' + (subpath?.[0] || '');
+---
+
+<a href={href} class:list={[className, { active: isActive }]} {...props}>
+	<slot />
+</a>
+```
+
+`HTMLAttributes<'a'>` gives every native anchor attribute. `class:list` merges classes
+and toggles conditional ones. `<slot />` takes the children.
+
+### How a layout receives and uses props
+
+`src/layouts/Project.astro`. The props are the collection entry's `data`, typed off the
+schema, so adding a field to `content.config.ts` flows through to here:
+
+```astro
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+
+type Props = CollectionEntry<'projects'>['data'];
+
+const { title, description, question, dataset, method, seasons, repo, draft } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={`${title} — Narayan Lekhi`} description={description} />
+		{draft && <meta name="robots" content="noindex, nofollow" />}
+	</head>
+	<body>
+		<Header />
+		<main>
+			<!-- The question is the h1. The write-up opens with the question rather than
+			     with context-setting, so repeating the short title here would be a
+			     redundant second headline. -->
+			<div class="band band--green question-band">
+				<div class="band-inner at-edge">
+					<h1>{question}</h1>
+				</div>
+			</div>
+
+			<div class="band meta-band">
+				<div class="band-inner band-inner--wide at-edge">
+					<dl class="meta">
+						<div>
+							<dt class="label">Dataset</dt>
+							<dd class="numeric">{dataset}</dd>
+						</div>
+						<div>
+							<dt class="label">Code</dt>
+							<dd class="numeric">
+								{repo ? <a href={repo}>Repository</a> : 'TODO_REPO_URL'}
+							</dd>
+						</div>
+					</dl>
+				</div>
+			</div>
+
+			<div class="band prose-band">
+				<div class="band-inner at-step">
+					<slot />
+				</div>
+			</div>
+		</main>
+		<Footer />
+	</body>
+</html>
+<style>
+	.question-band h1 {
+		margin-bottom: 0;
+		color: var(--cream);
+	}
+	.meta {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: var(--space-s);
+		margin: 0;
+	}
+	@media (min-width: 30rem) {
+		.meta { grid-template-columns: repeat(2, 1fr); gap: var(--space-m); }
+	}
+	@media (min-width: 48rem) {
+		.meta { grid-template-columns: repeat(4, 1fr); }
+	}
+</style>
+```
+
+Abbreviated in the metadata list only. Everything else is the file.
+
+Two conventions worth naming. A missing value renders `TODO_REPO_URL` instead of
+disappearing, because a gap you can find beats plausible filler. And the layout owns the
+whole document, `<!doctype>` down, rather than nesting inside a parent layout.
+
+### How a page pulls from a content collection
+
+`src/pages/projects/index.astro`, frontmatter and the list:
+
+```astro
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+import { isPublished, SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+
+const projects = await getCollection('projects', isPublished);
+---
+
+<div class="band list-band">
+	<div class="band-inner band-inner--wide at-edge">
+		{
+			projects.length === 0 ? (
+				/* Deliberate empty state. No "coming soon" cards, no dummy entries, and no
+				   empty list container sitting under a heading. */
+				<p class="label">Nothing here yet.</p>
+			) : (
+				<ul class="rows">
+					{projects.map((project) => (
+						<li>
+							<a href={`/projects/${project.id}/`}>
+								<span class="row-question">{project.data.question}</span>
+								<span class="row-meta label">
+									{project.data.title}
+									{project.data.draft && ' · draft'}
+								</span>
+							</a>
+						</li>
+					))}
+				</ul>
+			)
+		}
+	</div>
+</div>
+```
+
+`getCollection` takes a filter as its second argument. `isPublished` lives in
+`src/consts.ts` so every listing and the route that builds the pages agree:
+
+```ts
+export const isPublished = ({ data }: { data: { draft?: boolean } }) =>
+	import.meta.env.PROD ? !data.draft : true;
+```
+
+### How a dynamic route builds its pages
+
+`src/pages/projects/[...slug].astro`, complete:
+
+```astro
+---
+import { type CollectionEntry, getCollection, render } from 'astro:content';
+import Project from '../../layouts/Project.astro';
+import { isPublished } from '../../consts';
+
+export async function getStaticPaths() {
+	const projects = await getCollection('projects', isPublished);
+	return projects.map((project) => ({
+		params: { slug: project.id },
+		props: project,
+	}));
+}
+type Props = CollectionEntry<'projects'>;
+
+const project = Astro.props;
+const { Content } = await render(project);
+---
+
+<Project {...project.data}>
+	<Content />
+</Project>
+```
+
+`render()` returns the compiled body as `Content`. The entry goes through as props, and
+the layout gets spread `data`. Copy this shape for any new dynamic route.
+
+### Client-side script
+
+The only one on the site, from `styleguide.astro`:
+
+```astro
+<script>
+	// Read swatch hexes from the computed tokens so this page can never
+	// disagree with global.css.
+	const root = getComputedStyle(document.documentElement);
+	document.querySelectorAll<HTMLElement>('[data-token]').forEach((el) => {
+		const name = el.dataset.token;
+		if (name) el.textContent = root.getPropertyValue(name).trim().toUpperCase();
+	});
+</script>
+```
+
+Astro bundles and type-checks this by default. TypeScript works with no setup. Add
+`is:inline` to opt out of processing, which you should not need.
+
+---
+
+## 16. Responsive approach
+
+### Every breakpoint in the repo
+
+| Query | px at 16px root | What changes | Where |
+|---|---|---|---|
+| `max-width: 23.999rem` | up to 383.98 | body font drops to 18px | `global.css` |
+| `min-width: 24rem` | 384 | `.band-inner` padding goes 16px to 24px | `global.css` |
+| `min-width: 30rem` | 480 | project metadata grid goes 1 column to 2 | `Project.astro` |
+| `min-width: 48rem` | 768 | `.band-inner` padding to 40px; **offsets activate**; **figure gutter activates**; header padding to 40px; metadata grid to 4 columns | `global.css`, `Header.astro`, `Project.astro` |
+| `max-width: 720px` | up to 720 | header GitHub icon hides | `Header.astro` |
+
+Mobile first. Every rule except the two `max-width` queries adds at a wider viewport.
+
+**48rem is the breakpoint that matters.** Below it there are no offsets, `.at-edge`,
+`.at-step`, and `.at-deep` all resolve to zero, and `.figure` cancels nothing because
+`--offset` is already `0px`. The zigzag is a wide-screen behaviour. The layout survives
+narrow screens by having one inset and one column, which is the whole reason it was
+chosen over a sidebar.
+
+The `max-width: 720px` query is the only px value in the repo and it does not line up
+with 48rem (768px). Between 720px and 768px the GitHub icon returns while offsets are
+still off. Harmless, and worth knowing before you assume 768 is the only line.
+
+### Widths
+
+| Token | Value | Used for |
+|---|---|---|
+| `.band-inner` | `max-width: 44rem` (704px) | default measure, about 63 characters |
+| `.band-inner--wide` | `max-width: 68rem` (1088px) | listings, metadata rows, figures |
+| `.prose-band .band-inner` | `max-width: 68rem` | wide wrapper so figures can outgrow the text |
+| `.prose-band p, h2, ul` | `max-width: 44rem` | the measure, held on text elements |
+
+Figures escape the 44rem measure because the wrapper is 68rem. That is deliberate: the
+chart should be the widest element on the page.
+
+### The court at 375px
+
+Arithmetic, since this decides the design.
+
+At a 375px viewport the `max-width: 23.999rem` query applies (383.98px), so body type is
+18px and `.band-inner` padding stays at `--space-s`, 16px per side.
+
+```
+viewport                        375px
+minus band-inner padding (2x16)  343px   content box
+minus .plot padding      (2x24)  295px   the SVG
+```
+
+With `viewBox="-250 -47.5 500 470"` the court renders 295 x 277px. Scale factor is
+`295 / 500 = 0.59` px per user unit.
+
+**It scales. It does not scroll and it does not rotate.**
+
+- A half court is 500 x 470 units, near square at 1.06:1. It fits a phone with no
+  drama. A **full** court would be 1.88:1 landscape and would be unreadable here, which
+  is one more reason to emit half-court geometry.
+- Rotating disorients. Basketball readers know this shape in one orientation.
+- Horizontal scroll is worse. Half the court would sit offscreen, and the zones only
+  mean anything relative to each other. Tables in this site scroll inside their own box;
+  a chart whose meaning depends on seeing all of it must not.
+
+### What degrades, and what does not
+
+**Zone fills and the hatch survive.** They are area encodings, and area scales.
+
+**Zone labels do not survive.** A 10-unit label renders at 5.9px. To clear 11px you need
+a font-size of about 19 user units, and fourteen labels at that size collide inside a
+295px court.
+
+So the plan below 48rem:
+
+1. Drop all zone labels from the chart. Keep the fills, the hatch, and the court lines.
+2. The zone table beneath the chart carries every number. It already exists for the
+   accessibility fallback, so this costs nothing new.
+3. Tapping a zone highlights its row in that table and scrolls it into view. That gives
+   the reader the value without cramming type into the shape.
+4. Above 48rem, bring the haloed labels back.
+
+**Touch targets clear the 44px minimum.** The restricted area is the smallest zone at a
+40-unit radius, so 80 units across, which renders at 47px. Everything else is bigger.
+Verify this if your zone geometry differs.
+
+**One optional buy-back.** Dropping `.plot` padding to `--space-s` below 24rem returns
+16px to the chart, a 5% gain. Take it if the labels are close, skip it otherwise.
+
+### Legend and picker at 375px
+
+The legend is 7 swatches plus 2 texture keys. Wrap it to two rows and set the swatch
+labels in `.label` at 12px mono. The picker is an input at full width with results
+stacked underneath, which is what `.rows` already does everywhere else on the site.
+
+---
+
+## 17. Gotchas
+
+Things that will surprise you, roughly in order of how much time they cost.
+
+### Layout
+
+**`.figure` is load-bearing and fails silently.** The gutter works because `.figure`
+cancels its band's `--offset` with a negative margin and grows by the same amount. Put a
+chart in a plain `<div>` and it inherits the band's offset, so it sits 64px or 144px off
+the line every other figure holds. Nothing errors. Nobody notices for a week.
+
+**`--offset` must stay declared on `.band-inner` above the offset classes.** Both are
+single-class selectors, so they have equal specificity and source order breaks the tie.
+A `.band-inner` rule written later in the file resets every offset to zero and flattens
+the whole layout. The comment in `global.css` says so; heed it.
+
+**Use `width: 100%`, never `100vw`.** `100vw` ignores the scrollbar and causes
+horizontal scroll on every desktop browser that reserves gutter space for one.
+
+**The green budget is two per project page, and `Project.astro` already spent one.** The
+footer is green on every page and does not count against the page budget. So a project
+page has exactly one green band to give.
+
+**Sand is never a band.** It is a surface inside `.plot` and inside zebra rows. A
+full-width sand band is not in the system.
+
+### Colour
+
+**Accent on green measures 1.34:1.** It is invisible. Green blocks take `--cream` or
+`--muted` for type, and nothing else. This one is easy to break, because `a { color:
+var(--accent) }` is the global rule, and `.band--green a` overrides it. Any new component
+placed on green needs the same override.
+
+**Never separate chart series by two greens.** Every mid-green tested landed at 1.7 to
+2.8:1 against `--green`. Shape and fill carry the second channel.
+
+### SVG
+
+**`fill` and `stroke` resolve `var()`. `font-family` does not.** Set the face through a
+CSS class instead, which is what `styleguide.astro` does with `.axis-labels`.
+
+**`font-size` stays an attribute, not a token.** Inside a scaled `viewBox` it is geometry
+in user units, like `r` and `stroke-width`. Setting it in px from a CSS token gives you
+type that does not scale with the chart.
+
+**An SVG in an `<img>` tag cannot read page CSS.** No custom properties, no inherited
+fonts. Bake hexes in at export time and convert text to paths. Inline SVG has none of
+these limits, which is why the per-player chart is inline and the R exports are not.
+
+**`.plot svg { display: block; width: 100%; height: auto }` is not global.** It lives in
+the scoped `<style>` of `styleguide.astro`. Without it your SVG gets an intrinsic size
+and a mysterious few pixels of baseline gap under it. Declare it or promote it.
+
+### Astro
+
+**Scoped `<style>` does not reach slotted content.** A layout cannot style the markdown
+it renders through `<slot />`, which is why the prose rules live in `global.css` as
+`.prose-band :is(p, h2, h3, ...)`. Reaching in needs `:global()`, and the house style
+prefers a global rule with a comment.
+
+**`.astro/` is generated and gitignored.** Collection types, the collection schema JSON,
+and the downloaded Google font files all live there. Change `content.config.ts` and the
+types stay stale until `astro sync`, `astro dev`, or `astro build` regenerates them. On a
+fresh clone, TypeScript reports missing collection types until something runs. If a
+schema edit looks ignored, the cache is the first place to look, and deleting `.astro/`
+is safe.
+
+**`z` imports from `astro/zod`.** There is no `zod` dependency to install.
+
+**Every dynamic route needs `getStaticPaths`.** The build is static, so a path that
+`getStaticPaths` does not return does not exist.
+
+**Draft filtering has to be applied at every call site.** `isPublished` is shared for
+that reason: a listing that forgets it links to a page the build never made.
+
+### Deployment
+
+**`site` points at a domain nobody owns.** Canonical URLs, the sitemap, and RSS all
+resolve to a dead host until registration. Never build a data URL from `Astro.site`. Use
+root-relative paths, which work on localhost, on the Netlify preview URL, and on the real
+domain.
+
+**No `netlify.toml` exists.** Build settings live in the Netlify dashboard, which is not
+in this repo. Adding the file is a repo-root change and needs Narayan's approval.
+
+### Content
+
+**Never invent copy, numbers, or results.** Leave a marker like `TODO_ABOUT_COPY` so the
+gap is impossible to miss. The site's rule is that an empty state you can find beats
+plausible text you have to hunt for.
+
+**Empty states are deliberate.** No "coming soon" cards, no dummy entries, no empty list
+container under a heading. Both indexes render one `.label` line and nothing else.
+
+**Prose runs through the writing rules in `CLAUDE.md`.** No em dashes, active voice, no
+adverbs, no throat-clearing openers, no "not X, it's Y" contrasts. Project write-ups open
+with the question, report negative results as findings, and name the methodological
+problems.
+
+### Tables
+
+**`table` is `display: block` so it can scroll inside its own box.** That is what keeps a
+wide table from pushing the page sideways, and it is done on the element rather than with
+a wrapper because tables also arrive from markdown, where there is nowhere to put a
+wrapper without adding a plugin. One consequence to check in the browser: a block-level
+table sizes its columns to content rather than stretching to `width: 100%`, so zebra rows
+on a narrow table may not span the full band. Look at it before assuming it is fine.
+
+**Numbers need `.n` or `.numeric`.** Proportional digits break column alignment.
+`font-variant-numeric: tabular-nums` is opt-in, not inherited.
