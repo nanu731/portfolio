@@ -1,6 +1,6 @@
 # Portfolio site status
 
-Snapshot for a reader new to the site, rewritten each time. Updated 4 August 2026.
+Snapshot for a reader new to the site, rewritten each time. Updated 24 August 2026.
 
 ## Where things stand
 
@@ -22,9 +22,17 @@ Real writing is in place for the home page, About, the site description, and the
 footer. The home page is a headline, "Signal Through Noise", and one short paragraph.
 That headline belongs to the home page alone; the site carries the author's name.
 
-One project exists, on whether a quick shot near the end of a quarter is worth it to
-steal an extra possession. Its numbers are placeholders, so it is marked a draft:
-viewable while being worked on, kept out of the published site until real.
+No project is published. The earlier draft, on whether a quick shot near the end of a
+quarter is worth it to steal an extra possession, came out of the site in the last
+session because every number in it was a placeholder.
+
+An NBA shot selection study, built in a separate repository across five seasons, is the
+next thing to land. It needs three things the site has never carried: a written section
+with fixed charts, a search box over roughly fifteen hundred player seasons that draws a
+chart in the reader's browser, and three ranked tables. A reference document now
+describes the site in enough detail for whoever builds that project to hand over work
+that fits, covering how large data files should reach the page, the colour ramp the
+court zones should use, and where the three views sit in the banded layout.
 
 ## Settled recently, and why
 
@@ -45,8 +53,10 @@ takes the green band. It is the argument of the page, so it gets the emphasis.
 
 - Buying the domain. The name is chosen and the site is configured for it, but nobody
   owns it yet, so links and previews resolve only once it is registered.
-- The real numbers and writing for the possession project. Everything on that page
-  except the question is a placeholder.
+- Decisions the shot selection project is waiting on: whether its interactive parts may
+  bring in a small extra library or stay hand written, whether the write-up may use the
+  richer content format so it can lay out its own bands, and approval of the seven-step
+  colour ramp proposed for the court zones.
 - Whether the seasons a project covers should be plain text or a start and end pair.
   That decides whether the projects list can be sorted or filtered by season.
 - Both empty states read "Nothing here yet." Those are my words, so replace them if
