@@ -4,11 +4,12 @@ Reference for the session that owns the shot selection analysis repo. It describ
 the portfolio site well enough to produce output this site can drop in without a
 translation step. Nothing here assumes you have seen the site.
 
-Written 24 August 2026 against the site at commit `9e3fd59`.
+Written 24 August 2026, revised 25 August 2026, against `main`. Deliberately no
+commit hash: this line ships inside the commit it would have to name.
 
 ## Read this first
 
-Twelve rules. Break one and the work gets rejected or, worse, quietly dismantles
+Thirteen rules. Break one and the work gets rejected or, worse, quietly dismantles
 something. Everything else in this document is detail hanging off these.
 
 1. **No dependency without asking Narayan.** Charting libraries and framework
@@ -18,21 +19,24 @@ something. Everything else in this document is detail hanging off these.
 3. **Charts never separate series by two greens.** Every mid-green tested landed between
    1.7 and 2.8:1 against `--green`, under the 3:1 needed. Shape and fill carry the
    second channel.
-4. **Figures never take an offset.** A chart goes inside `.figure` or it loses the
+4. **Zone ramp positions 1 to 3 carry the hatch, positions 5 to 7 stay solid.** The
+   hatch carries good against bad for red-green colourblind readers, who cannot separate
+   the two halves of this ramp by hue. It is never dropped for looking busy.
+5. **Figures never take an offset.** A chart goes inside `.figure` or it loses the
    gutter, and nothing errors when it does.
-5. **The green budget is one band per page plus the footer, two plus the footer on a
+6. **The green budget is one band per page plus the footer, two plus the footer on a
    project page.** `Project.astro` already spends one on the question band.
-6. **Sand is a chart and table surface.** Never a layout panel, never a full-width band.
-7. **Every colour, space, and type value comes from a custom property** in
+7. **Sand is a chart and table surface.** Never a layout panel, never a full-width band.
+8. **Every colour, space, and type value comes from a custom property** in
    `src/styles/global.css`. No hex literals, no pixel literals in new CSS.
-8. **Never invent copy, numbers, or results.** Leave a `TODO_` marker. Every claim on
+9. **Never invent copy, numbers, or results.** Leave a `TODO_` marker. Every claim on
    this site comes from Narayan.
-9. **The build is static.** No server, no API routes, no runtime environment variables.
+10. **The build is static.** No server, no API routes, no runtime environment variables.
    Everything is build-time or browser.
-10. **Offsets exist only above 48rem.** Design every component to work at one inset with
+11. **Offsets exist only above 48rem.** Design every component to work at one inset with
     no offset at all, because that is what a phone gets.
-11. **Plain CSS.** No Tailwind, no UI kit, no CSS-in-JS, no preprocessor.
-12. **The banned list is real:** gradients as backgrounds, glassmorphism, rounded
+12. **Plain CSS.** No Tailwind, no UI kit, no CSS-in-JS, no preprocessor.
+13. **The banned list is real:** gradients as backgrounds, glassmorphism, rounded
     three-column icon cards, emoji as icons, centred hero with two buttons, Inter or
     Poppins or Montserrat, drop shadows, fade-in-on-scroll.
 
@@ -54,7 +58,7 @@ no throat-clearing openers.
 9. [Fitting the band system](#9-fitting-the-band-system)
 10. [One project page or a section](#10-one-project-page-or-a-section)
 11. [What to emit from the analysis repo](#11-what-to-emit-from-the-analysis-repo)
-12. [Decisions Narayan has to make](#12-decisions-narayan-has-to-make)
+12. [Decisions, and where each one landed](#12-decisions-and-where-each-one-landed)
 
 **Raw reference**
 
@@ -176,11 +180,16 @@ or the directory.
 
 Assume the analysis repo also emits a small index file (section 11 specifies it).
 
-| Page | First load | On demand |
+| Stage | Cost | When |
 |---|---|---|
-| Narrative write-up | 0 bytes of JSON. Static SVGs only. | none |
-| Explore page | `meta.json` 1.4 KB + `index.json` about 70 KB raw, near 20 KB gzipped | one season file, near 90 KB gzipped, on the first player picked from that season |
-| Explore, worst case | someone opens all five seasons across a session | 5 x 90 KB gzipped, spread across interactions, none of it on first paint |
+| Project page loads | 0 bytes of JSON. Static SVGs and the chart script only. | first paint |
+| Reader reaches the picker | `meta.json` 1.4 KB + `index.json` about 70 KB raw, near 20 KB gzipped | on scroll into view or on focus of the search box, not before |
+| Reader picks a player | one season file, near 90 KB gzipped | first player from that season only, then cached |
+| Worst case | 5 x 90 KB gzipped across a session | spread over interactions, none of it on first paint |
+
+Because the picker shares the page with the write-up, defer the index fetch until the
+picker enters the viewport or the search box takes focus. Otherwise every reader of the
+write-up pays 20 KB for a feature they may never scroll to.
 
 Compare with the bundled-into-HTML path: 3 MB of HTML before anything renders. The
 gap is the whole argument.
@@ -348,7 +357,10 @@ state, that is the moment to ask about Preact rather than fighting the DOM.
 
 **Put the selection in the URL.** `?season=2023-24&player=201939` makes a chart
 linkable, makes the back button work, and lets the narrative link to a specific player
-mid-sentence. Use `history.replaceState` while typing and `pushState` on selection.
+mid-sentence. Use `history.replaceState` while typing and `pushState` on selection. On
+load, read the query string, and if it names a player, fetch that season and draw it
+before the reader touches anything. A shared link has to reproduce what the sender saw,
+including scrolling the picker into view.
 
 **Skip the combobox.** A popup listbox drags in `aria-expanded`, `aria-activedescendant`,
 and roving focus, and it is easy to get wrong. A text input above a filtered list that
@@ -741,14 +753,12 @@ in dev and out of the production build, through the shared `isPublished` helper 
 A new page is a new `.astro` file. A new section is a directory. Three things to
 remember:
 
-- A static file beats a dynamic route for the same path, so
-  `src/pages/projects/shot-selection/explore.astro` and the collection entry
-  `shot-selection.md` coexist. The first serves `/projects/shot-selection/explore/`,
-  the second serves `/projects/shot-selection/`.
+- A static file beats a dynamic route for the same path, so a hand-written page and a
+  collection entry claiming the same URL will not collide. The static file wins.
 - The sitemap picks up new pages on its own. Only `/styleguide` is filtered out.
-- A new top-level nav item means editing `Header.astro`, which currently holds four
-  links. Adding a fifth is a design decision for Narayan, not a side effect of shipping
-  a project.
+- **The shot selection project adds no routes.** It is one collection entry serving
+  `/projects/shot-selection/`. Narayan settled this on 24 August 2026, along with no
+  fifth nav item. Four links stay four.
 
 ---
 
@@ -863,29 +873,38 @@ number and let only the caption text change to name the current player.
 | 2 | cream | `.at-edge` | metadata row: dataset, method, seasons, code (from `Project.astro`) |
 | 3 | cream | `.at-step` | opening prose, with the best and worst static SVGs as figures |
 | 4 | green | `.at-step` | the finding, one paragraph at body size. This spends the last green |
-| 5 | cream | `.at-deep` | method and its problems, including the shrinkage decision |
-| 6 | cream | `.at-edge` | three leaderboards in one grid |
-| 7 | cream | `.at-edge` | a link through to the explore page |
+| 5 | cream | `.at-edge` | **the picker and the per-player chart**, control row at the inset, figure at the gutter |
+| 6 | cream | `.at-deep` | method and its problems, including the shrinkage decision |
+| 7 | cream | `.at-edge` | three leaderboards in one grid |
 | footer | green | `.at-step` | site footer |
+
+The picker sits at band 5, directly after the finding. It comes before the method
+section on purpose: a reader who stops halfway down still meets the interactive part.
 
 ---
 
 ## 10. One project page or a section
 
-**Recommendation: one project, one entry in the collection, two routes.**
+**Settled: one project, one entry in the collection, one page.** Narayan approved this
+on 24 August 2026, revising an earlier recommendation that split the picker onto its
+own route.
 
 ```
-/projects/shot-selection/          narrative, the finding, three leaderboards
-/projects/shot-selection/explore/  the picker and the per-player chart
+/projects/shot-selection/   question, write-up, the finding, the picker, three tables
 ```
 
-### Why not one page
+There is no `/explore/` route and no fifth nav link.
 
-The picker needs `index.json`, a season file, and the chart script. The narrative needs
-none of that. Splitting on that boundary is also the performance boundary: the write-up
-page ships zero JSON and zero chart JS, so the admissions reader who wants the story
-never downloads the tool. Keeping them together taxes every reader for a feature most
-will not touch.
+### Why one page
+
+The earlier split put the picker at `/projects/shot-selection/explore/` to keep the
+write-up page light. That saving turned out to be small. The season files load only when
+a reader picks a player, whichever page the picker sits on, and the index file can wait
+until someone touches the search box. So splitting bought a few kilobytes of script and
+cost a click on the most interesting thing the site has.
+
+Depth in the URL does not bury anything. Placement does. The picker sits directly after
+the finding band, high enough that a reader who stops halfway still meets it.
 
 ### Why not a section of its own
 
@@ -894,26 +913,16 @@ invisible from `/projects`, and it loses the schema, the `question` and `dataset
 `method` and `seasons` fields, the draft mechanism, and the metadata band. You would
 rebuild all of it by hand for one project.
 
-### Why not three routes
+### Why the tables stay with the narrative
 
-The three leaderboards belong to the narrative. They are the "here are the extremes"
-evidence for the argument the write-up makes. Pulling them onto their own page separates
-a claim from the table that supports it. The picker is a different mode of use, so it
-earns the split. The tables do not.
+The three leaderboards are the "here are the extremes" evidence for the argument the
+write-up makes. Moving them elsewhere separates a claim from the table supporting it.
 
-### What this needs
+### What this still needs
 
-The write-up becomes `src/content/projects/shot-selection.mdx` and supplies its own
-bands through components, which means `Project.astro` stops wrapping `<slot />` in a
-single prose band. Both are changes to shared files, so both need Narayan's approval
-before anyone writes them. `CLAUDE.md` says to write plain `.md`, and MDX stays
-configured for exactly this kind of case, so this is the escape hatch working as
-designed rather than a violation of it.
-
-The alternative, if he would rather not touch the layout, is a hand-written
-`src/pages/projects/shot-selection.astro` composing bands directly, the way
-`about.astro` does. It costs the collection entry and the metadata band, so the project
-would not appear on `/projects` without more work. I recommend the MDX route.
+The write-up supplies its own bands, which means `Project.astro` stops wrapping
+`<slot />` in a single prose band. That change is still open. Section 9 covers the gap
+and section 12 records the options.
 
 ---
 
@@ -1009,24 +1018,47 @@ time and renders the court server-side, so the geometry has one home.
 
 ---
 
-## 12. Decisions Narayan has to make
+## 12. Decisions, and where each one landed
 
-Nothing below should ship without him saying yes.
+Narayan settled six of the seven on 24 August 2026. One stays open.
 
-1. **A framework integration, or vanilla JS.** Recommendation: vanilla, with the
-   tripwire in section 4.
-2. **The MDX write-up plus the `Project.astro` slot change.** Recommendation: do it,
-   because the alternative loses the collection entry.
-3. **The zone ramp in section 7.** Seven stops anchored on three existing tokens, plus
-   the hatch channel. He owns the palette.
-4. **`netlify.toml` for immutable data headers.** Optional. Works without it.
-5. **A fifth nav link, or reaching the project through `/projects`.**
-6. **Promoting `.plot svg { display: block; width: 100%; height: auto }` from
-   `styleguide.astro` into `global.css`.** One line, and every chart page needs it.
-7. **Free text or a structured pair for `seasons`.** Still open in `CLAUDE.md`.
+| # | Decision | Status |
+|---|---|---|
+| 1 | Framework integration, or vanilla JS | **Vanilla.** Hand-written, no new dependency. Revisit past roughly 250 lines of interactive code, or when a second widget needs shared state |
+| 2 | How a write-up supplies its own bands | **Open.** See below |
+| 3 | The seven-step zone ramp plus the hatch channel | **Approved.** The hatch is now a hard rule in `CLAUDE.md`, alongside accent-never-on-green and no-two-greens |
+| 4 | `netlify.toml` for immutable data headers | **Skip for now.** Revalidation per season per visit is acceptable |
+| 5 | A fifth nav link | **No.** Four links stay four. The picker lives on the project page |
+| 6 | Promoting the chart-sizing rule into `global.css` | **Approved and done.** `.plot svg` now sizes correctly on any page |
+| 7 | Free text or a structured pair for `seasons` | **Free text.** Revisit if the index ever needs to sort or filter by season |
 
-Every word of prose on the site comes from him. Leave `TODO_` markers rather than
-plausible copy.
+### The one still open: how a write-up supplies its own bands
+
+Markdown cannot emit bands, so a project write-up currently renders as one band at one
+offset. Section 9 covers the mechanics. Three routes:
+
+**Route A, MDX.** The write-up wraps each section in a band component naming its offset.
+Full control over which section gets which offset and where the single green band falls.
+Costs roughly a dozen lines of visible scaffolding per write-up.
+
+**Route B, hand-built page.** Total control, no new format, and the project falls out of
+the collection. Loses the schema, the metadata band, the draft mechanism, and the
+listing on `/projects`.
+
+**Route C, automatic splitting.** The layout splits plain markdown at each top-level
+heading, wraps each section in a band, and cycles the offsets. Zero scaffolding when
+writing. Gives up choosing which section gets which offset, and cannot place the green
+band without a marker of some kind.
+
+**Hybrid, C plus one marker.** Automatic rotation, with a single marker for the band
+that goes green.
+
+Every route needs `Project.astro` to stop wrapping `<slot />` in one prose band.
+
+### Standing rules that need no decision
+
+Every word of prose on the site comes from Narayan. Leave `TODO_` markers rather than
+plausible copy. Numbers stay behind `draft: true` until he verifies them.
 
 ---
 
@@ -1677,9 +1709,10 @@ type that does not scale with the chart.
 fonts. Bake hexes in at export time and convert text to paths. Inline SVG has none of
 these limits, which is why the per-player chart is inline and the R exports are not.
 
-**`.plot svg { display: block; width: 100%; height: auto }` is not global.** It lives in
-the scoped `<style>` of `styleguide.astro`. Without it your SVG gets an intrinsic size
-and a mysterious few pixels of baseline gap under it. Declare it or promote it.
+**`.plot svg { display: block; width: 100%; height: auto }` now lives in `global.css`.**
+It used to sit in the scoped `<style>` of `styleguide.astro`, where every new chart page
+had to redeclare it. Promoted on 24 August 2026. Without it an SVG takes an intrinsic
+size and picks up a few pixels of baseline gap underneath.
 
 ### Astro
 

@@ -1,6 +1,6 @@
 # Portfolio site status
 
-Snapshot for a reader new to the site, rewritten each time. Updated 24 August 2026.
+Snapshot for a reader new to the site, rewritten each time. Updated 25 August 2026.
 
 ## Where things stand
 
@@ -13,53 +13,66 @@ a rust accent. Cream carries the page, dark green the type and solid blocks, and
 deeper sand tone gives charts and tables a surface. Headings are Fraunces, reading
 text Source Serif 4, numbers Plex Mono.
 
-The layout is no longer a centred column. Each page is a stack of full-width bands,
-cream and green alternating, with text at a different distance from the left edge in
-each, so the eye zigzags down the page. Charts never move, so they line up while the
-writing shifts around them, and they are the widest thing on any page.
+Each page is a stack of full-width bands, cream and green alternating, with text at a
+different distance from the left edge in each, so the eye zigzags down the page. Charts
+never move, so they line up while the writing shifts around them, and they are the
+widest thing on any page.
+
+That zigzag works on the pages built by hand: home, About, and both index pages. It
+does not yet work on a project write-up, where the whole piece sits in one band at a
+single distance from the edge. The writing for those pages comes from a plain text
+file, and plain text has no way to say "start a new band here." How an author marks
+those breaks is the one open question on the layout. The design notes now say so
+rather than describing the zigzag as though it already happened everywhere.
 
 Real writing is in place for the home page, About, the site description, and the
-footer. The home page is a headline, "Signal Through Noise", and one short paragraph.
-That headline belongs to the home page alone; the site carries the author's name.
+footer. Nothing is published: no projects, no posts.
 
-No project is published. The earlier draft, on whether a quick shot near the end of a
-quarter is worth it to steal an extra possession, came out of the site in the last
-session because every number in it was a placeholder.
+## The next project
 
 An NBA shot selection study, built in a separate repository across five seasons, is the
 next thing to land. It needs three things the site has never carried: a written section
-with fixed charts, a search box over roughly fifteen hundred player seasons that draws a
-chart in the reader's browser, and three ranked tables. A reference document now
-describes the site in enough detail for whoever builds that project to hand over work
-that fits, covering how large data files should reach the page, the colour ramp the
-court zones should use, and where the three views sit in the banded layout.
+with fixed charts, a search box over roughly fifteen hundred player seasons that draws
+a chart in the reader's browser, and three ranked tables.
+
+All three now sit on one page rather than splitting across two. The search box goes
+directly after the finding, high enough that a reader who stops halfway still meets it.
+It is likely the most interesting thing the site will have, so putting it behind a link
+was the wrong call.
+
+A reference document describes the site for whoever builds that project, covering how
+large data files should reach the page, the colours the court zones should use, and
+where the three parts sit in the banded layout.
 
 ## Settled recently, and why
 
-The layout's asymmetry comes from vertical rhythm rather than a sidebar. The
-alternative was a permanent column of labels down the left of every page, which read
-as documentation and only worked on a wide screen. Bands work the same at every width.
+The court zones get a seven-step colour ramp running rust through sand to green, with
+league average at the middle. A zone at league average takes the colour of the panel
+behind it and disappears, so only departures carry ink. The bad half of the ramp is
+hatched. Rust against green is the one pairing red-green colourblind readers cannot
+separate, so without the hatch that ramp is unreadable for roughly one man in twelve.
+That rule now sits beside the other two colour rules rather than in a document someone
+might not read.
 
-Holding the charts still was the one thing the sidebar did better, and it works more
-strongly here: because everything else moves, the figures become the line a reader follows.
+The interactive parts stay hand-written rather than built on an extra library. One
+search box, one list, and one chart do not justify a permanent dependency. If that
+grows, the decision gets revisited rather than fought.
 
-A project's supporting facts, the data and method and seasons and a link to the code,
-sit in a row under the question rather than stacked beside the writing.
+The span of seasons a project covers stays plain text. Structuring it would let the
+projects list sort and filter, and with nothing published that buys nothing.
 
-On About, the paragraph about translation being the more important half of the work
-takes the green band. It is the argument of the page, so it gets the emphasis.
+Four links in the navigation stay four. The new project is reached through Projects,
+like everything else.
 
 ## Waiting on you
 
 - Buying the domain. The name is chosen and the site is configured for it, but nobody
   owns it yet, so links and previews resolve only once it is registered.
-- Decisions the shot selection project is waiting on: whether its interactive parts may
-  bring in a small extra library or stay hand written, whether the write-up may use the
-  richer content format so it can lay out its own bands, and approval of the seven-step
-  colour ramp proposed for the court zones.
-- Whether the seasons a project covers should be plain text or a start and end pair.
-  That decides whether the projects list can be sorted or filtered by season.
-- Both empty states read "Nothing here yet." Those are my words, so replace them if
+- Deciding how a project write-up marks its section breaks. That is what unblocks the
+  zigzag on those pages.
+- The real numbers and the writing for the shot selection project. Every claim on the
+  site comes from you.
+- Both empty states read "Nothing here yet." Those are your words, so replace them if
   the voice is wrong.
 
 ## Known gaps
@@ -67,4 +80,4 @@ takes the green band. It is the argument of the page, so it gets the emphasis.
 - Nothing is published, and finished projects are the reason the site exists.
 - On a 320px screen a line runs about 26 characters, short of the 35 that reads
   comfortably. Fixing it would mean type too small to read, so the type wins.
-- The browser tab icon is still the template's default.
+- The browser tab icon is still the template's default. The social sharing image is not.
