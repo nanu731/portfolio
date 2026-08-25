@@ -439,6 +439,16 @@ figcaption {
 	padding: var(--space-m);
 }
 
+/* Global, not per page. An inline SVG is inline by default, so it takes an
+   intrinsic size and picks up a few pixels of baseline gap underneath. Every chart
+   page needs this, and one that forgets it gets a chart at the wrong size with an
+   unexplained gap. The viewBox supplies the aspect ratio, so height stays auto. */
+.plot svg {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
 code {
 	font-family: var(--font-numeric);
 	font-size: 0.9em;
