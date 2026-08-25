@@ -74,11 +74,19 @@ with content at a different horizontal offset in each so the eye zigzags down.
 Nothing is centred. Three rules hold the system together; breaking any of them
 looks like a small change and quietly dismantles it.
 
+Not yet true everywhere. Hand-composed pages zigzag; write-ups generated from
+content files render as a single band at one offset, because markdown has no way
+to start a new band. The project layout wraps the whole body in one prose band.
+Delete this paragraph once that changes.
+
 - **The figure gutter.** Figures never take an offset. Every figure sits at one
   fixed left inset while prose bands shift around it, so figure numbers align down
   the page and the charts are the spine the moving text reads against. A figure
   inside a prose band cancels that band's offset to return to the gutter, and
-  outgrows the text measure so the chart is the widest element on the page.
+  outgrows the text measure so the chart is the widest element on the page. The
+  cancelling works today; the prose moving around it waits on the paragraph above,
+  so on a write-up page the gutter currently holds figures still against text that
+  never shifts.
 - **The green budget.** One green band per ordinary page, plus the footer. Two plus
   the footer on a project page. More and cream stops being the dominant surface.
 - **Offsets come from the spacing scale**, never eyeballed, and exist only above
@@ -107,6 +115,15 @@ custom property in one place; both constraints sit as comments beside them.
 - **Charts separate series by green / accent / sand**, never by two greens. Every
   mid-green tested hit 1.7-2.8:1 against `--green`, under the 3:1 needed to tell
   series apart. Shape and fill carry the second channel.
+- **Diverging ramps hatch the whole bad arm.** The zone ramp runs rust through sand
+  to green in seven steps: positions 1-3 below average, 4 the neutral midpoint, 5-7
+  above. Positions 1-3 carry a 45 degree hatch and 5-7 stay solid. Rust against green
+  is the red-green axis, so the two arms collapse to one under protanopia and
+  deuteranopia: the poles measure 2.3 apart and the inner pair 0.8. The hatch is what
+  carries good against bad for those readers, and for grayscale print. Never dropped
+  for looking busy. The seven values are `#9C3D1E`, `#B26750`, `#C6907F`, `#D0BE9E`,
+  `#79A183`, `#477A56`, `#14532D`; ends and midpoint are `--accent`, `--sand`, and
+  `--green` unchanged.
 
 ### Type
 
@@ -182,5 +199,14 @@ index as much as the projects index.
 
 ## Still to decide
 
-- Whether `seasons` is free text or a structured start and end pair. Decides
-  whether the projects index can sort or filter by it.
+- How a write-up supplies its own bands, so project pages zigzag rather than sitting
+  in one band at one offset. Options are MDX with band components, a hand-built page
+  outside the collection, or splitting plain markdown at top-level headings and
+  rotating the offsets automatically. All three need the project layout to stop
+  wrapping the body in a single prose band.
+
+## Settled
+
+- `seasons` is free text. Structured start and end pairs would let the projects index
+  sort and filter, and with one project that buys nothing. Revisit if the index ever
+  needs it; converting means editing frontmatter, not code.
