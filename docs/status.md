@@ -4,25 +4,24 @@ Snapshot for a reader new to the site, rewritten each time. Updated 26 August 20
 
 ## Where this exists
 
-The site is built and running. Netlify watches the project, rebuilds on every push, and
-the first build succeeded. The address is nlekhi.netlify.app, and that is the real one:
-the chosen domain is still unregistered, and a lookup for it returns nothing at all, so
-it is not an address anyone can type.
+The site is live and anyone can read it. Netlify watches the project and rebuilds on
+every push. The address is nlekhi.netlify.app, and that is the real one: the chosen
+domain is still unregistered, and a lookup for it returns nothing, so it is not an
+address anyone can type.
 
-One catch, found by trying to open the site rather than by assuming. Every page returns
-a refusal and bounces to a Netlify login. The site has visitor access restricted, so
-only someone signed in to the Netlify account can see it. The build is genuinely there
-and genuinely working; the public cannot reach it. Turning that off is a setting in the
-dashboard, and until it changes, sending the address to an admissions officer or an
-employer would send them to a login screen.
+Checked by opening it rather than assuming. Every page answers normally, the home page
+serves its real headline, and the test page used during the layout work is correctly
+absent from the public site, which confirms the draft mechanism works on the live build
+and not only locally. An earlier version of this file said the site was closed to
+visitors, which was true at the time and is no longer.
 
-The work itself is shared. A push on 26 August sent the banded write-ups, the colour
-ramp, the shot selection planning, and this document, after three weeks in which the
-copy on GitHub had not moved.
+The work is shared. A push on 26 August sent the banded write-ups, the colour ramp, the
+shot selection planning, and this document, after three weeks in which the copy on
+GitHub had not moved.
 
-So: the code is shared, the build works, the address exists but is closed to visitors,
-and the domain is still unregistered. One dashboard setting stands between this and a
-site someone could actually read.
+So: the code is shared, the build works, the site is public, and the domain is still
+unregistered. That last one is what stands between a readable site and a memorable
+address.
 
 ## Where things stand
 
@@ -94,8 +93,6 @@ like everything else.
 
 ## Waiting on you
 
-- Opening the site to visitors. It builds and runs, but every page currently answers
-  with a login screen, so nobody outside the Netlify account can read it.
 - Buying the domain. The name is chosen and the site is configured for it, but nobody
   owns it yet, so links and previews resolve only once it is registered.
 - The real numbers and the writing for the shot selection project. Every claim on the
