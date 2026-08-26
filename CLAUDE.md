@@ -21,9 +21,23 @@ hand-waving immediately. Be concrete and skip jargon that isn't doing work.
 - Analysis code lives in separate repos, linked from each project page
 - Deployed on Netlify from GitHub, at `narayanlekhi.com`
 
+### Build and hosting
+
+Netlify builds this repo. These settings live in the Netlify dashboard, not in the
+project, so they are written here rather than left invisible.
+
+- Branch: `main`. Every push deploys.
+- Build command: `npm run build`
+- Publish directory: `dist`
+- Node: pinned to 22 by environment variable in the dashboard, matching the
+  `engines` floor in `package.json`
+- Serving at `nlekhi.netlify.app`. That is the real address until the domain exists.
+
 `site` in `astro.config.mjs` is set to `https://narayanlekhi.com` ahead of
 registration. The domain is not bought yet, so canonical URLs, the sitemap, RSS,
-and link previews stay broken until it exists and points at Netlify.
+and link previews stay broken until it exists and points at Netlify. They point at
+the unregistered domain rather than at the netlify.app address, so they are wrong on
+the live site too, not merely absent.
 
 Project write-ups are `.mdx`, so a page can place band components, an interactive
 chart, and tables at chosen points in the body. Blog posts stay plain `.md`. Plots
@@ -175,6 +189,21 @@ Blog posts carry `pubDate`; projects aren't chronological, so RSS is blog-only.
 - Rewrite `docs/status.md` at the end of any session where something meaningful
   changed, without being asked. It is a handoff snapshot for a reader with no
   access to the code, so no file paths, no code, no implementation detail.
+- **Keep the record honest in both directions.** Settling a decision must not delete
+  the note that the thing still does not work. Finishing the work must not leave that
+  note behind. These are the same rule read from either end: the document says what is
+  true now, not what was true when someone last thought about it. Deciding how to build
+  something and building it are different events, and the file has to distinguish them.
+- **Sweep for the sibling claim.** One event usually falsifies more than one sentence.
+  When something changes, go looking for the other places that quietly assumed the old
+  state instead of fixing only the line that was pointed at. A file contradicting itself
+  is worse than one uniformly out of date: the accurate half earns the trust that the
+  stale half then spends.
+- **Say which claims were checked.** Where a document asserts something about the world
+  rather than about the code, verify it and note that it was verified. A remote state
+  read from the remote, a domain confirmed by a lookup, a deployment confirmed by
+  fetching it. Where something cannot be checked from here, say that plainly rather than
+  guessing or going quiet.
 - Use custom properties for spacing as well as colour.
 - Never invent copy, project details, results, or numbers. Every claim on the
   site comes from me. Where copy is missing, leave a marker like

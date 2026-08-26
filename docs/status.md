@@ -4,22 +4,25 @@ Snapshot for a reader new to the site, rewritten each time. Updated 26 August 20
 
 ## Where this exists
 
-The work is on GitHub. A push on 26 August sent eight commits: the banded write-ups,
-the colour ramp, the shot selection planning, and this document. Before it, GitHub had
-stood at its 5 August state for three weeks. Both of those were checked against the
-remote itself rather than taken from a local record that had gone stale.
+The site is built and running. Netlify watches the project, rebuilds on every push, and
+the first build succeeded. The address is nlekhi.netlify.app, and that is the real one:
+the chosen domain is still unregistered, and a lookup for it returns nothing at all, so
+it is not an address anyone can type.
 
-The domain does not resolve. A lookup returns nothing at all, so nobody has registered
-it and the site has no address a person could type.
+One catch, found by trying to open the site rather than by assuming. Every page returns
+a refusal and bounces to a Netlify login. The site has visitor access restricted, so
+only someone signed in to the Netlify account can see it. The build is genuinely there
+and genuinely working; the public cannot reach it. Turning that off is a setting in the
+dashboard, and until it changes, sending the address to an admissions officer or an
+employer would send them to a login screen.
 
-Whether the host has built any of this cannot be determined from the project. The build
-settings live in the hosting dashboard rather than alongside the code, so nothing here
-records whether a build is connected, whether it ran, or what it serves. That is a limit
-on what this document can tell you rather than a claim that nothing happened. The
-dashboard is the only place to find out, and this push is worth looking at, because it
-is the first in three weeks and it changes the layout of every project page.
+The work itself is shared. A push on 26 August sent the banded write-ups, the colour
+ramp, the shot selection planning, and this document, after three weeks in which the
+copy on GitHub had not moved.
 
-So: the code is shared, the address does not exist yet, and the build is unverified.
+So: the code is shared, the build works, the address exists but is closed to visitors,
+and the domain is still unregistered. One dashboard setting stands between this and a
+site someone could actually read.
 
 ## Where things stand
 
@@ -91,8 +94,8 @@ like everything else.
 
 ## Waiting on you
 
-- Checking the host built the 26 August push. It is the first in three weeks and it
-  changes every project page, and nothing in the project can confirm the result.
+- Opening the site to visitors. It builds and runs, but every page currently answers
+  with a login screen, so nobody outside the Netlify account can read it.
 - Buying the domain. The name is chosen and the site is configured for it, but nobody
   owns it yet, so links and previews resolve only once it is registered.
 - The real numbers and the writing for the shot selection project. Every claim on the
