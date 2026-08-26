@@ -4,19 +4,22 @@ Snapshot for a reader new to the site, rewritten each time. Updated 26 August 20
 
 ## Where this exists
 
-None of what follows is on the internet. Everything described here lives on one
-machine and has not been sent anywhere. The copy on GitHub was last updated on
-5 August and knows nothing about the banded write-ups, the colour ramp, or the shot
-selection planning. Seven days of work sit between the two.
+The work is on GitHub. A push on 26 August sent eight commits: the banded write-ups,
+the colour ramp, the shot selection planning, and this document. Before it, GitHub had
+stood at its 5 August state for three weeks. Both of those were checked against the
+remote itself rather than taken from a local record that had gone stale.
 
-Whether the host has built anything cannot be checked from the project itself,
-because the build settings live in the hosting dashboard rather than alongside the
-code. What is certain is that the host can only be serving the 5 August version,
-since that is all GitHub has to give it. The domain is also still unregistered, so
-even a finished build has no address a person could type.
+The domain does not resolve. A lookup returns nothing at all, so nobody has registered
+it and the site has no address a person could type.
 
-Two things make this real: sending the work to GitHub, and buying the domain.
-Until both happen, treat this document as a description of something local.
+Whether the host has built any of this cannot be determined from the project. The build
+settings live in the hosting dashboard rather than alongside the code, so nothing here
+records whether a build is connected, whether it ran, or what it serves. That is a limit
+on what this document can tell you rather than a claim that nothing happened. The
+dashboard is the only place to find out, and this push is worth looking at, because it
+is the first in three weeks and it changes the layout of every project page.
+
+So: the code is shared, the address does not exist yet, and the build is unverified.
 
 ## Where things stand
 
@@ -88,7 +91,8 @@ like everything else.
 
 ## Waiting on you
 
-- Sending the work to GitHub. Seven days of it have never left this machine.
+- Checking the host built the 26 August push. It is the first in three weeks and it
+  changes every project page, and nothing in the project can confirm the result.
 - Buying the domain. The name is chosen and the site is configured for it, but nobody
   owns it yet, so links and previews resolve only once it is registered.
 - The real numbers and the writing for the shot selection project. Every claim on the
