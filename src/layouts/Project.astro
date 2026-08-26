@@ -67,13 +67,12 @@ const { title, description, question, dataset, method, seasons, repo, draft } = 
 				</div>
 			</div>
 
-			<!-- Prose sits at one offset; figures inside cancel it and return to the
-			     gutter, so every figure shares a left edge down the page. -->
-			<div class="band prose-band">
-				<div class="band-inner at-step">
-					<slot />
-				</div>
-			</div>
+			<!-- The write-up supplies its own bands through <Band>, so it can place
+			     an offset per section, put a figure at the gutter, and spend its one
+			     green band where the argument needs it. Nothing wraps the slot here:
+			     a wrapper would nest every declared band inside a measure and stop
+			     full-bleed working. -->
+			<slot />
 		</main>
 		<Footer />
 	</body>

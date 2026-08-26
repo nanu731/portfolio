@@ -27,9 +27,7 @@ and link previews stay broken until it exists and points at Netlify.
 
 Project write-ups are `.mdx`, so a page can place band components, an interactive
 chart, and tables at chosen points in the body. Blog posts stay plain `.md`. Plots
-exported from R go in as `<img>` tags in both. The project layout still wraps the
-whole body in a single prose band, so the bands an `.mdx` write-up declares have
-nowhere to sit until that changes.
+exported from R go in as `<img>` tags in both.
 
 Do not add dependencies without asking. A portfolio site does not need a
 framework on top of a framework.
@@ -77,21 +75,11 @@ with content at a different horizontal offset in each so the eye zigzags down.
 Nothing is centred. Three rules hold the system together; breaking any of them
 looks like a small change and quietly dismantles it.
 
-Not yet true everywhere. Hand-composed pages zigzag; write-ups generated from
-content files render as a single band at one offset, because markdown has no way
-to start a new band. The project layout wraps the whole body in one prose band.
-MDX with band components is the chosen replacement, so a write-up will declare its
-own bands once the layout stops wrapping the slot. Delete this paragraph once that
-changes.
-
 - **The figure gutter.** Figures never take an offset. Every figure sits at one
   fixed left inset while prose bands shift around it, so figure numbers align down
   the page and the charts are the spine the moving text reads against. A figure
   inside a prose band cancels that band's offset to return to the gutter, and
-  outgrows the text measure so the chart is the widest element on the page. The
-  cancelling works today; the prose moving around it waits on the paragraph above,
-  so on a write-up page the gutter currently holds figures still against text that
-  never shifts.
+  outgrows the text measure so the chart is the widest element on the page.
 - **The green budget.** One green band per ordinary page, plus the footer. Two plus
   the footer on a project page. More and cream stops being the dominant surface.
 - **Offsets come from the spacing scale**, never eyeballed, and exist only above
