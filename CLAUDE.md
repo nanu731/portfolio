@@ -25,8 +25,11 @@ hand-waving immediately. Be concrete and skip jargon that isn't doing work.
 registration. The domain is not bought yet, so canonical URLs, the sitemap, RSS,
 and link previews stay broken until it exists and points at Netlify.
 
-MDX stays configured, but write plain `.md` with plots as `<img>` tags. Leaving
-MDX in place keeps componentised charts available later without a migration.
+Project write-ups are `.mdx`, so a page can place band components, an interactive
+chart, and tables at chosen points in the body. Blog posts stay plain `.md`. Plots
+exported from R go in as `<img>` tags in both. The project layout still wraps the
+whole body in a single prose band, so the bands an `.mdx` write-up declares have
+nowhere to sit until that changes.
 
 Do not add dependencies without asking. A portfolio site does not need a
 framework on top of a framework.
@@ -77,7 +80,9 @@ looks like a small change and quietly dismantles it.
 Not yet true everywhere. Hand-composed pages zigzag; write-ups generated from
 content files render as a single band at one offset, because markdown has no way
 to start a new band. The project layout wraps the whole body in one prose band.
-Delete this paragraph once that changes.
+MDX with band components is the chosen replacement, so a write-up will declare its
+own bands once the layout stops wrapping the slot. Delete this paragraph once that
+changes.
 
 - **The figure gutter.** Figures never take an offset. Every figure sits at one
   fixed left inset while prose bands shift around it, so figure numbers align down
@@ -197,16 +202,17 @@ dummy entries, no filler, and no empty list container sitting under a heading. A
 empty state that reads as deliberate beats fake content. This applies to the blog
 index as much as the projects index.
 
-## Still to decide
-
-- How a write-up supplies its own bands, so project pages zigzag rather than sitting
-  in one band at one offset. Options are MDX with band components, a hand-built page
-  outside the collection, or splitting plain markdown at top-level headings and
-  rotating the offsets automatically. All three need the project layout to stop
-  wrapping the body in a single prose band.
-
 ## Settled
 
+Newest first. A new decision goes on top, so this section reads as a log and
+appending is the natural motion.
+
+- **A write-up supplies its own bands through MDX with band components.** A project
+  page places an interactive chart and leaderboard tables at chosen points inside the
+  body, so it carries components rather than prose and images alone. Splitting plain
+  markdown at headings and rotating the offsets automatically cannot express that, and
+  cannot choose which section takes the green band. MDX is already configured, so this
+  costs no new dependency.
 - `seasons` is free text. Structured start and end pairs would let the projects index
   sort and filter, and with one project that buys nothing. Revisit if the index ever
   needs it; converting means editing frontmatter, not code.
