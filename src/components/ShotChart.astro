@@ -1,0 +1,233 @@
+---
+// The shot selection court. Fourteen zones, coloured by each zone's contribution
+// to the player's selection score.
+//
+// Renders entirely at build time. No fetch, no client script: the court is in
+// the HTML, so a reader with no JavaScript sees a complete chart rather than a
+// hole. Selection gets wired later by setting fills on the paths, which already
+// carry a data-zone attribute.
+import {
+	COURT,
+	FLIP,
+	KEYHOLE_ZONES,
+	LEGEND,
+	VIEW_BOX,
+	ZONE_ANCHORS,
+	ZONE_ORDER,
+	ZONE_PATHS,
+	colourFor,
+	isHatched,
+	stopFor,
+} from '../lib/shot-chart';
+
+interface Props {
+	/** One player-season's zones. Extra fields are ignored. */
+	zones: { zone: string; contrib: number; attempts?: number }[];
+	player: string;
+	season: string;
+	/** Unique per chart, so two charts on a page do not share a pattern id. */
+	id?: string;
+}
+
+const { zones, player, season, id = 'shot-chart' } = Astro.props;
+
+const byZone = new Map(zones.map((z) => [z.zone, z]));
+const hatchId = `${id}-hatch`;
+const titleId = `${id}-title`;
+const descId = `${id}-desc`;
+
+const drawn = ZONE_ORDER.map((zone) => {
+	const datum = byZone.get(zone);
+	const contrib = datum?.contrib ?? 0;
+	return {
+		zone,
+		contrib,
+		attempts: datum?.attempts,
+		d: ZONE_PATHS[zone],
+		anchor: ZONE_ANCHORS[zone],
+		fill: colourFor(contrib),
+		hatched: isHatched(stopFor(contrib)),
+		stroked: !KEYHOLE_ZONES.has(zone),
+		/* Declared, never inherited. See KEYHOLE_ZONES. */
+		fillRule: KEYHOLE_ZONES.has(zone) ? 'evenodd' : undefined,
+	};
+});
+
+const fmt = (v: number) => (v >= 0 ? '+' : '') + v.toFixed(3);
+---
+
+<div class="shot-chart">
+	<svg viewBox={VIEW_BOX} role="img" aria-labelledby={`${titleId} ${descId}`}>
+		<title id={titleId}>{player}, {season}: shot selection by court zone</title>
+		<desc id={descId}>
+			A half court split into fourteen zones. Each zone is shaded by how much that zone
+			adds to or subtracts from the player's selection score. Zones below league average
+			are hatched.
+		</desc>
+
+		<defs>
+			<pattern id={hatchId} width="8" height="8" patternUnits="userSpaceOnUse"
+				patternTransform="rotate(45)">
+				<line x1="0" y1="0" x2="0" y2="8" stroke="var(--green)" stroke-width="1.4"
+					stroke-opacity="0.38"></line>
+			</pattern>
+		</defs>
+
+		<!-- One transform, from FLIP. Shapes live in here; text does not, because a
+		     flipped group renders its glyphs upside down. -->
+		<g transform={FLIP.transform}>
+			{
+				drawn.map((z) => (
+					<path
+						data-zone={z.zone}
+						d={z.d}
+						fill={z.fill}
+						fill-rule={z.fillRule}
+						stroke={z.stroked ? 'var(--sand)' : 'none'}
+						stroke-width="1.8"
+						stroke-linejoin="round"
+					/>
+				))
+			}
+			{
+				drawn
+					.filter((z) => z.hatched)
+					.map((z) => (
+						<path
+							data-zone-hatch={z.zone}
+							d={z.d}
+							fill={`url(#${hatchId})`}
+							fill-rule={z.fillRule}
+							stroke="none"
+						/>
+					))
+			}
+
+			<!-- Illustrative. Encodes nothing, checked against nothing.
+
+			     Drawn twice: a wider cream halo, then the green line over it. The rim
+			     and backboard sit inside the restricted area, which is the zone most
+			     likely to reach the dark end of the ramp, and a green line on
+			     var(--green) is invisible. The halo keeps them readable on every stop
+			     without putting the accent anywhere near a green fill. -->
+			<g class="furniture" fill="none">
+				{
+					[
+						{ halo: 'var(--cream)', width: 0, opacity: 0.55 },
+						{ halo: 'var(--green)', width: -1.6, opacity: 1 },
+					].map((pass) => (
+						<g
+							stroke={pass.halo}
+							stroke-opacity={pass.opacity}
+							stroke-linecap="round"
+						>
+							<circle
+								cx={COURT.freeThrowCircle.cx}
+								cy={COURT.freeThrowCircle.cy}
+								r={COURT.freeThrowCircle.r}
+								stroke-width={4.4 + pass.width}
+							/>
+							<line
+								x1={COURT.backboard.x1}
+								y1={COURT.backboard.y1}
+								x2={COURT.backboard.x2}
+								y2={COURT.backboard.y2}
+								stroke-width={5.4 + pass.width}
+							/>
+							<circle
+								cx={COURT.rim.cx}
+								cy={COURT.rim.cy}
+								r={COURT.rim.r}
+								stroke-width={4.8 + pass.width}
+							/>
+						</g>
+					))
+				}
+			</g>
+		</g>
+
+		<!-- Anchors pass through FLIP.apply, the same flip the group uses. -->
+		<g class="zone-labels">
+			{
+				drawn.map((z) => (
+					<text x={z.anchor[0]} y={z.anchor[1]} text-anchor="middle" font-size="15"
+						fill="var(--green)" stroke="var(--cream)" stroke-width="4" paint-order="stroke">
+						{fmt(z.contrib)}
+					</text>
+				))
+			}
+		</g>
+	</svg>
+
+	<!-- Real contrib values at every boundary, not evenly spaced ticks. The ramp
+	     is a signed square root, so even spacing here would hide the transform. -->
+	<ul class="ramp-legend">
+		{
+			LEGEND.map((row) => (
+				<li>
+					<span class="swatch" style={`background:${row.colour}`}>
+						{row.hatched && <i class="swatch-hatch" />}
+					</span>
+					<span class="label numeric">
+						{fmt(row.from)} to {fmt(row.to)}
+					</span>
+				</li>
+			))
+		}
+	</ul>
+	<p class="label legend-note">
+		Points per shot added by zone. Middle band is league average. Hatched is below it.
+	</p>
+</div>
+
+<style>
+	.shot-chart svg {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+	.zone-labels text {
+		font-family: var(--font-numeric);
+		font-variant-numeric: tabular-nums;
+	}
+	/* Below 48rem the court renders about 295px wide, where a 15 unit label lands
+	   near 4px. The numbers move to the legend and the table instead. */
+	@media (max-width: 47.999rem) {
+		.zone-labels {
+			display: none;
+		}
+	}
+	.ramp-legend {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2xs) var(--space-m);
+		list-style: none;
+		margin: var(--space-m) 0 var(--space-2xs);
+		padding: 0;
+	}
+	.ramp-legend li {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2xs);
+	}
+	.swatch {
+		position: relative;
+		display: block;
+		width: var(--space-m);
+		height: var(--space-s);
+		border: var(--rule-thin) solid var(--green);
+		overflow: hidden;
+	}
+	.swatch-hatch {
+		position: absolute;
+		inset: 0;
+		background: repeating-linear-gradient(
+			45deg,
+			transparent 0 3px,
+			rgb(20 83 45 / 38%) 3px 4.4px
+		);
+	}
+	.legend-note {
+		margin: 0;
+	}
+</style>
