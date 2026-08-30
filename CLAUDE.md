@@ -17,9 +17,12 @@ hand-waving immediately. Be concrete and skip jargon that isn't doing work.
 ## Stack
 
 - Plain CSS. No Tailwind, no component libraries, no UI kits.
-- Static plots exported from R (ggplot2) as SVG, stored in `public/plots/`
+- Static plots exported from R (ggplot2) as SVG, stored in `public/plots/`. A chart
+  that has to vary per reader is instead an Astro component rendering SVG at build
+  time from imported JSON; see the shot selection chart.
 - Analysis code lives in separate repos, linked from each project page
-- Deployed on Netlify from GitHub, at `narayanlekhi.com`
+- Deployed on Netlify from GitHub. Serving at `nlekhi.netlify.app`; `narayanlekhi.com`
+  is configured but unregistered, so it is not yet an address. See Build and hosting.
 
 ### Build and hosting
 
@@ -132,6 +135,12 @@ custom property in one place; both constraints sit as comments beside them.
   `#79A183`, `#477A56`, `#14532D`; ends and midpoint are `--accent`, `--sand`, and
   `--green` unchanged.
 
+The seven values and the hatch are a palette decision and hold for any diverging
+quantity. The fourteen-zone framing around them does not: the analytics project is
+reworking its zone model, so treat "the zone ramp" as this ramp applied to whatever
+the court model turns out to be. How values are *spread* across the ramp is a separate
+and currently provisional decision, recorded under Still to decide.
+
 ### Type
 
 - Display: Fraunces, weights 500 and 600. Axes by role, not by size: `WONK 1`
@@ -218,6 +227,28 @@ Both collections handle zero entries the same way: no "coming soon" cards, no
 dummy entries, no filler, and no empty list container sitting under a heading. An
 empty state that reads as deliberate beats fake content. This applies to the blog
 index as much as the projects index.
+
+## Still to decide
+
+- **Everything the shot selection chart depends on.** The analytics project is mid-rework
+  and none of it is settled. Its zone model was rebuilt once and is now being reconsidered
+  again in favour of a spatial model, and the metric is being reframed. The chart component
+  here is built against the superseded zone model: it renders, and it cannot show real data
+  until it is rewired. Treat the shape of the export, the number of zones, and the meaning
+  of the score as open, and confirm against the analytics repo before building on any of
+  them. Nothing on this list blocks design, layout, routing, or deployment work, which are
+  settled.
+- **How values spread across the diverging ramp.** The chart currently maps the signed
+  square root of the value rather than the value itself, because one zone near the hoop has
+  a far wider range than the rest and an even spread left eleven of fourteen zones on the
+  neutral colour. The legend prints real values at every boundary so the stretch is visible
+  rather than hidden. This was fitted to the current metric. Revisit it if the metric is
+  reframed, because the reason for it may not survive.
+- **A version assertion between the data and the geometry.** Designed, not built. Nothing
+  checks that the zone ids in the geometry file match the zone ids in the data that colours
+  it. Ship new data with a changed zone model against the old geometry and every zone gets
+  the wrong number with no error: the chart looks right and is wrong. Build this before real
+  data reaches the page.
 
 ## Settled
 
