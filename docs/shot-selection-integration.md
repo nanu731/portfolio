@@ -1,15 +1,14 @@
 # Integrating the NBA shot selection project
 
-> **Current status, verified 6 September 2026:** The targeted version-two spatial
+> **Current status, verified 6 September 2026:** The targeted version-four spatial
 > integration supersedes the zone-era data and chart plan in this document. The
-> portfolio uses schema `2.0.0`, data version `2025-26-targeted-v2`, 318 player
-> payloads, 156 cells per player, historical shot markers, and six targeted relocation
-> settings. It loads the player index once and one selected player payload at a time.
-> The older zone component, assets, and version-one export remain preserved. Use this
-> document for site architecture and historical rationale; where it conflicts with the
-> spatial explorer or its verified export, those current sources control. Adding the
-> other four seasons and a season selector is the next expansion, not part of this
-> release.
+> portfolio covers five separate seasons from 2021-22 through 2025-26, with 1,507
+> analyzed player-seasons, 156 cells per analysis, historical shot markers, and six
+> targeted relocation settings. It loads the root catalog once, then one selected season
+> index and one player payload. The older zone component, assets, and version-one
+> through version-three exports remain preserved. Use this document for site
+> architecture and historical rationale; where it conflicts with the spatial explorer
+> or its verified export, those current sources control.
 
 Reference for the session that owns the shot selection analysis repo. It describes
 the portfolio site well enough to produce output this site can drop in without a

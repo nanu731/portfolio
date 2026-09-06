@@ -2,9 +2,9 @@
 title: NBA Shot Selection Analytics
 description: A spatial model estimates player-specific shot value and tests capped relocation from weaker modeled locations.
 question: How many more points could an NBA player score by shifting shots toward their strongest areas?
-dataset: 2025-26 player shooting surfaces on a 156-cell half-court grid
+dataset: Five season-specific player shooting surfaces on a 156-cell half-court grid
 method: Bayesian CAR model with capped weak-location relocation
-seasons: 2025-26
+seasons: 2021-22 through 2025-26
 repo: https://github.com/nanu731/nba-shot-analytics
 compact: true
 draft: false
@@ -17,10 +17,11 @@ import SpatialShotSelection from '../../components/SpatialShotSelection.astro';
 
 ## The model
 
-The production Bayesian conditional autoregressive model estimates a separate
-2025-26 shooting surface for each of 318 players. The relocation calculation removes
-attempt mass from a player's weakest modeled locations first, then allocates it across
-supported destinations. No destination can finish above 50% of the player's attempts.
+The production Bayesian conditional autoregressive model estimates separate player
+shooting surfaces for each season from 2021-22 through 2025-26. The relocation
+calculation removes attempt mass from a player's weakest modeled locations first, then
+allocates it across supported destinations. No destination can finish above 50% of the
+player's attempts.
 
 The calculation chooses source locations without using whether a shot went in. A
 destination needs at least 10 attempts and 90% posterior certainty that it exceeds
@@ -40,14 +41,14 @@ produce an estimate; the 50% cap can stop relocation below the requested amount.
 ## What the numbers mean
 
 The explorer reports posterior means with 90% intervals. The season figure uses each
-player's observed 2025-26 attempt volume; the per-100 figure gives a common scale.
+player's observed attempt volume in the selected season; the per-100 figure gives a
+common scale.
 The Shot Selection Score applies the self-relative formula to the 25% targeted result.
 It does not represent league rank or overall player quality.
 
-The evidence rule finds no supported destination for 29 players, one for 167 players,
-and two or more for 122 players. The page publishes relocation estimates for 276
-players. Thirteen single-destination players have no room under the 50% cap, so their
-scores and gains remain unavailable rather than appearing as zero.
+The five season indexes contain 1,507 analyzed player-seasons. The evidence and capacity
+checks determine whether the explorer publishes a score and gain for each player-season.
+Unavailable values receive a reason and remain null rather than appearing as zero.
 
 </Band>
 

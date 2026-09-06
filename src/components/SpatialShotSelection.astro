@@ -4,7 +4,7 @@
 // separately and keeps the versioned export out of Astro's JavaScript graph.
 ---
 
-<spatial-shot-explorer data-base-path="/data/spatial-shot-selection/v3/seasons/2025-26">
+<spatial-shot-explorer data-base-path="/data/spatial-shot-selection/v4">
 	<figure class="figure spatial-explorer" aria-labelledby="spatial-explorer-title">
 		<div class="explorer-heading">
 			<div>
@@ -12,19 +12,29 @@
 				<h2 id="spatial-explorer-title">Shot selection explorer</h2>
 			</div>
 			<p class="explorer-intro">
-				Choose any 2025-26 player to compare historical shots with a targeted relocation
+				Choose a season and player to compare historical shots with a targeted relocation
 				estimate and the modeled shooting surface.
 			</p>
 		</div>
 
 		<div class="player-controls" aria-describedby="player-status">
+			<div class="control season-control">
+				<label class="label" for="season-select">Season</label>
+				<select id="season-select" disabled data-season-select>
+					<option value="2025-26" selected>2025–26</option>
+					<option value="2024-25">2024–25</option>
+					<option value="2023-24">2023–24</option>
+					<option value="2022-23">2022–23</option>
+					<option value="2021-22">2021–22</option>
+				</select>
+			</div>
 			<div class="control player-combobox">
 				<label class="label" for="player-search">Search player</label>
 				<div class="combobox-shell" data-combobox-shell>
 					<input
 						type="search"
 						id="player-search"
-						placeholder="Search all 318 players"
+						placeholder="Search players in 2025–26"
 						autocomplete="off"
 						role="combobox"
 						aria-autocomplete="list"
@@ -48,7 +58,7 @@
 
 		<div class="status-row">
 			<p id="player-status" class="status" role="status" aria-live="polite" data-status>
-				Loading 318 players…
+				Loading season catalog…
 			</p>
 			<button type="button" class="retry" hidden data-retry>Try again</button>
 		</div>
@@ -69,7 +79,7 @@
 						<p class="label" data-court-mode-label>Estimated make probability</p>
 						<h3 data-player-name>Choose a player</h3>
 					</div>
-					<p class="label numeric" data-season>2025-26</p>
+					<p class="label numeric" data-season>2025–26</p>
 				</div>
 
 				<svg
@@ -201,6 +211,15 @@
 					<p data-unavailable-copy></p>
 				</div>
 
+				<div class="insufficient" hidden data-season-unavailable>
+					<p class="label">Player result</p>
+					<h4 data-season-unavailable-title>Analysis unavailable</h4>
+					<p data-season-unavailable-copy></p>
+					<button type="button" class="retry reset-default" data-reset-default>
+						Reset to LeBron James — 2025–26
+					</button>
+				</div>
+
 				<p class="disclaimer">
 					These modeled estimates use past shots. They do not guarantee improvement or
 					establish a causal effect. Cyan marks a hypothetical relocation, not a guaranteed
@@ -242,6 +261,32 @@
 		relocation_available: boolean;
 		availability_reason: AvailabilityReason;
 		score_available: boolean;
+	};
+	type SeasonId = '2025-26' | '2024-25' | '2023-24' | '2022-23' | '2021-22';
+	type AvailabilityStatus =
+		| 'no_recorded_shots'
+		| 'model_ineligible'
+		| 'insufficient_evidence'
+		| 'single_destination'
+		| 'multiple_destinations';
+	type SeasonManifestEntry = {
+		season: SeasonId;
+		player_index: string;
+		player_count: number;
+	};
+	type PlayerSeasonAvailability = {
+		season: SeasonId;
+		analysis_available: boolean;
+		availability_status: AvailabilityStatus;
+		availability_reason: string;
+		recorded_shots: number;
+		in_play_shots: number;
+		in_play_games: number;
+	};
+	type PlayerCatalogEntry = {
+		player_id: string;
+		player_name: string;
+		seasons: PlayerSeasonAvailability[];
 	};
 
 	type HeatmapCell = {
@@ -311,11 +356,23 @@
 	type CourtView = 'before' | 'after' | 'ability';
 
 	const SVG_NS = 'http://www.w3.org/2000/svg';
-	const EXPECTED_SCHEMA = '3.0.0';
-	const EXPECTED_DATA = '2025-26-targeted-v3';
+	const ROOT_SCHEMA = '4.0.0';
+	const ROOT_DATA = 'five-season-targeted-v4';
 	const EXPECTED_METHOD = 'car-targeted-capped-weak-location-relocation-v3';
 	const PRELOAD_PLAYER_ID = '2544';
-	const EXPECTED_PLAYERS = 318;
+	const DEFAULT_SEASON: SeasonId = '2025-26';
+	const EXPECTED_SEASONS: ReadonlyArray<{
+		season: SeasonId;
+		playerCount: number;
+		schemaVersion: string;
+		dataVersion: string;
+	}> = [
+		{ season: '2025-26', playerCount: 318, schemaVersion: '3.0.0', dataVersion: '2025-26-targeted-v3' },
+		{ season: '2024-25', playerCount: 304, schemaVersion: '4.0.0', dataVersion: '2024-25-targeted-v4' },
+		{ season: '2023-24', playerCount: 281, schemaVersion: '4.0.0', dataVersion: '2023-24-targeted-v4' },
+		{ season: '2022-23', playerCount: 292, schemaVersion: '4.0.0', dataVersion: '2022-23-targeted-v4' },
+		{ season: '2021-22', playerCount: 312, schemaVersion: '4.0.0', dataVersion: '2021-22-targeted-v4' },
+	];
 	const EXPECTED_CELLS = 156;
 	const EXPECTED_SLIDERS = [0, 0.05, 0.1, 0.15, 0.2, 0.25];
 	const HEAT_COLOURS = [
@@ -363,9 +420,14 @@
 
 	class SpatialShotExplorer extends HTMLElement {
 		private players: PlayerIndexEntry[] = [];
+		private catalog = new Map<string, PlayerCatalogEntry>();
+		private seasons = new Map<SeasonId, SeasonManifestEntry>();
 		private matches: PlayerIndexEntry[] = [];
 		private activeSuggestionIndex = -1;
 		private activeRequest?: AbortController;
+		private requestVersion = 0;
+		private selectedSeason: SeasonId = DEFAULT_SEASON;
+		private deliberatePlayerId?: string;
 		private currentPlayer?: PlayerPayload;
 		private courtView: CourtView = 'before';
 		private activeCellIndex = 0;
@@ -383,6 +445,7 @@
 			this.search.addEventListener('input', () => this.updateSuggestions());
 			this.search.addEventListener('focus', () => this.showAllSuggestions());
 			this.search.addEventListener('keydown', (event) => this.handleSearchKeydown(event));
+			this.seasonSelect.addEventListener('change', () => void this.changeSeason());
 			document.addEventListener('pointerdown', this.handleOutsidePointer);
 			this.slider.addEventListener('input', () => this.updateSlider());
 			this.querySelectorAll<HTMLInputElement>('input[name="court-view"]').forEach((control) => {
@@ -391,16 +454,21 @@
 				});
 			});
 			this.retry.addEventListener('click', () => this.retryAction?.());
+			this.resetDefault.addEventListener('click', () => void this.resetToDefault());
 			this.court.addEventListener('focus', () => {
 				if (this.courtView === 'ability') this.showCell(this.activeCellIndex);
 			});
 			this.court.addEventListener('keydown', (event) => this.moveCell(event));
 
-			void this.loadPlayers();
+			void this.loadCatalog();
 		}
 
 		private get basePath() {
-			return this.dataset.basePath ?? '/data/spatial-shot-selection/v3/seasons/2025-26';
+			return this.dataset.basePath ?? '/data/spatial-shot-selection/v4';
+		}
+
+		private get seasonSelect() {
+			return requireElement<HTMLSelectElement>(this, '[data-season-select]');
 		}
 
 		private get search() {
@@ -427,6 +495,21 @@
 		private get court() {
 			return requireElement<SVGSVGElement>(this, '[data-court]');
 		}
+		private get resetDefault() {
+			return requireElement<HTMLButtonElement>(this, '[data-reset-default]');
+		}
+
+		private beginRequest() {
+			this.activeRequest?.abort();
+			const controller = new AbortController();
+			this.activeRequest = controller;
+			this.requestVersion += 1;
+			return { controller, version: this.requestVersion };
+		}
+
+		private requestIsCurrent(controller: AbortController, version: number) {
+			return controller === this.activeRequest && version === this.requestVersion;
+		}
 
 		private async fetchJson(path: string, signal?: AbortSignal): Promise<unknown> {
 			const response = await fetch(path, { signal, headers: { Accept: 'application/json' } });
@@ -434,13 +517,114 @@
 			return response.json();
 		}
 
-		private validateIndex(value: unknown): PlayerIndexEntry[] {
+		private validateManifest(value: unknown): SeasonManifestEntry[] {
+			if (
+				!isRecord(value) ||
+				value.schema_version !== ROOT_SCHEMA ||
+				value.data_version !== ROOT_DATA ||
+				value.player_availability_catalog !== 'players.json' ||
+				!Array.isArray(value.seasons) ||
+				value.seasons.length !== EXPECTED_SEASONS.length
+			) {
+				throw new Error('Season manifest does not match this explorer');
+			}
+
+			return value.seasons.map((raw, index) => {
+				const expected = EXPECTED_SEASONS[index];
+				if (
+					!isRecord(raw) ||
+					raw.season !== expected.season ||
+					raw.player_index !== `seasons/${expected.season}/players.json` ||
+					raw.player_count !== expected.playerCount
+				) {
+					throw new Error('Season manifest contains an invalid season');
+				}
+				return {
+					season: expected.season,
+					player_index: raw.player_index,
+					player_count: raw.player_count,
+				};
+			});
+		}
+
+		private validateCatalog(value: unknown): PlayerCatalogEntry[] {
+			if (
+				!isRecord(value) ||
+				value.schema_version !== ROOT_SCHEMA ||
+				value.data_version !== ROOT_DATA ||
+				!Array.isArray(value.players) ||
+				value.players.length !== 1017
+			) {
+				throw new Error('Player availability catalog does not match this explorer');
+			}
+			const seen = new Set<string>();
+			return value.players.map((raw) => {
+				if (
+					!isRecord(raw) ||
+					typeof raw.player_id !== 'string' ||
+					typeof raw.player_name !== 'string' ||
+					seen.has(raw.player_id) ||
+					!Array.isArray(raw.seasons) ||
+					raw.seasons.length !== EXPECTED_SEASONS.length
+				) {
+					throw new Error('Player availability catalog contains an invalid player');
+				}
+				seen.add(raw.player_id);
+				const seasons = raw.seasons.map((seasonRaw, index) => {
+					const expected = EXPECTED_SEASONS[index];
+					if (!isRecord(seasonRaw)) {
+						throw new Error('Player availability catalog contains an invalid season');
+					}
+					const status = seasonRaw.availability_status;
+					const statusIsValid = [
+						'no_recorded_shots',
+						'model_ineligible',
+						'insufficient_evidence',
+						'single_destination',
+						'multiple_destinations',
+					].includes(String(status));
+					if (
+						seasonRaw.season !== expected.season ||
+						!statusIsValid ||
+						typeof seasonRaw.availability_reason !== 'string' ||
+						typeof seasonRaw.analysis_available !== 'boolean' ||
+						!Number.isInteger(seasonRaw.recorded_shots) ||
+						!Number.isInteger(seasonRaw.in_play_shots) ||
+						!Number.isInteger(seasonRaw.in_play_games) ||
+						seasonRaw.recorded_shots < 0 ||
+						seasonRaw.in_play_shots < 0 ||
+						seasonRaw.in_play_games < 0 ||
+						seasonRaw.analysis_available === ['no_recorded_shots', 'model_ineligible'].includes(String(status))
+					) {
+						throw new Error('Player availability catalog contains an invalid status');
+					}
+					return {
+						season: expected.season,
+						analysis_available: seasonRaw.analysis_available,
+						availability_status: status as AvailabilityStatus,
+						availability_reason: seasonRaw.availability_reason,
+						recorded_shots: seasonRaw.recorded_shots,
+						in_play_shots: seasonRaw.in_play_shots,
+						in_play_games: seasonRaw.in_play_games,
+					};
+				});
+				return { player_id: raw.player_id, player_name: raw.player_name, seasons };
+			});
+		}
+
+		private validateIndex(value: unknown, season: SeasonId): PlayerIndexEntry[] {
 			if (!isRecord(value)) throw new Error('Player index is not an object');
-			if (value.schema_version !== EXPECTED_SCHEMA || value.data_version !== EXPECTED_DATA) {
+			const expected = EXPECTED_SEASONS.find((item) => item.season === season);
+			if (
+				!expected ||
+				value.schema_version !== expected.schemaVersion ||
+				value.data_version !== expected.dataVersion ||
+				value.season !== season
+			) {
 				throw new Error('Player index version does not match this explorer');
 			}
-			if (!Array.isArray(value.players) || value.players.length !== EXPECTED_PLAYERS) {
-				throw new Error(`Expected ${EXPECTED_PLAYERS} players`);
+			if (!Array.isArray(value.players) || value.players.length !== expected.playerCount) {
+				throw new Error(`Expected ${expected.playerCount} players`);
 			}
 
 			const seen = new Set<string>();
@@ -490,13 +674,15 @@
 			});
 		}
 
-		private validatePlayer(value: unknown, entry: PlayerIndexEntry): PlayerPayload {
+		private validatePlayer(value: unknown, entry: PlayerIndexEntry, season: SeasonId): PlayerPayload {
 			if (!isRecord(value)) throw new Error('Player payload is not an object');
+			const expected = EXPECTED_SEASONS.find((item) => item.season === season);
 			if (
-				value.schema_version !== EXPECTED_SCHEMA ||
-				value.data_version !== EXPECTED_DATA ||
+				!expected ||
+				value.schema_version !== expected.schemaVersion ||
+				value.data_version !== expected.dataVersion ||
 				value.method_id !== EXPECTED_METHOD ||
-				value.season !== '2025-26' ||
+				value.season !== season ||
 				value.player_id !== entry.player_id ||
 				value.player_name !== entry.player_name ||
 				value.evidence_status !== entry.evidence_status ||
@@ -617,24 +803,97 @@
 			return payload;
 		}
 
-		private async loadPlayers() {
+		private seasonLabel(season: SeasonId) {
+			return season.replace('-', '–');
+		}
+
+		private catalogSeason(playerId: string, season: SeasonId) {
+			return this.catalog.get(playerId)?.seasons.find((item) => item.season === season);
+		}
+
+		private async loadCatalog() {
 			this.retry.hidden = true;
-			this.retryAction = () => void this.loadPlayers();
-			this.setStatus('Loading 318 players…');
+			this.retryAction = () => void this.loadCatalog();
+			this.setStatus('Loading season catalog…');
 			try {
-				const raw = await this.fetchJson(`${this.basePath}/players.json`);
-				this.players = this.validateIndex(raw).sort((a, b) =>
-					a.player_name.localeCompare(b.player_name),
+				const [manifestRaw, catalogRaw] = await Promise.all([
+					this.fetchJson(`${this.basePath}/manifest.json`),
+					this.fetchJson(`${this.basePath}/players.json`),
+				]);
+				this.seasons = new Map(
+					this.validateManifest(manifestRaw).map((item) => [item.season, item]),
+				);
+				this.catalog = new Map(
+					this.validateCatalog(catalogRaw).map((item) => [item.player_id, item]),
+				);
+				if (this.catalog.get(PRELOAD_PLAYER_ID)?.player_name !== 'LeBron James') {
+					throw new Error('LeBron James is missing from the player catalog');
+				}
+				this.seasonSelect.disabled = false;
+				await this.loadSeason(DEFAULT_SEASON, PRELOAD_PLAYER_ID);
+			} catch (error) {
+				this.showError('The season catalog could not be loaded. Check the connection and try again.');
+			}
+		}
+
+		private async changeSeason() {
+			const next = EXPECTED_SEASONS.find((item) => item.season === this.seasonSelect.value);
+			if (!next) return;
+			const playerId = this.deliberatePlayerId ?? PRELOAD_PLAYER_ID;
+			await this.loadSeason(next.season, playerId);
+		}
+
+		private async resetToDefault() {
+			this.deliberatePlayerId = undefined;
+			this.seasonSelect.value = DEFAULT_SEASON;
+			this.search.value = 'LeBron James';
+			await this.loadSeason(DEFAULT_SEASON, PRELOAD_PLAYER_ID);
+		}
+
+		private async loadSeason(season: SeasonId, playerId: string) {
+			const seasonManifest = this.seasons.get(season);
+			if (!seasonManifest) throw new Error(`Season ${season} is missing from the manifest`);
+			const request = this.beginRequest();
+			const playerName = this.catalog.get(playerId)?.player_name ?? 'Selected player';
+			this.selectedSeason = season;
+			this.seasonSelect.value = season;
+			this.search.disabled = true;
+			this.closeSuggestions();
+			this.retry.hidden = true;
+			this.retryAction = () => void this.loadSeason(season, playerId);
+			this.stage.setAttribute('aria-busy', 'true');
+			requireElement<HTMLElement>(this, '[data-season]').textContent = this.seasonLabel(season);
+			this.clearResult(playerName, `Loading ${this.seasonLabel(season)}…`);
+			this.setStatus(`Loading ${this.seasonLabel(season)} players…`);
+
+			try {
+				const raw = await this.fetchJson(
+					`${this.basePath}/${seasonManifest.player_index}`,
+					request.controller.signal,
+				);
+				if (!this.requestIsCurrent(request.controller, request.version)) return;
+				this.players = this.validateIndex(raw, season).sort((a, b) =>
+					a.player_name.localeCompare(b.player_name, undefined, { sensitivity: 'base' }),
 				);
 				this.search.disabled = false;
-				this.stage.setAttribute('aria-busy', 'false');
-				this.setStatus('318 players available. Focus the search to browse every player.');
-				const preload = this.players.find((player) => player.player_id === PRELOAD_PLAYER_ID);
-				if (!preload) throw new Error('LeBron James is missing from the player index');
-				this.search.value = preload.player_name;
-				await this.loadPlayer(preload);
+				this.search.placeholder = `Search players in ${this.seasonLabel(season)}`;
+				const entry = this.players.find((player) => player.player_id === playerId);
+				if (entry) {
+					this.search.value = entry.player_name;
+					await this.loadPlayer(entry, request);
+					return;
+				}
+
+				const availability = this.catalogSeason(playerId, season);
+				if (!availability || availability.analysis_available) {
+					throw new Error('Player availability does not match the season index');
+				}
+				this.search.value = playerName;
+				this.showSeasonUnavailable(playerName, season, availability);
 			} catch (error) {
-				this.showError('The player list could not be loaded. Check the connection and try again.');
+				if (error instanceof DOMException && error.name === 'AbortError') return;
+				if (!this.requestIsCurrent(request.controller, request.version)) return;
+				this.showError(`${this.seasonLabel(season)} could not be loaded. Try again.`);
 			}
 		}
 
@@ -675,7 +934,9 @@
 			this.activeSuggestionIndex = -1;
 			this.renderSuggestions();
 			this.openSuggestions();
-			this.setStatus('318 players shown. Type to filter the list.');
+			this.setStatus(
+				`${this.players.length} players shown for ${this.seasonLabel(this.selectedSeason)}. Type to filter the list.`,
+			);
 		}
 
 		private suggestionLabel(player: PlayerIndexEntry) {
@@ -767,14 +1028,17 @@
 		}
 
 		private selectSuggestion(entry: PlayerIndexEntry) {
+			this.deliberatePlayerId = entry.player_id;
 			this.search.value = entry.player_name;
 			this.closeSuggestions();
 			void this.loadPlayer(entry);
 		}
 
-		private async loadPlayer(entry: PlayerIndexEntry, request = new AbortController()) {
-			this.activeRequest?.abort();
-			this.activeRequest = request;
+		private async loadPlayer(
+			entry: PlayerIndexEntry,
+			request = this.beginRequest(),
+		) {
+			const season = this.selectedSeason;
 			this.retryAction = () => void this.loadPlayer(entry);
 			this.retry.hidden = true;
 			this.stage.setAttribute('aria-busy', 'true');
@@ -782,15 +1046,19 @@
 			this.setStatus(`Loading ${entry.player_name}…`);
 
 			try {
-				const raw = await this.fetchJson(`${this.basePath}/${entry.player_file}`, request.signal);
-				if (request !== this.activeRequest) return;
-				const player = this.validatePlayer(raw, entry);
+				const raw = await this.fetchJson(
+					`${this.basePath}/seasons/${season}/${entry.player_file}`,
+					request.controller.signal,
+				);
+				if (!this.requestIsCurrent(request.controller, request.version)) return;
+				const player = this.validatePlayer(raw, entry, season);
 				this.currentPlayer = player;
 				this.renderPlayer(player);
 				this.stage.setAttribute('aria-busy', 'false');
 				this.setStatus(`${player.player_name} loaded.`);
 			} catch (error) {
 				if (error instanceof DOMException && error.name === 'AbortError') return;
+				if (!this.requestIsCurrent(request.controller, request.version)) return;
 				this.stage.setAttribute('aria-busy', 'false');
 				this.showError(`${entry.player_name} could not be loaded. Try again.`);
 			}
@@ -798,7 +1066,9 @@
 
 		private renderPlayer(player: PlayerPayload) {
 			requireElement<HTMLElement>(this, '[data-player-name]').textContent = player.player_name;
-			requireElement<HTMLElement>(this, '[data-season]').textContent = player.season;
+			requireElement<HTMLElement>(this, '[data-season]').textContent = this.seasonLabel(
+				player.season as SeasonId,
+			);
 			requireElement<SVGTitleElement>(this, '[data-court-title]').textContent =
 				`${player.player_name}, ${player.season}: estimated make probability by court cell`;
 			requireElement<HTMLElement>(this, '[data-caption-player]').textContent =
@@ -1036,6 +1306,47 @@
 			this.slider.value = '0';
 		}
 
+		private showSeasonUnavailable(
+			playerName: string,
+			season: SeasonId,
+			availability: PlayerSeasonAvailability,
+		) {
+			this.stage.setAttribute('aria-busy', 'false');
+			requireElement<HTMLElement>(this, '[data-result-empty]').hidden = true;
+			const unavailable = requireElement<HTMLElement>(this, '[data-season-unavailable]');
+			unavailable.hidden = false;
+			requireElement<HTMLElement>(unavailable, '[data-season-unavailable-title]').textContent =
+				`${playerName} · ${this.seasonLabel(season)}`;
+			const copy = requireElement<HTMLElement>(unavailable, '[data-season-unavailable-copy]');
+
+			if (availability.availability_status === 'no_recorded_shots') {
+				copy.textContent =
+					`The source data contains no recorded shots for ${playerName} in ${this.seasonLabel(season)}, so no player analysis is available.`;
+			} else if (availability.availability_status === 'model_ineligible') {
+				const attempts = whole(availability.in_play_shots);
+				const games = whole(availability.in_play_games);
+				let threshold = 'the 20-game and 250-attempt thresholds';
+				if (availability.availability_reason === 'fewer_than_20_games') {
+					threshold = 'the 20-game threshold';
+				} else if (availability.availability_reason === 'fewer_than_250_attempts') {
+					threshold = 'the 250-attempt threshold';
+				}
+				copy.textContent =
+					`The source data records ${attempts} in-play attempts across ${games} games for ${playerName} in ${this.seasonLabel(season)}. The player did not meet ${threshold}, so the model excluded this player-season.`;
+			} else {
+				copy.textContent =
+					`${playerName} has an eligible modeled surface for ${this.seasonLabel(season)}, but no destination passed the relocation evidence rule.`;
+			}
+
+			requireElement<HTMLElement>(this, '[data-caption-player]').textContent =
+				`${playerName}, ${this.seasonLabel(season)}.`;
+			requireElement<HTMLElement>(this, '[data-caption-body]').textContent =
+				'No chart is available for this player-season.';
+			this.setStatus(
+				`${playerName} has no analysis available for ${this.seasonLabel(season)}. Search for another player or reset the explorer.`,
+			);
+		}
+
 		private updateSlider() {
 			if (!this.currentPlayer?.relocation_available) return;
 			const percent = Number(this.slider.value);
@@ -1073,7 +1384,11 @@
 		private clearResult(playerName: string, message: string) {
 			this.currentPlayer = undefined;
 			this.courtView = 'before';
+			requireElement<HTMLElement>(this, '[data-court-mode-label]').textContent = 'Player analysis';
 			requireElement<HTMLElement>(this, '[data-player-name]').textContent = playerName;
+			requireElement<HTMLElement>(this, '[data-caption-player]').textContent =
+				`${playerName}, ${this.seasonLabel(this.selectedSeason)}.`;
+			requireElement<HTMLElement>(this, '[data-caption-body]').textContent = message;
 			requireElement<SVGTitleElement>(this, '[data-court-title]').textContent = message;
 			requireElement<SVGGElement>(this, '[data-court-empty]').removeAttribute('hidden');
 			requireElement<SVGTextElement>(this, '[data-court-empty] text').textContent = message;
@@ -1083,6 +1398,7 @@
 			requireElement<HTMLElement>(this, '[data-shot-legend]').hidden = true;
 			requireElement<HTMLElement>(this, '[data-qualified-result]').hidden = true;
 			requireElement<HTMLElement>(this, '[data-insufficient-result]').hidden = true;
+			requireElement<HTMLElement>(this, '[data-season-unavailable]').hidden = true;
 			const empty = requireElement<HTMLElement>(this, '[data-result-empty]');
 			empty.hidden = false;
 			empty.querySelector('p:last-child')!.textContent = message;
@@ -1157,11 +1473,15 @@
 		width: 100%;
 		max-width: 36rem;
 	}
+	.season-control {
+		width: 100%;
+	}
 	.combobox-shell {
 		position: relative;
 		min-width: 0;
 	}
-	.control input {
+	.control input,
+	.control select {
 		width: 100%;
 		min-height: var(--control-height);
 		box-sizing: border-box;
@@ -1174,6 +1494,7 @@
 		font-size: 1rem;
 	}
 	.control input:focus-visible,
+	.control select:focus-visible,
 	.retry:focus-visible,
 	.court:focus-visible,
 	.view-options input:focus-visible + span,
@@ -1181,7 +1502,8 @@
 		outline: var(--rule-thick) solid var(--accent);
 		outline-offset: 3px;
 	}
-	.control input:disabled {
+	.control input:disabled,
+	.control select:disabled {
 		cursor: wait;
 		opacity: 0.65;
 	}
@@ -1293,6 +1615,10 @@
 		letter-spacing: 0.12em;
 		text-transform: uppercase;
 		cursor: pointer;
+	}
+	.reset-default {
+		width: 100%;
+		margin-top: var(--space-m);
 	}
 	.explorer-plot {
 		display: grid;
@@ -1569,6 +1895,10 @@
 		}
 		.gain-grid {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+		.player-controls {
+			grid-template-columns: minmax(10rem, 0.45fr) minmax(18rem, 1fr);
+			align-items: end;
 		}
 	}
 	@media (min-width: 58rem) {
