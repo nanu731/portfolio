@@ -33,6 +33,8 @@ const projects = defineCollection({
 		method: z.string(),
 		seasons: z.string(),
 		repo: z.string().url().optional(),
+		// Long interactive write-ups can opt into the tighter project-page rhythm.
+		compact: z.boolean().default(false),
 		// Keeps an entry out of the production build while its numbers are still
 		// unverified, so a placeholder can never ship as a claim.
 		draft: z.boolean().default(false),

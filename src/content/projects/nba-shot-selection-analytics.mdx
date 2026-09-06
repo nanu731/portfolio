@@ -1,11 +1,12 @@
 ---
 title: NBA Shot Selection Analytics
-description: A spatial model estimates player-specific shot value and tests targeted relocation from weaker modeled locations.
-question: How many additional points could a player score by relocating a limited share of shots toward locations where that player has demonstrated stronger ability, while preserving shot variety?
+description: A spatial model estimates player-specific shot value and tests capped relocation from weaker modeled locations.
+question: How many more points could an NBA player score by shifting shots toward their strongest areas?
 dataset: 2025-26 player shooting surfaces on a 156-cell half-court grid
-method: Bayesian CAR model with targeted weak-location relocation
+method: Bayesian CAR model with capped weak-location relocation
 seasons: 2025-26
 repo: https://github.com/nanu731/nba-shot-analytics
+compact: true
 draft: false
 ---
 
@@ -19,12 +20,12 @@ import SpatialShotSelection from '../../components/SpatialShotSelection.astro';
 The production Bayesian conditional autoregressive model estimates a separate
 2025-26 shooting surface for each of 318 players. The relocation calculation removes
 attempt mass from a player's weakest modeled locations first, then allocates it across
-supported destinations in proportion to their existing use.
+supported destinations. No destination can finish above 50% of the player's attempts.
 
 The calculation chooses source locations without using whether a shot went in. A
 destination needs at least 10 attempts and 90% posterior certainty that it exceeds
-the player's current weighted expected-points baseline. At least two destinations
-must pass those rules before the page publishes a score or gain.
+the player's current weighted expected-points baseline. One supported destination can
+produce an estimate; the 50% cap can stop relocation below the requested amount.
 
 </Band>
 
@@ -43,9 +44,10 @@ player's observed 2025-26 attempt volume; the per-100 figure gives a common scal
 The Shot Selection Score applies the self-relative formula to the 25% targeted result.
 It does not represent league rank or overall player quality.
 
-The destination rules qualify 122 players. The other 196 retain their historical
-shots and complete modeled-ability heatmaps, but the page reports insufficient
-evidence instead of substituting zero for an unavailable result.
+The evidence rule finds no supported destination for 29 players, one for 167 players,
+and two or more for 122 players. The page publishes relocation estimates for 276
+players. Thirteen single-destination players have no room under the 50% cap, so their
+scores and gains remain unavailable rather than appearing as zero.
 
 </Band>
 
@@ -56,5 +58,48 @@ evidence instead of substituting zero for an unavailable result.
 These are modeled, non-causal estimates based on past shots. They do not guarantee
 improvement. The model excludes whether a new shot can be created, how defenses
 respond, fatigue, passing, shot-clock pressure, and game context.
+
+</Band>
+
+<Band offset="edge">
+
+## Definitions
+
+### Shot Selection Score
+
+This 0–100 score compares a player's modeled points per shot in the historical mix
+with the feasible result at the 25% request. A score of 90 means the historical mix
+produces about 90% of the modeled points per shot available in this scenario; it does
+not mean the player ranks in the 90th percentile.
+
+### Maximum Relocated Share
+
+A 25% setting allows at most 25 of every 100 attempt-equivalents to move. The actual
+amount can be lower when weak source shots run out or the 50% destination cap binds.
+
+### Season Gain
+
+A value of +157 means the model estimates 157 additional points over the same season
+shot volume. The estimate keeps the player's number of attempts fixed.
+
+### Gain per 100 shots
+
+A value of +17 means an estimated 17 additional points per 100 attempts. This common
+scale removes differences in player shot volume, but the comparison remains non-causal.
+
+### 90% interval
+
+A range such as 129–183 contains the middle 90% of the model's estimates under its
+data and assumptions. It does not guarantee that a future result will fall in that range.
+
+### Single-destination estimate
+
+Only one court cell passed the 10-attempt and 90%-certainty evidence rule. Relocation
+stops when that cell reaches the universal 50% cap.
+
+### Supported destination
+
+A supported destination is a court cell with at least 10 attempts and at least 90%
+posterior certainty of beating the player's current weighted shot mix.
 
 </Band>

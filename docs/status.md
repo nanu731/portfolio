@@ -8,42 +8,49 @@ The visual system remains unchanged. Cream is the dominant surface, dark green c
 type and rules, sand belongs to charts and tables, and rust marks focus and links. The
 page still uses full-width bands, shifting prose offsets, and a fixed figure gutter.
 
-The NBA project uses the verified 2025-26 targeted spatial export. It contains 318
+The NBA project uses the verified 2025-26 capped targeted spatial export. It contains 318
 players, 156 modeled court cells per player, 194,987 historical shots, and six settings
-from 0% through 25%. The destination rules qualify 122 players. The other 196 players
-retain their shots and heatmaps with unavailable scores and gains left null.
+from 0% through 25%. Twenty-nine players have no supported destination, 167 have one, and
+122 have two or more. The page publishes relocation estimates for 276 players. Thirteen
+single-destination players have no room under the universal 50% destination cap, so their
+scores and gains remain unavailable.
 
-Readers begin with a `Choose a player` state. The explorer loads the 318-player index
-once. Its single search field waits for three characters, ranks names that begin
-with the query before other name matches, and loads a file only after a reader chooses a
-suggestion. Before shows green circles for historical makes and rust crosses for misses.
-After keeps unmoved shots in place, shows hypothetical relocations as gold diamonds, and
-marks their origins with faint rings. Modeled Ability shows a complete heatmap with one
-fixed probability scale and supported destinations.
+The explorer loads the 318-player index once and opens with LeBron James. Focusing its
+single search field shows every player in a bounded list. Typing filters from the first
+character, ignores accents and punctuation, ranks prefix matches first, and preserves
+the original display name. The browser loads only the selected player's file. Before
+shows green circles for historical makes and rust crosses for misses. After keeps
+unmoved shots in place, shows hypothetical relocations as cyan diamonds, and marks their
+origins with faint rings. Modeled Ability shows a complete heatmap with one fixed
+probability scale and supported destinations.
 
-Qualified players receive a Shot Selection Score with a 90% interval and the six-step
-relocation control. The page reports requested and actual relocated shares, season gains
-as whole points, and gains per 100 shots to one decimal place. The zero setting displays
-zero gain. Unsupported players receive a clear insufficient-evidence result instead of a
-substitute zero.
+Players with feasible relocation receive a Shot Selection Score with a 90% interval and
+the six-step relocation control. One-location results carry a single-destination label.
+The page reports requested and actual relocated shares, season gains as whole points,
+and gains per 100 shots to one decimal place. The zero setting displays zero gain.
+Unavailable values stay null and receive a reason instead of a substitute zero.
 
 ## What was verified
 
-The analytics and portfolio version-two copies contain the same 320 files and 56,847,516
-bytes. A directory comparison found no differences. The manifest and season-index
-SHA-256 hashes match the verified source.
+The analytics and portfolio version-three copies contain the same 320 files and
+57,418,128 bytes. A directory comparison found no differences. The manifest and
+season-index SHA-256 hashes match the verified source. Two independent export builds
+also matched byte for byte.
 
-The production build completed with the NBA page included. Browser checks covered the
-three-character search threshold, beginning and middle name matches, mixed case, no
-results, pointer and keyboard selection, Escape, outside clicks, clearing, and rapid
-player changes. A delayed-request check confirmed that a slower earlier choice cannot
-replace the latest player. A temporary request log recorded one player-index request,
-no player request while typing, and only the chosen player's file after selection. The
-browser console reported no warnings or errors.
+Focused analytics tests covered zero, one, and multiple supported destinations;
+fractional source boundaries; exhausted source and destination capacity; proportional
+redistribution after a cap binds; outcome-independent movement; and Victor Wembanyama's
+single-destination case. Every receiving destination finishes at or below 50%.
 
-Desktop and 375-pixel mobile checks found no horizontal overflow, clipped controls,
-overlapping labels, or court-alignment problem. The score, legend, slider, intervals,
-and caveats remained readable at both sizes.
+The production site build completed with the NBA page included. Browser checks covered
+the LeBron preload, all three court views, the complete list, accent and punctuation
+normalization, no results, pointer and keyboard selection, Escape, outside clicks,
+clearing, rapid player changes, and unavailable-result reasons. The browser console
+reported no warnings or errors.
+
+Desktop, 375-pixel mobile, and 200%-equivalent reflow checks found no horizontal
+overflow, clipped controls, overlapping labels, or court-alignment problem. The score,
+legend, slider, intervals, definitions, and caveats remained readable.
 
 ## Known limits
 
@@ -52,13 +59,12 @@ do not guarantee improvement. The model does not represent whether a replacement
 can be created, how a defense responds, fatigue, passing, shot-clock pressure, or game
 context.
 
-The static version-two bundle is about 54.21 MiB, but a reader does not download it as
+The static version-three bundle is about 54.76 MiB, but a reader does not download it as
 one file. The browser requests the compact index and one selected player payload. The
 versioned files fit the existing static Netlify setup and can be cached separately.
 
-The older zone assets and complete version-one bundle remain preserved. Four earlier
-seasons and a season selector are the next analytics and interface expansion. They have
-not started.
+The older zone assets and complete version-one and version-two bundles remain preserved.
+Four earlier seasons and a season selector remain future work. They have not started.
 
 The chosen custom domain remains unregistered. The Netlify address remains the public
 address until that separate domain work occurs.

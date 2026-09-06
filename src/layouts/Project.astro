@@ -6,7 +6,7 @@ import Header from '../components/Header.astro';
 
 type Props = CollectionEntry<'projects'>['data'];
 
-const { title, description, question, dataset, method, seasons, repo, draft } = Astro.props;
+const { title, description, question, dataset, method, seasons, repo, compact, draft } = Astro.props;
 ---
 
 <!doctype html>
@@ -15,7 +15,7 @@ const { title, description, question, dataset, method, seasons, repo, draft } = 
 		<BaseHead title={`${title} — Narayan Lekhi`} description={description} />
 		{draft && <meta name="robots" content="noindex, nofollow" />}
 	</head>
-	<body>
+	<body class:list={{ 'project--compact': compact }}>
 		<Header />
 		<main>
 			{
@@ -97,6 +97,25 @@ const { title, description, question, dataset, method, seasons, repo, draft } = 
 	.question-band h1 {
 		margin-bottom: 0;
 		color: var(--cream);
+	}
+	.project--compact .question-band {
+		padding-block: var(--space-l);
+	}
+	.project--compact .question-band .band-inner {
+		max-width: 54rem;
+	}
+	.project--compact .question-band h1 {
+		font-size: var(--type-h2);
+		line-height: 1.05;
+	}
+	:global(.project--compact .prose-band) {
+		padding-block: var(--space-l);
+	}
+	:global(.project--compact .prose-band h2) {
+		font-size: var(--type-h3);
+	}
+	:global(.project--compact .prose-band h3) {
+		font-size: var(--type-body);
 	}
 
 	/* Breaks alignment by width rather than position: it starts at the question's
