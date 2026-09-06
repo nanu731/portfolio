@@ -18,22 +18,31 @@
 		</div>
 
 		<div class="player-controls" aria-describedby="player-status">
-			<div class="control">
-				<label class="label" for="player-search">Search players</label>
-				<input
-					type="search"
-					id="player-search"
-					placeholder="Type a player name"
-					autocomplete="off"
-					disabled
-					data-player-search
-				/>
-			</div>
-			<div class="control">
-				<label class="label" for="player-select">Player</label>
-				<select id="player-select" disabled data-player-select>
-					<option value="">Choose a player</option>
-				</select>
+			<div class="control player-combobox">
+				<label class="label" for="player-search">Search player</label>
+				<div class="combobox-shell" data-combobox-shell>
+					<input
+						type="search"
+						id="player-search"
+						placeholder="Type at least 3 characters"
+						autocomplete="off"
+						role="combobox"
+						aria-autocomplete="list"
+						aria-expanded="false"
+						aria-controls="player-suggestions"
+						aria-describedby="player-status"
+						disabled
+						data-player-search
+					/>
+					<div
+						id="player-suggestions"
+						class="suggestion-menu"
+						role="listbox"
+						aria-label="Player suggestions"
+						hidden
+						data-player-suggestions
+					></div>
+				</div>
 			</div>
 		</div>
 
@@ -335,19 +344,26 @@
 
 	class SpatialShotExplorer extends HTMLElement {
 		private players: PlayerIndexEntry[] = [];
-		private playersById = new Map<string, PlayerIndexEntry>();
+		private matches: PlayerIndexEntry[] = [];
+		private activeSuggestionIndex = -1;
 		private activeRequest?: AbortController;
 		private currentPlayer?: PlayerPayload;
 		private courtView: CourtView = 'before';
 		private activeCellIndex = 0;
 		private retryAction?: () => void;
+		private readonly handleOutsidePointer = (event: PointerEvent) => {
+			if (event.target instanceof Node && !this.combobox.contains(event.target)) {
+				this.closeSuggestions();
+			}
+		};
 
 		connectedCallback() {
 			if (this.dataset.initialized === 'true') return;
 			this.dataset.initialized = 'true';
 
-			this.search.addEventListener('input', () => this.filterPlayers());
-			this.select.addEventListener('change', () => this.selectPlayer());
+			this.search.addEventListener('input', () => this.updateSuggestions());
+			this.search.addEventListener('keydown', (event) => this.handleSearchKeydown(event));
+			document.addEventListener('pointerdown', this.handleOutsidePointer);
 			this.slider.addEventListener('input', () => this.updateSlider());
 			this.querySelectorAll<HTMLInputElement>('input[name="court-view"]').forEach((control) => {
 				control.addEventListener('change', () => {
@@ -370,8 +386,11 @@
 		private get search() {
 			return requireElement<HTMLInputElement>(this, '[data-player-search]');
 		}
-		private get select() {
-			return requireElement<HTMLSelectElement>(this, '[data-player-select]');
+		private get combobox() {
+			return requireElement<HTMLElement>(this, '[data-combobox-shell]');
+		}
+		private get suggestions() {
+			return requireElement<HTMLElement>(this, '[data-player-suggestions]');
 		}
 		private get status() {
 			return requireElement<HTMLElement>(this, '[data-status]');
@@ -571,57 +590,129 @@
 				this.players = this.validateIndex(raw).sort((a, b) =>
 					a.player_name.localeCompare(b.player_name),
 				);
-				this.playersById = new Map(this.players.map((player) => [player.player_id, player]));
 				this.search.disabled = false;
-				this.select.disabled = false;
-				this.filterPlayers();
 				this.stage.setAttribute('aria-busy', 'false');
-				this.setStatus('318 players available. Choose a player.');
+				this.setStatus('318 players available. Type at least 3 characters to search.');
 			} catch (error) {
 				this.showError('The player list could not be loaded. Check the connection and try again.');
 			}
 		}
 
-		private filterPlayers() {
+		private updateSuggestions() {
 			const query = this.search.value.trim().toLocaleLowerCase();
-			const matches = this.players.filter((player) =>
-				player.player_name.toLocaleLowerCase().includes(query),
-			);
-			const previous = this.select.value;
-			const options = document.createDocumentFragment();
-			const placeholder = document.createElement('option');
-			placeholder.value = '';
-			placeholder.textContent = matches.length ? 'Choose a player' : 'No matching players';
-			options.append(placeholder);
-
-			matches.forEach((player) => {
-				const option = document.createElement('option');
-				option.value = player.player_id;
-				option.textContent =
-					player.evidence_status === 'insufficient_evidence'
-						? `${player.player_name} · insufficient evidence`
-						: player.player_name;
-				options.append(option);
-			});
-
-			this.select.replaceChildren(options);
-			if (matches.some((player) => player.player_id === previous)) this.select.value = previous;
-			this.select.disabled = matches.length === 0;
-			if (query) {
+			if (query.length < 3) {
+				this.closeSuggestions();
 				this.setStatus(
-					matches.length === 1 ? '1 player matches.' : `${matches.length} players match.`,
+					this.currentPlayer
+						? `${this.currentPlayer.player_name} remains selected. Type at least 3 characters to search.`
+						: '318 players available. Type at least 3 characters to search.',
 				);
-			}
-		}
-
-		private async selectPlayer() {
-			const entry = this.playersById.get(this.select.value);
-			if (!entry) {
-				this.showEmpty();
 				return;
 			}
 
-			await this.loadPlayer(entry);
+			this.matches = this.players
+				.filter((player) => player.player_name.toLocaleLowerCase().includes(query))
+				.sort((a, b) => {
+					const aStarts = a.player_name.toLocaleLowerCase().startsWith(query);
+					const bStarts = b.player_name.toLocaleLowerCase().startsWith(query);
+					if (aStarts !== bStarts) return aStarts ? -1 : 1;
+					return (
+						a.player_name.localeCompare(b.player_name, undefined, { sensitivity: 'base' }) ||
+						a.player_id.localeCompare(b.player_id)
+					);
+				});
+			this.activeSuggestionIndex = -1;
+			this.renderSuggestions();
+			this.openSuggestions();
+			this.setStatus(
+				this.matches.length === 1 ? '1 player matches.' : `${this.matches.length} players match.`,
+			);
+		}
+
+		private renderSuggestions() {
+			const fragment = document.createDocumentFragment();
+			if (this.matches.length === 0) {
+				const empty = document.createElement('p');
+				empty.className = 'no-results';
+				empty.setAttribute('role', 'option');
+				empty.setAttribute('aria-disabled', 'true');
+				empty.setAttribute('aria-selected', 'false');
+				empty.textContent = 'No players found';
+				fragment.append(empty);
+			} else {
+				this.matches.forEach((player, index) => {
+					const option = document.createElement('div');
+					option.id = `player-option-${player.player_id}`;
+					option.className = 'suggestion-option';
+					option.setAttribute('role', 'option');
+					option.setAttribute('aria-selected', String(index === this.activeSuggestionIndex));
+					option.dataset.suggestionIndex = String(index);
+					option.textContent = player.player_name;
+					option.addEventListener('mousedown', (event) => event.preventDefault());
+					option.addEventListener('click', () => this.selectSuggestion(player));
+					fragment.append(option);
+				});
+			}
+			this.suggestions.replaceChildren(fragment);
+		}
+
+		private openSuggestions() {
+			this.suggestions.hidden = false;
+			this.search.setAttribute('aria-expanded', 'true');
+		}
+
+		private closeSuggestions() {
+			this.suggestions.hidden = true;
+			this.matches = [];
+			this.activeSuggestionIndex = -1;
+			this.search.setAttribute('aria-expanded', 'false');
+			this.search.removeAttribute('aria-activedescendant');
+		}
+
+		private moveSuggestion(step: -1 | 1) {
+			if (this.matches.length === 0) return;
+			this.activeSuggestionIndex =
+				this.activeSuggestionIndex === -1
+					? step === 1
+						? 0
+						: this.matches.length - 1
+					: (this.activeSuggestionIndex + step + this.matches.length) % this.matches.length;
+			this.renderSuggestions();
+			const active = requireElement<HTMLElement>(
+				this.suggestions,
+				`[data-suggestion-index="${this.activeSuggestionIndex}"]`,
+			);
+			this.search.setAttribute('aria-activedescendant', active.id);
+			active.scrollIntoView({ block: 'nearest' });
+		}
+
+		private handleSearchKeydown(event: KeyboardEvent) {
+			if (event.key === 'Escape') {
+				if (!this.suggestions.hidden) event.preventDefault();
+				this.closeSuggestions();
+				return;
+			}
+
+			const query = this.search.value.trim();
+			if (query.length < 3) return;
+			if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+				event.preventDefault();
+				if (this.suggestions.hidden) this.updateSuggestions();
+				this.moveSuggestion(event.key === 'ArrowDown' ? 1 : -1);
+				return;
+			}
+
+			if (event.key === 'Enter' && this.activeSuggestionIndex >= 0) {
+				event.preventDefault();
+				const entry = this.matches[this.activeSuggestionIndex];
+				if (entry) this.selectSuggestion(entry);
+			}
+		}
+
+		private selectSuggestion(entry: PlayerIndexEntry) {
+			this.search.value = entry.player_name;
+			this.closeSuggestions();
+			void this.loadPlayer(entry);
 		}
 
 		private async loadPlayer(entry: PlayerIndexEntry, request = new AbortController()) {
@@ -921,13 +1012,6 @@
 			this.slider.disabled = true;
 		}
 
-		private showEmpty() {
-			this.activeRequest?.abort();
-			this.clearResult('Choose a player', 'Choose a player');
-			requireElement<HTMLElement>(this, '[data-caption-player]').textContent = 'Choose a player.';
-			this.setStatus('318 players available. Choose a player.');
-		}
-
 		private setStatus(message: string) {
 			this.status.textContent = message;
 			this.status.setAttribute('role', 'status');
@@ -957,6 +1041,7 @@
 <style>
 	.spatial-explorer {
 		--control-height: 3rem;
+		--suggestion-max-height: 18rem;
 	}
 	.explorer-heading {
 		display: grid;
@@ -987,10 +1072,18 @@
 		display: grid;
 		gap: var(--space-2xs);
 	}
-	.control input,
-	.control select {
+	.player-combobox {
+		width: 100%;
+		max-width: 36rem;
+	}
+	.combobox-shell {
+		position: relative;
+		min-width: 0;
+	}
+	.control input {
 		width: 100%;
 		min-height: var(--control-height);
+		box-sizing: border-box;
 		padding: var(--space-2xs) var(--space-s);
 		border: var(--rule) solid var(--green);
 		border-radius: 0;
@@ -999,7 +1092,7 @@
 		font-family: var(--font-body);
 		font-size: 1rem;
 	}
-	.control :is(input, select):focus-visible,
+	.control input:focus-visible,
 	.retry:focus-visible,
 	.court:focus-visible,
 	.view-options input:focus-visible + span,
@@ -1007,9 +1100,49 @@
 		outline: var(--rule-thick) solid var(--accent);
 		outline-offset: 3px;
 	}
-	.control :is(input, select):disabled {
+	.control input:disabled {
 		cursor: wait;
 		opacity: 0.65;
+	}
+	.suggestion-menu {
+		position: absolute;
+		z-index: 10;
+		inset-block-start: 100%;
+		inset-inline: 0;
+		max-height: var(--suggestion-max-height);
+		overflow-y: auto;
+		box-sizing: border-box;
+		border: var(--rule) solid var(--green);
+		border-top: 0;
+		background: var(--cream);
+	}
+	.suggestion-menu[hidden] {
+		display: none;
+	}
+	.suggestion-menu :global(.suggestion-option),
+	.suggestion-menu :global(.no-results) {
+		margin: 0;
+		padding: var(--space-xs) var(--space-s);
+	}
+	.suggestion-menu :global(.suggestion-option) {
+		min-height: 44px;
+		box-sizing: border-box;
+		border-top: var(--rule-thin) solid var(--sand);
+		cursor: pointer;
+		touch-action: manipulation;
+	}
+	.suggestion-menu :global(.suggestion-option:first-child) {
+		border-top: 0;
+	}
+	.suggestion-menu :global(.suggestion-option:hover) {
+		background: var(--sand);
+	}
+	.suggestion-menu :global(.suggestion-option[aria-selected='true']) {
+		background: var(--green);
+		color: var(--cream);
+	}
+	.suggestion-menu :global(.no-results) {
+		font-style: italic;
 	}
 	.status-row {
 		display: flex;
@@ -1348,9 +1481,6 @@
 		.explorer-heading {
 			grid-template-columns: minmax(0, 0.8fr) minmax(18rem, 1.2fr);
 			align-items: end;
-		}
-		.player-controls {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
 		}
 		.gain-grid {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
