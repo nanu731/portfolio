@@ -14,10 +14,12 @@ from 0% through 25%. The destination rules qualify 122 players. The other 196 pl
 retain their shots and heatmaps with unavailable scores and gains left null.
 
 Readers begin with a `Choose a player` state. The explorer loads the 318-player index
-once and the chosen player's file on selection. Before shows green circles for historical
-makes and rust crosses for misses. After keeps unmoved shots in place, shows hypothetical
-relocations as gold diamonds, and marks their origins with faint rings. Modeled Ability
-shows a complete heatmap with one fixed probability scale and supported destinations.
+once. Its single search field waits for three characters, ranks names that begin
+with the query before other name matches, and loads a file only after a reader chooses a
+suggestion. Before shows green circles for historical makes and rust crosses for misses.
+After keeps unmoved shots in place, shows hypothetical relocations as gold diamonds, and
+marks their origins with faint rings. Modeled Ability shows a complete heatmap with one
+fixed probability scale and supported destinations.
 
 Qualified players receive a Shot Selection Score with a 90% interval and the six-step
 relocation control. The page reports requested and actual relocated shares, season gains
@@ -32,11 +34,12 @@ bytes. A directory comparison found no differences. The manifest and season-inde
 SHA-256 hashes match the verified source.
 
 The production build completed with the NBA page included. Browser checks covered the
-initial state, player search, a qualified player, an insufficient-evidence player, all
-six slider positions, all three views, rapid player changes, and keyboard inspection of
-court cells. A temporary request log recorded one player-index request and only the two
-player files selected during that session. The browser console reported no warnings or
-errors.
+three-character search threshold, beginning and middle name matches, mixed case, no
+results, pointer and keyboard selection, Escape, outside clicks, clearing, and rapid
+player changes. A delayed-request check confirmed that a slower earlier choice cannot
+replace the latest player. A temporary request log recorded one player-index request,
+no player request while typing, and only the chosen player's file after selection. The
+browser console reported no warnings or errors.
 
 Desktop and 375-pixel mobile checks found no horizontal overflow, clipped controls,
 overlapping labels, or court-alignment problem. The score, legend, slider, intervals,
