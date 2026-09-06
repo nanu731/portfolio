@@ -240,6 +240,13 @@ index as much as the projects index.
 Newest first. A new decision goes on top, so this section reads as a log and
 appending is the natural motion.
 
+- **The website consumes the five-season version-four spatial export.** The explorer
+  opens with LeBron James in 2025-26 and offers five separate season fits from
+  2021-22 through 2025-26. It loads the root availability catalog once, then one active
+  season index and one selected player payload. A deliberate player selection
+  persists by NBA player ID when that player has an analysis in the new season. Missing
+  and model-ineligible player-seasons receive distinct reasons instead of a substituted
+  player or chart.
 - **The website consumes the targeted version-two spatial export contract.** Version
   `2025-26-targeted-v2` contains 318 player payloads with historical shots, 156 cells,
   and six relocation settings per player.
