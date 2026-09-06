@@ -1,139 +1,61 @@
 # Portfolio site status
 
-Snapshot for a reader new to the site, rewritten each time. Updated 29 August 2026.
-
-This one is written for someone picking the project up cold after a gap. It marks
-which parts are settled and which are still moving, because a fair amount of what
-looks finished is waiting on decisions being made elsewhere.
-
-## Where this exists
-
-The site is live and anyone can read it. It serves at the netlify.app address, and
-that is the real one. Checked by opening it: the home, About, projects and blog pages
-all answer normally.
-
-The chosen domain is still not registered. A lookup returns nothing, so there is no
-address a person could type. Buying it is the single largest remaining item, and until
-it happens the sharing previews and the machine-readable index of the site point at a
-host that does not exist, so they are wrong rather than merely missing.
-
-The host rebuilds on every push. That was confirmed by watching a change reach the
-live site.
+Snapshot for a reader new to the site. Updated 6 September 2026.
 
 ## What is stable
 
-Four things are settled and safe to build on.
+The visual system remains unchanged. Cream is the dominant surface, dark green carries
+type and rules, sand belongs to charts and tables, and rust marks focus and links. The
+page still uses full-width bands, shifting prose offsets, and a fixed figure gutter.
 
-The look. Cream and dark green from the Milwaukee Bucks Cream City jerseys, with a
-rust accent and a deeper sand tone for chart and table surfaces. Headings in Fraunces,
-reading text in Source Serif 4, numbers in a monospace face. Every colour, spacing and
-type value comes from one place, and the contrast limits behind them were measured
-rather than guessed.
+The NBA project uses the verified 2025-26 targeted spatial export. It contains 318
+players, 156 modeled court cells per player, 194,987 historical shots, and six settings
+from 0% through 25%. The destination rules qualify 122 players. The other 196 players
+retain their shots and heatmaps with unavailable scores and gains left null.
 
-The layout. Each page is a stack of full-width bands, cream and green alternating,
-with text at a different distance from the left edge in each so the eye zigzags down.
-Charts never move, so they line up down the page while the writing shifts around them.
+Readers begin with a `Choose a player` state. The explorer loads the 318-player index
+once and the chosen player's file on selection. Before shows green circles for historical
+makes and rust crosses for misses. After keeps unmoved shots in place, shows hypothetical
+relocations as gold diamonds, and marks their origins with faint rings. Modeled Ability
+shows a complete heatmap with one fixed probability scale and supported destinations.
 
-Project write-ups can now declare their own bands. This was the missing piece for
-months: the writing arrives from a document file, and a plain document has no way to
-say "start a new band here", so a write-up used to land in one block at one distance
-from the edge. It no longer does. An author now chooses where each section sits and
-where the single dark green block falls.
+Qualified players receive a Shot Selection Score with a 90% interval and the six-step
+relocation control. The page reports requested and actual relocated shares, season gains
+as whole points, and gains per 100 shots to one decimal place. The zero setting displays
+zero gain. Unsupported players receive a clear insufficient-evidence result instead of a
+substitute zero.
 
-Routing and deployment. Adding a project is a matter of writing one document with a
-handful of required fields. Its page, its address, and its entry on the projects list
-all appear without further work.
+## What was verified
 
-## What is not stable
+The analytics and portfolio version-two copies contain the same 320 files and 56,847,516
+bytes. A directory comparison found no differences. The manifest and season-index
+SHA-256 hashes match the verified source.
 
-The analytics project supplying the basketball work is mid-rework, and none of it is
-settled.
+The production build completed with the NBA page included. Browser checks covered the
+initial state, player search, a qualified player, an insufficient-evidence player, all
+six slider positions, all three views, rapid player changes, and keyboard inspection of
+court cells. A temporary request log recorded one player-index request and only the two
+player files selected during that session. The browser console reported no warnings or
+errors.
 
-The model that divides the court into regions has already been rebuilt once. It is now
-being reconsidered again, in favour of a spatial approach rather than a fixed set of
-named regions. The measure itself is also being reframed, so what a number on the
-chart means is likely to change.
+Desktop and 375-pixel mobile checks found no horizontal overflow, clipped controls,
+overlapping labels, or court-alignment problem. The score, legend, slider, intervals,
+and caveats remained readable at both sizes.
 
-Everything this document says about the shape of that data is a description of the
-current intention. It is not a specification. The shape of the export, the number of
-court regions, and the meaning of the score should all be treated as open questions.
-Confirm each of them against the analytics project before committing site work that
-depends on them. Work built against the present arrangement will need redoing, and
-that is expected rather than a failure.
+## Known limits
 
-## The shot selection chart
+The results are modeled, descriptive, and non-causal estimates based on past shots. They
+do not guarantee improvement. The model does not represent whether a replacement shot
+can be created, how a defense responds, fatigue, passing, shot-clock pressure, or game
+context.
 
-A chart component exists and draws a half court split into fourteen regions, shading
-each one by how much it adds to or subtracts from a player's score. It was proven in a
-browser: the court is complete in the page before any scripting runs, it holds up on a
-phone, and it refuses to build if the court would come out mirrored.
+The static version-two bundle is about 54.21 MiB, but a reader does not download it as
+one file. The browser requests the compact index and one selected player payload. The
+versioned files fit the existing static Netlify setup and can be cached separately.
 
-It is built against the region model that the analytics project has since replaced. So
-it renders, and it cannot yet show real data. Rewiring it is the first task whenever
-the analytics side settles, and how much work that is depends entirely on how far the
-new model departs from the old one. If the spatial approach wins, the drawing part is
-likely to be rewritten rather than adjusted.
+The older zone assets and complete version-one bundle remain preserved. Four earlier
+seasons and a season selector are the next analytics and interface expansion. They have
+not started.
 
-Two colour decisions sit inside it and are worth knowing about, because both are
-decisions rather than facts.
-
-The seven-step ramp running rust through sand to green, with the below-average half
-hatched, is settled and survives the rework. It is a palette decision, not a data one.
-The hatch matters: rust against green is the one pairing red-green colourblind readers
-cannot separate, so without it the chart is unreadable for roughly one man in twelve.
-
-The way values are spread across that ramp is provisional. One region near the hoop has
-a far wider range than the rest, so a plain even spread left eleven of the fourteen
-stuck on the middle colour saying nothing. The current chart stretches the scale to put
-the resolution where the values actually are, and prints the real numbers on the legend
-so the stretching is visible rather than hidden. That choice was made to fit the present
-measure. If the measure is reframed, revisit it, because the reason for it may not
-survive.
-
-## Things a newcomer would otherwise rediscover
-
-There is a test page sitting among the project entries. It is scaffolding used to check
-that bands and the chart render, not content, and it is marked as a draft so it never
-reaches the live site. Its words are deliberate placeholders. Delete it once a real
-project page exists.
-
-There is an integration document in the same folder as this one, written for whoever
-builds the analytics side. Parts of it are stale. It predates the first data export and
-is wrong about the measure, the seasons covered, and how the smoothing is done. Where it
-disagrees with the actual files in this project, the files win. It is still worth reading
-for the parts about how the site is put together, which have held up.
-
-A safeguard was designed and has not been built. Nothing currently checks that the
-region shapes stored in this project describe the same regions as the data file that
-colours them. If the analytics side ships new data with different regions while the old
-shapes remain, every region would be shaded with the wrong number and nothing would
-complain. The chart would look entirely normal and be entirely wrong. Given the rework
-now under way, this is the most likely way for this project to start lying, and building
-that check should come before any real data goes near the page.
-
-One existing safeguard does work. The court refuses to build if it would render
-mirrored, which is worth having because a flipped court passes the analytics checks and
-simply comes out upside down. That check protects local work today. It will protect the
-live site as soon as a real, non-draft page uses the chart.
-
-## Waiting on you
-
-- Buying the domain.
-- Every word of a project write-up. Nothing on this site is written by anyone else, and
-  no numbers or findings will be invented. Where writing is missing, the pages carry
-  obvious markers rather than plausible filler.
-- Confirming the region model and the measure with the analytics side before the chart
-  is rewired.
-- Both empty states read "Nothing here yet." Those are your words, so replace them if
-  the voice has moved on.
-
-## Known gaps
-
-- Nothing is published. Finished projects are the reason the site exists.
-- The chart cannot show real data yet.
-- The data files and the chart work are not yet part of the project's saved history at
-  the time of writing, so they exist only on one machine.
-- On a very narrow phone a line runs about 26 characters, short of comfortable. Fixing
-  it would mean type too small to read, so the type wins. This is a decision, not an
-  oversight.
-- The browser tab icon is still the template's default. The sharing image is not.
+The chosen custom domain remains unregistered. The Netlify address remains the public
+address until that separate domain work occurs.

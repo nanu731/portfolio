@@ -18,8 +18,9 @@ hand-waving immediately. Be concrete and skip jargon that isn't doing work.
 
 - Plain CSS. No Tailwind, no component libraries, no UI kits.
 - Static plots exported from R (ggplot2) as SVG, stored in `public/plots/`. A chart
-  that has to vary per reader is instead an Astro component rendering SVG at build
-  time from imported JSON; see the shot selection chart.
+  that has to vary per reader can load versioned JSON in the browser; the spatial
+  shot explorer loads the player index once and only the selected player payload.
+  The older build-time zone chart remains preserved for now.
 - Analysis code lives in separate repos, linked from each project page
 - Deployed on Netlify from GitHub. Serving at `nlekhi.netlify.app`; `narayanlekhi.com`
   is configured but unregistered, so it is not yet an address. See Build and hosting.
@@ -135,11 +136,11 @@ custom property in one place; both constraints sit as comments beside them.
   `#79A183`, `#477A56`, `#14532D`; ends and midpoint are `--accent`, `--sand`, and
   `--green` unchanged.
 
-The seven values and the hatch are a palette decision and hold for any diverging
-quantity. The fourteen-zone framing around them does not: the analytics project is
-reworking its zone model, so treat "the zone ramp" as this ramp applied to whatever
-the court model turns out to be. How values are *spread* across the ramp is a separate
-and currently provisional decision, recorded under Still to decide.
+The seven values and the hatch remain the rule for diverging quantities. The spatial
+make-probability heatmap is sequential instead: cream, sand, and three established
+greens in fixed numeric bins for every player. An outlined diamond supplies a shape
+cue for supported relocation destinations. The fourteen-zone framing applies only to
+the preserved older component.
 
 ### Type
 
@@ -230,31 +231,28 @@ index as much as the projects index.
 
 ## Still to decide
 
-- **Everything the shot selection chart depends on.** The analytics project is mid-rework
-  and none of it is settled. Its zone model was rebuilt once and is now being reconsidered
-  again in favour of a spatial model, and the metric is being reframed. The chart component
-  here is built against the superseded zone model: it renders, and it cannot show real data
-  until it is rewired. Treat the shape of the export, the number of zones, and the meaning
-  of the score as open, and confirm against the analytics repo before building on any of
-  them. Nothing on this list blocks design, layout, routing, or deployment work, which are
-  settled.
-- **How values spread across the diverging ramp.** The chart currently maps the signed
-  square root of the value rather than the value itself, because one zone near the hoop has
-  a far wider range than the rest and an even spread left eleven of fourteen zones on the
-  neutral colour. The legend prints real values at every boundary so the stretch is visible
-  rather than hidden. This was fitted to the current metric. Revisit it if the metric is
-  reframed, because the reason for it may not survive.
-- **A version assertion between the data and the geometry.** Designed, not built. Nothing
-  checks that the zone ids in the geometry file match the zone ids in the data that colours
-  it. Ship new data with a changed zone model against the old geometry and every zone gets
-  the wrong number with no error: the chart looks right and is wrong. Build this before real
-  data reaches the page.
+- **The future of the older zone chart and its assets.** The spatial explorer replaces it
+  on the NBA project page, but this integration deliberately preserves the older component,
+  geometry, and example data. Removing them requires a separate reviewed change.
 
 ## Settled
 
 Newest first. A new decision goes on top, so this section reads as a log and
 appending is the natural motion.
 
+- **The website consumes the targeted version-two spatial export contract.** Version
+  `2025-26-targeted-v2` contains 318 player payloads with historical shots, 156 cells,
+  and six relocation settings per player.
+  Browser checks reject the wrong schema, data version, player identity, cell count,
+  slider sequence, or evidence-state null pattern before rendering a result.
+- **The spatial explorer loads data on selection.** It loads `players.json` once, then
+  fetches only the chosen player file. A new selection aborts the previous request so a
+  slower response cannot replace the current player. The fixed probability legend uses
+  below 30%, 30-40%, 40-50%, 50-60%, and 60% and above for every player.
+- **Unsupported players keep their shots and shooting surface.** All 318 players can be
+  searched and viewed. The 122 qualified players receive scores and relocation gains;
+  the other 196 show `Insufficient evidence` without converting unavailable values to
+  zero.
 - **A write-up supplies its own bands through MDX with band components.** A project
   page places an interactive chart and leaderboard tables at chosen points inside the
   body, so it carries components rather than prose and images alone. Splitting plain
