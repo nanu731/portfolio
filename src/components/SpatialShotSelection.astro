@@ -66,8 +66,7 @@
 		<fieldset class="view-controls" hidden data-view-controls>
 			<legend class="label">Court view</legend>
 			<div class="view-options">
-				<label><input type="radio" name="court-view" value="before" checked /> Before</label>
-				<label><input type="radio" name="court-view" value="after" /> After</label>
+				<label><input type="radio" name="court-view" value="combined" checked /> Before &amp; After</label>
 				<label><input type="radio" name="court-view" value="ability" /> Modeled ability</label>
 			</div>
 		</fieldset>
@@ -142,10 +141,10 @@
 				</ul>
 
 				<ul class="shot-legend" aria-label="Shot-chart legend" hidden data-shot-legend>
-					<li><span class="shot-key shot-key--make" aria-hidden="true"></span><span>Made</span></li>
-					<li><span class="shot-key shot-key--miss" aria-hidden="true">×</span><span>Missed</span></li>
-					<li><span class="shot-key shot-key--moved" aria-hidden="true"></span><span>Hypothetically relocated</span></li>
-					<li><span class="shot-key shot-key--origin" aria-hidden="true"></span><span>Original location</span></li>
+					<li><span class="shot-key shot-key--make" aria-hidden="true"></span><span>Historical make</span></li>
+					<li><span class="shot-key shot-key--miss" aria-hidden="true">×</span><span>Historical miss</span></li>
+					<li hidden data-relocation-key><span class="shot-key shot-key--moved" aria-hidden="true"></span><span>Hypothetically relocated</span></li>
+					<li hidden data-relocation-key><span class="shot-key shot-key--origin" aria-hidden="true"></span><span>Original location</span></li>
 				</ul>
 
 				<p id="cell-detail" class="cell-detail numeric" aria-live="polite" data-cell-detail>
@@ -173,7 +172,7 @@
 					<div class="slider-block">
 						<div class="slider-label">
 							<label class="label" for="relocation-share">Maximum relocated share</label>
-							<output class="numeric" for="relocation-share" data-slider-output>0%</output>
+							<output class="numeric" for="relocation-share" data-slider-output>0% requested</output>
 						</div>
 						<input
 							type="range"
@@ -353,7 +352,7 @@
 		shots: Shot[];
 	};
 
-	type CourtView = 'before' | 'after' | 'ability';
+	type CourtView = 'combined' | 'ability';
 
 	const SVG_NS = 'http://www.w3.org/2000/svg';
 	const ROOT_SCHEMA = '4.0.0';
@@ -429,7 +428,7 @@
 		private selectedSeason: SeasonId = DEFAULT_SEASON;
 		private deliberatePlayerId?: string;
 		private currentPlayer?: PlayerPayload;
-		private courtView: CourtView = 'before';
+		private courtView: CourtView = 'combined';
 		private activeCellIndex = 0;
 		private retryAction?: () => void;
 		private readonly handleOutsidePointer = (event: PointerEvent) => {
@@ -1077,20 +1076,20 @@
 			requireElement<HTMLElement>(this, '[data-result-empty]').hidden = true;
 			const controls = requireElement<HTMLFieldSetElement>(this, '[data-view-controls]');
 			controls.hidden = false;
-			const before = requireElement<HTMLInputElement>(controls, 'input[value="before"]');
-			before.checked = true;
-			this.courtView = 'before';
+			const combined = requireElement<HTMLInputElement>(controls, 'input[value="combined"]');
+			combined.checked = true;
+			this.courtView = 'combined';
 
 			if (player.relocation_available) this.showQualified(player);
 			else this.showInsufficient(player);
-			this.setCourtView('before');
+			this.setCourtView('combined');
 		}
 
 		private setCourtView(view: CourtView) {
 			if (!this.currentPlayer) return;
 			this.courtView = view;
 			if (view === 'ability') this.renderHeatmap(this.currentPlayer);
-			else this.renderShotChart(view);
+			else this.renderShotChart();
 		}
 
 		private clearCourtLayers() {
@@ -1100,15 +1099,19 @@
 			requireElement<SVGGElement>(this, '[data-shot-dots]').replaceChildren();
 		}
 
-		private renderShotChart(view: Exclude<CourtView, 'ability'>) {
+		private renderShotChart() {
 			if (!this.currentPlayer) return;
 			this.clearCourtLayers();
 			requireElement<HTMLElement>(this, '[data-heat-legend]').hidden = true;
 			requireElement<HTMLElement>(this, '[data-shot-legend]').hidden = false;
-			requireElement<HTMLElement>(this, '[data-court-mode-label]').textContent =
-				view === 'before' ? 'Before · historical shots' : 'After · targeted estimate';
-
 			const percent = Number(this.slider.value);
+			const isAfter = percent > 0;
+			this.querySelectorAll<HTMLElement>('[data-relocation-key]').forEach((item) => {
+				item.hidden = !isAfter;
+			});
+			requireElement<HTMLElement>(this, '[data-court-mode-label]').textContent =
+				isAfter ? 'After · targeted estimate' : 'Before · historical shots';
+
 			const slider = this.currentPlayer.sliders.find(
 				(row) => Math.abs(row.requested_share - percent / 100) < 1e-9,
 			);
@@ -1118,7 +1121,7 @@
 
 			this.currentPlayer.shots.forEach((shot) => {
 				const movedMass =
-					view === 'after' && shot.move_order !== null
+					isAfter && shot.move_order !== null
 						? Math.max(
 								0,
 								Math.min(1, slider.actual_relocated_attempt_equivalents - (shot.move_order - 1)),
@@ -1159,19 +1162,21 @@
 				}
 			});
 
-			const title = `${this.currentPlayer.player_name}, ${this.currentPlayer.season}: ${view} shot locations`;
+			const title = isAfter
+				? `${this.currentPlayer.player_name}, ${this.currentPlayer.season}: after shot locations at ${percent}% requested relocation`
+				: `${this.currentPlayer.player_name}, ${this.currentPlayer.season}: historical before shot locations`;
 			requireElement<SVGTitleElement>(this, '[data-court-title]').textContent = title;
 			requireElement<SVGDescElement>(this, '[data-court-description]').textContent =
-				view === 'before'
-					? `Historical locations for ${this.currentPlayer.observed_attempts} attempts. Green circles are makes and red crosses are misses.`
+				!isAfter
+					? `Historical before state for ${this.currentPlayer.observed_attempts} attempts. Green circles are makes and rust crosses are misses.`
 					: `Targeted relocation estimate at ${percent} percent requested. Unmoved shots retain their result colors. Cyan diamonds show hypothetical relocated attempt markers and faint rings show their origins.`;
 			requireElement<HTMLElement>(this, '[data-cell-detail]').textContent =
-				view === 'before'
-					? `${whole(this.currentPlayer.observed_attempts)} historical attempts: ${whole(this.currentPlayer.makes)} makes and ${whole(this.currentPlayer.misses)} misses. Outcomes color the dots but did not determine which attempts move.`
-					: `${oneDecimal(slider.actual_relocated_share * 100)}% actual relocation equals ${slider.actual_relocated_attempt_equivalents.toFixed(2)} attempt-equivalents. Cyan does not mean a guaranteed make.`;
+				!isAfter
+					? `Historical before state at 0% requested relocation. ${whole(this.currentPlayer.observed_attempts)} attempts: ${whole(this.currentPlayer.makes)} makes and ${whole(this.currentPlayer.misses)} misses. Outcomes color the dots but did not determine which attempts move.`
+					: `${percent}% requested relocation; ${oneDecimal(slider.actual_relocated_share * 100)}% actual relocation equals ${slider.actual_relocated_attempt_equivalents.toFixed(2)} attempt-equivalents. Cyan does not mean a guaranteed make.`;
 			requireElement<HTMLElement>(this, '[data-caption-body]').textContent =
-				view === 'before'
-					? 'Historical shot locations. Green circles are makes; red crosses are misses.'
+				!isAfter
+					? 'Historical before state at 0% requested relocation. Green circles are makes; rust crosses are misses.'
 					: `Targeted relocation estimate at ${percent}% requested. Cyan diamonds are hypothetical destinations; faint rings mark their origins.`;
 		}
 
@@ -1263,7 +1268,7 @@
 			qualified.hidden = false;
 			insufficient.hidden = true;
 			this.slider.disabled = false;
-			this.slider.value = '25';
+			this.slider.value = '0';
 			const evidenceNote = requireElement<HTMLElement>(this, '[data-evidence-note]');
 			evidenceNote.hidden = player.evidence_status !== 'single_destination';
 			evidenceNote.textContent =
@@ -1366,7 +1371,7 @@
 			if (!values.every(isFiniteNumber)) throw new Error('Selected slider result is unavailable');
 
 			const [season, seasonLow, seasonHigh, per100, per100Low, per100High] = values as number[];
-			requireElement<HTMLOutputElement>(this, '[data-slider-output]').textContent = `${percent}%`;
+			requireElement<HTMLOutputElement>(this, '[data-slider-output]').textContent = `${percent}% requested`;
 			this.slider.setAttribute('aria-valuetext', `${percent} percent requested`);
 			requireElement<HTMLElement>(this, '[data-actual-share]').textContent =
 				`${oneDecimal(result.actual_relocated_share * 100)}% actual · ${result.actual_relocated_attempt_equivalents.toFixed(2)} attempt-equivalents`;
@@ -1378,12 +1383,16 @@
 				`${signed(per100, 1)} points`;
 			requireElement<HTMLElement>(this, '[data-per-100-interval]').textContent =
 				`90% interval ${oneDecimal(per100Low)}–${oneDecimal(per100High)}`;
-			if (this.courtView === 'after') this.renderShotChart('after');
+			if (this.courtView === 'combined') {
+				this.renderShotChart();
+			}
 		}
 
 		private clearResult(playerName: string, message: string) {
 			this.currentPlayer = undefined;
-			this.courtView = 'before';
+			this.courtView = 'combined';
+			this.slider.value = '0';
+			requireElement<HTMLOutputElement>(this, '[data-slider-output]').textContent = '0% requested';
 			requireElement<HTMLElement>(this, '[data-court-mode-label]').textContent = 'Player analysis';
 			requireElement<HTMLElement>(this, '[data-player-name]').textContent = playerName;
 			requireElement<HTMLElement>(this, '[data-caption-player]').textContent =
@@ -1570,7 +1579,7 @@
 	}
 	.view-options {
 		display: grid;
-		grid-template-columns: repeat(3, minmax(0, 1fr));
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 		gap: var(--space-2xs);
 		margin-top: var(--space-2xs);
 	}
@@ -1735,6 +1744,9 @@
 		display: flex;
 		align-items: center;
 		gap: var(--space-2xs);
+	}
+	.shot-legend li[hidden] {
+		display: none;
 	}
 	.shot-key {
 		display: inline-flex;

@@ -240,6 +240,11 @@ index as much as the projects index.
 Newest first. A new decision goes on top, so this section reads as a log and
 appending is the natural motion.
 
+- **Historical and relocated shots share one court view.** Before & After opens at
+  0%, where the court shows the unchanged historical shot chart. Any positive slider
+  setting updates that court with targeted relocation markers and origin rings. A new
+  player, season change, or reset returns the slider and court to the 0% historical
+  state. Modeled Ability remains a separate view and preserves the chosen slider value.
 - **The website consumes the five-season version-four spatial export.** The explorer
   opens with LeBron James in 2025-26 and offers five separate season fits from
   2021-22 through 2025-26. It loads the root availability catalog once, then one active
