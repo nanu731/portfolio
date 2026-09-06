@@ -11,6 +11,7 @@
 	--accent: #9c3d1e; /* rust: links, active nav, third chart series */
 	--muted: #c9bca0; /* secondary type on green blocks only */
 	--gold: #d29b2c; /* hypothetical relocated attempts in shot charts */
+	--relocated: #007ea7; /* cyan-blue v3 relocation markers; 3.81:1 on cream */
 	--green-mid: #79a183; /* established chart ramp, lighter positive step */
 	--green-deep: #477a56; /* established chart ramp, darker positive step */
 

@@ -1,10 +1,10 @@
 ---
 // The browser fetches the compact player index once, then one player payload per
 // selection. Keeping the data in public/ lets Netlify cache each versioned file
-// separately and keeps the 54.21 MiB export out of Astro's JavaScript graph.
+// separately and keeps the versioned export out of Astro's JavaScript graph.
 ---
 
-<spatial-shot-explorer data-base-path="/data/spatial-shot-selection/v2/seasons/2025-26">
+<spatial-shot-explorer data-base-path="/data/spatial-shot-selection/v3/seasons/2025-26">
 	<figure class="figure spatial-explorer" aria-labelledby="spatial-explorer-title">
 		<div class="explorer-heading">
 			<div>
@@ -24,7 +24,7 @@
 					<input
 						type="search"
 						id="player-search"
-						placeholder="Type at least 3 characters"
+						placeholder="Search all 318 players"
 						autocomplete="off"
 						role="combobox"
 						aria-autocomplete="list"
@@ -152,10 +152,11 @@
 				<div hidden data-qualified-result>
 					<div class="score-block">
 						<p class="label">Shot Selection Score</p>
+						<p class="evidence-note label" hidden data-evidence-note></p>
 						<p class="score numeric" data-score></p>
 						<p class="interval numeric" data-score-interval></p>
 						<p class="measure-note">
-							Self-relative score based on the targeted 25% relocation estimate.
+							Self-relative score based on the feasible result at the 25% request.
 						</p>
 					</div>
 
@@ -196,16 +197,13 @@
 
 				<div class="insufficient" hidden data-insufficient-result>
 					<p class="label">Player result</p>
-					<h4>Insufficient evidence</h4>
-					<p>
-						Fewer than two destinations passed the attempt and posterior-certainty rules.
-						The heatmap remains available; the model publishes no score or relocation gain.
-					</p>
+					<h4 data-unavailable-title>Insufficient evidence</h4>
+					<p data-unavailable-copy></p>
 				</div>
 
 				<p class="disclaimer">
 					These modeled estimates use past shots. They do not guarantee improvement or
-					establish a causal effect. Gold marks a hypothetical relocation, not a guaranteed
+					establish a causal effect. Cyan marks a hypothetical relocation, not a guaranteed
 					make. The model excludes shot creation, defensive response, fatigue, passing,
 					shot-clock pressure, and game context.
 				</p>
@@ -225,14 +223,24 @@
 </spatial-shot-explorer>
 
 <script>
-	type EvidenceStatus = 'qualified' | 'insufficient_evidence';
+	type EvidenceStatus =
+		| 'insufficient_evidence'
+		| 'single_destination'
+		| 'multiple_destinations';
+	type AvailabilityReason =
+		| 'available'
+		| 'no_supported_destinations'
+		| 'no_positive_supported_capacity'
+		| 'no_eligible_weak_source_mass';
 
 	type PlayerIndexEntry = {
 		player_id: string;
 		player_name: string;
 		player_file: string;
 		evidence_status: EvidenceStatus;
+		supported_destination_count: number;
 		relocation_available: boolean;
+		availability_reason: AvailabilityReason;
 		score_available: boolean;
 	};
 
@@ -282,6 +290,7 @@
 		player_name: string;
 		evidence_status: EvidenceStatus;
 		relocation_available: boolean;
+		availability_reason: AvailabilityReason;
 		score_available: boolean;
 		observed_attempts: number;
 		makes: number;
@@ -302,9 +311,10 @@
 	type CourtView = 'before' | 'after' | 'ability';
 
 	const SVG_NS = 'http://www.w3.org/2000/svg';
-	const EXPECTED_SCHEMA = '2.0.0';
-	const EXPECTED_DATA = '2025-26-targeted-v2';
-	const EXPECTED_METHOD = 'car-targeted-weak-location-relocation-v2';
+	const EXPECTED_SCHEMA = '3.0.0';
+	const EXPECTED_DATA = '2025-26-targeted-v3';
+	const EXPECTED_METHOD = 'car-targeted-capped-weak-location-relocation-v3';
+	const PRELOAD_PLAYER_ID = '2544';
 	const EXPECTED_PLAYERS = 318;
 	const EXPECTED_CELLS = 156;
 	const EXPECTED_SLIDERS = [0, 0.05, 0.1, 0.15, 0.2, 0.25];
@@ -341,6 +351,15 @@
 	};
 	const courtX = (feet: number) => (feet + 25) * 10;
 	const courtY = (feet: number) => (39.75 - feet) * 10;
+	const normalizeSearch = (value: string) =>
+		value
+			.normalize('NFD')
+			.replace(/\p{M}/gu, '')
+			.toLocaleLowerCase()
+			.replace(/[\p{P}\p{S}]+/gu, ' ')
+			.replace(/\s+/g, ' ')
+			.trim();
+	const compactSearch = (value: string) => normalizeSearch(value).replace(/\s/g, '');
 
 	class SpatialShotExplorer extends HTMLElement {
 		private players: PlayerIndexEntry[] = [];
@@ -362,6 +381,7 @@
 			this.dataset.initialized = 'true';
 
 			this.search.addEventListener('input', () => this.updateSuggestions());
+			this.search.addEventListener('focus', () => this.showAllSuggestions());
 			this.search.addEventListener('keydown', (event) => this.handleSearchKeydown(event));
 			document.addEventListener('pointerdown', this.handleOutsidePointer);
 			this.slider.addEventListener('input', () => this.updateSlider());
@@ -380,7 +400,7 @@
 		}
 
 		private get basePath() {
-			return this.dataset.basePath ?? '/data/spatial-shot-selection/v2/seasons/2025-26';
+			return this.dataset.basePath ?? '/data/spatial-shot-selection/v3/seasons/2025-26';
 		}
 
 		private get search() {
@@ -430,14 +450,28 @@
 				const player_name = raw.player_name;
 				const player_file = raw.player_file;
 				const evidence_status = raw.evidence_status;
+				const availability_reason = raw.availability_reason;
 				if (
 					typeof player_id !== 'string' ||
 					typeof player_name !== 'string' ||
 					typeof player_file !== 'string' ||
 					!/^players\/\d+\.json$/.test(player_file) ||
-					(evidence_status !== 'qualified' && evidence_status !== 'insufficient_evidence') ||
+					(evidence_status !== 'insufficient_evidence' &&
+						evidence_status !== 'single_destination' &&
+						evidence_status !== 'multiple_destinations') ||
+					!isFiniteNumber(raw.supported_destination_count) ||
+					!Number.isInteger(raw.supported_destination_count) ||
+					raw.supported_destination_count < 0 ||
+					(evidence_status === 'insufficient_evidence' && raw.supported_destination_count !== 0) ||
+					(evidence_status === 'single_destination' && raw.supported_destination_count !== 1) ||
+					(evidence_status === 'multiple_destinations' && raw.supported_destination_count < 2) ||
+					!['available', 'no_supported_destinations', 'no_positive_supported_capacity',
+						'no_eligible_weak_source_mass'].includes(String(availability_reason)) ||
 					typeof raw.relocation_available !== 'boolean' ||
 					typeof raw.score_available !== 'boolean' ||
+					raw.relocation_available !== raw.score_available ||
+					(raw.relocation_available && availability_reason !== 'available') ||
+					(!raw.relocation_available && availability_reason === 'available') ||
 					seen.has(player_id)
 				) {
 					throw new Error('Player index contains an invalid identity or path');
@@ -448,7 +482,9 @@
 					player_name,
 					player_file,
 					evidence_status,
+					supported_destination_count: raw.supported_destination_count as number,
 					relocation_available: raw.relocation_available,
+					availability_reason: availability_reason as AvailabilityReason,
 					score_available: raw.score_available,
 				};
 			});
@@ -464,6 +500,8 @@
 				value.player_id !== entry.player_id ||
 				value.player_name !== entry.player_name ||
 				value.evidence_status !== entry.evidence_status ||
+				value.availability_reason !== entry.availability_reason ||
+				value.supported_destination_count !== entry.supported_destination_count ||
 				value.score_available !== entry.score_available ||
 				value.relocation_available !== entry.relocation_available ||
 				!isFiniteNumber(value.observed_attempts) ||
@@ -562,20 +600,18 @@
 				row.gain_per_100.upper_90,
 			]);
 
-			if (payload.evidence_status === 'qualified') {
+			if (payload.relocation_available) {
 				if (
 					!payload.score_available ||
-					!payload.relocation_available ||
 					![...scoreValues, ...gainValues].every(isFiniteNumber)
 				) {
-					throw new Error('Qualified player is missing a score or gain');
+					throw new Error('Available player is missing a score or gain');
 				}
 			} else if (
 				payload.score_available ||
-				payload.relocation_available ||
 				![...scoreValues, ...gainValues].every((item) => item === null)
 			) {
-				throw new Error('Insufficient-evidence player contains a published score or gain');
+				throw new Error('Unavailable player contains a published score or gain');
 			}
 
 			return payload;
@@ -592,29 +628,33 @@
 				);
 				this.search.disabled = false;
 				this.stage.setAttribute('aria-busy', 'false');
-				this.setStatus('318 players available. Type at least 3 characters to search.');
+				this.setStatus('318 players available. Focus the search to browse every player.');
+				const preload = this.players.find((player) => player.player_id === PRELOAD_PLAYER_ID);
+				if (!preload) throw new Error('LeBron James is missing from the player index');
+				this.search.value = preload.player_name;
+				await this.loadPlayer(preload);
 			} catch (error) {
 				this.showError('The player list could not be loaded. Check the connection and try again.');
 			}
 		}
 
 		private updateSuggestions() {
-			const query = this.search.value.trim().toLocaleLowerCase();
-			if (query.length < 3) {
-				this.closeSuggestions();
-				this.setStatus(
-					this.currentPlayer
-						? `${this.currentPlayer.player_name} remains selected. Type at least 3 characters to search.`
-						: '318 players available. Type at least 3 characters to search.',
-				);
-				return;
-			}
+			const query = normalizeSearch(this.search.value);
+			const compactQuery = compactSearch(this.search.value);
 
 			this.matches = this.players
-				.filter((player) => player.player_name.toLocaleLowerCase().includes(query))
+				.filter((player) => {
+					const normalized = normalizeSearch(player.player_name);
+					const compact = compactSearch(player.player_name);
+					return normalized.includes(query) || compact.includes(compactQuery);
+				})
 				.sort((a, b) => {
-					const aStarts = a.player_name.toLocaleLowerCase().startsWith(query);
-					const bStarts = b.player_name.toLocaleLowerCase().startsWith(query);
+					const aStarts =
+						normalizeSearch(a.player_name).startsWith(query) ||
+						compactSearch(a.player_name).startsWith(compactQuery);
+					const bStarts =
+						normalizeSearch(b.player_name).startsWith(query) ||
+						compactSearch(b.player_name).startsWith(compactQuery);
 					if (aStarts !== bStarts) return aStarts ? -1 : 1;
 					return (
 						a.player_name.localeCompare(b.player_name, undefined, { sensitivity: 'base' }) ||
@@ -627,6 +667,25 @@
 			this.setStatus(
 				this.matches.length === 1 ? '1 player matches.' : `${this.matches.length} players match.`,
 			);
+		}
+
+		private showAllSuggestions() {
+			if (this.search.disabled || this.players.length === 0) return;
+			this.matches = [...this.players];
+			this.activeSuggestionIndex = -1;
+			this.renderSuggestions();
+			this.openSuggestions();
+			this.setStatus('318 players shown. Type to filter the list.');
+		}
+
+		private suggestionLabel(player: PlayerIndexEntry) {
+			if (player.evidence_status === 'single_destination') {
+				return `${player.player_name} (single-destination estimate)`;
+			}
+			if (player.evidence_status === 'insufficient_evidence') {
+				return `${player.player_name} (insufficient evidence for relocation)`;
+			}
+			return player.player_name;
 		}
 
 		private renderSuggestions() {
@@ -647,7 +706,7 @@
 					option.setAttribute('role', 'option');
 					option.setAttribute('aria-selected', String(index === this.activeSuggestionIndex));
 					option.dataset.suggestionIndex = String(index);
-					option.textContent = player.player_name;
+					option.textContent = this.suggestionLabel(player);
 					option.addEventListener('mousedown', (event) => event.preventDefault());
 					option.addEventListener('click', () => this.selectSuggestion(player));
 					fragment.append(option);
@@ -693,11 +752,9 @@
 				return;
 			}
 
-			const query = this.search.value.trim();
-			if (query.length < 3) return;
 			if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
 				event.preventDefault();
-				if (this.suggestions.hidden) this.updateSuggestions();
+				if (this.suggestions.hidden) this.showAllSuggestions();
 				this.moveSuggestion(event.key === 'ArrowDown' ? 1 : -1);
 				return;
 			}
@@ -754,8 +811,8 @@
 			before.checked = true;
 			this.courtView = 'before';
 
-			if (player.evidence_status === 'qualified') this.showQualified(player);
-			else this.showInsufficient();
+			if (player.relocation_available) this.showQualified(player);
+			else this.showInsufficient(player);
 			this.setCourtView('before');
 		}
 
@@ -837,15 +894,15 @@
 			requireElement<SVGDescElement>(this, '[data-court-description]').textContent =
 				view === 'before'
 					? `Historical locations for ${this.currentPlayer.observed_attempts} attempts. Green circles are makes and red crosses are misses.`
-					: `Targeted relocation estimate at ${percent} percent requested. Unmoved shots retain their result colors. Gold diamonds show hypothetical relocated attempt markers and faint rings show their origins.`;
+					: `Targeted relocation estimate at ${percent} percent requested. Unmoved shots retain their result colors. Cyan diamonds show hypothetical relocated attempt markers and faint rings show their origins.`;
 			requireElement<HTMLElement>(this, '[data-cell-detail]').textContent =
 				view === 'before'
 					? `${whole(this.currentPlayer.observed_attempts)} historical attempts: ${whole(this.currentPlayer.makes)} makes and ${whole(this.currentPlayer.misses)} misses. Outcomes color the dots but did not determine which attempts move.`
-					: `${oneDecimal(slider.actual_relocated_share * 100)}% actual relocation equals ${slider.actual_relocated_attempt_equivalents.toFixed(2)} attempt-equivalents. Gold does not mean a guaranteed make.`;
+					: `${oneDecimal(slider.actual_relocated_share * 100)}% actual relocation equals ${slider.actual_relocated_attempt_equivalents.toFixed(2)} attempt-equivalents. Cyan does not mean a guaranteed make.`;
 			requireElement<HTMLElement>(this, '[data-caption-body]').textContent =
 				view === 'before'
 					? 'Historical shot locations. Green circles are makes; red crosses are misses.'
-					: `Targeted relocation estimate at ${percent}% requested. Gold diamonds are hypothetical destinations; faint rings mark their origins.`;
+					: `Targeted relocation estimate at ${percent}% requested. Cyan diamonds are hypothetical destinations; faint rings mark their origins.`;
 		}
 
 		private renderHeatmap(player: PlayerPayload) {
@@ -937,6 +994,10 @@
 			insufficient.hidden = true;
 			this.slider.disabled = false;
 			this.slider.value = '25';
+			const evidenceNote = requireElement<HTMLElement>(this, '[data-evidence-note]');
+			evidenceNote.hidden = player.evidence_status !== 'single_destination';
+			evidenceNote.textContent =
+				player.evidence_status === 'single_destination' ? 'Single-destination estimate' : '';
 
 			const { point, lower_90, upper_90 } = player.score;
 			if (
@@ -944,7 +1005,7 @@
 				!isFiniteNumber(lower_90) ||
 				!isFiniteNumber(upper_90)
 			) {
-				throw new Error('Qualified player score is unavailable');
+				throw new Error('Available player score is unavailable');
 			}
 			requireElement<HTMLElement>(this, '[data-score]').textContent = oneDecimal(point);
 			requireElement<HTMLElement>(this, '[data-score-interval]').textContent =
@@ -952,15 +1013,31 @@
 			this.updateSlider();
 		}
 
-		private showInsufficient() {
+		private showInsufficient(player: PlayerPayload) {
 			requireElement<HTMLElement>(this, '[data-qualified-result]').hidden = true;
-			requireElement<HTMLElement>(this, '[data-insufficient-result]').hidden = false;
+			const unavailable = requireElement<HTMLElement>(this, '[data-insufficient-result]');
+			unavailable.hidden = false;
+			const title = requireElement<HTMLElement>(unavailable, '[data-unavailable-title]');
+			const copy = requireElement<HTMLElement>(unavailable, '[data-unavailable-copy]');
+			if (player.availability_reason === 'no_positive_supported_capacity') {
+				title.textContent = 'No relocation capacity';
+				copy.textContent =
+					'One location passed the evidence rule, but it already holds at least half of this player’s historical attempts. The universal 50% cap leaves no room to add attempts, so gains and score remain unavailable.';
+			} else if (player.availability_reason === 'no_eligible_weak_source_mass') {
+				title.textContent = 'No eligible source shots';
+				copy.textContent =
+					'Supported destinations exist, but no historical shot mass falls below this player’s modeled baseline. The model leaves gains and score unavailable.';
+			} else {
+				title.textContent = 'Insufficient evidence';
+				copy.textContent =
+					'No destination passed both the 10-attempt and 90%-certainty rules. Historical shots and the modeled-ability heatmap remain available; gains and score stay null.';
+			}
 			this.slider.disabled = true;
 			this.slider.value = '0';
 		}
 
 		private updateSlider() {
-			if (!this.currentPlayer || this.currentPlayer.evidence_status !== 'qualified') return;
+			if (!this.currentPlayer?.relocation_available) return;
 			const percent = Number(this.slider.value);
 			const share = percent / 100;
 			const result = this.currentPlayer.sliders.find(
@@ -1042,11 +1119,12 @@
 	.spatial-explorer {
 		--control-height: 3rem;
 		--suggestion-max-height: 18rem;
+		margin-block: var(--space-s);
 	}
 	.explorer-heading {
 		display: grid;
-		gap: var(--space-m);
-		margin-bottom: var(--space-m);
+		gap: var(--space-s);
+		margin-bottom: var(--space-s);
 	}
 	.eyebrow,
 	.explorer-heading h2,
@@ -1062,10 +1140,13 @@
 	.explorer-intro {
 		max-width: 36rem;
 	}
+	.explorer-heading h2 {
+		font-size: var(--type-h3);
+	}
 	.player-controls {
 		display: grid;
 		gap: var(--space-s);
-		padding-block: var(--space-m);
+		padding-block: var(--space-s);
 		border-block: var(--rule) solid var(--green);
 	}
 	.control {
@@ -1148,7 +1229,7 @@
 		display: flex;
 		align-items: center;
 		gap: var(--space-s);
-		min-height: var(--space-xl);
+		min-height: var(--space-l);
 		padding-block: var(--space-2xs);
 	}
 	.status {
@@ -1294,9 +1375,9 @@
 		stroke-linecap: round;
 	}
 	:global(.shot-dot--moved) {
-		fill: var(--gold);
+		fill: var(--relocated);
 		stroke: var(--green);
-		stroke-width: 1;
+		stroke-width: 1.4;
 	}
 	:global(.shot-origin) {
 		fill: none;
@@ -1352,7 +1433,7 @@
 		width: 0.7rem;
 		height: 0.7rem;
 		border: var(--rule-thin) solid var(--green);
-		background: var(--gold);
+		background: var(--relocated);
 		transform: rotate(45deg);
 	}
 	.shot-key--origin {
@@ -1393,7 +1474,7 @@
 	.result-panel {
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-l);
+		gap: var(--space-m);
 		min-width: 0;
 		padding: var(--space-m);
 		border: var(--rule) solid var(--green);
@@ -1410,19 +1491,23 @@
 		border-bottom: var(--rule) solid var(--green);
 	}
 	.score {
-		font-size: clamp(3.5rem, 8vw, 6rem);
+		font-size: clamp(3rem, 7vw, 4.5rem);
 		font-weight: 600;
 		line-height: 1;
+	}
+	.evidence-note {
+		margin-top: var(--space-2xs) !important;
+		color: var(--accent);
 	}
 	.interval {
 		font-size: var(--type-label);
 	}
 	.measure-note {
-		margin-top: var(--space-s) !important;
+		margin-top: var(--space-xs) !important;
 		font-size: var(--type-small);
 	}
 	.slider-block {
-		margin-top: var(--space-l);
+		margin-top: var(--space-m);
 	}
 	.slider-label,
 	.slider-ends {
@@ -1446,7 +1531,7 @@
 	.gain-grid {
 		display: grid;
 		gap: var(--space-m);
-		margin: var(--space-l) 0 0;
+		margin: var(--space-m) 0 0;
 	}
 	.gain-grid > div {
 		padding-top: var(--space-s);
