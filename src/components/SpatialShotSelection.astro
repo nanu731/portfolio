@@ -1,0 +1,1383 @@
+---
+// The browser fetches the compact player index once, then one player payload per
+// selection. Keeping the data in public/ lets Netlify cache each versioned file
+// separately and keeps the 54.21 MiB export out of Astro's JavaScript graph.
+---
+
+<spatial-shot-explorer data-base-path="/data/spatial-shot-selection/v2/seasons/2025-26">
+	<figure class="figure spatial-explorer" aria-labelledby="spatial-explorer-title">
+		<div class="explorer-heading">
+			<div>
+				<p class="label eyebrow">Interactive figure</p>
+				<h2 id="spatial-explorer-title">Shot selection explorer</h2>
+			</div>
+			<p class="explorer-intro">
+				Choose any 2025-26 player to compare historical shots with a targeted relocation
+				estimate and the modeled shooting surface.
+			</p>
+		</div>
+
+		<div class="player-controls" aria-describedby="player-status">
+			<div class="control">
+				<label class="label" for="player-search">Search players</label>
+				<input
+					type="search"
+					id="player-search"
+					placeholder="Type a player name"
+					autocomplete="off"
+					disabled
+					data-player-search
+				/>
+			</div>
+			<div class="control">
+				<label class="label" for="player-select">Player</label>
+				<select id="player-select" disabled data-player-select>
+					<option value="">Choose a player</option>
+				</select>
+			</div>
+		</div>
+
+		<div class="status-row">
+			<p id="player-status" class="status" role="status" aria-live="polite" data-status>
+				Loading 318 players…
+			</p>
+			<button type="button" class="retry" hidden data-retry>Try again</button>
+		</div>
+
+		<fieldset class="view-controls" hidden data-view-controls>
+			<legend class="label">Court view</legend>
+			<div class="view-options">
+				<label><input type="radio" name="court-view" value="before" checked /> Before</label>
+				<label><input type="radio" name="court-view" value="after" /> After</label>
+				<label><input type="radio" name="court-view" value="ability" /> Modeled ability</label>
+			</div>
+		</fieldset>
+
+		<div class="plot explorer-plot" aria-busy="true" data-explorer-stage>
+			<div class="court-panel">
+				<div class="court-title-row">
+					<div>
+						<p class="label" data-court-mode-label>Estimated make probability</p>
+						<h3 data-player-name>Choose a player</h3>
+					</div>
+					<p class="label numeric" data-season>2025-26</p>
+				</div>
+
+				<svg
+					class="court"
+					viewBox="0 0 500 450"
+					role="img"
+					tabindex="0"
+					aria-labelledby="court-title court-description"
+					aria-describedby="cell-detail"
+					data-court
+				>
+					<title id="court-title" data-court-title>Choose a player</title>
+					<desc id="court-description" data-court-description>
+						A half-court heatmap with 156 cells. Lighter cells have lower modeled make
+						probability and darker cells have higher modeled make probability. Focus the
+						court and use the arrow keys to inspect cells.
+					</desc>
+					<g aria-hidden="true" data-heatmap-cells></g>
+					<g aria-hidden="true" data-destination-markers></g>
+					<g aria-hidden="true" data-shot-origins></g>
+					<g aria-hidden="true" data-shot-dots></g>
+
+					<!-- Court marks carry no data. Each gets a cream halo and green line so it
+					     remains visible on every heatmap step. -->
+					<g class="court-lines court-lines--halo" aria-hidden="true">
+						<rect x="1" y="1" width="498" height="448"></rect>
+						<path d="M30 450 L30 308 A237.5 237.5 0 0 1 470 308 L470 450"></path>
+						<rect x="170" y="260" width="160" height="190"></rect>
+						<circle cx="250" cy="260" r="60"></circle>
+						<path d="M210 397.5 A40 40 0 0 0 290 397.5"></path>
+						<line x1="220" y1="410" x2="280" y2="410"></line>
+						<circle cx="250" cy="397.5" r="7.5"></circle>
+					</g>
+					<g class="court-lines court-lines--ink" aria-hidden="true">
+						<rect x="1" y="1" width="498" height="448"></rect>
+						<path d="M30 450 L30 308 A237.5 237.5 0 0 1 470 308 L470 450"></path>
+						<rect x="170" y="260" width="160" height="190"></rect>
+						<circle cx="250" cy="260" r="60"></circle>
+						<path d="M210 397.5 A40 40 0 0 0 290 397.5"></path>
+						<line x1="220" y1="410" x2="280" y2="410"></line>
+						<circle cx="250" cy="397.5" r="7.5"></circle>
+					</g>
+
+					<g class="court-empty" data-court-empty>
+						<rect x="105" y="188" width="290" height="74"></rect>
+						<text x="250" y="232" text-anchor="middle">Choose a player</text>
+					</g>
+				</svg>
+
+				<ul class="heat-legend" aria-label="Estimated make probability legend" data-heat-legend>
+					<li><span class="swatch heat-1"></span><span class="numeric">Below 30%</span></li>
+					<li><span class="swatch heat-2"></span><span class="numeric">30–40%</span></li>
+					<li><span class="swatch heat-3"></span><span class="numeric">40–50%</span></li>
+					<li><span class="swatch heat-4"></span><span class="numeric">50–60%</span></li>
+					<li><span class="swatch heat-5"></span><span class="numeric">60% and above</span></li>
+					<li class="destination-key">
+						<span class="destination-symbol" aria-hidden="true"></span>
+						<span>Supported relocation destination</span>
+					</li>
+				</ul>
+
+				<ul class="shot-legend" aria-label="Shot-chart legend" hidden data-shot-legend>
+					<li><span class="shot-key shot-key--make" aria-hidden="true"></span><span>Made</span></li>
+					<li><span class="shot-key shot-key--miss" aria-hidden="true">×</span><span>Missed</span></li>
+					<li><span class="shot-key shot-key--moved" aria-hidden="true"></span><span>Hypothetically relocated</span></li>
+					<li><span class="shot-key shot-key--origin" aria-hidden="true"></span><span>Original location</span></li>
+				</ul>
+
+				<p id="cell-detail" class="cell-detail numeric" aria-live="polite" data-cell-detail>
+					Choose a player to inspect the court.
+				</p>
+			</div>
+
+			<aside class="result-panel" aria-live="polite">
+				<div class="result-empty" data-result-empty>
+					<p class="label">Player result</p>
+					<p>Choose a player</p>
+				</div>
+
+				<div hidden data-qualified-result>
+					<div class="score-block">
+						<p class="label">Shot Selection Score</p>
+						<p class="score numeric" data-score></p>
+						<p class="interval numeric" data-score-interval></p>
+						<p class="measure-note">
+							Self-relative score based on the targeted 25% relocation estimate.
+						</p>
+					</div>
+
+					<div class="slider-block">
+						<div class="slider-label">
+							<label class="label" for="relocation-share">Maximum relocated share</label>
+							<output class="numeric" for="relocation-share" data-slider-output>0%</output>
+						</div>
+						<input
+							type="range"
+							id="relocation-share"
+							min="0"
+							max="25"
+							step="5"
+							value="0"
+							disabled
+							data-slider
+						/>
+						<div class="slider-ends label numeric" aria-hidden="true">
+							<span>0%</span><span>25%</span>
+						</div>
+						<p class="actual-share numeric" data-actual-share></p>
+					</div>
+
+					<dl class="gain-grid">
+						<div>
+							<dt class="label">Season gain</dt>
+							<dd class="numeric" data-season-gain></dd>
+							<dd class="interval numeric" data-season-interval></dd>
+						</div>
+						<div>
+							<dt class="label">Gain per 100 shots</dt>
+							<dd class="numeric" data-per-100-gain></dd>
+							<dd class="interval numeric" data-per-100-interval></dd>
+						</div>
+					</dl>
+				</div>
+
+				<div class="insufficient" hidden data-insufficient-result>
+					<p class="label">Player result</p>
+					<h4>Insufficient evidence</h4>
+					<p>
+						Fewer than two destinations passed the attempt and posterior-certainty rules.
+						The heatmap remains available; the model publishes no score or relocation gain.
+					</p>
+				</div>
+
+				<p class="disclaimer">
+					These modeled estimates use past shots. They do not guarantee improvement or
+					establish a causal effect. Gold marks a hypothetical relocation, not a guaranteed
+					make. The model excludes shot creation, defensive response, fatigue, passing,
+					shot-clock pressure, and game context.
+				</p>
+			</aside>
+		</div>
+
+		<noscript>
+			<p class="noscript">The player explorer needs JavaScript to load a selected player.</p>
+		</noscript>
+
+		<figcaption>
+			<b class="label">Fig 1</b>
+			<span data-caption-player>Choose a player.</span>
+			<span data-caption-body>Modeled make probability across a fixed 156-cell half-court grid.</span>
+		</figcaption>
+	</figure>
+</spatial-shot-explorer>
+
+<script>
+	type EvidenceStatus = 'qualified' | 'insufficient_evidence';
+
+	type PlayerIndexEntry = {
+		player_id: string;
+		player_name: string;
+		player_file: string;
+		evidence_status: EvidenceStatus;
+		relocation_available: boolean;
+		score_available: boolean;
+	};
+
+	type HeatmapCell = {
+		cell_id: number;
+		x_min_ft: number;
+		x_max_ft: number;
+		y_min_ft: number;
+		y_max_ft: number;
+		modeled_make_probability: number;
+		make_probability_lower_90: number;
+		make_probability_upper_90: number;
+		observed_attempts: number;
+		supported_destination: boolean;
+	};
+
+	type SliderResult = {
+		requested_share: number;
+		actual_relocated_share: number;
+		actual_relocated_attempt_equivalents: number;
+		relocated_expected_points_per_attempt: PosteriorSummary;
+		season_gain: PosteriorSummary;
+		gain_per_100: PosteriorSummary;
+	};
+
+	type PosteriorSummary = {
+		mean: number | null;
+		lower_90: number | null;
+		upper_90: number | null;
+	};
+
+	type Shot = {
+		x_ft: number;
+		y_ft: number;
+		made: boolean;
+		move_order: number | null;
+		after_x_ft: number | null;
+		after_y_ft: number | null;
+	};
+
+	type PlayerPayload = {
+		schema_version: string;
+		data_version: string;
+		method_id: string;
+		season: string;
+		player_id: string;
+		player_name: string;
+		evidence_status: EvidenceStatus;
+		relocation_available: boolean;
+		score_available: boolean;
+		observed_attempts: number;
+		makes: number;
+		misses: number;
+		source_cell_count: number;
+		eligible_source_share: number;
+		supported_destination_count: number;
+		score: {
+			point: number | null;
+			lower_90: number | null;
+			upper_90: number | null;
+		};
+		sliders: SliderResult[];
+		heatmap_cells: HeatmapCell[];
+		shots: Shot[];
+	};
+
+	type CourtView = 'before' | 'after' | 'ability';
+
+	const SVG_NS = 'http://www.w3.org/2000/svg';
+	const EXPECTED_SCHEMA = '2.0.0';
+	const EXPECTED_DATA = '2025-26-targeted-v2';
+	const EXPECTED_METHOD = 'car-targeted-weak-location-relocation-v2';
+	const EXPECTED_PLAYERS = 318;
+	const EXPECTED_CELLS = 156;
+	const EXPECTED_SLIDERS = [0, 0.05, 0.1, 0.15, 0.2, 0.25];
+	const HEAT_COLOURS = [
+		'var(--cream)',
+		'var(--sand)',
+		'var(--green-mid)',
+		'var(--green-deep)',
+		'var(--green)',
+	] as const;
+
+	const isRecord = (value: unknown): value is Record<string, unknown> =>
+		typeof value === 'object' && value !== null;
+	const isFiniteNumber = (value: unknown): value is number =>
+		typeof value === 'number' && Number.isFinite(value);
+	const requireElement = <T extends Element>(root: ParentNode, selector: string): T => {
+		const element = root.querySelector<T>(selector);
+		if (!element) throw new Error(`Spatial explorer is missing ${selector}`);
+		return element;
+	};
+	const oneDecimal = (value: number) => value.toFixed(1);
+	const whole = (value: number) => Math.round(value).toLocaleString('en-US');
+	const signed = (value: number, digits: number) => {
+		const rounded = digits === 0 ? whole(value) : oneDecimal(value);
+		return value > 0 ? `+${rounded}` : rounded;
+	};
+	const probabilityPercent = (value: number) => `${oneDecimal(value * 100)}%`;
+	const heatBin = (value: number) => {
+		if (value < 0.3) return 0;
+		if (value < 0.4) return 1;
+		if (value < 0.5) return 2;
+		if (value < 0.6) return 3;
+		return 4;
+	};
+	const courtX = (feet: number) => (feet + 25) * 10;
+	const courtY = (feet: number) => (39.75 - feet) * 10;
+
+	class SpatialShotExplorer extends HTMLElement {
+		private players: PlayerIndexEntry[] = [];
+		private playersById = new Map<string, PlayerIndexEntry>();
+		private activeRequest?: AbortController;
+		private currentPlayer?: PlayerPayload;
+		private courtView: CourtView = 'before';
+		private activeCellIndex = 0;
+		private retryAction?: () => void;
+
+		connectedCallback() {
+			if (this.dataset.initialized === 'true') return;
+			this.dataset.initialized = 'true';
+
+			this.search.addEventListener('input', () => this.filterPlayers());
+			this.select.addEventListener('change', () => this.selectPlayer());
+			this.slider.addEventListener('input', () => this.updateSlider());
+			this.querySelectorAll<HTMLInputElement>('input[name="court-view"]').forEach((control) => {
+				control.addEventListener('change', () => {
+					if (control.checked) this.setCourtView(control.value as CourtView);
+				});
+			});
+			this.retry.addEventListener('click', () => this.retryAction?.());
+			this.court.addEventListener('focus', () => {
+				if (this.courtView === 'ability') this.showCell(this.activeCellIndex);
+			});
+			this.court.addEventListener('keydown', (event) => this.moveCell(event));
+
+			void this.loadPlayers();
+		}
+
+		private get basePath() {
+			return this.dataset.basePath ?? '/data/spatial-shot-selection/v2/seasons/2025-26';
+		}
+
+		private get search() {
+			return requireElement<HTMLInputElement>(this, '[data-player-search]');
+		}
+		private get select() {
+			return requireElement<HTMLSelectElement>(this, '[data-player-select]');
+		}
+		private get status() {
+			return requireElement<HTMLElement>(this, '[data-status]');
+		}
+		private get retry() {
+			return requireElement<HTMLButtonElement>(this, '[data-retry]');
+		}
+		private get stage() {
+			return requireElement<HTMLElement>(this, '[data-explorer-stage]');
+		}
+		private get slider() {
+			return requireElement<HTMLInputElement>(this, '[data-slider]');
+		}
+		private get court() {
+			return requireElement<SVGSVGElement>(this, '[data-court]');
+		}
+
+		private async fetchJson(path: string, signal?: AbortSignal): Promise<unknown> {
+			const response = await fetch(path, { signal, headers: { Accept: 'application/json' } });
+			if (!response.ok) throw new Error(`Request returned ${response.status}`);
+			return response.json();
+		}
+
+		private validateIndex(value: unknown): PlayerIndexEntry[] {
+			if (!isRecord(value)) throw new Error('Player index is not an object');
+			if (value.schema_version !== EXPECTED_SCHEMA || value.data_version !== EXPECTED_DATA) {
+				throw new Error('Player index version does not match this explorer');
+			}
+			if (!Array.isArray(value.players) || value.players.length !== EXPECTED_PLAYERS) {
+				throw new Error(`Expected ${EXPECTED_PLAYERS} players`);
+			}
+
+			const seen = new Set<string>();
+			return value.players.map((raw) => {
+				if (!isRecord(raw)) throw new Error('Player index contains an invalid row');
+				const player_id = raw.player_id;
+				const player_name = raw.player_name;
+				const player_file = raw.player_file;
+				const evidence_status = raw.evidence_status;
+				if (
+					typeof player_id !== 'string' ||
+					typeof player_name !== 'string' ||
+					typeof player_file !== 'string' ||
+					!/^players\/\d+\.json$/.test(player_file) ||
+					(evidence_status !== 'qualified' && evidence_status !== 'insufficient_evidence') ||
+					typeof raw.relocation_available !== 'boolean' ||
+					typeof raw.score_available !== 'boolean' ||
+					seen.has(player_id)
+				) {
+					throw new Error('Player index contains an invalid identity or path');
+				}
+				seen.add(player_id);
+				return {
+					player_id,
+					player_name,
+					player_file,
+					evidence_status,
+					relocation_available: raw.relocation_available,
+					score_available: raw.score_available,
+				};
+			});
+		}
+
+		private validatePlayer(value: unknown, entry: PlayerIndexEntry): PlayerPayload {
+			if (!isRecord(value)) throw new Error('Player payload is not an object');
+			if (
+				value.schema_version !== EXPECTED_SCHEMA ||
+				value.data_version !== EXPECTED_DATA ||
+				value.method_id !== EXPECTED_METHOD ||
+				value.season !== '2025-26' ||
+				value.player_id !== entry.player_id ||
+				value.player_name !== entry.player_name ||
+				value.evidence_status !== entry.evidence_status ||
+				value.score_available !== entry.score_available ||
+				value.relocation_available !== entry.relocation_available ||
+				!isFiniteNumber(value.observed_attempts) ||
+				!isFiniteNumber(value.makes) ||
+				!isFiniteNumber(value.misses) ||
+				value.makes + value.misses !== value.observed_attempts ||
+				!isRecord(value.score) ||
+				!Array.isArray(value.sliders) ||
+				!Array.isArray(value.heatmap_cells) ||
+				!Array.isArray(value.shots) ||
+				value.heatmap_cells.length !== EXPECTED_CELLS ||
+				value.sliders.length !== EXPECTED_SLIDERS.length ||
+				value.shots.length !== value.observed_attempts
+			) {
+				throw new Error('Player payload does not match the versioned contract');
+			}
+
+			value.heatmap_cells.forEach((raw) => {
+				if (
+					!isRecord(raw) ||
+					!isFiniteNumber(raw.cell_id) ||
+					!isFiniteNumber(raw.x_min_ft) ||
+					!isFiniteNumber(raw.x_max_ft) ||
+					!isFiniteNumber(raw.y_min_ft) ||
+					!isFiniteNumber(raw.y_max_ft) ||
+					!isFiniteNumber(raw.modeled_make_probability) ||
+					!isFiniteNumber(raw.make_probability_lower_90) ||
+					!isFiniteNumber(raw.make_probability_upper_90) ||
+					!isFiniteNumber(raw.observed_attempts) ||
+					typeof raw.supported_destination !== 'boolean' ||
+					raw.modeled_make_probability < 0 ||
+					raw.modeled_make_probability > 1
+				) {
+					throw new Error('Player payload contains an invalid heatmap cell');
+				}
+			});
+
+			value.sliders.forEach((raw, index) => {
+				if (
+					!isRecord(raw) ||
+					!isFiniteNumber(raw.requested_share) ||
+					!isFiniteNumber(raw.actual_relocated_share) ||
+					!isFiniteNumber(raw.actual_relocated_attempt_equivalents) ||
+					!isRecord(raw.relocated_expected_points_per_attempt) ||
+					!isRecord(raw.season_gain) ||
+					!isRecord(raw.gain_per_100)
+				) {
+					throw new Error('Player payload contains an invalid slider row');
+				}
+				if (
+					Math.abs(raw.requested_share - EXPECTED_SLIDERS[index]) > 1e-9 ||
+					raw.actual_relocated_share > raw.requested_share + 1e-9
+				) {
+					throw new Error('Player payload slider values are out of order');
+				}
+			});
+
+			const moveOrders: number[] = [];
+			value.shots.forEach((raw) => {
+				if (
+					!isRecord(raw) ||
+					!isFiniteNumber(raw.x_ft) ||
+					!isFiniteNumber(raw.y_ft) ||
+					typeof raw.made !== 'boolean'
+				) {
+					throw new Error('Player payload contains an invalid shot');
+				}
+				if (raw.move_order === null) {
+					if (raw.after_x_ft !== null || raw.after_y_ft !== null) {
+						throw new Error('Unmoved shot contains an after location');
+					}
+				} else if (
+					!Number.isInteger(raw.move_order) ||
+					raw.move_order < 1 ||
+					!isFiniteNumber(raw.after_x_ft) ||
+					!isFiniteNumber(raw.after_y_ft)
+				) {
+					throw new Error('Moved shot row is invalid');
+				} else {
+					moveOrders.push(raw.move_order);
+				}
+			});
+			moveOrders.sort((a, b) => a - b);
+			if (!moveOrders.every((item, index) => item === index + 1)) {
+				throw new Error('Player move order is not deterministic and nested');
+			}
+
+			const payload = value as unknown as PlayerPayload;
+			const scoreValues = [payload.score.point, payload.score.lower_90, payload.score.upper_90];
+			const gainValues = payload.sliders.flatMap((row) => [
+				row.season_gain.mean,
+				row.season_gain.lower_90,
+				row.season_gain.upper_90,
+				row.gain_per_100.mean,
+				row.gain_per_100.lower_90,
+				row.gain_per_100.upper_90,
+			]);
+
+			if (payload.evidence_status === 'qualified') {
+				if (
+					!payload.score_available ||
+					!payload.relocation_available ||
+					![...scoreValues, ...gainValues].every(isFiniteNumber)
+				) {
+					throw new Error('Qualified player is missing a score or gain');
+				}
+			} else if (
+				payload.score_available ||
+				payload.relocation_available ||
+				![...scoreValues, ...gainValues].every((item) => item === null)
+			) {
+				throw new Error('Insufficient-evidence player contains a published score or gain');
+			}
+
+			return payload;
+		}
+
+		private async loadPlayers() {
+			this.retry.hidden = true;
+			this.retryAction = () => void this.loadPlayers();
+			this.setStatus('Loading 318 players…');
+			try {
+				const raw = await this.fetchJson(`${this.basePath}/players.json`);
+				this.players = this.validateIndex(raw).sort((a, b) =>
+					a.player_name.localeCompare(b.player_name),
+				);
+				this.playersById = new Map(this.players.map((player) => [player.player_id, player]));
+				this.search.disabled = false;
+				this.select.disabled = false;
+				this.filterPlayers();
+				this.stage.setAttribute('aria-busy', 'false');
+				this.setStatus('318 players available. Choose a player.');
+			} catch (error) {
+				this.showError('The player list could not be loaded. Check the connection and try again.');
+			}
+		}
+
+		private filterPlayers() {
+			const query = this.search.value.trim().toLocaleLowerCase();
+			const matches = this.players.filter((player) =>
+				player.player_name.toLocaleLowerCase().includes(query),
+			);
+			const previous = this.select.value;
+			const options = document.createDocumentFragment();
+			const placeholder = document.createElement('option');
+			placeholder.value = '';
+			placeholder.textContent = matches.length ? 'Choose a player' : 'No matching players';
+			options.append(placeholder);
+
+			matches.forEach((player) => {
+				const option = document.createElement('option');
+				option.value = player.player_id;
+				option.textContent =
+					player.evidence_status === 'insufficient_evidence'
+						? `${player.player_name} · insufficient evidence`
+						: player.player_name;
+				options.append(option);
+			});
+
+			this.select.replaceChildren(options);
+			if (matches.some((player) => player.player_id === previous)) this.select.value = previous;
+			this.select.disabled = matches.length === 0;
+			if (query) {
+				this.setStatus(
+					matches.length === 1 ? '1 player matches.' : `${matches.length} players match.`,
+				);
+			}
+		}
+
+		private async selectPlayer() {
+			const entry = this.playersById.get(this.select.value);
+			if (!entry) {
+				this.showEmpty();
+				return;
+			}
+
+			await this.loadPlayer(entry);
+		}
+
+		private async loadPlayer(entry: PlayerIndexEntry, request = new AbortController()) {
+			this.activeRequest?.abort();
+			this.activeRequest = request;
+			this.retryAction = () => void this.loadPlayer(entry);
+			this.retry.hidden = true;
+			this.stage.setAttribute('aria-busy', 'true');
+			this.clearResult(entry.player_name, 'Loading player…');
+			this.setStatus(`Loading ${entry.player_name}…`);
+
+			try {
+				const raw = await this.fetchJson(`${this.basePath}/${entry.player_file}`, request.signal);
+				if (request !== this.activeRequest) return;
+				const player = this.validatePlayer(raw, entry);
+				this.currentPlayer = player;
+				this.renderPlayer(player);
+				this.stage.setAttribute('aria-busy', 'false');
+				this.setStatus(`${player.player_name} loaded.`);
+			} catch (error) {
+				if (error instanceof DOMException && error.name === 'AbortError') return;
+				this.stage.setAttribute('aria-busy', 'false');
+				this.showError(`${entry.player_name} could not be loaded. Try again.`);
+			}
+		}
+
+		private renderPlayer(player: PlayerPayload) {
+			requireElement<HTMLElement>(this, '[data-player-name]').textContent = player.player_name;
+			requireElement<HTMLElement>(this, '[data-season]').textContent = player.season;
+			requireElement<SVGTitleElement>(this, '[data-court-title]').textContent =
+				`${player.player_name}, ${player.season}: estimated make probability by court cell`;
+			requireElement<HTMLElement>(this, '[data-caption-player]').textContent =
+				`${player.player_name}, ${player.season}.`;
+			requireElement<SVGGElement>(this, '[data-court-empty]').setAttribute('hidden', '');
+			requireElement<HTMLElement>(this, '[data-result-empty]').hidden = true;
+			const controls = requireElement<HTMLFieldSetElement>(this, '[data-view-controls]');
+			controls.hidden = false;
+			const before = requireElement<HTMLInputElement>(controls, 'input[value="before"]');
+			before.checked = true;
+			this.courtView = 'before';
+
+			if (player.evidence_status === 'qualified') this.showQualified(player);
+			else this.showInsufficient();
+			this.setCourtView('before');
+		}
+
+		private setCourtView(view: CourtView) {
+			if (!this.currentPlayer) return;
+			this.courtView = view;
+			if (view === 'ability') this.renderHeatmap(this.currentPlayer);
+			else this.renderShotChart(view);
+		}
+
+		private clearCourtLayers() {
+			requireElement<SVGGElement>(this, '[data-heatmap-cells]').replaceChildren();
+			requireElement<SVGGElement>(this, '[data-destination-markers]').replaceChildren();
+			requireElement<SVGGElement>(this, '[data-shot-origins]').replaceChildren();
+			requireElement<SVGGElement>(this, '[data-shot-dots]').replaceChildren();
+		}
+
+		private renderShotChart(view: Exclude<CourtView, 'ability'>) {
+			if (!this.currentPlayer) return;
+			this.clearCourtLayers();
+			requireElement<HTMLElement>(this, '[data-heat-legend]').hidden = true;
+			requireElement<HTMLElement>(this, '[data-shot-legend]').hidden = false;
+			requireElement<HTMLElement>(this, '[data-court-mode-label]').textContent =
+				view === 'before' ? 'Before · historical shots' : 'After · targeted estimate';
+
+			const percent = Number(this.slider.value);
+			const slider = this.currentPlayer.sliders.find(
+				(row) => Math.abs(row.requested_share - percent / 100) < 1e-9,
+			);
+			if (!slider) throw new Error('Selected slider result is unavailable');
+			const origins = requireElement<SVGGElement>(this, '[data-shot-origins]');
+			const dots = requireElement<SVGGElement>(this, '[data-shot-dots]');
+
+			this.currentPlayer.shots.forEach((shot) => {
+				const movedMass =
+					view === 'after' && shot.move_order !== null
+						? Math.max(
+								0,
+								Math.min(1, slider.actual_relocated_attempt_equivalents - (shot.move_order - 1)),
+							)
+						: 0;
+				if (movedMass > 0 && shot.after_x_ft !== null && shot.after_y_ft !== null) {
+					const origin = document.createElementNS(SVG_NS, 'circle');
+					origin.setAttribute('cx', String(courtX(shot.x_ft)));
+					origin.setAttribute('cy', String(courtY(shot.y_ft)));
+					origin.setAttribute('r', '2.8');
+					origin.setAttribute('class', 'shot-origin');
+					origins.append(origin);
+
+					const x = courtX(shot.after_x_ft);
+					const y = courtY(shot.after_y_ft);
+					const marker = document.createElementNS(SVG_NS, 'path');
+					marker.setAttribute('d', `M${x} ${y - 3.8} L${x + 3.8} ${y} L${x} ${y + 3.8} L${x - 3.8} ${y} Z`);
+					marker.setAttribute('class', 'shot-dot shot-dot--moved');
+					marker.setAttribute('opacity', String(0.25 + 0.75 * movedMass));
+					dots.append(marker);
+					return;
+				}
+
+				const x = courtX(shot.x_ft);
+				const y = courtY(shot.y_ft);
+				if (shot.made) {
+					const marker = document.createElementNS(SVG_NS, 'circle');
+					marker.setAttribute('cx', String(x));
+					marker.setAttribute('cy', String(y));
+					marker.setAttribute('r', '2.4');
+					marker.setAttribute('class', 'shot-dot shot-dot--make');
+					dots.append(marker);
+				} else {
+					const marker = document.createElementNS(SVG_NS, 'path');
+					marker.setAttribute('d', `M${x - 2.5} ${y - 2.5} L${x + 2.5} ${y + 2.5} M${x + 2.5} ${y - 2.5} L${x - 2.5} ${y + 2.5}`);
+					marker.setAttribute('class', 'shot-dot shot-dot--miss');
+					dots.append(marker);
+				}
+			});
+
+			const title = `${this.currentPlayer.player_name}, ${this.currentPlayer.season}: ${view} shot locations`;
+			requireElement<SVGTitleElement>(this, '[data-court-title]').textContent = title;
+			requireElement<SVGDescElement>(this, '[data-court-description]').textContent =
+				view === 'before'
+					? `Historical locations for ${this.currentPlayer.observed_attempts} attempts. Green circles are makes and red crosses are misses.`
+					: `Targeted relocation estimate at ${percent} percent requested. Unmoved shots retain their result colors. Gold diamonds show hypothetical relocated attempt markers and faint rings show their origins.`;
+			requireElement<HTMLElement>(this, '[data-cell-detail]').textContent =
+				view === 'before'
+					? `${whole(this.currentPlayer.observed_attempts)} historical attempts: ${whole(this.currentPlayer.makes)} makes and ${whole(this.currentPlayer.misses)} misses. Outcomes color the dots but did not determine which attempts move.`
+					: `${oneDecimal(slider.actual_relocated_share * 100)}% actual relocation equals ${slider.actual_relocated_attempt_equivalents.toFixed(2)} attempt-equivalents. Gold does not mean a guaranteed make.`;
+			requireElement<HTMLElement>(this, '[data-caption-body]').textContent =
+				view === 'before'
+					? 'Historical shot locations. Green circles are makes; red crosses are misses.'
+					: `Targeted relocation estimate at ${percent}% requested. Gold diamonds are hypothetical destinations; faint rings mark their origins.`;
+		}
+
+		private renderHeatmap(player: PlayerPayload) {
+			this.clearCourtLayers();
+			const cellsLayer = requireElement<SVGGElement>(this, '[data-heatmap-cells]');
+			const markersLayer = requireElement<SVGGElement>(this, '[data-destination-markers]');
+			requireElement<HTMLElement>(this, '[data-heat-legend]').hidden = false;
+			requireElement<HTMLElement>(this, '[data-shot-legend]').hidden = true;
+			requireElement<HTMLElement>(this, '[data-court-mode-label]').textContent =
+				'Modeled ability · production CAR';
+			requireElement<SVGTitleElement>(this, '[data-court-title]').textContent =
+				`${player.player_name}, ${player.season}: estimated make probability by court cell`;
+			requireElement<SVGDescElement>(this, '[data-court-description]').textContent =
+				'A half-court heatmap with 156 cells. Lighter cells have lower modeled make probability and darker cells have higher modeled make probability. Focus the court and use the arrow keys to inspect cells.';
+			requireElement<HTMLElement>(this, '[data-caption-body]').textContent =
+				'Modeled make probability across a fixed 156-cell half-court grid; outlined diamonds mark supported relocation destinations.';
+
+			player.heatmap_cells.forEach((cell, index) => {
+				const rect = document.createElementNS(SVG_NS, 'rect');
+				rect.setAttribute('x', String(courtX(cell.x_min_ft)));
+				rect.setAttribute('y', String(courtY(cell.y_max_ft)));
+				rect.setAttribute('width', String((cell.x_max_ft - cell.x_min_ft) * 10));
+				rect.setAttribute('height', String((cell.y_max_ft - cell.y_min_ft) * 10));
+				rect.setAttribute('fill', HEAT_COLOURS[heatBin(cell.modeled_make_probability)]);
+				rect.setAttribute('class', 'heat-cell');
+				rect.setAttribute('data-cell-index', String(index));
+				const title = document.createElementNS(SVG_NS, 'title');
+				title.textContent = this.cellDescription(cell);
+				rect.append(title);
+				rect.addEventListener('pointerenter', () => this.showCell(index));
+				rect.addEventListener('click', () => this.showCell(index));
+				cellsLayer.append(rect);
+
+				if (cell.supported_destination) {
+					const centerX = (courtX(cell.x_min_ft) + courtX(cell.x_max_ft)) / 2;
+					const centerY = (courtY(cell.y_min_ft) + courtY(cell.y_max_ft)) / 2;
+					const marker = document.createElementNS(SVG_NS, 'path');
+					marker.setAttribute(
+						'd',
+						`M${centerX} ${centerY - 6} L${centerX + 6} ${centerY} L${centerX} ${centerY + 6} L${centerX - 6} ${centerY} Z`,
+					);
+					marker.setAttribute('class', 'destination-marker');
+					markersLayer.append(marker);
+				}
+			});
+
+			this.activeCellIndex = 0;
+			requireElement<HTMLElement>(this, '[data-cell-detail]').textContent =
+				'Move over, tap, or focus the court and use arrow keys to inspect a cell.';
+		}
+
+		private cellDescription(cell: HeatmapCell) {
+			const support = cell.supported_destination
+				? 'Supported relocation destination.'
+				: 'Not a supported relocation destination.';
+			const attemptLabel = cell.observed_attempts === 1 ? 'attempt' : 'attempts';
+			return `Cell ${cell.cell_id}: ${probabilityPercent(cell.modeled_make_probability)} estimated make probability; 90% interval ${probabilityPercent(cell.make_probability_lower_90)}–${probabilityPercent(cell.make_probability_upper_90)}; ${whole(cell.observed_attempts)} observed ${attemptLabel}. ${support}`;
+		}
+
+		private showCell(index: number) {
+			if (!this.currentPlayer) return;
+			const bounded = Math.max(0, Math.min(this.currentPlayer.heatmap_cells.length - 1, index));
+			this.activeCellIndex = bounded;
+			this.querySelectorAll('.heat-cell').forEach((cell) => cell.classList.remove('is-active'));
+			this.querySelector(`[data-cell-index="${bounded}"]`)?.classList.add('is-active');
+			requireElement<HTMLElement>(this, '[data-cell-detail]').textContent = this.cellDescription(
+				this.currentPlayer.heatmap_cells[bounded],
+			);
+		}
+
+		private moveCell(event: KeyboardEvent) {
+			if (!this.currentPlayer || this.courtView !== 'ability') return;
+			const moves: Record<string, number> = {
+				ArrowLeft: -1,
+				ArrowRight: 1,
+				ArrowUp: 13,
+				ArrowDown: -13,
+			};
+			const move = moves[event.key];
+			if (move === undefined) return;
+			event.preventDefault();
+			this.showCell(this.activeCellIndex + move);
+		}
+
+		private showQualified(player: PlayerPayload) {
+			const qualified = requireElement<HTMLElement>(this, '[data-qualified-result]');
+			const insufficient = requireElement<HTMLElement>(this, '[data-insufficient-result]');
+			qualified.hidden = false;
+			insufficient.hidden = true;
+			this.slider.disabled = false;
+			this.slider.value = '25';
+
+			const { point, lower_90, upper_90 } = player.score;
+			if (
+				!isFiniteNumber(point) ||
+				!isFiniteNumber(lower_90) ||
+				!isFiniteNumber(upper_90)
+			) {
+				throw new Error('Qualified player score is unavailable');
+			}
+			requireElement<HTMLElement>(this, '[data-score]').textContent = oneDecimal(point);
+			requireElement<HTMLElement>(this, '[data-score-interval]').textContent =
+				`90% interval ${oneDecimal(lower_90)}–${oneDecimal(upper_90)}`;
+			this.updateSlider();
+		}
+
+		private showInsufficient() {
+			requireElement<HTMLElement>(this, '[data-qualified-result]').hidden = true;
+			requireElement<HTMLElement>(this, '[data-insufficient-result]').hidden = false;
+			this.slider.disabled = true;
+			this.slider.value = '0';
+		}
+
+		private updateSlider() {
+			if (!this.currentPlayer || this.currentPlayer.evidence_status !== 'qualified') return;
+			const percent = Number(this.slider.value);
+			const share = percent / 100;
+			const result = this.currentPlayer.sliders.find(
+				(row) => Math.abs(row.requested_share - share) < 1e-9,
+			);
+			if (!result) throw new Error('Selected slider result is unavailable');
+			const values = [
+				result.season_gain.mean,
+				result.season_gain.lower_90,
+				result.season_gain.upper_90,
+				result.gain_per_100.mean,
+				result.gain_per_100.lower_90,
+				result.gain_per_100.upper_90,
+			];
+			if (!values.every(isFiniteNumber)) throw new Error('Selected slider result is unavailable');
+
+			const [season, seasonLow, seasonHigh, per100, per100Low, per100High] = values as number[];
+			requireElement<HTMLOutputElement>(this, '[data-slider-output]').textContent = `${percent}%`;
+			this.slider.setAttribute('aria-valuetext', `${percent} percent requested`);
+			requireElement<HTMLElement>(this, '[data-actual-share]').textContent =
+				`${oneDecimal(result.actual_relocated_share * 100)}% actual · ${result.actual_relocated_attempt_equivalents.toFixed(2)} attempt-equivalents`;
+			requireElement<HTMLElement>(this, '[data-season-gain]').textContent =
+				`${signed(season, 0)} points`;
+			requireElement<HTMLElement>(this, '[data-season-interval]').textContent =
+				`90% interval ${whole(seasonLow)}–${whole(seasonHigh)}`;
+			requireElement<HTMLElement>(this, '[data-per-100-gain]').textContent =
+				`${signed(per100, 1)} points`;
+			requireElement<HTMLElement>(this, '[data-per-100-interval]').textContent =
+				`90% interval ${oneDecimal(per100Low)}–${oneDecimal(per100High)}`;
+			if (this.courtView === 'after') this.renderShotChart('after');
+		}
+
+		private clearResult(playerName: string, message: string) {
+			this.currentPlayer = undefined;
+			this.courtView = 'before';
+			requireElement<HTMLElement>(this, '[data-player-name]').textContent = playerName;
+			requireElement<SVGTitleElement>(this, '[data-court-title]').textContent = message;
+			requireElement<SVGGElement>(this, '[data-court-empty]').removeAttribute('hidden');
+			requireElement<SVGTextElement>(this, '[data-court-empty] text').textContent = message;
+			this.clearCourtLayers();
+			requireElement<HTMLFieldSetElement>(this, '[data-view-controls]').hidden = true;
+			requireElement<HTMLElement>(this, '[data-heat-legend]').hidden = false;
+			requireElement<HTMLElement>(this, '[data-shot-legend]').hidden = true;
+			requireElement<HTMLElement>(this, '[data-qualified-result]').hidden = true;
+			requireElement<HTMLElement>(this, '[data-insufficient-result]').hidden = true;
+			const empty = requireElement<HTMLElement>(this, '[data-result-empty]');
+			empty.hidden = false;
+			empty.querySelector('p:last-child')!.textContent = message;
+			this.slider.disabled = true;
+		}
+
+		private showEmpty() {
+			this.activeRequest?.abort();
+			this.clearResult('Choose a player', 'Choose a player');
+			requireElement<HTMLElement>(this, '[data-caption-player]').textContent = 'Choose a player.';
+			this.setStatus('318 players available. Choose a player.');
+		}
+
+		private setStatus(message: string) {
+			this.status.textContent = message;
+			this.status.setAttribute('role', 'status');
+			this.status.dataset.kind = 'status';
+		}
+
+		private showError(message: string) {
+			this.stage.setAttribute('aria-busy', 'false');
+			this.status.textContent = message;
+			this.status.setAttribute('role', 'alert');
+			this.status.dataset.kind = 'error';
+			const courtEmpty = requireElement<SVGGElement>(this, '[data-court-empty]');
+			courtEmpty.removeAttribute('hidden');
+			requireElement<SVGTextElement>(courtEmpty, 'text').textContent = 'Player unavailable';
+			const resultEmpty = requireElement<HTMLElement>(this, '[data-result-empty]');
+			resultEmpty.hidden = false;
+			resultEmpty.querySelector('p:last-child')!.textContent = 'Player unavailable';
+			this.retry.hidden = false;
+		}
+	}
+
+	if (!customElements.get('spatial-shot-explorer')) {
+		customElements.define('spatial-shot-explorer', SpatialShotExplorer);
+	}
+</script>
+
+<style>
+	.spatial-explorer {
+		--control-height: 3rem;
+	}
+	.explorer-heading {
+		display: grid;
+		gap: var(--space-m);
+		margin-bottom: var(--space-m);
+	}
+	.eyebrow,
+	.explorer-heading h2,
+	.explorer-intro,
+	.status,
+	.noscript,
+	.court-title-row h3,
+	.court-title-row p,
+	.result-panel p,
+	.result-panel h4 {
+		margin: 0;
+	}
+	.explorer-intro {
+		max-width: 36rem;
+	}
+	.player-controls {
+		display: grid;
+		gap: var(--space-s);
+		padding-block: var(--space-m);
+		border-block: var(--rule) solid var(--green);
+	}
+	.control {
+		display: grid;
+		gap: var(--space-2xs);
+	}
+	.control input,
+	.control select {
+		width: 100%;
+		min-height: var(--control-height);
+		padding: var(--space-2xs) var(--space-s);
+		border: var(--rule) solid var(--green);
+		border-radius: 0;
+		background: var(--cream);
+		color: var(--green);
+		font-family: var(--font-body);
+		font-size: 1rem;
+	}
+	.control :is(input, select):focus-visible,
+	.retry:focus-visible,
+	.court:focus-visible,
+	.view-options input:focus-visible + span,
+	.slider-block input:focus-visible {
+		outline: var(--rule-thick) solid var(--accent);
+		outline-offset: 3px;
+	}
+	.control :is(input, select):disabled {
+		cursor: wait;
+		opacity: 0.65;
+	}
+	.status-row {
+		display: flex;
+		align-items: center;
+		gap: var(--space-s);
+		min-height: var(--space-xl);
+		padding-block: var(--space-2xs);
+	}
+	.status {
+		font-size: var(--type-small);
+	}
+	.status[data-kind='error'] {
+		color: var(--accent);
+	}
+	.view-controls {
+		margin: 0 0 var(--space-s);
+		padding: 0;
+		border: 0;
+	}
+	.view-controls[hidden] {
+		display: none;
+	}
+	.view-options {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: var(--space-2xs);
+		margin-top: var(--space-2xs);
+	}
+	.view-options label {
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 44px;
+		padding: var(--space-2xs) var(--space-xs);
+		border: var(--rule) solid var(--green);
+		font-family: var(--font-numeric);
+		font-size: var(--type-label);
+		font-weight: 600;
+		text-align: center;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		cursor: pointer;
+	}
+	.view-options input {
+		position: absolute;
+		opacity: 0;
+	}
+	.view-options label:has(input:checked) {
+		background: var(--green);
+		color: var(--cream);
+	}
+	.view-options label:has(input:focus-visible) {
+		outline: var(--rule-thick) solid var(--accent);
+		outline-offset: 3px;
+	}
+	.retry {
+		min-height: 2.75rem;
+		padding-inline: var(--space-s);
+		border: var(--rule) solid var(--green);
+		border-radius: 0;
+		background: var(--green);
+		color: var(--cream);
+		font-family: var(--font-numeric);
+		font-size: var(--type-label);
+		font-weight: 600;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		cursor: pointer;
+	}
+	.explorer-plot {
+		display: grid;
+		gap: var(--space-m);
+		padding: var(--space-s);
+		border: var(--rule) solid var(--green);
+	}
+	.court-panel {
+		min-width: 0;
+	}
+	.court-title-row {
+		display: flex;
+		align-items: start;
+		justify-content: space-between;
+		gap: var(--space-s);
+		margin-bottom: var(--space-s);
+	}
+	.court-title-row h3 {
+		margin-top: var(--space-3xs);
+	}
+	.court-title-row [data-season] {
+		white-space: nowrap;
+	}
+	.court {
+		border: var(--rule) solid var(--green);
+		background: var(--cream);
+	}
+	.court-lines {
+		fill: none;
+		pointer-events: none;
+	}
+	.court-lines--halo {
+		stroke: var(--cream);
+		stroke-width: 5;
+	}
+	.court-lines--ink {
+		stroke: var(--green);
+		stroke-width: 2;
+	}
+	.court-empty rect {
+		fill: var(--cream);
+		stroke: var(--green);
+		stroke-width: 2;
+	}
+	.court-empty text {
+		fill: var(--green);
+		font-family: var(--font-display);
+		font-size: 24px;
+		font-variation-settings: 'opsz' 30, 'SOFT' 0, 'WONK' 0;
+	}
+	.court-empty[hidden] {
+		display: none;
+	}
+	:global(.heat-cell) {
+		stroke: var(--green);
+		stroke-width: 0.65;
+		stroke-opacity: 0.2;
+		cursor: crosshair;
+	}
+	:global(.heat-cell.is-active) {
+		stroke: var(--accent);
+		stroke-width: 4;
+		stroke-opacity: 1;
+	}
+	:global(.destination-marker) {
+		fill: var(--cream);
+		stroke: var(--green);
+		stroke-width: 2;
+		pointer-events: none;
+	}
+	:global(.shot-dot--make) {
+		fill: var(--green);
+		stroke: var(--cream);
+		stroke-width: 0.7;
+	}
+	:global(.shot-dot--miss) {
+		fill: none;
+		stroke: var(--accent);
+		stroke-width: 1.8;
+		stroke-linecap: round;
+	}
+	:global(.shot-dot--moved) {
+		fill: var(--gold);
+		stroke: var(--green);
+		stroke-width: 1;
+	}
+	:global(.shot-origin) {
+		fill: none;
+		stroke: var(--green);
+		stroke-width: 0.8;
+		stroke-opacity: 0.32;
+	}
+	.heat-legend,
+	.shot-legend {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2xs) var(--space-s);
+		align-items: center;
+		margin: var(--space-s) 0 var(--space-2xs);
+		padding: 0;
+		list-style: none;
+		font-family: var(--font-numeric);
+		font-size: var(--type-label);
+		font-variant-numeric: tabular-nums;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+	}
+	.heat-legend[hidden],
+	.shot-legend[hidden] {
+		display: none;
+	}
+	.heat-legend li,
+	.shot-legend li {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2xs);
+	}
+	.shot-key {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: var(--space-s);
+		height: var(--space-s);
+	}
+	.shot-key--make {
+		width: 0.7rem;
+		height: 0.7rem;
+		border-radius: 50%;
+		background: var(--green);
+	}
+	.shot-key--miss {
+		color: var(--accent);
+		font-size: 1.25rem;
+		font-weight: 600;
+		line-height: 1;
+	}
+	.shot-key--moved {
+		width: 0.7rem;
+		height: 0.7rem;
+		border: var(--rule-thin) solid var(--green);
+		background: var(--gold);
+		transform: rotate(45deg);
+	}
+	.shot-key--origin {
+		width: 0.7rem;
+		height: 0.7rem;
+		border: var(--rule-thin) solid var(--green);
+		border-radius: 50%;
+		opacity: 0.4;
+	}
+	.swatch {
+		display: block;
+		width: var(--space-m);
+		height: var(--space-s);
+		border: var(--rule-thin) solid var(--green);
+	}
+	.heat-1 { background: var(--cream); }
+	.heat-2 { background: var(--sand); }
+	.heat-3 { background: var(--green-mid); }
+	.heat-4 { background: var(--green-deep); }
+	.heat-5 { background: var(--green); }
+	.destination-key {
+		flex-basis: 100%;
+	}
+	.destination-symbol {
+		display: block;
+		width: var(--space-s);
+		height: var(--space-s);
+		border: var(--rule) solid var(--green);
+		background: var(--cream);
+		transform: rotate(45deg) scale(0.65);
+	}
+	.cell-detail {
+		min-height: 3.2em;
+		margin: var(--space-2xs) 0 0;
+		font-size: var(--type-label);
+		line-height: 1.5;
+	}
+	.result-panel {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-l);
+		min-width: 0;
+		padding: var(--space-m);
+		border: var(--rule) solid var(--green);
+		background: var(--cream);
+	}
+	.result-empty > p:last-child {
+		margin-top: var(--space-xs);
+		font-family: var(--font-display);
+		font-size: var(--type-h3);
+		line-height: 1.15;
+	}
+	.score-block {
+		padding-bottom: var(--space-m);
+		border-bottom: var(--rule) solid var(--green);
+	}
+	.score {
+		font-size: clamp(3.5rem, 8vw, 6rem);
+		font-weight: 600;
+		line-height: 1;
+	}
+	.interval {
+		font-size: var(--type-label);
+	}
+	.measure-note {
+		margin-top: var(--space-s) !important;
+		font-size: var(--type-small);
+	}
+	.slider-block {
+		margin-top: var(--space-l);
+	}
+	.slider-label,
+	.slider-ends {
+		display: flex;
+		justify-content: space-between;
+		gap: var(--space-s);
+	}
+	.slider-label output {
+		font-weight: 600;
+	}
+	.slider-block input {
+		width: 100%;
+		min-height: 44px;
+		accent-color: var(--green);
+		cursor: pointer;
+	}
+	.actual-share {
+		margin-top: var(--space-xs) !important;
+		font-size: var(--type-label);
+	}
+	.gain-grid {
+		display: grid;
+		gap: var(--space-m);
+		margin: var(--space-l) 0 0;
+	}
+	.gain-grid > div {
+		padding-top: var(--space-s);
+		border-top: var(--rule-thin) solid var(--green);
+	}
+	.gain-grid dd {
+		margin: var(--space-2xs) 0 0;
+	}
+	.gain-grid dd:not(.interval) {
+		font-size: var(--type-h3);
+		font-weight: 600;
+		line-height: 1.15;
+	}
+	.insufficient h4 {
+		margin-block: var(--space-xs) var(--space-s);
+		font-family: var(--font-display);
+		font-size: var(--type-h3);
+		font-variation-settings: 'opsz' 30, 'SOFT' 0, 'WONK' 0;
+	}
+	.disclaimer {
+		margin-top: auto !important;
+		padding-top: var(--space-m);
+		border-top: var(--rule) solid var(--green);
+		font-size: var(--type-small);
+	}
+	.noscript {
+		padding: var(--space-s);
+		border: var(--rule) solid var(--accent);
+		color: var(--accent);
+	}
+	@media (min-width: 40rem) {
+		.explorer-heading {
+			grid-template-columns: minmax(0, 0.8fr) minmax(18rem, 1.2fr);
+			align-items: end;
+		}
+		.player-controls {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+		.gain-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+	@media (min-width: 58rem) {
+		.explorer-plot {
+			grid-template-columns: minmax(0, 1.65fr) minmax(18rem, 0.85fr);
+			padding: var(--space-m);
+		}
+	}
+	@media (max-width: 23.999rem) {
+		.explorer-plot,
+		.result-panel {
+			padding: var(--space-xs);
+		}
+		.court-title-row {
+			align-items: end;
+		}
+		.court-title-row h3 {
+			font-size: 1.35rem;
+		}
+		.heat-legend {
+			font-size: 0.65rem;
+		}
+		.view-options {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

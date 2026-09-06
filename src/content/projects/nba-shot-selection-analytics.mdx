@@ -1,0 +1,60 @@
+---
+title: NBA Shot Selection Analytics
+description: A spatial model estimates player-specific shot value and tests targeted relocation from weaker modeled locations.
+question: How many additional points could a player score by relocating a limited share of shots toward locations where that player has demonstrated stronger ability, while preserving shot variety?
+dataset: 2025-26 player shooting surfaces on a 156-cell half-court grid
+method: Bayesian CAR model with targeted weak-location relocation
+seasons: 2025-26
+repo: https://github.com/nanu731/nba-shot-analytics
+draft: false
+---
+
+import Band from '../../components/Band.astro';
+import SpatialShotSelection from '../../components/SpatialShotSelection.astro';
+
+<Band offset="edge">
+
+## The model
+
+The production Bayesian conditional autoregressive model estimates a separate
+2025-26 shooting surface for each of 318 players. The relocation calculation removes
+attempt mass from a player's weakest modeled locations first, then allocates it across
+supported destinations in proportion to their existing use.
+
+The calculation chooses source locations without using whether a shot went in. A
+destination needs at least 10 attempts and 90% posterior certainty that it exceeds
+the player's current weighted expected-points baseline. At least two destinations
+must pass those rules before the page publishes a score or gain.
+
+</Band>
+
+<Band offset="step">
+
+<SpatialShotSelection />
+
+</Band>
+
+<Band offset="deep" green>
+
+## What the numbers mean
+
+The explorer reports posterior means with 90% intervals. The season figure uses each
+player's observed 2025-26 attempt volume; the per-100 figure gives a common scale.
+The Shot Selection Score applies the self-relative formula to the 25% targeted result.
+It does not represent league rank or overall player quality.
+
+The destination rules qualify 122 players. The other 196 retain their historical
+shots and complete modeled-ability heatmaps, but the page reports insufficient
+evidence instead of substituting zero for an unavailable result.
+
+</Band>
+
+<Band offset="step">
+
+## Limits
+
+These are modeled, non-causal estimates based on past shots. They do not guarantee
+improvement. The model excludes whether a new shot can be created, how defenses
+respond, fatigue, passing, shot-clock pressure, and game context.
+
+</Band>
