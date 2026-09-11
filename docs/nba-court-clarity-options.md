@@ -2,9 +2,9 @@
 
 11 September 2026. Narayan approved **B: Follow the change**, with the view names
 **Shot locations** and **Make-chance map**. The shared explorer now implements B
-on the private preview branch. Narayan has since approved the complete redesign
-for deployment. A permission-system rejection blocks the feature push; production
-remains unchanged. The release preflight record explains the remaining step.
+on the public site. Narayan authorized publishing in direct chat, resolving the
+earlier permission rejection. The feature push, production merge, automatic
+deployment, and live verification succeeded on 11 September 2026.
 The alternatives and screenshots below record the earlier proposal stage.
 
 ## Original recommendation, before Narayan selected B
@@ -229,7 +229,9 @@ The latest verification record is in `nba-plain-language-preview-review.md`.
 Narayan has approved the implemented desktop/mobile layout. Free-pointer hover
 transit remains a manual test limitation. Definition actions say See all definitions,
 and the formula key uses aligned desktop rows and separated mobile pairs.
-The quality assessment is in `nba-project-quality-review.md`. The latest request
-authorizes pushing, merging, and connected automatic deployment. The permission
-system requires that authorization in direct chat before it will allow the push.
-The rejected push made no change; production and the remote feature remain unchanged.
+The quality assessment is in `nba-project-quality-review.md`. Feature `aa17580`
+was pushed and merged through `7e008be`; the automatic release is live. Main
+content, assets, and sampled data passed deployed-byte checks. Live testing found
+one follow-up: an unavailable season explains eligibility but leaves Loading in
+its empty court. No stale chart or result appears. The release did not repair that
+placeholder or implement the quality review's recommendations.

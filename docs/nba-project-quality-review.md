@@ -93,8 +93,11 @@ Narayan should review the new key and final Option B screenshots, complete or
 arrange the hands-on checks, and approve any follow-up work by scope. Approval of
 this assessment does not authorize its recommendations, a push, merge, or deployment.
 
-Subsequent release status: Narayan approved deployment of the completed redesign
-in a separate request. The permission system rejected the feature push because
-the authorization was in the attachment rather than direct chat. Production
-remains unchanged. The recommendations above remain unimplemented; the release
-request does not expand their scope.
+Subsequent release status: Narayan authorized publishing in direct chat. The
+feature push, merge through `7e008be`, and automatic deployment succeeded on
+11 September 2026. Live content, assets, sampled data hashes, interactions, and
+desktop/mobile layouts were verified. Live testing also found an unavailable-season
+court that retains Loading beneath a correct eligibility explanation; that narrow
+follow-up needs approval. The recommendations above remain unimplemented, except
+that the release closed the publishing/provenance check. Manual accessibility
+limitations remain. Release authorization does not expand the recommendation scope.

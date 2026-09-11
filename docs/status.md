@@ -4,107 +4,72 @@ Snapshot for a reader new to the site. Updated 11 September 2026.
 
 ## Public site
 
-The deployed five-season explorer has not changed during this preview session.
-Local and GitHub production branches still point to the combined-view release.
-The public page retains its earlier wording; the last live fetch on 11 September
-preceded this implementation. This session did not deploy or change hosting.
+The approved plain-language NBA redesign is live on the Netlify address. Narayan
+authorized the feature push, production merge, and automatic deployment in chat.
+The push and merge succeeded. Public fetches confirmed the new release about a
+minute after the merge. No hosting settings changed or manual deployment ran.
 
-## Private review preview
+The shared explorer presents three steps: Choose what to see, Set the change,
+and Read the court. Desktop places controls beside one court. Mobile places
+controls before the court. Shot locations opens at zero movement; Make-chance
+map retains its fixed scale and area inspection. Positive movement adds cyan
+hypothetical locations and faint origin rings. Requested and achieved movement
+remain separate, and the explanation says cyan does not mean a guaranteed make.
 
-Narayan approved Follow the change. The shared explorer now presents three steps:
-Choose what to see, Set the change, and Read the court. The controls sit beside
-one large court on desktop. Mobile puts those controls before the court in the
-document's reading order.
+Contextual help opens the matching definition, method explanation, or formula
+with keyboard focus. Browser Back retains the selection. Definitions, How the
+model works, and Formulas start closed beneath fourteen limitations. Fourteen
+variable-and-meaning pairs precede seven equations. Desktop uses aligned rows
+with dotted leaders; mobile stacks each pair.
 
-The two views are Shot locations and Make-chance map. Zero movement shows recorded
-makes as green circles and misses as rust crosses. Positive movement adds cyan
-hypothetical locations and faint origin rings; a faded diamond represents a
-partial attempt when needed. Requested and achieved movement stay separate.
-The map retains its fixed numeric scale, evidence diamonds, and individual-area
-inspection. Its guide explains that the slider changes scoring estimates, not ability.
+## Verified release checks
 
-Highlighted terms retain short explanations. Nine contextual buttons now open an
-exact definition, method explanation, or formula. Each action closes its popup,
-opens the correct reference, and puts visible keyboard focus on the matching
-heading. Browser Back returns to the term without resetting the player or slider.
-Dynamic explanations retain their buttons when the displayed numbers change.
-The three definition actions now say See all definitions; formula and method
-actions keep their specific labels. They still open the matching entry.
+The successful production build was reused because the source had not changed.
+It built six pages and reported only the existing empty-blog warnings. No
+dependency was added. Public main content, referenced scripts, styles, fonts,
+the data manifest, the player catalog, all five season indexes, and representative
+player files matched the verified build and committed data byte-for-byte.
+This sampled live data check did not fetch every player payload.
 
-The three-sentence purpose paragraph and fourteen concise limitations remain
-unchanged. Definitions, How the model works, and Formulas follow the limitations
-as separate, initially closed dropdowns. Direct links to detailed entries open
-their containing dropdown. The variable key still precedes seven unchanged
-equations, including the verified cell point value and missing-value conventions.
-Each of its fourteen terms now pairs with its meaning in one aligned row, with
-dotted leaders on desktop and separated stacked pairs on mobile. The wording
-and equations did not change.
+Live checks confirmed the LeBron James, 2025-26, zero-movement starting state;
+all five LeBron seasons in both views; all six slider settings; normalized search;
+keyboard selection; player persistence across seasons; and reset. The zero setting
+restored identical historical markers. Each map contained 156 cells. Typing added
+no data request, and selecting Wembanyama added only his player file. The browser
+inventory and earlier request log confirm selective loading, not a full-bundle
+download; the inventory alone cannot count repeated requests to the same address.
 
-## Verification
+LeBron's 2025-26 score remains 86.8. At 25%, he shows +157 points, a 129–183
+range, and +17.0 per 100 shots. Wembanyama moves 22.5% at a 25% request, shows
++184 points and score 87.0, and reaches the unchanged 50% receiving-area cap.
+Chris Paul's 2024-25 unavailable estimates remain hidden while his map is usable.
 
-The fresh pre-deployment build passed on 11 September. Its warnings concern the
-existing empty blog collection; no dependency was added.
+Live definition, method, and formula actions opened and focused the exact entry;
+Back retained the slider value. Keyboard popup dismissal passed. Desktop and
+375-pixel mobile checks found no horizontal overflow or application console
+warnings or errors. Earlier half-width reflow checks remain valid for the unchanged
+source. The phone court remains dense. Netlify's floating badge can overlay the
+bottom of a screenshot; readers can scroll the page to reveal the covered text.
 
-The release preflight repeated all five LeBron seasons in both views, all six
-slider settings, normalized search, player persistence, Chris Paul's unavailable
-season and reset, and Wembanyama's capped result. Reference actions passed exact
-focus, fragments, and Back checks. The request record shows one catalog load,
-no player request from typing, and one selected-player request on selection.
-The key retains fourteen accessible pairs before seven formulas. Desktop,
-375-pixel mobile, and half-width reflow had no horizontal overflow. No new
-application console errors appeared. No interface repair was needed.
+## Remaining limitations and next decision
 
-The preceding Option B checks covered LeBron in all five seasons and both views, all six slider
-settings, Wembanyama's capped one-area result, and Chris Paul's missing estimates.
-Normalized search, player persistence, an unavailable season, reset, and overlapping
-player requests retained their behavior. Typing made no request; selecting a
-player fetched that player's file. The catalog loaded once per page load.
-The final refinement check repeated all nine reference routes, exact focus and
-Back, keyboard order, mobile definition navigation, both reference players, and
-the revised key at desktop, phone, and half-width sizes. It did not repeat the
-entire season or network suite; the loading and chart code did not change.
+One unavailable-season edge case needs a follow-up: Chris Paul's 2025-26 selection
+explains that 56 shots in 16 games fail eligibility, but the empty court still says
+Loading. No previous player's chart or numerical result appears. Reset works.
+This release verification found and recorded the placeholder issue; it did not
+change the approved interface. Narayan can authorize a narrow repair separately.
 
-LeBron's score remains 86.8 in 2025-26. At 25%, he shows +157 points, a 129–183
-range, and +17.0 per 100 shots. Zero restores the identical historical markers.
-Wembanyama still moves 22.5% at a 25% request and reaches the 50% receiving cap.
-Chris Paul's unavailable gains remain hidden while his 581 recorded shots and
-156-cell map remain accessible in 2024-25.
+Free-pointer hover transit, native 200% zoom, physical-device touch, and
+screen-reader speech remain untested. Browser clicks approximate touch, and the
+earlier half-width viewport approximates zoom reflow. The available GitHub checks
+did not expose Netlify build details; live content and file hashes establish the
+deployment result, not a dashboard build duration or deployment identifier.
 
-Desktop, exact 375-pixel mobile, and half-width reflow checks found no horizontal
-overflow. Keyboard and click checks passed for popup actions, exact destination
-focus, Escape, outside dismissal, and Back. The console contained no application
-errors. The one-area label now has sufficient text contrast on the sand surface.
+The private quality review remains a proposal for follow-up work. Its priorities
+include a verified findings story, dense mobile charts, and hands-on accessibility
+testing. Release approval did not authorize those recommendations.
 
-Free-pointer hover/transit still needs a manual check. The implementation keeps
-both popup surfaces active and allows a short transit interval; the available
-browser controls did not expose free pointer movement. Mobile clicks approximate
-touch, and the reflow check approximates 200% zoom with a half-width viewport.
-Physical-device touch, screen-reader speech, and native browser zoom were not tested.
-
-## Approval and preserved work
-
-Narayan approved the complete redesign for public release, including the feature
-push, production merge, and connected automatic deployment. The permission system
-rejected the feature push because it required that approval in the chat message
-itself rather than in the attached request. The command did not run. No merge or
-deployment followed, and production remains unchanged.
-
-The implementation and release checks remain saved in local commits. The next
-step is direct confirmation in chat for the approved publishing actions, followed
-by the feature push, merge, and live verification. No further design decision is
-needed. Hands-on hover, native zoom, physical touch, and screen-reader speech
-checks remain limitations. The native zoom shortcut had no measurable effect in
-the available browser; half-width reflow is the tested approximation.
-
-The private quality review rates the current project 7.5 out of 10 against a
-polished sports-analytics portfolio. Its strongest parts are the concrete question,
-inspectable assumptions, uncertainty, and working explorer. The largest remaining
-gaps are a concise verified findings story, dense mobile charts, and hands-on
-accessibility testing. Recommendations remain proposals, not approved changes.
-
-All statistical data, analytics code, shot geometry, calculations, legacy exports,
-prototypes, and the pre-existing layout test remain unchanged. The data bundle
-still loads selected files rather than downloading every player.
-
-The custom domain remains an earlier unresolved issue; this session did not
-recheck its registration or change hosting configuration.
+Analytics, models, calculations, all statistical exports, prototypes, and the
+pre-existing layout test remain unchanged. Both untracked artifacts retain their
+recorded hashes and remain excluded from commits. The custom-domain issue remains
+outside this release; its registration was not rechecked.

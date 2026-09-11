@@ -1,8 +1,8 @@
 # NBA page: plain-language copy proposal
 
 Historical proposal, superseded by the approved Option B implementation and its
-release record. Narayan approved public deployment on 11 September 2026; a
-permission-system rejection blocked the feature push. The content below records
+release record. Narayan's direct authorization resolved the earlier permission
+rejection; the approved redesign deployed on 11 September 2026. The content below records
 the original copy proposal, not the current implementation or approval boundary.
 Prepared 10 September 2026 against portfolio `c1e39fc` and analytics `23b52b1`.
 

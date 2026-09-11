@@ -1,8 +1,9 @@
 # Plain-language NBA preview review
 
 Historical review record beginning 10 September 2026. The final section records
-Narayan's deployment approval, the completed release preflight, and the blocked
-push. Earlier approval boundaries describe their respective sessions.
+the successful authorized release and live verification. Earlier approval and
+permission boundaries describe their respective sessions, including the resolved
+push rejection.
 
 ## Starting point and scope
 
@@ -636,3 +637,60 @@ Current captures are outside production files in
 `/Users/narayanlekhi/.codex/visualizations/2026/09/05/01a06fff-1e92-7d90-89cf-0a912c4ba691/nba-plain-language-deployment/`:
 `preflight-desktop.jpg` and `preflight-mobile-controls.jpg`. Earlier complete
 desktop/mobile court and formula galleries remain preserved.
+
+## Authorized release and live verification, 11 September 2026
+
+Narayan authorized publishing in direct chat. Recovered feature `aa17580` with
+clean tracked files and both preserved untracked hashes intact. The source still
+matched the successful 01:42:21 build, so the release reused it. Feature push
+succeeded and its upstream points to `aa17580`. Local and fetched remote main
+both started at `c1e39fc`. Merge `7e008be` (Merge plain-language NBA explorer)
+has parents `c1e39fc` and `aa17580`; its tree matches the feature tree. Main push
+succeeded and direct GitHub, local main, and origin/main matched `7e008be`.
+
+The public release was confirmed at 05:52:16 UTC, about 64 seconds after merge
+creation. This is an observation interval, not a Netlify dashboard build duration.
+GitHub status, checks, and deployment APIs supplied no Netlify job detail. No
+manual deployment, duplicate trigger, or hosting-setting change was made.
+
+An external read-only verifier passed 21 comparisons: the page's main content,
+six referenced script/style/font assets, and fourteen JSON files. The JSON sample
+contains the v4 root manifest and catalog, all five indexes, LeBron in each season,
+Wembanyama in 2025-26, and Chris Paul in 2024-25. Netlify adds a badge outside the
+main content, so whole-document HTML equality is not asserted. This verifies
+representative player payloads, not every live export file.
+
+Live browser checks repeated:
+
+- Initial LeBron/2025-26/Shot locations/zero and closed reference disclosures.
+- All five LeBron seasons, both views, 156 cells, and unchanged scores. All six
+  2025-26 slider gains and intervals match the preceding preflight values.
+- The 919 historical markers return byte-identically at zero with no origin rings;
+  25% shows 230 origin markers, including the fractional boundary attempt.
+- Wembanyama retains 22.5% achieved movement, +184 season points, 156–211 range,
+  +17.1 per 100, and score 87.0. His hash-matched data records final share 0.5.
+- Mixed-case `LuKa... don-cic` finds Luka Dončić; keyboard selection works and a
+  2024-25 season change keeps him selected. Chris Paul's 2024-25 missing estimates
+  hide the metrics and retain the 156-cell map. His unavailable 2025-26 reason and
+  reset work without substituting a player.
+- **Remaining defect:** that unavailable 2025-26 court retains its Loading
+  placeholder after showing the correct 56-shot/16-game reason. The court contains
+  no stale player data. The approved source has not been repaired in this release.
+- Representative definition, method, and formula actions focus exact open entries;
+  Back preserves 25%. Tab reaches the popup action; Escape closes it and restores
+  trigger focus. Fourteen semantic key rows precede seven equations.
+- Exact 1440×1000 and 375×812 layouts have no horizontal overflow. The court and
+  controls remain usable, with dense phone markers. Netlify's floating badge can
+  cover text at the viewport bottom; scrolling reveals it. Live console logs
+  contain no warnings or errors.
+- Resource inventory initially contains only manifest, catalog, active index, and
+  LeBron's payload. Typing `wEMb` adds no URL; selecting him adds only Wembanyama's
+  file. This URL inventory deduplicates repeated URLs, so the prior server request
+  log remains the evidence for once-per-load request counts.
+
+New captures in the external deployment review directory are `live-desktop.jpg`,
+`live-mobile-controls.jpg`, and `live-mobile-court.jpg`. Free-pointer transit,
+native zoom, physical touch, and screen-reader speech remain manual limitations.
+The documentation-only follow-up records this outcome without changing deployed
+source, data, configuration, or dependencies. Both preserved untracked files keep
+their recorded bytes and hashes; no analytics repository action occurred.
