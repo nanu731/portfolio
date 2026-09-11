@@ -515,28 +515,24 @@ textarea {
 	white-space: nowrap;
 }
 /* The NBA write-up keeps technical detail behind native, keyboard-ready disclosures. */
-.nba-definitions h2,
-.nba-definitions h3 { color: inherit; }
-.nba-methodology,
-.nba-formulas {
+.nba-limitations h2 { color: inherit; }
+.nba-limitations li + li { margin-top: var(--space-s); }
+.nba-reference {
 	border-block: var(--rule) solid var(--green);
 	padding-block: var(--space-s);
 }
-.nba-methodology > summary,
-.nba-formulas > summary {
+.nba-reference + .nba-reference { margin-top: var(--space-m); }
+.nba-reference > summary {
 	cursor: pointer;
 	font-family: var(--font-display);
 	font-size: var(--type-h3);
 	min-height: 44px;
 }
-.nba-methodology > summary:focus-visible,
-.nba-formulas > summary:focus-visible {
+.nba-reference > summary:focus-visible {
 	outline: var(--rule-thick) solid currentColor;
 	outline-offset: var(--space-2xs);
 }
-.nba-methodology[open] > summary,
-.nba-formulas[open] > summary { margin-bottom: var(--space-m); }
-.nba-formulas { margin-block: var(--space-m); }
+.nba-reference[open] > summary { margin-bottom: var(--space-m); }
 .nba-formula-block {
 	border: var(--rule-thin) solid var(--green);
 	padding: var(--space-s);
@@ -555,6 +551,7 @@ textarea {
 	line-height: 1.8;
 	overflow-wrap: anywhere;
 }
+.nba-term { white-space: nowrap; }
 .nba-fraction {
 	display: inline-grid;
 	vertical-align: middle;
@@ -565,7 +562,7 @@ textarea {
 .nba-fraction > span + span { border-top: var(--rule-thin) solid currentColor; }
 .nba-variable-key {
 	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+	grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
 	gap: var(--space-xs) var(--space-s);
 }
 .nba-variable-key dt,

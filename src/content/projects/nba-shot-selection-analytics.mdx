@@ -18,8 +18,8 @@ import DefinitionHelp from '../../components/DefinitionHelp.astro';
 <Band offset="edge">
 
 This project estimates how a player's scoring could change by moving shots from weaker locations toward areas where their past shots show stronger ability.
-With the slider, you can explore possible efficiency gains and see the tradeoffs in where those shots go.
-The estimates do not predict real-game results or prove a player should change their shot selection.
+You can explore how shot location affects scoring efficiency and where a different shot mix might help.
+This is a theoretical basketball scenario, not a real-game prediction or coaching instruction.
 
 ## How to use it
 
@@ -37,71 +37,83 @@ Choose a season and player. Move the slider to compare their past shots with a p
 
 <Band offset="edge" green>
 
-<section class="nba-definitions" aria-labelledby="definitions">
+<section class="nba-limitations" aria-labelledby="important-limitations">
 
-## Definitions
+## Important limitations
+
+This project is a simplified thought experiment. It asks what future shot selection might look like in an idealized setting where some attempts could move toward a player's strongest demonstrated areas, using past shots to estimate ability.
+
+- **A scenario, not a forecast.** These modeled estimates are not exact predictions or guaranteed improvements. Comparing two hypothetical shot mixes does not prove that relocating shots would cause the estimated gain.
+- **Roles and opportunities.** NBA players cannot choose every shot location across a season. Coaches, offensive systems, player roles, teammates, opponents, and play calls shape the opportunities they get. The calculation cannot create a real shot opportunity or give a player independent control over every attempt.
+- **Defense and strategy.** Defenders affect which locations are available and how difficult shots become. The model does not use defender distance, contests, defensive schemes, or opponent quality. It does not model basketball game theory or how defenses would adjust to repeated attempts from the same areas.
+- **Game situation and health.** The model leaves out score, time remaining, shot clock, quarter, playoff pressure, and other game situations. It also leaves out fatigue, injuries, travel, conditioning, and changes in player health.
+- **How a shot happens.** The model leaves out pass quality, shot creation, dribbling difficulty, balance, and shot technique, such as a pull-up or catch-and-shoot attempt. It uses two-/three-point value but does not model how the player reached that location. Field-goal records also miss part of the value of drawing free throws.
+- **Ability at a higher volume.** Players may take shots from a strong area only when conditions favor them. Past success does not guarantee they could create those same shots more often; their shooting percentage could fall with added volume or defensive attention. Estimates may be optimistic because shooting ability stays fixed while locations change.
+- **Simplified court and project rules.** Four-foot cells can group shots with different levels of difficulty. The 25% relocation setting and 50% receiving-area cap are transparent project rules, not laws of basketball. The cap prevents adding shots beyond 50%; it does not remove historical shots from an area already above that share.
+- **Historical seasons and missing estimates.** Each regular season has its own analysis of past shots, not a forecast of development, aging, trades, role changes, or team changes. The half-court boundary, player eligibility, destination evidence, and capacity rules can leave a player or season without an estimate despite recorded NBA attempts.
+- **Ranges and scores.** The displayed 90% range measures uncertainty inside the model, not all real-world uncertainty or future makes and misses. The Shot Selection Score compares a player with their own hypothetical shot mix; it does not rank overall quality, shooting talent, offensive value, or players against one another.
+- **One-area estimates and markers.** Single-destination estimates depend on one supported strong area and warrant extra caution. Cyan diamonds show hypothetical relocated attempts, not guaranteed makes.
+
+Use the explorer to study one possible shot-selection scenario, not as a coaching recommendation, betting tool, or claim about what a player should do.
+Real basketball contains strategic and human factors that this model cannot reproduce.
+
+</section>
+
+</Band>
+
+<Band offset="step">
+
+<details class="nba-reference nba-definitions">
+<summary id="definitions">Definitions</summary>
 
 ### Shot relocation
 
-Moving some attempts to different court areas while keeping the total number of shots unchanged.
-The model starts with the weakest estimated scoring areas. A shot's made-or-missed result does not decide whether it moves.
+Moving some attempts from weaker estimated scoring areas to supported stronger areas while keeping total attempts unchanged.
+A shot's made-or-missed result does not decide whether it moves.
 
 ### Shots to Move
 
-Your slider setting is the most the model may move. At 25%, that means up to 25 of every 100 shots.
-The amount moved can be smaller if suitable source shots run out or receiving areas reach their limits.
-The displayed moved count can include part of a shot because the model works with shares of the player's attempts.
+Your slider setting is the most the model may move: 25% means up to 25 of every 100 attempts, with less movement if source shots or receiving space run out.
+The moved count can include part of a shot because the calculation uses attempt shares.
 
 ### Extra Points in the Selected Season
 
-The estimated difference in points over the same number of recorded shots in that season.
-For example, LeBron's 2025–26 result at 25% shows +157 points across 919 attempts.
-That compares two modeled shot mixes; it does not add points to his official season total or predict his next season.
+The estimated difference in points over the selected season's included attempts: LeBron's 2025–26 example at 25% shows +157 points across 919 shots.
+This compares modeled shot mixes without adding points to his official total or forecasting next season.
 
 ### Extra Points per 100 Shots
 
-The estimated difference for every 100 attempts, whatever the player's season shot count.
-LeBron's 2025–26 result at 25% shows +17.0 points per 100 shots.
-Both points measures describe the same change at different scales. A negative value would mean fewer estimated points.
+The same estimated scoring difference expressed per 100 attempts, regardless of season volume; LeBron's 2025–26 example at 25% shows +17.0 points.
+A negative value means fewer estimated points.
 
 ### Shot Selection Score
 
-This 0–100 score compares the player's past shot mix with the allowed scenario at the 25% request.
-A score of 90 means the past mix produces about 90% of the estimated points per shot in that scenario.
-Higher scores mean less estimated room to improve through this particular change in locations.
-The score does not rank players or rate their overall offense. It stays fixed when you change the slider.
-The calculation reports the middle score across its possible shooting estimates, rather than the average score.
+This fixed 0–100 score compares the player's past mix with feasible relocation at the 25% request: 90 means about 90% of that scenario's expected points per shot, with higher scores indicating less estimated room to improve.
+It reports the median of the model's scores and does not rank players or rate their overall offense.
 
 ### Estimated Range (90%)
 
-This range contains the middle 90% of the model's estimates, given its data and assumptions.
-For LeBron's +157-point example, the displayed range is 129 to 183 points.
-A wider range means more uncertainty within the model. The range does not cover all the ways real games could differ.
-It is not a promise that future results will fall inside it.
+The middle 90% of the model's estimates, such as 129 to 183 points around LeBron's +157-point example; a wider range means more uncertainty within the model.
+It does not cover all real-game uncertainty or promise that future results will fall inside it.
 
 ### Estimate from One Area
 
-One area passes the evidence rules for receiving moved shots. The estimate sends the moved shots to that area.
-It stops adding shots there at 50% of the player's total attempts, or sooner if suitable source shots run out.
-This label describes the number of receiving areas; it does not mean the player has no other basketball strengths.
-If the area already holds at least half the attempts, there is no room to add shots and no points estimate appears.
+One area passes the evidence rules, so it receives moved shots until the 50% cap or available source shots stop movement.
+An area already holding at least half the attempts has no room for more, so no estimate appears; this label does not describe the player's other strengths.
 
 ### Shooting Map
 
-The colors show the estimated chance of making a shot from each court area, including areas with few or no attempts.
-Nearby areas help the model estimate shooting chances where shots are sparse.
-A darker area does not qualify on color alone. The relocation test also considers shot value and evidence.
-The colors describe chances of making shots, not expected points or guaranteed makes.
+The colors show estimated make probability across court areas, with nearby areas helping where attempts are sparse.
+Darker colors do not guarantee makes or qualify an area for relocation, which also requires shot-value and evidence checks.
 
 ### Area with Evidence for Moving Shots
 
-The player took at least 10 shots in this area during the selected season.
-Under the model, the area has at least a 90% chance of producing more points per attempt than the player's past mix.
-An outlined diamond marks this evidence. The 50% limit determines whether the area can receive any more attempts.
+An outlined diamond marks an area with at least 10 attempts and at least 90% model probability of beating the player's current mix in points per attempt.
+The 50% cap determines whether it has room to receive more shots.
 
 ### No Clear Area for Moving Shots
 
-No area passes both evidence rules. You can view the player's past shots and shooting map, but no relocation estimate appears.
+No area passes both evidence rules, so the past shots and Shooting Map remain available without a relocation estimate.
 This does not prove the player's shot choices were ideal or that no change could help.
 
 ### No Room to Move More Shots
@@ -111,16 +123,12 @@ The chart stays available, but the model supplies no score or extra-points estim
 
 ### Estimated Points per Shot
 
-The model combines the chance of making a shot with its two-point or three-point value.
-It uses the player's mix of shot values within each area. This is how it compares scoring locations.
+The modeled chance of a make multiplied by the player's observed mix of two- and three-point values within an area.
+This measures expected scoring per attempt, not make percentage alone.
 
-</section>
+</details>
 
-</Band>
-
-<Band offset="step">
-
-<details class="nba-methodology">
+<details class="nba-reference nba-methodology">
 <summary>How the model works</summary>
 
 ### Data and seasons
@@ -182,8 +190,6 @@ This gives estimated differences in points over the season's included shots and 
 The extra-points numbers are averages across those 4,000 comparisons.
 The score uses the middle of the 4,000 scores, after limiting each score to 0–100.
 Each displayed range runs from the fifth to the ninety-fifth percentile: the middle 90% of those values.
-These ranges describe uncertainty within the model, not the full uncertainty of future games.
-The points ranges do not simulate future makes and misses or changes in defensive response.
 
 ### How the model was tested
 
@@ -196,15 +202,6 @@ It found no clear uncertainty advantage for players with fewer shots.
 After testing, the selected model used all included season shots for the published estimates.
 The earlier four seasons reuse the same specification with separate fits. They do not repeat the model comparison.
 Checks covered missing results, shot counts, repeatable movement, uncertainty ranges, and the 50% cap.
-These checks test the calculation. They do not show that a player could create those new shots in a game.
-
-### Limits in real games
-
-These estimates assume the player can get the replacement shots and keep the same shooting ability after changing locations.
-The model leaves out defensive response, shot creation, passing, fatigue, shot-clock pressure, and the game situation.
-Players may take shots from an area only when conditions favor them. Taking more there could reduce their shooting percentage.
-Field-goal records also miss part of the value of drawing free throws.
-The ranges do not include all these missing effects. The project does not establish that moving shots causes extra points.
 
 ### Project details
 
@@ -215,12 +212,32 @@ The ranges do not include all these missing effects. The project does not establ
 
 </details>
 
-<details class="nba-formulas">
+<details class="nba-reference nba-formulas">
 <summary>Formulas</summary>
 
 These equations describe one of the model's 4,000 joint shooting-ability estimates.
 The calculation uses the same make probabilities for the historical and relocated shot mixes in each comparison.
-EPPS means expected points per shot.
+
+### Variable key
+
+<dl class="nba-variable-key">
+<dt>c, s</dt><dd>A court cell and the requested slider share (0%, 5%, 10%, 15%, 20%, or 25%).</dd>
+<dt>A</dt><dd>Total included shot attempts in the selected season.</dd>
+<dt>p<sub>c</sub></dt><dd>Modeled make probability in cell c for one joint simulation.</dd>
+<dt>v<sub>c</sub></dt><dd>Cell point value: 2 plus the observed share of three-point attempts in that player-season cell.</dd>
+<dt>w<sub>c</sub>, w′<sub>c</sub>(s)</dt><dd>Historical and relocated shares of all included shots in cell c; the prime (′) marks the changed distribution at request s.</dd>
+<dt>E<sub>c</sub>, EPPS</dt><dd>Expected points per shot in a cell, and the abbreviation for expected points per shot.</dd>
+<dt>current, relocated</dt><dd>Subscript labels for the historical and feasible changed shot mixes.</dd>
+<dt>Season gain, Gain per 100</dt><dd>Extra points over A season attempts or over 100 attempts at request s.</dd>
+<dt>Score</dt><dd>One simulation's comparison of current and feasible 25% expected points per shot, before the 0–100 limit.</dd>
+<dt>Σ<sub>c</sub></dt><dd>Add across court cells; a subscript c identifies the cell.</dd>
+<dt>Q<sub>0.05</sub>, Q<sub>0.95</sub></dt><dd>The fifth and ninety-fifth percentiles of the 4,000 calculated gains or limited scores.</dd>
+<dt>Range<sub>90%</sub></dt><dd>The interval between those percentiles: the middle 90% of calculated values.</dd>
+<dt>=, ×, −</dt><dd>Equals, multiply, and subtract; a fraction bar means divide.</dd>
+<dt>( ), [ ], %</dt><dd>Parentheses and brackets group terms; (s) means evaluated at request s. In a range, brackets enclose its lower and upper endpoints. Percent (%) means a share out of 100.</dd>
+</dl>
+
+### Equations
 
 <div class="nba-formula-block">
 <h3>1. Expected points in a cell</h3>
@@ -230,31 +247,31 @@ EPPS means expected points per shot.
 
 <div class="nba-formula-block">
 <h3>2. Current expected points per shot</h3>
-<p class="nba-equation" role="math" aria-label="Current expected points per shot, B, equals the sum across cells of current shot share times modeled make probability times point value."><span aria-hidden="true">B = Σ<sub>c</sub> w<sub>c</sub> × p<sub>c</sub> × v<sub>c</sub></span></p>
+<p class="nba-equation" role="math" aria-label="Current expected points per shot equals the sum across cells of current shot share times modeled make probability times point value."><span aria-hidden="true"><span class="nba-term">EPPS<sub>current</sub></span> = Σ<sub>c</sub> (w<sub>c</sub> × p<sub>c</sub> × v<sub>c</sub>)</span></p>
 <p>Weight each cell's expected points by how often the player shot there.</p>
 </div>
 
 <div class="nba-formula-block">
 <h3>3. Expected points after relocation</h3>
-<p class="nba-equation" role="math" aria-label="Relocated expected points per shot, A of s, equals the sum across cells of relocated shot share at slider request s times modeled make probability times point value."><span aria-hidden="true">A(s) = Σ<sub>c</sub> q<sub>c</sub>(s) × p<sub>c</sub> × v<sub>c</sub></span></p>
+<p class="nba-equation" role="math" aria-label="Relocated expected points per shot at slider request s equals the sum across cells of relocated shot share times modeled make probability times point value."><span aria-hidden="true"><span class="nba-term">EPPS<sub>relocated</sub>(s)</span> = Σ<sub>c</sub> (w′<sub>c</sub>(s) × p<sub>c</sub> × v<sub>c</sub>)</span></p>
 <p>Use the changed shot shares while keeping the same estimated shooting ability.</p>
 </div>
 
 <div class="nba-formula-block">
 <h3>4. Extra points in the selected season</h3>
-<p class="nba-equation" role="math" aria-label="Season gain at s equals included season attempts times the difference between relocated and current expected points per shot."><span aria-hidden="true">G<sub>season</sub>(s) = N × [A(s) − B]</span></p>
+<p class="nba-equation" role="math" aria-label="Season gain at s equals included season attempts times the difference between relocated and current expected points per shot."><span aria-hidden="true">Season gain(s) = A × [<span class="nba-term">EPPS<sub>relocated</sub>(s)</span> − <span class="nba-term">EPPS<sub>current</sub></span>]</span></p>
 <p>Apply the difference per shot to the player's included season attempts.</p>
 </div>
 
 <div class="nba-formula-block">
 <h3>5. Extra points per 100 shots</h3>
-<p class="nba-equation" role="math" aria-label="Gain per 100 shots at s equals 100 times the difference between relocated and current expected points per shot."><span aria-hidden="true">G<sub>100</sub>(s) = 100 × [A(s) − B]</span></p>
+<p class="nba-equation" role="math" aria-label="Gain per 100 shots at s equals 100 times the difference between relocated and current expected points per shot."><span aria-hidden="true">Gain per 100(s) = 100 × [<span class="nba-term">EPPS<sub>relocated</sub>(s)</span> − <span class="nba-term">EPPS<sub>current</sub></span>]</span></p>
 <p>Express the same difference over 100 attempts, regardless of season shot volume.</p>
 </div>
 
 <div class="nba-formula-block">
 <h3>6. Shot Selection Score</h3>
-<p class="nba-equation" role="math" aria-label="One score calculation equals 100 times current expected points per shot divided by expected points after feasible relocation at the 25 percent request."><span aria-hidden="true">S = 100 × <span class="nba-fraction"><span>B</span><span>A(25%)</span></span></span></p>
+<p class="nba-equation" role="math" aria-label="One score calculation equals 100 times current expected points per shot divided by expected points after feasible relocation at the 25 percent request."><span aria-hidden="true">Score = 100 × <span class="nba-fraction"><span>EPPS<sub>current</sub></span><span>EPPS<sub>relocated</sub>(25%)</span></span></span></p>
 <p>Compare the past mix with the feasible mix at the largest slider request.</p>
 <p>The calculation limits each of the 4,000 scores to 0–100, then displays their median.
 Dividing two displayed averages does not reproduce that median of ratios.
@@ -269,25 +286,13 @@ The 25% request uses the actual feasible movement when source shots, evidence, o
 The ranges reflect uncertainty in modeled ability, not a simulation of future makes and misses.</p>
 </div>
 
-### Variable key
-
-<dl class="nba-variable-key">
-<dt>c</dt><dd>A four-foot court cell; Σ adds across cells.</dd>
-<dt>p<sub>c</sub></dt><dd>Make probability in cell c for one joint model estimate.</dd>
-<dt>v<sub>c</sub></dt><dd>Cell point value: 2 plus its observed share of three-point attempts.</dd>
-<dt>w<sub>c</sub>, q<sub>c</sub>(s)</dt><dd>Historical and relocated shares of all included attempts.</dd>
-<dt>s, N</dt><dd>Requested relocation share and included season attempts.</dd>
-<dt>B, A(s)</dt><dd>Current and relocated expected points per shot.</dd>
-<dt>G, S, Q</dt><dd>Gain, one score calculation, and a percentile of the 4,000 values.</dd>
-</dl>
-
 ### Where the values come from
 
-- **Make probability:** The player's season-specific spatial shooting model (CAR) supplies 4,000 joint estimates across court cells.
-- **Point value:** For each player and season, divide three-point attempts in a cell by all attempts in that cell, then add 2. A cell with only twos has value 2; one with only threes has value 3. A cell crossing the arc uses the player's observed mix, not its center's location. Empty cells have no observed point value and receive no shot share in these calculations.
-- **Current shares:** Divide attempts in each cell by the player's total included season attempts.
-- **Relocated shares:** Remove shots weakest first from below-baseline areas. Add them to supported areas in proportion to existing usage, redistributing when an area reaches the 50% cap. Freeze this plan before evaluating the 4,000 estimates.
-- **Feasible movement:** Use the smallest of the requested share, eligible weak-source share, and supported receiving capacity. Each supported cell has added capacity of `max(0, 0.50 − historical share)`; add those capacities across supported cells.
+- **Make probability (p<sub>c</sub>):** The player's season-specific spatial shooting model supplies 4,000 joint estimates across court cells.
+- **Point value (v<sub>c</sub>):** For each player and season, divide three-point attempts in a cell by all attempts in that cell, then add 2. A cell with only twos has value 2; one with only threes has value 3. A cell crossing the arc uses the player's observed mix, not its center's location. Empty cells have no observed point value and receive no shot share; the calculation sets their zero-weight contribution to the sums to zero.
+- **Current shares (w<sub>c</sub>):** Divide attempts in each cell by the player's total included season attempts.
+- **Relocated shares (w′<sub>c</sub>(s)):** Remove shots weakest first from below-baseline areas. Add them to supported areas in proportion to existing usage, redistributing when an area reaches the 50% cap. Freeze this plan before evaluating the 4,000 estimates.
+- **Feasible movement:** Use the smallest of the requested share, eligible weak-source share, and supported receiving capacity. Each supported cell's added capacity is 50% minus its historical share, or zero if that share is already 50% or more; add those capacities across supported cells.
 - **Uncertainty:** Apply the fixed shot shares and point values to each joint model estimate, then summarize the resulting gains and scores with the ranges above.
 
 Unavailable relocation keeps scores and gains missing, including at 0%. None of these equations turns missing evidence into a zero estimate.
