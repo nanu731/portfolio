@@ -54,7 +54,7 @@ The source change adds no dependencies and does not modify data, models, or form
 - Definition tests covered pointer-only hover without trigger focus, focus through
   Tab, Enter, Space, Escape, clicks, outside clicks, and one-open-at-a-time behavior.
   ARIA names, expanded states, descriptions, and focus outlines were inspected.
-- Native methodology and nested formula disclosures opened with the keyboard and
+- In the first implementation, native methodology and nested formula disclosures opened with the keyboard and
   began closed. The Definitions headings use cream text on green after visual review.
 - Desktop 1440px, exact 375px mobile, and 720px reflow representing a 1440px viewport
   at 200% had no horizontal overflow. The final console had no warnings or errors.
@@ -89,3 +89,82 @@ The pre-existing untracked LeBron prototype remains 145,713 bytes, SHA-256
 Narayan should review the information order, definition text, and the distinction
 between the Shooting Map view and its Best Shooting Areas help heading. Deployment
 requires separate approval. The next step is a visual and wording review, not a merge.
+
+## Purpose and formula revision
+
+Recovered the pushed branch at `e813463`, including `0784d9b` and `c73c042`.
+A direct remote read confirmed feature `e813463` and main `c1e39fc` before edits.
+The working tree contained only the preserved prototype and layout test. The existing
+production-file review server on port 4323 was reused; no duplicate server was started.
+
+Source commit `99a4117` changes only the NBA write-up and its formula styles. The
+opening now explains the basketball question, possible efficiency gains, location
+tradeoffs, and the limit on interpreting results as real-game predictions.
+Definitions precedes two sibling disclosures: How the model works and Formulas.
+Both start closed. The seven formula blocks use the existing numeric typeface,
+subscripts, multiplication and summation symbols, an HTML fraction, and spoken labels.
+A variable key and input-provenance notes complete the section. No dependency was added.
+
+### Formula verification
+
+Read the frozen five-season and single-destination-cap plans and inspected
+`R/spatial_targeted_capped_website_export.R` and
+`R/spatial_targeted_relocation_helpers.R` in the analytics repository without edits.
+
+- Exporter lines 263–276 calculate each player-season cell's point value as
+  `2 + three_point_attempts / point_value_attempts` and its historical attempt share.
+  Empty cells have null observed point values and zero calculation weights.
+- Lines 309–314 calculate weighted baseline draws and mean cell expected points.
+- Lines 367–398 construct capped relocated shares and calculate relocated draws,
+  season gains, and gains per 100 attempts. Shares stay fixed across the joint draws.
+- Helper `target_summary` reports means and type-7 5th/95th percentiles.
+  `target_score` calculates each ratio, clips it to 0–100, then reports the median
+  and percentiles. The page preserves this distinction from a ratio of averages.
+- The score uses feasible movement at the 25% request. Source capacity, supported
+  destinations, and the 50% cap stay unchanged; unavailable gains and scores stay null.
+
+### Revision checks
+
+- Production build passed: six pages; only the existing empty-blog warnings.
+- All six LeBron settings reproduced the earlier gains and per-100 values above.
+  Returning to zero reproduced the historical SVG markup exactly.
+- LeBron loaded in all five seasons with both court views. A slider change left
+  Shooting Map markup unchanged; returning to Before & After retained the setting.
+- Wembanyama remained at 22.5% actual movement, 243 attempt-equivalents, +184 season
+  points, +17.1 per 100, and score 87.0 at the 25% request.
+- Chris Paul's 2024-25 unavailable relocation retained the chart and disabled slider;
+  changing to 2025-26 gave the 56-shot/16-game reason. Reset restored the defaults.
+- Mixed-case `lUkA don-cic` matched Luka Dončić. Keyboard selection, no results,
+  repeated searches, and delayed Wembanyama-to-LeBron selection worked.
+- The review request log showed one root manifest and catalog request after reload.
+  Season changes requested their active indexes. Typing added no requests; selecting
+  Wembanyama added only his player JSON. Rapid selection ended with LeBron.
+- Definition help still opened through its keyboard trigger and closed with Escape.
+- Both disclosures passed pointer clicks, mobile tap-style clicks, Enter, and Space.
+  Native collapsed states appeared in the accessibility tree. Seven math elements
+  have descriptive spoken labels; no speech-reader or physical touchscreen test ran.
+- Desktop 1440px, exact 375px mobile, and 720px reflow representing 200% of 1440px
+  had no page or formula overflow. All formula blocks and the variable key fit.
+  The console had no warnings or application errors. This was a viewport-based
+  reflow check, not a native browser-zoom test.
+- Compared with `e813463`, the shared explorer, definition component, layout, schema,
+  and all tracked public assets are byte-identical. Analytics still reports only
+  its pre-existing untracked observation folder. Layout-test and prototype hashes
+  remain the preserved hashes recorded above.
+
+### Updated review images
+
+New images are outside the repository, preserving the prior screenshots:
+`/Users/narayanlekhi/.codex/visualizations/2026/09/05/01a06fff-1e92-7d90-89cf-0a912c4ba691/nba-purpose-formulas-review/`
+
+- `desktop-opening.jpg`
+- `desktop-definitions.jpg`
+- `desktop-bottom-sections.jpg`
+- `desktop-formulas.jpg`
+- `desktop-formulas-score.jpg`
+- `mobile-formulas.jpg`
+- `mobile-score-formula.jpg`
+
+Narayan's next step is a visual and wording review of these two revisions. Only
+the preview branch may be pushed. Main, the live site, and Netlify remain outside
+this change's authorization.
