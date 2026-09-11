@@ -141,7 +141,7 @@ const { id, label, compact = false, detailTarget, detailLabel = 'See full defini
 	function restoreReference() {
 		document.dispatchEvent(new Event('close-definitions'));
 		const origin = history.state?.nbaDefinitionFragment === location.hash && history.state?.nbaDefinitionOrigin;
-		const trigger = origin && document.getElementById(origin);
+		const trigger = typeof origin === 'string' ? document.getElementById(origin) : null;
 		if (trigger?.matches('[data-definition-trigger]') && trigger.getClientRects().length) {
 			trigger.focus({ preventScroll: true });
 			trigger.scrollIntoView({ block: 'center', behavior: 'instant' });
