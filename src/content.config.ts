@@ -35,6 +35,8 @@ const projects = defineCollection({
 		repo: z.string().url().optional(),
 		// Long interactive write-ups can opt into the tighter project-page rhythm.
 		compact: z.boolean().default(false),
+		// A write-up may put its metadata in its own methodology section.
+		metadataInBody: z.boolean().default(false),
 		// Keeps an entry out of the production build while its numbers are still
 		// unverified, so a placeholder can never ship as a claim.
 		draft: z.boolean().default(false),

@@ -1,21 +1,12 @@
 ---
+import DefinitionHelp from './DefinitionHelp.astro';
 // The browser fetches the compact player index once, then one player payload per
 // selection. Keeping the data in public/ lets Netlify cache each versioned file
 // separately and keeps the versioned export out of Astro's JavaScript graph.
 ---
 
 <spatial-shot-explorer data-base-path="/data/spatial-shot-selection/v4">
-	<figure class="figure spatial-explorer" aria-labelledby="spatial-explorer-title">
-		<div class="explorer-heading">
-			<div>
-				<p class="label eyebrow">Interactive figure</p>
-				<h2 id="spatial-explorer-title">Shot selection explorer</h2>
-			</div>
-			<p class="explorer-intro">
-				Choose a season and player to compare historical shots with a targeted relocation
-				estimate and the modeled shooting surface.
-			</p>
-		</div>
+	<figure class="figure spatial-explorer" aria-label="Shot selection explorer">
 
 		<div class="player-controls" aria-describedby="player-status">
 			<div class="control season-control">
@@ -30,6 +21,7 @@
 			</div>
 			<div class="control player-combobox">
 				<label class="label" for="player-search">Search player</label>
+				<p class="search-help" id="search-help">Open the list or type a name. Accents and punctuation are optional.</p>
 				<div class="combobox-shell" data-combobox-shell>
 					<input
 						type="search"
@@ -40,7 +32,7 @@
 						aria-autocomplete="list"
 						aria-expanded="false"
 						aria-controls="player-suggestions"
-						aria-describedby="player-status"
+						aria-describedby="player-status search-help"
 						disabled
 						data-player-search
 					/>
@@ -48,7 +40,7 @@
 						id="player-suggestions"
 						class="suggestion-menu"
 						role="listbox"
-						aria-label="Player suggestions"
+						aria-label="Players in 2025–26"
 						hidden
 						data-player-suggestions
 					></div>
@@ -58,7 +50,7 @@
 
 		<div class="status-row">
 			<p id="player-status" class="status" role="status" aria-live="polite" data-status>
-				Loading season catalog…
+				Loading seasons and players…
 			</p>
 			<button type="button" class="retry" hidden data-retry>Try again</button>
 		</div>
@@ -67,7 +59,7 @@
 			<legend class="label">Court view</legend>
 			<div class="view-options">
 				<label><input type="radio" name="court-view" value="combined" checked /> Before &amp; After</label>
-				<label><input type="radio" name="court-view" value="ability" /> Modeled ability</label>
+				<label><input type="radio" name="court-view" value="ability" /> Shooting Map</label>
 			</div>
 		</fieldset>
 
@@ -75,10 +67,17 @@
 			<div class="court-panel">
 				<div class="court-title-row">
 					<div>
-						<p class="label" data-court-mode-label>Estimated make probability</p>
+						<p class="label" data-court-mode-label>Player chart</p>
 						<h3 data-player-name>Choose a player</h3>
 					</div>
 					<p class="label numeric" data-season>2025–26</p>
+				</div>
+
+				<div class="map-help" hidden data-map-help>
+					<DefinitionHelp id="shooting-map" label="Best Shooting Areas">Each color shows the estimated chance of making a shot in that area. Outlined diamonds mark areas that pass the rules for receiving moved shots.</DefinitionHelp>
+					<p>Darker areas mean a higher estimated chance of making a shot. The same color scale applies to each player and season.</p>
+					<p>Outlined diamonds mark areas with enough evidence to receive moved shots. Shot value also matters: threes are worth more than twos.</p>
+					<p>The slider changes the points estimate. It does not change this shooting map.</p>
 				</div>
 
 				<svg
@@ -92,9 +91,7 @@
 				>
 					<title id="court-title" data-court-title>Choose a player</title>
 					<desc id="court-description" data-court-description>
-						A half-court heatmap with 156 cells. Lighter cells have lower modeled make
-						probability and darker cells have higher modeled make probability. Focus the
-						court and use the arrow keys to inspect cells.
+						Choose a player to see their shots.
 					</desc>
 					<g aria-hidden="true" data-heatmap-cells></g>
 					<g aria-hidden="true" data-destination-markers></g>
@@ -128,7 +125,7 @@
 					</g>
 				</svg>
 
-				<ul class="heat-legend" aria-label="Estimated make probability legend" data-heat-legend>
+				<ul class="heat-legend" aria-label="Estimated chance of a make" data-heat-legend>
 					<li><span class="swatch heat-1"></span><span class="numeric">Below 30%</span></li>
 					<li><span class="swatch heat-2"></span><span class="numeric">30–40%</span></li>
 					<li><span class="swatch heat-3"></span><span class="numeric">40–50%</span></li>
@@ -136,106 +133,97 @@
 					<li><span class="swatch heat-5"></span><span class="numeric">60% and above</span></li>
 					<li class="destination-key">
 						<span class="destination-symbol" aria-hidden="true"></span>
-						<span>Supported relocation destination</span>
+						<DefinitionHelp id="supported" label="Area with Evidence for Moving Shots">The area has at least 10 recorded attempts and at least 90% model probability of beating the player’s past points per shot. An outlined diamond marks it; the 50% limit may leave no room to add shots.</DefinitionHelp>
 					</li>
 				</ul>
 
-				<ul class="shot-legend" aria-label="Shot-chart legend" hidden data-shot-legend>
-					<li><span class="shot-key shot-key--make" aria-hidden="true"></span><span>Historical make</span></li>
-					<li><span class="shot-key shot-key--miss" aria-hidden="true">×</span><span>Historical miss</span></li>
-					<li hidden data-relocation-key><span class="shot-key shot-key--moved" aria-hidden="true"></span><span>Hypothetically relocated</span></li>
+				<ul class="shot-legend" aria-label="Shot chart key" hidden data-shot-legend>
+					<li><span class="shot-key shot-key--make" aria-hidden="true"></span><span>Made shot</span></li>
+					<li><span class="shot-key shot-key--miss" aria-hidden="true">×</span><span>Missed shot</span></li>
+					<li hidden data-relocation-key><span class="shot-key shot-key--moved" aria-hidden="true"></span><span>Moved shot</span></li>
 					<li hidden data-relocation-key><span class="shot-key shot-key--origin" aria-hidden="true"></span><span>Original location</span></li>
 				</ul>
 
 				<p id="cell-detail" class="cell-detail numeric" aria-live="polite" data-cell-detail>
-					Choose a player to inspect the court.
+					Choose a player to see their shots.
 				</p>
 			</div>
 
-			<aside class="result-panel" aria-live="polite">
+			<aside class="result-panel controls-panel" aria-label="Estimated extra points">
+				<p class="label">Estimated extra points</p>
 				<div class="result-empty" data-result-empty>
-					<p class="label">Player result</p>
 					<p>Choose a player</p>
 				</div>
 
 				<div hidden data-qualified-result>
-					<div class="score-block">
-						<p class="label">Shot Selection Score</p>
-						<p class="evidence-note label" hidden data-evidence-note></p>
-						<p class="score numeric" data-score></p>
-						<p class="interval numeric" data-score-interval></p>
-						<p class="measure-note">
-							Self-relative score based on the feasible result at the 25% request.
-						</p>
-					</div>
-
+					<div class="evidence-note label" hidden data-evidence-note><DefinitionHelp id="one-area" label="Estimate from One Area">One area passes the evidence rules for receiving moved shots. It cannot receive more shots once it reaches half the player’s total attempts.</DefinitionHelp></div>
 					<div class="slider-block">
 						<div class="slider-label">
-							<label class="label" for="relocation-share">Maximum relocated share</label>
-							<output class="numeric" for="relocation-share" data-slider-output>0% requested</output>
+							<label class="label" for="relocation-share">Shots to Move</label>
+							<DefinitionHelp id="shots-to-move" label="Shots to Move" compact>Your 0% setting allows up to 0 of every 100 shots to move. The amount moved can be lower because suitable shots or room in receiving areas can run out.</DefinitionHelp>
+							<output class="numeric" for="relocation-share" data-slider-output>Up to 0%</output>
 						</div>
-						<input
-							type="range"
-							id="relocation-share"
-							min="0"
-							max="25"
-							step="5"
-							value="0"
-							disabled
-							data-slider
-						/>
-						<div class="slider-ends label numeric" aria-hidden="true">
-							<span>0%</span><span>25%</span>
-						</div>
+						<p class="measure-note" id="slider-help">Choose the largest share of shots you want to move, from 0% to 25%.</p>
+						<input type="range" id="relocation-share" min="0" max="25" step="5" value="0" disabled data-slider aria-describedby="slider-help" />
+						<div class="slider-ends label numeric" aria-hidden="true"><span>0%</span><span>25%</span></div>
 						<p class="actual-share numeric" data-actual-share></p>
+						<p class="measure-note" data-moved-count></p>
+						<p class="measure-note">The calculation allows part of a shot, so this count can include a decimal.</p>
+						<p class="measure-note" hidden data-cap-note></p>
 					</div>
 
-					<dl class="gain-grid">
-						<div>
-							<dt class="label">Season gain</dt>
-							<dd class="numeric" data-season-gain></dd>
-							<dd class="interval numeric" data-season-interval></dd>
-						</div>
-						<div>
-							<dt class="label">Gain per 100 shots</dt>
-							<dd class="numeric" data-per-100-gain></dd>
-							<dd class="interval numeric" data-per-100-interval></dd>
-						</div>
-					</dl>
 				</div>
-
 				<div class="insufficient" hidden data-insufficient-result>
-					<p class="label">Player result</p>
-					<h4 data-unavailable-title>Insufficient evidence</h4>
+					<h4 data-unavailable-title>No Clear Area for Moving Shots</h4>
 					<p data-unavailable-copy></p>
 				</div>
-
 				<div class="insufficient" hidden data-season-unavailable>
-					<p class="label">Player result</p>
 					<h4 data-season-unavailable-title>Analysis unavailable</h4>
 					<p data-season-unavailable-copy></p>
-					<button type="button" class="retry reset-default" data-reset-default>
-						Reset to LeBron James — 2025–26
-					</button>
+					<button type="button" class="retry reset-default" data-reset-default>Reset to LeBron James, 2025–26</button>
 				</div>
-
-				<p class="disclaimer">
-					These modeled estimates use past shots. They do not guarantee improvement or
-					establish a causal effect. Cyan marks a hypothetical relocation, not a guaranteed
-					make. The model excludes shot creation, defensive response, fatigue, passing,
-					shot-clock pressure, and game context.
-				</p>
 			</aside>
+			<div class="result-panel metrics-panel" hidden data-metrics-result>
+					<div class="gain-grid">
+						<div>
+							<div class="label"><DefinitionHelp id="season-gain" label="Extra Points in 2025–26">The model estimates 0 extra points over the same recorded shots. This compares possible shot mixes, not a future season forecast.</DefinitionHelp></div>
+							<p class="gain-value numeric" data-season-gain></p>
+							<div class="interval"><DefinitionHelp id="range" label="Estimated Range (90%)">This range covers the middle 90% of the model’s estimates. It does not include every uncertainty in a real game.</DefinitionHelp></div>
+							<p class="interval numeric" data-season-interval></p>
+							<p class="measure-note" data-season-note></p>
+							<p class="measure-note">The middle 90% of estimates within this model. Real games can differ for reasons the model does not include.</p>
+						</div>
+						<div>
+							<div class="label"><DefinitionHelp id="per-100" label="Extra Points per 100 Shots">The model estimates 0.0 extra points for every 100 attempts at this slider setting. This puts players with different shot counts on the same scale.</DefinitionHelp></div>
+							<p class="gain-value numeric" data-per-100-gain></p>
+							<p class="interval">Estimated Range (90%)</p>
+							<p class="interval numeric" data-per-100-interval></p>
+							<p class="measure-note">The estimated difference for every 100 attempts.</p>
+						</div>
+					</div>
+
+					<div class="score-block">
+						<div class="label"><DefinitionHelp id="score" label="Shot Selection Score">The score compares the past shot mix with the allowed scenario at the 25% request. Higher means less estimated room to improve; this is not a league rank or overall player rating.</DefinitionHelp></div>
+						<p class="score numeric"><span data-score></span><span class="score-denominator"> / 100</span></p>
+						<p class="interval">Estimated Range (90%)</p>
+						<p class="interval numeric" data-score-interval></p>
+						<p class="measure-note">Compares the past shot mix with the scenario that asks to move up to 25%. Higher means less estimated room to improve.</p>
+						<p class="measure-note">This score is not a league ranking or a rating of the whole player. It stays fixed as you move the slider.</p>
+					</div>
+			</div>
+				<p class="disclaimer">These estimates assume the player can get the new shots and keep the same shooting ability.
+					They do not show that moving shots would cause extra points in a real game.
+					The model leaves out defense, fatigue, passing, shot creation, shot-clock pressure, and game situation.</p>
 		</div>
 
 		<noscript>
-			<p class="noscript">The player explorer needs JavaScript to load a selected player.</p>
+			<p class="noscript">Turn on JavaScript to use the player search and shot charts. The explanations below remain available.</p>
 		</noscript>
 
 		<figcaption>
 			<b class="label">Fig 1</b>
 			<span data-caption-player>Choose a player.</span>
-			<span data-caption-body>Modeled make probability across a fixed 156-cell half-court grid.</span>
+			<span data-caption-body>Choose a player.</span>
 		</figcaption>
 	</figure>
 </spatial-shot-explorer>
@@ -813,7 +801,7 @@
 		private async loadCatalog() {
 			this.retry.hidden = true;
 			this.retryAction = () => void this.loadCatalog();
-			this.setStatus('Loading season catalog…');
+			this.setStatus('Loading seasons and players…');
 			try {
 				const [manifestRaw, catalogRaw] = await Promise.all([
 					this.fetchJson(`${this.basePath}/manifest.json`),
@@ -831,7 +819,7 @@
 				this.seasonSelect.disabled = false;
 				await this.loadSeason(DEFAULT_SEASON, PRELOAD_PLAYER_ID);
 			} catch (error) {
-				this.showError('The season catalog could not be loaded. Check the connection and try again.');
+				this.showError('We couldn’t load the seasons and players. Check your connection and try again.');
 			}
 		}
 
@@ -846,7 +834,11 @@
 			this.deliberatePlayerId = undefined;
 			this.seasonSelect.value = DEFAULT_SEASON;
 			this.search.value = 'LeBron James';
+			const resetVersion = this.requestVersion + 1;
 			await this.loadSeason(DEFAULT_SEASON, PRELOAD_PLAYER_ID);
+			if (this.requestVersion === resetVersion && this.currentPlayer?.player_id === PRELOAD_PLAYER_ID) {
+				this.setStatus('Reset complete. LeBron James, 2025–26. Before & After at 0%; no shots moved.');
+			}
 		}
 
 		private async loadSeason(season: SeasonId, playerId: string) {
@@ -856,6 +848,7 @@
 			const playerName = this.catalog.get(playerId)?.player_name ?? 'Selected player';
 			this.selectedSeason = season;
 			this.seasonSelect.value = season;
+			this.suggestions.setAttribute('aria-label', `Players in ${this.seasonLabel(season)}`);
 			this.search.disabled = true;
 			this.closeSuggestions();
 			this.retry.hidden = true;
@@ -892,7 +885,7 @@
 			} catch (error) {
 				if (error instanceof DOMException && error.name === 'AbortError') return;
 				if (!this.requestIsCurrent(request.controller, request.version)) return;
-				this.showError(`${this.seasonLabel(season)} could not be loaded. Try again.`);
+				this.showError(`We couldn’t load ${this.seasonLabel(season)}. Try again.`);
 			}
 		}
 
@@ -923,7 +916,7 @@
 			this.renderSuggestions();
 			this.openSuggestions();
 			this.setStatus(
-				this.matches.length === 1 ? '1 player matches.' : `${this.matches.length} players match.`,
+				`${this.matches.length} ${this.matches.length === 1 ? 'player matches' : 'players match'} in ${this.seasonLabel(this.selectedSeason)}.`,
 			);
 		}
 
@@ -934,16 +927,16 @@
 			this.renderSuggestions();
 			this.openSuggestions();
 			this.setStatus(
-				`${this.players.length} players shown for ${this.seasonLabel(this.selectedSeason)}. Type to filter the list.`,
+				`${this.players.length} players in ${this.seasonLabel(this.selectedSeason)}. Type to narrow the list.`,
 			);
 		}
 
 		private suggestionLabel(player: PlayerIndexEntry) {
 			if (player.evidence_status === 'single_destination') {
-				return `${player.player_name} (single-destination estimate)`;
+				return `${player.player_name} (one area passes the evidence rules)`;
 			}
 			if (player.evidence_status === 'insufficient_evidence') {
-				return `${player.player_name} (insufficient evidence for relocation)`;
+				return `${player.player_name} (no clear area for moving shots)`;
 			}
 			return player.player_name;
 		}
@@ -956,7 +949,7 @@
 				empty.setAttribute('role', 'option');
 				empty.setAttribute('aria-disabled', 'true');
 				empty.setAttribute('aria-selected', 'false');
-				empty.textContent = 'No players found';
+				empty.textContent = 'No players found. Try another name or season.';
 				fragment.append(empty);
 			} else {
 				this.matches.forEach((player, index) => {
@@ -1041,8 +1034,8 @@
 			this.retryAction = () => void this.loadPlayer(entry);
 			this.retry.hidden = true;
 			this.stage.setAttribute('aria-busy', 'true');
-			this.clearResult(entry.player_name, 'Loading player…');
-			this.setStatus(`Loading ${entry.player_name}…`);
+			this.clearResult(entry.player_name, 'Loading chart…');
+			this.setStatus(`Loading ${entry.player_name}, ${this.seasonLabel(season)}…`);
 
 			try {
 				const raw = await this.fetchJson(
@@ -1054,12 +1047,12 @@
 				this.currentPlayer = player;
 				this.renderPlayer(player);
 				this.stage.setAttribute('aria-busy', 'false');
-				this.setStatus(`${player.player_name} loaded.`);
+				this.setStatus(`${player.player_name}, ${this.seasonLabel(season)} loaded.`);
 			} catch (error) {
 				if (error instanceof DOMException && error.name === 'AbortError') return;
 				if (!this.requestIsCurrent(request.controller, request.version)) return;
 				this.stage.setAttribute('aria-busy', 'false');
-				this.showError(`${entry.player_name} could not be loaded. Try again.`);
+				this.showError(`We couldn’t load ${entry.player_name}’s chart for ${this.seasonLabel(season)}. Try again.`);
 			}
 		}
 
@@ -1069,7 +1062,7 @@
 				player.season as SeasonId,
 			);
 			requireElement<SVGTitleElement>(this, '[data-court-title]').textContent =
-				`${player.player_name}, ${player.season}: estimated make probability by court cell`;
+				`${player.player_name}, ${player.season}: estimated chance of a make by court area`;
 			requireElement<HTMLElement>(this, '[data-caption-player]').textContent =
 				`${player.player_name}, ${player.season}.`;
 			requireElement<SVGGElement>(this, '[data-court-empty]').setAttribute('hidden', '');
@@ -1087,6 +1080,7 @@
 
 		private setCourtView(view: CourtView) {
 			if (!this.currentPlayer) return;
+			document.dispatchEvent(new Event('close-definitions'));
 			this.courtView = view;
 			if (view === 'ability') this.renderHeatmap(this.currentPlayer);
 			else this.renderShotChart();
@@ -1102,6 +1096,7 @@
 		private renderShotChart() {
 			if (!this.currentPlayer) return;
 			this.clearCourtLayers();
+			requireElement<HTMLElement>(this, '[data-map-help]').hidden = true;
 			requireElement<HTMLElement>(this, '[data-heat-legend]').hidden = true;
 			requireElement<HTMLElement>(this, '[data-shot-legend]').hidden = false;
 			const percent = Number(this.slider.value);
@@ -1110,7 +1105,7 @@
 				item.hidden = !isAfter;
 			});
 			requireElement<HTMLElement>(this, '[data-court-mode-label]').textContent =
-				isAfter ? 'After · targeted estimate' : 'Before · historical shots';
+				isAfter ? 'After: possible shot locations' : 'Before: past shots';
 
 			const slider = this.currentPlayer.sliders.find(
 				(row) => Math.abs(row.requested_share - percent / 100) < 1e-9,
@@ -1168,32 +1163,33 @@
 			requireElement<SVGTitleElement>(this, '[data-court-title]').textContent = title;
 			requireElement<SVGDescElement>(this, '[data-court-description]').textContent =
 				!isAfter
-					? `Historical before state for ${this.currentPlayer.observed_attempts} attempts. Green circles are makes and rust crosses are misses.`
-					: `Targeted relocation estimate at ${percent} percent requested. Unmoved shots retain their result colors. Cyan diamonds show hypothetical relocated attempt markers and faint rings show their origins.`;
+					? `Past shots at 0%: ${this.currentPlayer.observed_attempts} attempts. Green circles are makes and rust crosses are misses.`
+					: `Up to ${percent} percent of shots requested to move. Unmoved shots keep their colors. Cyan diamonds show possible new locations and faint rings show where those shots started. Cyan does not mean a guaranteed make.`;
 			requireElement<HTMLElement>(this, '[data-cell-detail]').textContent =
 				!isAfter
-					? `Historical before state at 0% requested relocation. ${whole(this.currentPlayer.observed_attempts)} attempts: ${whole(this.currentPlayer.makes)} makes and ${whole(this.currentPlayer.misses)} misses. Outcomes color the dots but did not determine which attempts move.`
-					: `${percent}% requested relocation; ${oneDecimal(slider.actual_relocated_share * 100)}% actual relocation equals ${slider.actual_relocated_attempt_equivalents.toFixed(2)} attempt-equivalents. Cyan does not mean a guaranteed make.`;
+					? `Before: ${whole(this.currentPlayer.observed_attempts)} past shots, with ${whole(this.currentPlayer.makes)} makes and ${whole(this.currentPlayer.misses)} misses. At 0%, no shots move. Makes and misses do not decide which shots move.`
+					: `Up to ${percent}% requested; ${oneDecimal(slider.actual_relocated_share * 100)}% moved in this estimate. Cyan diamonds show possible new locations. Faint rings show where those shots started. Cyan does not mean a guaranteed make.`;
 			requireElement<HTMLElement>(this, '[data-caption-body]').textContent =
 				!isAfter
-					? 'Historical before state at 0% requested relocation. Green circles are makes; rust crosses are misses.'
-					: `Targeted relocation estimate at ${percent}% requested. Cyan diamonds are hypothetical destinations; faint rings mark their origins.`;
+					? 'Before: past shots at 0%. Green circles are makes; rust crosses are misses.'
+					: `After: up to ${percent}% requested. Cyan diamonds show possible new locations; faint rings mark the original locations.`;
 		}
 
 		private renderHeatmap(player: PlayerPayload) {
 			this.clearCourtLayers();
+			requireElement<HTMLElement>(this, '[data-map-help]').hidden = false;
 			const cellsLayer = requireElement<SVGGElement>(this, '[data-heatmap-cells]');
 			const markersLayer = requireElement<SVGGElement>(this, '[data-destination-markers]');
 			requireElement<HTMLElement>(this, '[data-heat-legend]').hidden = false;
 			requireElement<HTMLElement>(this, '[data-shot-legend]').hidden = true;
 			requireElement<HTMLElement>(this, '[data-court-mode-label]').textContent =
-				'Modeled ability · production CAR';
+				'Estimated chance of making a shot';
 			requireElement<SVGTitleElement>(this, '[data-court-title]').textContent =
-				`${player.player_name}, ${player.season}: estimated make probability by court cell`;
+				`${player.player_name}, ${player.season}: estimated chance of a make by court area`;
 			requireElement<SVGDescElement>(this, '[data-court-description]').textContent =
-				'A half-court heatmap with 156 cells. Lighter cells have lower modeled make probability and darker cells have higher modeled make probability. Focus the court and use the arrow keys to inspect cells.';
+				'A shooting map with 156 court areas. Darker areas mean a higher estimated chance of a make. Focus the court and use the arrow keys to inspect areas.';
 			requireElement<HTMLElement>(this, '[data-caption-body]').textContent =
-				'Modeled make probability across a fixed 156-cell half-court grid; outlined diamonds mark supported relocation destinations.';
+				'Colors show the estimated chance of a make. Outlined diamonds mark areas with evidence for moving shots.';
 
 			player.heatmap_cells.forEach((cell, index) => {
 				const rect = document.createElementNS(SVG_NS, 'rect');
@@ -1226,15 +1222,15 @@
 
 			this.activeCellIndex = 0;
 			requireElement<HTMLElement>(this, '[data-cell-detail]').textContent =
-				'Move over, tap, or focus the court and use arrow keys to inspect a cell.';
+				'Point to an area, tap it, or focus the court and use the arrow keys to read its estimate.';
 		}
 
 		private cellDescription(cell: HeatmapCell) {
 			const support = cell.supported_destination
-				? 'Supported relocation destination.'
-				: 'Not a supported relocation destination.';
+				? 'This area has evidence for moving shots.'
+				: 'This area does not pass the rules for moving shots.';
 			const attemptLabel = cell.observed_attempts === 1 ? 'attempt' : 'attempts';
-			return `Cell ${cell.cell_id}: ${probabilityPercent(cell.modeled_make_probability)} estimated make probability; 90% interval ${probabilityPercent(cell.make_probability_lower_90)}–${probabilityPercent(cell.make_probability_upper_90)}; ${whole(cell.observed_attempts)} observed ${attemptLabel}. ${support}`;
+			return `Area ${cell.cell_id}: ${probabilityPercent(cell.modeled_make_probability)} estimated chance of a make; estimated range (90%) ${probabilityPercent(cell.make_probability_lower_90)} to ${probabilityPercent(cell.make_probability_upper_90)}; ${whole(cell.observed_attempts)} past ${attemptLabel}. ${support}`;
 		}
 
 		private showCell(index: number) {
@@ -1266,13 +1262,12 @@
 			const qualified = requireElement<HTMLElement>(this, '[data-qualified-result]');
 			const insufficient = requireElement<HTMLElement>(this, '[data-insufficient-result]');
 			qualified.hidden = false;
+			requireElement<HTMLElement>(this, '[data-metrics-result]').hidden = false;
 			insufficient.hidden = true;
 			this.slider.disabled = false;
 			this.slider.value = '0';
 			const evidenceNote = requireElement<HTMLElement>(this, '[data-evidence-note]');
 			evidenceNote.hidden = player.evidence_status !== 'single_destination';
-			evidenceNote.textContent =
-				player.evidence_status === 'single_destination' ? 'Single-destination estimate' : '';
 
 			const { point, lower_90, upper_90 } = player.score;
 			if (
@@ -1283,29 +1278,32 @@
 				throw new Error('Available player score is unavailable');
 			}
 			requireElement<HTMLElement>(this, '[data-score]').textContent = oneDecimal(point);
+			this.updateHelp('score', 'Shot Selection Score',
+				`A score of ${oneDecimal(point)} means the past mix produces about ${oneDecimal(point)}% of the estimated points per shot in the 25%-request scenario. Higher means less estimated room to improve; this is not a league rank or overall player rating.`);
 			requireElement<HTMLElement>(this, '[data-score-interval]').textContent =
-				`90% interval ${oneDecimal(lower_90)}–${oneDecimal(upper_90)}`;
+				`${oneDecimal(lower_90)} to ${oneDecimal(upper_90)}`;
 			this.updateSlider();
 		}
 
 		private showInsufficient(player: PlayerPayload) {
 			requireElement<HTMLElement>(this, '[data-qualified-result]').hidden = true;
+			requireElement<HTMLElement>(this, '[data-metrics-result]').hidden = true;
 			const unavailable = requireElement<HTMLElement>(this, '[data-insufficient-result]');
 			unavailable.hidden = false;
 			const title = requireElement<HTMLElement>(unavailable, '[data-unavailable-title]');
 			const copy = requireElement<HTMLElement>(unavailable, '[data-unavailable-copy]');
 			if (player.availability_reason === 'no_positive_supported_capacity') {
-				title.textContent = 'No relocation capacity';
+				title.textContent = 'No Room to Move More Shots';
 				copy.textContent =
-					'One location passed the evidence rule, but it already holds at least half of this player’s historical attempts. The universal 50% cap leaves no room to add attempts, so gains and score remain unavailable.';
+					'One area passes the evidence rules, but it already holds at least half of this player’s shots. The 50% limit leaves no room to add shots there, so no extra-points estimate or score is available.';
 			} else if (player.availability_reason === 'no_eligible_weak_source_mass') {
-				title.textContent = 'No eligible source shots';
+				title.textContent = 'No Weaker Source Areas';
 				copy.textContent =
-					'Supported destinations exist, but no historical shot mass falls below this player’s modeled baseline. The model leaves gains and score unavailable.';
+					'Some areas pass the evidence rules, but none of this player’s shots come from areas below their current average expected points per shot. No extra-points estimate or score is available.';
 			} else {
-				title.textContent = 'Insufficient evidence';
+				title.textContent = 'No Clear Area for Moving Shots';
 				copy.textContent =
-					'No destination passed both the 10-attempt and 90%-certainty rules. Historical shots and the modeled-ability heatmap remain available; gains and score stay null.';
+					'No area has both enough shots and enough evidence of an advantage over this player’s current shot mix. You can still view their past shots and Shooting Map, but no extra-points estimate or score is available.';
 			}
 			this.slider.disabled = true;
 			this.slider.value = '0';
@@ -1326,7 +1324,7 @@
 
 			if (availability.availability_status === 'no_recorded_shots') {
 				copy.textContent =
-					`The source data contains no recorded shots for ${playerName} in ${this.seasonLabel(season)}, so no player analysis is available.`;
+					`The data has no recorded shots for ${playerName} in ${this.seasonLabel(season)}. Choose another season or player, or reset to LeBron James.`;
 			} else if (availability.availability_status === 'model_ineligible') {
 				const attempts = whole(availability.in_play_shots);
 				const games = whole(availability.in_play_games);
@@ -1337,18 +1335,18 @@
 					threshold = 'the 250-attempt threshold';
 				}
 				copy.textContent =
-					`The source data records ${attempts} in-play attempts across ${games} games for ${playerName} in ${this.seasonLabel(season)}. The player did not meet ${threshold}, so the model excluded this player-season.`;
+					`${playerName} has ${attempts} eligible shots across ${games} games in ${this.seasonLabel(season)}. That falls short of ${threshold}, so no chart is available. Choose another season or player.`;
 			} else {
 				copy.textContent =
-					`${playerName} has an eligible modeled surface for ${this.seasonLabel(season)}, but no destination passed the relocation evidence rule.`;
+					`A shooting map exists for ${playerName} in ${this.seasonLabel(season)}, but no area passes the rules for moving shots.`;
 			}
 
 			requireElement<HTMLElement>(this, '[data-caption-player]').textContent =
 				`${playerName}, ${this.seasonLabel(season)}.`;
 			requireElement<HTMLElement>(this, '[data-caption-body]').textContent =
-				'No chart is available for this player-season.';
+				'No chart is available for this player in this season.';
 			this.setStatus(
-				`${playerName} has no analysis available for ${this.seasonLabel(season)}. Search for another player or reset the explorer.`,
+				`No analysis for ${playerName} in ${this.seasonLabel(season)}. Choose another player or season, or reset the explorer.`,
 			);
 		}
 
@@ -1371,29 +1369,58 @@
 			if (!values.every(isFiniteNumber)) throw new Error('Selected slider result is unavailable');
 
 			const [season, seasonLow, seasonHigh, per100, per100Low, per100High] = values as number[];
-			requireElement<HTMLOutputElement>(this, '[data-slider-output]').textContent = `${percent}% requested`;
-			this.slider.setAttribute('aria-valuetext', `${percent} percent requested`);
+			requireElement<HTMLOutputElement>(this, '[data-slider-output]').textContent = `Up to ${percent}%`;
+			this.slider.setAttribute('aria-valuetext', `Up to ${percent} percent requested; ${oneDecimal(result.actual_relocated_share * 100)} percent moved`);
 			requireElement<HTMLElement>(this, '[data-actual-share]').textContent =
-				`${oneDecimal(result.actual_relocated_share * 100)}% actual · ${result.actual_relocated_attempt_equivalents.toFixed(2)} attempt-equivalents`;
+				`${oneDecimal(result.actual_relocated_share * 100)}% moved in this estimate`;
 			requireElement<HTMLElement>(this, '[data-season-gain]').textContent =
 				`${signed(season, 0)} points`;
 			requireElement<HTMLElement>(this, '[data-season-interval]').textContent =
-				`90% interval ${whole(seasonLow)}–${whole(seasonHigh)}`;
+				`${whole(seasonLow)} to ${whole(seasonHigh)} points`;
 			requireElement<HTMLElement>(this, '[data-per-100-gain]').textContent =
 				`${signed(per100, 1)} points`;
 			requireElement<HTMLElement>(this, '[data-per-100-interval]').textContent =
-				`90% interval ${oneDecimal(per100Low)}–${oneDecimal(per100High)}`;
+				`${oneDecimal(per100Low)} to ${oneDecimal(per100High)} points`;
+			const seasonName = this.seasonLabel(this.currentPlayer.season as SeasonId);
+			requireElement<HTMLElement>(this, '[data-moved-count]').textContent =
+				`Equal to ${result.actual_relocated_attempt_equivalents.toFixed(2)} shots in the calculation`;
+			const capNote = requireElement<HTMLElement>(this, '[data-cap-note]');
+			capNote.hidden = result.actual_relocated_share + 1e-9 >= share;
+			capNote.textContent = `You asked for ${percent}%. The model can move ${oneDecimal(result.actual_relocated_share * 100)}% before suitable source shots or receiving-area space runs out.`;
+			requireElement<HTMLElement>(this, '[data-season-note]').textContent =
+				`Over the same ${whole(this.currentPlayer.observed_attempts)} recorded shots. This is not a forecast of a future season.`;
+			this.updateHelp('shots-to-move', 'Shots to Move',
+				`Your ${percent}% setting allows up to ${percent} of every 100 shots to move. The amount moved can be lower because suitable shots or room in receiving areas can run out.`);
+			this.updateHelp('season-gain', `Extra Points in ${seasonName}`,
+				`The model estimates ${signed(season, 0)} extra points over the same ${whole(this.currentPlayer.observed_attempts)} recorded shots in ${seasonName}. This compares possible shot mixes, not a future season forecast.`);
+			this.updateHelp('range', 'Estimated Range (90%)',
+				`The middle 90% of the model’s estimates run from ${whole(seasonLow)} to ${whole(seasonHigh)} extra points. This range describes uncertainty within the model, not a guarantee about real games.`);
+			requireElement<HTMLButtonElement>(this, '[data-term="range"] button').setAttribute('aria-label', `Explain Estimated Range for Extra Points in ${seasonName}`);
+			this.updateHelp('per-100', 'Extra Points per 100 Shots',
+				`The model estimates ${signed(per100, 1)} extra points for every 100 attempts at this slider setting. This puts players with different shot counts on the same scale.`);
 			if (this.courtView === 'combined') {
 				this.renderShotChart();
 			}
 		}
 
+		private updateHelp(term: string, label: string, explanation: string) {
+			const help = requireElement<HTMLElement>(this, `[data-term="${term}"]`);
+			if (!help.querySelector('.compact')) requireElement<HTMLElement>(help, '[data-help-label]').textContent = label;
+			requireElement<HTMLButtonElement>(help, 'button').setAttribute('aria-label', `Explain ${label}`);
+			requireElement<HTMLElement>(help, '[popover]').textContent = explanation;
+			help.dispatchEvent(new Event('definition-update'));
+		}
+
 		private clearResult(playerName: string, message: string) {
+			document.dispatchEvent(new Event('close-definitions'));
+			requireElement<HTMLElement>(this, '[data-map-help]').hidden = true;
+			requireElement<HTMLElement>(this, '[data-cell-detail]').textContent = message;
+			requireElement<SVGDescElement>(this, '[data-court-description]').textContent = message;
 			this.currentPlayer = undefined;
 			this.courtView = 'combined';
 			this.slider.value = '0';
-			requireElement<HTMLOutputElement>(this, '[data-slider-output]').textContent = '0% requested';
-			requireElement<HTMLElement>(this, '[data-court-mode-label]').textContent = 'Player analysis';
+			requireElement<HTMLOutputElement>(this, '[data-slider-output]').textContent = 'Up to 0%';
+			requireElement<HTMLElement>(this, '[data-court-mode-label]').textContent = 'Player chart';
 			requireElement<HTMLElement>(this, '[data-player-name]').textContent = playerName;
 			requireElement<HTMLElement>(this, '[data-caption-player]').textContent =
 				`${playerName}, ${this.seasonLabel(this.selectedSeason)}.`;
@@ -1403,9 +1430,10 @@
 			requireElement<SVGTextElement>(this, '[data-court-empty] text').textContent = message;
 			this.clearCourtLayers();
 			requireElement<HTMLFieldSetElement>(this, '[data-view-controls]').hidden = true;
-			requireElement<HTMLElement>(this, '[data-heat-legend]').hidden = false;
+			requireElement<HTMLElement>(this, '[data-heat-legend]').hidden = true;
 			requireElement<HTMLElement>(this, '[data-shot-legend]').hidden = true;
 			requireElement<HTMLElement>(this, '[data-qualified-result]').hidden = true;
+			requireElement<HTMLElement>(this, '[data-metrics-result]').hidden = true;
 			requireElement<HTMLElement>(this, '[data-insufficient-result]').hidden = true;
 			requireElement<HTMLElement>(this, '[data-season-unavailable]').hidden = true;
 			const empty = requireElement<HTMLElement>(this, '[data-result-empty]');
@@ -1427,10 +1455,10 @@
 			this.status.dataset.kind = 'error';
 			const courtEmpty = requireElement<SVGGElement>(this, '[data-court-empty]');
 			courtEmpty.removeAttribute('hidden');
-			requireElement<SVGTextElement>(courtEmpty, 'text').textContent = 'Player unavailable';
+			requireElement<SVGTextElement>(courtEmpty, 'text').textContent = 'Chart unavailable';
 			const resultEmpty = requireElement<HTMLElement>(this, '[data-result-empty]');
 			resultEmpty.hidden = false;
-			resultEmpty.querySelector('p:last-child')!.textContent = 'Player unavailable';
+			resultEmpty.querySelector('p:last-child')!.textContent = 'Chart unavailable';
 			this.retry.hidden = false;
 		}
 	}
@@ -1825,14 +1853,23 @@
 		line-height: 1.15;
 	}
 	.score-block {
-		padding-bottom: var(--space-m);
-		border-bottom: var(--rule) solid var(--green);
+		margin-top: var(--space-m);
+		padding-top: var(--space-s);
+		border-top: var(--rule) solid var(--green);
 	}
 	.score {
-		font-size: clamp(3rem, 7vw, 4.5rem);
+		font-size: var(--type-h3);
 		font-weight: 600;
 		line-height: 1;
 	}
+	.controls-panel { align-self: start; }
+	.metrics-panel[hidden] { display: none; }
+	.metrics-panel,
+	.disclaimer { grid-column: 1 / -1; }
+	.score-denominator { font-size: 1rem; font-weight: 400; }
+	.search-help { margin: 0; font-size: var(--type-small); }
+	.map-help { margin-block: var(--space-s); }
+	.map-help p { margin-block: var(--space-2xs); font-size: var(--type-small); }
 	.evidence-note {
 		margin-top: var(--space-2xs) !important;
 		color: var(--accent);
@@ -1845,7 +1882,7 @@
 		font-size: var(--type-small);
 	}
 	.slider-block {
-		margin-top: var(--space-m);
+		margin-top: 0;
 	}
 	.slider-label,
 	.slider-ends {
@@ -1853,8 +1890,12 @@
 		justify-content: space-between;
 		gap: var(--space-s);
 	}
+	.slider-label { display: grid; grid-template-columns: auto 44px minmax(0, 1fr); gap: var(--space-2xs); align-items: center; }
 	.slider-label output {
 		font-weight: 600;
+		white-space: nowrap;
+		align-self: center;
+		justify-self: end;
 	}
 	.slider-block input {
 		width: 100%;
@@ -1875,10 +1916,8 @@
 		padding-top: var(--space-s);
 		border-top: var(--rule-thin) solid var(--green);
 	}
-	.gain-grid dd {
+	.gain-value {
 		margin: var(--space-2xs) 0 0;
-	}
-	.gain-grid dd:not(.interval) {
 		font-size: var(--type-h3);
 		font-weight: 600;
 		line-height: 1.15;
@@ -1914,8 +1953,12 @@
 		}
 	}
 	@media (min-width: 58rem) {
+		.metrics-panel { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-m); }
+		.metrics-panel[hidden] { display: none; }
+		.gain-grid { display: contents; }
+		.score-block { margin-top: 0; }
 		.explorer-plot {
-			grid-template-columns: minmax(0, 1.65fr) minmax(18rem, 0.85fr);
+			grid-template-columns: minmax(0, 1.5fr) minmax(19rem, 1fr);
 			padding: var(--space-m);
 		}
 	}

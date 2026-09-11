@@ -1,32 +1,30 @@
 ---
 title: NBA Shot Selection Analytics
-description: A spatial model estimates player-specific shot value and tests capped relocation from weaker modeled locations.
+description: See how changing shot locations could affect a player's estimated points across five NBA seasons.
 question: How many more points could an NBA player score by shifting shots toward their strongest areas?
-dataset: Five season-specific player shooting surfaces on a 156-cell half-court grid
-method: Bayesian CAR model with capped weak-location relocation
+dataset: Recorded NBA field-goal attempts in five separate regular seasons
+method: Estimate shooting chances by location, then test a limited change in shot mix
 seasons: 2021-22 through 2025-26
 repo: https://github.com/nanu731/nba-shot-analytics
 compact: true
+metadataInBody: true
 draft: false
 ---
 
 import Band from '../../components/Band.astro';
 import SpatialShotSelection from '../../components/SpatialShotSelection.astro';
+import DefinitionHelp from '../../components/DefinitionHelp.astro';
 
 <Band offset="edge">
 
-## The model
+This project uses a player's past shots to estimate where they score more points per attempt.
+It estimates how many extra points they could score by moving some shots from weaker areas to stronger ones.
 
-The production Bayesian conditional autoregressive model estimates separate player
-shooting surfaces for each season from 2021-22 through 2025-26. The relocation
-calculation removes attempt mass from a player's weakest modeled locations first, then
-allocates it across supported destinations. No destination can finish above 50% of the
-player's attempts.
+## How to use it
 
-The calculation chooses source locations without using whether a shot went in. A
-destination needs at least 10 attempts and 90% posterior certainty that it exceeds
-the player's current weighted expected-points baseline. One supported destination can
-produce an estimate; the 50% cap can stop relocation below the requested amount.
+Choose a season and player. Move the slider to compare their past shots with a possible new shot mix.
+
+<DefinitionHelp id="relocation" label="Shot relocation">Moving some shots to different court areas while keeping the same total attempts. The model chooses locations without picking individual shots because they were misses.</DefinitionHelp> means changing where some shots happen while keeping the same total number of attempts.
 
 </Band>
 
@@ -36,71 +34,205 @@ produce an estimate; the 50% cap can stop relocation below the requested amount.
 
 </Band>
 
-<Band offset="deep" green>
+<Band offset="edge" green>
 
-## What the numbers mean
+<section class="nba-definitions" aria-labelledby="definitions">
 
-The explorer reports posterior means with 90% intervals. The season figure uses each
-player's observed attempt volume in the selected season; the per-100 figure gives a
-common scale.
-The Shot Selection Score applies the self-relative formula to the 25% targeted result.
-It does not represent league rank or overall player quality.
+## Definitions
 
-The five season indexes contain 1,507 analyzed player-seasons. The evidence and capacity
-checks determine whether the explorer publishes a score and gain for each player-season.
-Unavailable values receive a reason and remain null rather than appearing as zero.
+### Shot relocation
+
+Moving some attempts to different court areas while keeping the total number of shots unchanged.
+The model starts with the weakest estimated scoring areas. A shot's made-or-missed result does not decide whether it moves.
+
+### Shots to Move
+
+Your slider setting is the most the model may move. At 25%, that means up to 25 of every 100 shots.
+The amount moved can be smaller if suitable source shots run out or receiving areas reach their limits.
+The displayed moved count can include part of a shot because the model works with shares of the player's attempts.
+
+### Extra Points in the Selected Season
+
+The estimated difference in points over the same number of recorded shots in that season.
+For example, LeBron's 2025–26 result at 25% shows +157 points across 919 attempts.
+That compares two modeled shot mixes; it does not add points to his official season total or predict his next season.
+
+### Extra Points per 100 Shots
+
+The estimated difference for every 100 attempts, whatever the player's season shot count.
+LeBron's 2025–26 result at 25% shows +17.0 points per 100 shots.
+Both points measures describe the same change at different scales. A negative value would mean fewer estimated points.
+
+### Shot Selection Score
+
+This 0–100 score compares the player's past shot mix with the allowed scenario at the 25% request.
+A score of 90 means the past mix produces about 90% of the estimated points per shot in that scenario.
+Higher scores mean less estimated room to improve through this particular change in locations.
+The score does not rank players or rate their overall offense. It stays fixed when you change the slider.
+The calculation reports the middle score across its possible shooting estimates, rather than the average score.
+
+### Estimated Range (90%)
+
+This range contains the middle 90% of the model's estimates, given its data and assumptions.
+For LeBron's +157-point example, the displayed range is 129 to 183 points.
+A wider range means more uncertainty within the model. The range does not cover all the ways real games could differ.
+It is not a promise that future results will fall inside it.
+
+### Estimate from One Area
+
+One area passes the evidence rules for receiving moved shots. The estimate sends the moved shots to that area.
+It stops adding shots there at 50% of the player's total attempts, or sooner if suitable source shots run out.
+This label describes the number of receiving areas; it does not mean the player has no other basketball strengths.
+If the area already holds at least half the attempts, there is no room to add shots and no points estimate appears.
+
+### Shooting Map
+
+The colors show the estimated chance of making a shot from each court area, including areas with few or no attempts.
+Nearby areas help the model estimate shooting chances where shots are sparse.
+A darker area does not qualify on color alone. The relocation test also considers shot value and evidence.
+The colors describe chances of making shots, not expected points or guaranteed makes.
+
+### Area with Evidence for Moving Shots
+
+The player took at least 10 shots in this area during the selected season.
+Under the model, the area has at least a 90% chance of producing more points per attempt than the player's past mix.
+An outlined diamond marks this evidence. The 50% limit determines whether the area can receive any more attempts.
+
+### No Clear Area for Moving Shots
+
+No area passes both evidence rules. You can view the player's past shots and shooting map, but no relocation estimate appears.
+This does not prove the player's shot choices were ideal or that no change could help.
+
+### No Room to Move More Shots
+
+The areas that pass the evidence rules have no remaining room under the 50% limit.
+The chart stays available, but the model supplies no score or extra-points estimate.
+
+### Estimated Points per Shot
+
+The model combines the chance of making a shot with its two-point or three-point value.
+It uses the player's mix of shot values within each area. This is how it compares scoring locations.
+
+</section>
 
 </Band>
 
 <Band offset="step">
 
-## Limits
+<details class="nba-methodology">
+<summary>How the model works</summary>
 
-These are modeled, non-causal estimates based on past shots. They do not guarantee
-improvement. The model excludes whether a new shot can be created, how defenses
-respond, fatigue, passing, shot-clock pressure, and game context.
+### Data and seasons
 
-</Band>
+This project analyzes regular-season NBA field-goal attempts from 2021–22 through 2025–26.
+Each season has its own analysis. The model does not combine a player's shots across seasons.
+Players need at least 250 included attempts across 20 games in that season.
+The analysis includes shots inside its half-court boundary and excludes shots beyond it.
+The five seasons contain 1,507 player-season analyses. A player appearing in two seasons counts as two analyses.
 
-<Band offset="edge">
+### Estimating shooting chances
 
-## Definitions
+The court contains 156 areas, each about four feet across, with smaller areas at the edges.
+The model uses made and missed shots to estimate each player's shooting chances across these areas.
+Nearby areas help estimate chances where the player took few shots.
 
-### Shot Selection Score
+The model connects court areas that share an edge and keeps a range of plausible shooting chances.
+It combines shot evidence with assumptions about nearby areas. Its full name is a Bayesian conditional autoregressive model.
 
-This 0–100 score compares a player's modeled points per shot in the historical mix
-with the feasible result at the 25% request. A score of 90 means the historical mix
-produces about 90% of the modeled points per shot available in this scenario; it does
-not mean the player ranks in the 90th percentile.
+Each player has their own shooting map. Players share how strongly the model smooths neighboring areas, not one common shooting pattern.
+Limited shot samples leave uncertainty. The Bayesian approach tracks that uncertainty instead of treating a small sample's shooting percentage as exact.
+An area with no recorded attempts can have an estimated shooting chance, but cannot pass the relocation evidence rule.
 
-### Maximum Relocated Share
+### Finding areas that can receive shots
 
-A 25% setting allows at most 25 of every 100 attempt-equivalents to move. The actual
-amount can be lower when weak source shots run out or the 50% destination cap binds.
+An area needs at least 10 of the player's recorded attempts in that season.
+It also needs at least 90% model probability of beating the player's past mix in expected points per attempt.
+Expected points combine the chance of making a shot with its two-point or three-point value.
+The calculation uses the player's observed mix of twos and threes within each area.
+It compares the player with their own shot mix, rather than league-average shooting.
 
-### Season Gain
+Zero, one, or several areas can pass. With zero, the model gives no relocation score or points estimate.
+One area can support an estimate if it has room for more shots under the cap.
+No receiving area can finish with more than 50% of the player's attempts after adding shots.
+This limit does not remove historical shots from an area already above 50%; that area cannot receive more shots.
 
-A value of +157 means the model estimates 157 additional points over the same season
-shot volume. The estimate keeps the player's number of attempts fixed.
+### Choosing which shots move
 
-### Gain per 100 shots
+The calculation ranks occupied areas by their estimated points per attempt, from weakest to strongest.
+It moves shots from areas below the player's past mix, starting with the weakest.
+Made and missed shots help estimate shooting ability. An individual shot's outcome does not decide whether that shot moves.
 
-A value of +17 means an estimated 17 additional points per 100 attempts. This common
-scale removes differences in player shot volume, but the comparison remains non-causal.
+The slider requests 0%, 5%, 10%, 15%, 20%, or 25% of attempts.
+Movement stops at the request, when suitable source shots run out, or when receiving areas have no room.
+The calculation permits part of a shot at the final boundary. A faded marker represents that part.
 
-### 90% interval
+With several receiving areas, the initial split follows how often the player shot from those areas.
+If one reaches 50%, the remaining moved shots go to other supported areas with room, using their existing usage proportions.
+With one area, it receives the moved shots until its cap applies.
+At least 75% of attempt volume stays in its historical locations at the largest request.
+The same slider setting gives the same markers. Higher settings retain the shots already selected at lower settings.
 
-A range such as 129–183 contains the middle 90% of the model's estimates under its
-data and assumptions. It does not guarantee that a future result will fall in that range.
+### Estimating points and uncertainty
 
-### Single-destination estimate
+The calculation freezes the movement plan before testing it across 4,000 possible shooting-ability estimates from the fitted model.
+It uses the same possible abilities for both the past and changed shot mixes in each comparison.
+This gives estimated differences in points over the season's included shots and per 100 attempts.
 
-Only one court cell passed the 10-attempt and 90%-certainty evidence rule. Relocation
-stops when that cell reaches the universal 50% cap.
+The extra-points numbers are averages across those 4,000 comparisons.
+The score uses the middle of the 4,000 scores, after limiting each score to 0–100.
+Each displayed range runs from the fifth to the ninety-fifth percentile: the middle 90% of those values.
+These ranges describe uncertainty within the model, not the full uncertainty of future games.
+The points ranges do not simulate future makes and misses or changes in defensive response.
 
-### Supported destination
+### How the model was tested
 
-A supported destination is a court cell with at least 10 attempts and at least 90%
-posterior certainty of beating the player's current weighted shot mix.
+The 2025–26 comparison used separate groups of games for fitting, choosing court size, and the final test.
+Shots from the same game stayed together. The final test used 39,212 shots from 246 games unseen during fitting or selection.
+The selected model beat a simpler smooth-curve model on the predeclared test of shooting predictions.
+The test found no clear disadvantage in how its predicted shooting chances matched observed make rates.
+It found no clear uncertainty advantage for players with fewer shots.
+
+After testing, the selected model used all included season shots for the published estimates.
+The earlier four seasons reuse the same specification with separate fits. They do not repeat the model comparison.
+Checks covered missing results, shot counts, repeatable movement, uncertainty ranges, and the 50% cap.
+These checks test the calculation. They do not show that a player could create those new shots in a game.
+
+### Limits in real games
+
+These estimates assume the player can get the replacement shots and keep the same shooting ability after changing locations.
+The model leaves out defensive response, shot creation, passing, fatigue, shot-clock pressure, and the game situation.
+Players may take shots from an area only when conditions favor them. Taking more there could reduce their shooting percentage.
+Field-goal records also miss part of the value of drawing free throws.
+The ranges do not include all these missing effects. The project does not establish that moving shots causes extra points.
+
+<details class="nba-formulas">
+<summary>The formulas</summary>
+
+For one possible shooting-ability estimate, let `B` mean estimated points per attempt
+with the past shot mix. Let `A(s)` mean points per attempt after feasible movement at
+slider request `s`. Let `N` be the number of included shots in the selected season.
+
+- Extra points over the observed season: `N × (A(s) − B)`.
+- Extra points per 100 shots: `100 × (A(s) − B)`.
+- One score calculation: `100 × B / A(25%)`, limited to 0–100.
+- Actual share moved: the smallest of the requested share, available weak-source share, and remaining receiving-area capacity.
+- Receiving-area capacity: add up `max(0, 0.50 − past attempt share)` across areas that pass the evidence rules.
+
+Calculate these values across 4,000 joint ability estimates. Show average gains,
+the median of the limited scores, and the fifth-to-ninety-fifth-percentile ranges.
+The score is a median of ratios; dividing two displayed averages does not reproduce it.
+The 25% score request uses the achievable movement, which can be less than 25%.
+Unavailable relocation keeps both the score and gains missing, including at 0%.
+
+</details>
+
+### Project details
+
+- **Data:** Recorded NBA field-goal attempts in five separate regular seasons.
+- **Approach:** Estimate shooting chances by location, then test a limited change in shot mix.
+- **Seasons:** 2021–22 through 2025–26.
+- **Analysis code:** [View the analysis on GitHub](https://github.com/nanu731/nba-shot-analytics).
+
+</details>
 
 </Band>

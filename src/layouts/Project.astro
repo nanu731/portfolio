@@ -6,7 +6,7 @@ import Header from '../components/Header.astro';
 
 type Props = CollectionEntry<'projects'>['data'];
 
-const { title, description, question, dataset, method, seasons, repo, compact, draft } = Astro.props;
+const { title, description, question, dataset, method, seasons, repo, compact, draft, metadataInBody } = Astro.props;
 ---
 
 <!doctype html>
@@ -42,7 +42,7 @@ const { title, description, question, dataset, method, seasons, repo, compact, d
 			     vertical rail would stack beside the prose, rotated ninety degrees. Cream,
 			     not green, because green under green merges into one block and because the
 			     repo link needs the accent, which is banned on green. -->
-			<div class="band meta-band">
+			{!metadataInBody && <div class="band meta-band">
 				<div class="band-inner band-inner--wide at-edge">
 					<dl class="meta">
 						<div>
@@ -65,7 +65,7 @@ const { title, description, question, dataset, method, seasons, repo, compact, d
 						</div>
 					</dl>
 				</div>
-			</div>
+			</div>}
 
 			<!-- The write-up supplies its own bands through <Band>, so it can place
 			     an offset per section, put a figure at the gutter, and spend its one

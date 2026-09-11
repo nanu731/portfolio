@@ -514,3 +514,26 @@ textarea {
 	/* added line to stop words getting smushed together (as they go onto separate lines and some screen readers do not understand line feeds as a space */
 	white-space: nowrap;
 }
+/* The NBA write-up keeps technical detail behind native, keyboard-ready disclosures. */
+.nba-definitions h2,
+.nba-definitions h3 { color: inherit; }
+.nba-methodology,
+.nba-formulas {
+	border-block: var(--rule) solid var(--green);
+	padding-block: var(--space-s);
+}
+.nba-methodology > summary,
+.nba-formulas > summary {
+	cursor: pointer;
+	font-family: var(--font-display);
+	font-size: var(--type-h3);
+	min-height: 44px;
+}
+.nba-methodology > summary:focus-visible,
+.nba-formulas > summary:focus-visible {
+	outline: var(--rule-thick) solid currentColor;
+	outline-offset: var(--space-2xs);
+}
+.nba-methodology[open] > summary,
+.nba-formulas[open] > summary { margin-bottom: var(--space-m); }
+.nba-formulas { margin-block: var(--space-m); }

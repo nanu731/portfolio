@@ -1,0 +1,141 @@
+---
+interface Props {
+	id: string;
+	label: string;
+	compact?: boolean;
+}
+const { id, label, compact = false } = Astro.props;
+---
+
+<definition-help data-term={id}>
+	<button type="button" class:list={['definition-trigger', { compact }]}
+		aria-label={`Explain ${label}`} aria-expanded="false"
+		aria-controls={`definition-${id}`} aria-describedby={`definition-${id}`}>
+		<span data-help-label>{compact ? '?' : label}</span>
+	</button>
+	<span id={`definition-${id}`} class="definition-panel" popover="manual" role="note"><slot /></span>
+</definition-help>
+
+<script>
+	class DefinitionHelp extends HTMLElement {
+		private static active?: DefinitionHelp;
+		private pinned = false;
+		private dismissed = false;
+		private events?: AbortController;
+		private get trigger() { return this.querySelector('button')!; }
+		private get panel() { return this.querySelector<HTMLElement>('[popover]')!; }
+		private get isOpen() { return this.trigger.getAttribute('aria-expanded') === 'true'; }
+
+		connectedCallback() {
+			this.events?.abort();
+			this.events = new AbortController();
+			const options = { signal: this.events.signal };
+			this.addEventListener('pointerenter', (event) => {
+				if (event.pointerType === 'mouse') this.open();
+			}, options);
+			this.addEventListener('pointerleave', () => {
+				if (!this.pinned && !this.contains(document.activeElement)) this.close();
+				if (!this.contains(document.activeElement)) this.dismissed = false;
+			}, options);
+			this.trigger.addEventListener('focus', () => this.open(), options);
+			this.addEventListener('focusout', (event) => {
+				if (!(event.relatedTarget instanceof Node) || !this.contains(event.relatedTarget)) {
+					if (!this.pinned && !this.matches(':hover')) this.close();
+					this.dismissed = false;
+				}
+			}, options);
+			this.trigger.addEventListener('click', () => {
+				if (this.pinned) this.close(true);
+				else { this.dismissed = false; this.open(); this.pinned = true; }
+			}, options);
+			document.addEventListener('pointerdown', (event) => {
+				if (event.target instanceof Node && !this.contains(event.target)) this.close();
+			}, options);
+			document.addEventListener('keydown', (event) => {
+				if (event.key === 'Escape' && this.isOpen) {
+					event.preventDefault();
+					this.close(true);
+				}
+			}, options);
+			window.addEventListener('resize', () => this.place(), options);
+			this.addEventListener('definition-update', () => this.place(), options);
+			document.addEventListener('close-definitions', () => this.close(), options);
+			// Keep the panel attached to its trigger as the reader scrolls.
+			window.addEventListener('scroll', () => this.place(), { ...options, capture: true });
+		}
+		disconnectedCallback() {
+			this.close();
+			this.events?.abort();
+		}
+		private open() {
+			if (this.dismissed) return;
+			if (DefinitionHelp.active !== this) DefinitionHelp.active?.close();
+			DefinitionHelp.active = this;
+			if (!this.isOpen) this.panel.showPopover();
+			this.trigger.setAttribute('aria-expanded', 'true');
+			this.place();
+		}
+		private close(dismissed = false) {
+			if (this.isOpen) this.panel.hidePopover();
+			this.trigger.setAttribute('aria-expanded', 'false');
+			this.pinned = false;
+			this.dismissed = dismissed;
+			if (DefinitionHelp.active === this) DefinitionHelp.active = undefined;
+		}
+		private place() {
+			if (!this.isOpen) return;
+			const anchor = this.trigger.getBoundingClientRect();
+			const edge = parseFloat(getComputedStyle(this.panel).paddingLeft);
+			const width = this.panel.getBoundingClientRect().width;
+			const height = this.panel.getBoundingClientRect().height;
+			const left = Math.max(edge, Math.min(anchor.left, window.innerWidth - width - edge));
+			const below = anchor.bottom;
+			const top = below + height <= window.innerHeight - edge
+				? below : Math.max(edge, anchor.top - height);
+			this.panel.style.left = `${left}px`;
+			this.panel.style.top = `${top}px`;
+		}
+	}
+	if (!customElements.get('definition-help')) customElements.define('definition-help', DefinitionHelp);
+</script>
+
+<style>
+	definition-help { display: inline; }
+	.definition-trigger {
+		min-height: 44px;
+		padding: var(--space-3xs) 0;
+		border: 0;
+		background: transparent;
+		color: inherit;
+		font: inherit;
+		font-weight: 600;
+		text-align: start;
+		text-decoration: underline;
+		text-decoration-style: dotted;
+		text-underline-offset: 0.25em;
+		cursor: help;
+	}
+	.definition-trigger.compact { min-width: 44px; text-align: center; }
+	.definition-trigger:focus-visible { outline: var(--rule-thick) solid currentColor; outline-offset: 3px; }
+	.definition-trigger[aria-expanded='true'] { text-decoration-style: solid; }
+	.definition-panel {
+		position: fixed;
+		inset: auto;
+		box-sizing: border-box;
+		width: min(25rem, calc(100vw - 2 * var(--space-s)));
+		max-height: calc(100dvh - 2 * var(--space-s));
+		overflow-y: auto;
+		margin: 0;
+		padding: var(--space-s);
+		border: var(--rule-thick) solid var(--green);
+		background: var(--cream);
+		color: var(--green);
+		font-family: var(--font-body);
+		font-size: 1rem;
+		font-weight: 400;
+		line-height: 1.5;
+		text-align: start;
+		text-transform: none;
+		letter-spacing: normal;
+	}
+</style>
