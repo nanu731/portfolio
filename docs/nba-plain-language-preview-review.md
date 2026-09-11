@@ -317,3 +317,26 @@ Screenshots for this pass are in the external `nba-court-clarity-options-review`
 directory beside earlier review sets. Court design work will use separate
 review-only mockups; this copy correction does not apply a court redesign.
 Physical-device touch and screen-reader speech have not been tested.
+
+## Court-option review, 11 September 2026
+
+The three review-only options are documented in `nba-court-clarity-options.md`:
+Court-side guide, Follow the change, and Two courts, one change.
+Their HTML/CSS/JavaScript, rendered SVG snapshots, and screenshots live outside
+the repository in the persistent `nba-court-clarity-options-review` directory.
+The local mockup server uses port 4324; the existing portfolio preview remains
+on port 4323. Neither server changes production data.
+
+All use LeBron 2025-26 at a 25% request, with unchanged 919-shot geometry,
+230 relocated markers, 156 map cells, real displayed gains/ranges, and score.
+The paired option renders the same player payload twice, not two fetched players.
+The prototypes expose only zero and 25% and two view choices. Their static map
+does not reproduce interactive area inspection; implementation must preserve
+that existing behavior. Desktop and 375px captures show both shot and map
+layouts. Browser checks found no horizontal overflow or console errors.
+
+The complete view, figure geometry, layers, palette, statistical payloads,
+formulas, and network code in the functioning explorer remain untouched.
+Only a recommendation was made; Narayan must choose a court option before work
+on the component. The screenshot tool's stitched output duplicated content, so
+the final review uses separate viewport captures for long sections.

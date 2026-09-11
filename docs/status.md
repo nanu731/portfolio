@@ -56,6 +56,13 @@ median of scores limited to 0–100, and explain the feasible 25% score scenario
 
 This preview awaits visual and wording approval. It has not been merged or deployed.
 
+Three court-clarity mockups now accompany the preview: a compact court-side guide,
+a numbered walkthrough, and a paired historical/relocated comparison. Each has
+desktop and mobile shot-chart and ability-map examples using LeBron's real 25%
+result. The compact guide is the recommendation because it keeps one large court
+and requires the smallest change. Narayan has not selected an option.
+These isolated mockups do not replace the working explorer.
+
 ## Verification record
 
 The latest production build passed after shortening the limitations notice.
