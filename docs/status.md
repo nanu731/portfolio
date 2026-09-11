@@ -1,12 +1,12 @@
 # Portfolio site status
 
-Snapshot for a reader new to the site. Updated 10 September 2026.
+Snapshot for a reader new to the site. Updated 11 September 2026.
 
 ## Public site
 
 The public NBA page still uses the deployed five-season explorer and its earlier wording.
-A live-page request on 10 September returned the earlier Modeled Ability label and no
-new methodology disclosure. The deployed branch has not changed during this preview work.
+A live-page request on 11 September confirmed that the new limitations notice and
+formula disclosure are absent. The deployed branch has not changed during this preview work.
 
 The explorer opens with LeBron James in 2025-26. Readers can choose all five seasons,
 keep a selected player across available seasons, and reset after an unavailable season.
@@ -17,8 +17,8 @@ Cyan diamonds mark possible new locations, and faint rings mark the originals.
 
 The approved plain-language proposal now has a working local preview.
 It starts with the basketball question, a three-sentence purpose paragraph, and short instructions.
-The paragraph explains possible efficiency gains and shot-location tradeoffs without
-claiming a real-game prediction or recommending that a player change their shots.
+The paragraph connects shot location with scoring efficiency and describes a
+theoretical scenario rather than a real-game prediction or coaching instruction.
 The season and player controls lead to the court, slider, points estimates, and score.
 The desktop slider sits beside the court so readers can watch shots move.
 The three result measures sit below them. Mobile uses one column.
@@ -34,11 +34,20 @@ means and keeps the real-game limitations beside the results.
 
 Highlighted terms open short explanations through mouse hover, keyboard focus, or
 click and tap-style selection. Escape and outside clicks close them. Only one opens
-at a time. The visible Definitions section repeats the essential meanings.
-Definitions, How the model works, and Formulas are separate sections in that order.
-The last two open independently and both start closed. Readers do not need to open
-either to understand the limitations. Seven bordered formula blocks use selectable
-mathematical text, plain-English interpretations, and a variable key.
+at a time. Definitions retains all twelve approved terms with shorter explanations.
+
+Important limitations remains visible after the results. It describes the simplified
+thought experiment, limited control over shot opportunities, missing defensive and
+game context, health and shot-creation factors, and potential optimism at higher volume.
+It also explains court-cell simplification, project rules, historical-season scope,
+missing estimates, within-model ranges, the self-relative score, one-area caution,
+free-throw omissions, and the hypothetical markers. It rules out coaching and betting use.
+
+Definitions, How the model works, and Formulas follow as three independent dropdowns,
+all initially closed. The model explanation retains the method and testing history;
+the detailed limitations now sit outside it. The formula introduction leads to a
+complete variable key before seven bordered equations, then explains the input values.
+Equations use selectable mathematical text and plain-English interpretations.
 
 The formula notes explain the verified point-value convention: 2 plus the player's
 share of three-point attempts in each cell. They distinguish average gains from the
@@ -48,7 +57,8 @@ This preview awaits visual and wording approval. It has not been merged or deplo
 
 ## Verified in this session
 
-The production build passed again after the purpose and formula revisions. Its warnings concern the existing empty blog collection.
+The final production build passed after the limitations and reference revisions.
+Its warnings concern the existing empty blog collection.
 No dependency was added. The built page passed local browser checks for LeBron in all
 five seasons, player persistence, both court views, every slider setting, normalized
 search, unavailable seasons, reset, and delayed rapid player selections.
@@ -68,9 +78,10 @@ The final browser console contained no warnings or application errors.
 Desktop, exact 375-pixel mobile, and 200%-equivalent reflow checks found no horizontal
 overflow. Keyboard, pointer, definition placement, focus indicators, and disclosure
 checks passed. The revised formula blocks and variable key fit at all three widths.
-The two independent disclosures passed click, Enter, and Space checks with native
-expanded-state announcements and visible focus. Earlier work corrected the Definitions
-heading contrast; the revision preserves it. Physical-device and screen-reader speech
+All three independent disclosures passed click, Enter, and Space checks with native
+expanded-state announcements. Inline help retained keyboard focus, activation, Escape,
+outside dismissal, and mobile click behavior. Its pointer-hover implementation is
+unchanged from the prior verified preview. Physical-device and screen-reader speech
 testing were not performed. The reflow check uses a half-width viewport rather than
 changing the browser's zoom setting.
 

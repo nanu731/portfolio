@@ -168,3 +168,115 @@ New images are outside the repository, preserving the prior screenshots:
 Narayan's next step is a visual and wording review of these two revisions. Only
 the preview branch may be pushed. Main, the live site, and Netlify remain outside
 this change's authorization.
+
+## Visible limitations and three-reference revision, 11 September 2026
+
+Recovered the pushed branch at `fc3eea5`, preserving all earlier preview commits,
+including `99a4117`. Direct remote reads confirmed feature `fc3eea5` and main
+`c1e39fc`. There were no tracked edits or Git locks; only the existing prototype
+and layout test were untracked. The existing port-4323 production preview server
+was reused. Other running development processes were left untouched.
+
+Source commit `d002b7c` changes only the NBA write-up and its reference styles.
+The opening retains its purpose and now calls the scenario theoretical. A permanent
+Important limitations notice occupies the existing green band after the results.
+Definitions moves into a native disclosure beside How the model works and Formulas.
+All three are siblings, initially closed, with the same focus and summary styling.
+All twelve proposal terms remain, each with one or two explanatory sentences.
+Inline definition components and explorer code are unchanged.
+
+### Limitations audit and wording provenance
+
+Reviewed the current scope, frozen model formula, and Known limitations in
+`docs/SPATIAL_MODEL_PLAN.md`; the complete five-season and single-destination-cap
+plans; and the targeted capped exporter and summary helpers. No analytics files
+were changed or executed. The spatial plan's older integration-pending status is
+historical; it does not override the verified deployed portfolio state.
+
+- The spatial plan specifies location, made/missed, and point value; its frozen fit
+  has player intercepts and spatial effects with no game-context covariates. The
+  five-season plan preserves that specification. Narayan's requested examples of
+  missing health, shot technique, roles, opponents, and game situations are consistent
+  with this input scope; they are not newly measured basketball effects.
+- Known limitations explicitly cover inability to create opportunities, favorable
+  conditions in historical attempts, accuracy changes with volume and defensive
+  adjustment, missing defender/clock context, free-throw value, and uncertainty
+  that does not establish a causal gain. The notice includes all of these.
+- The v3/v4 plans verify weakest-first movement, supported destinations, single-area
+  states, the 50% added-capacity restriction, fixed plans across 4,000 draws, separate
+  historical seasons, and null results when movement is unavailable. The notice
+  describes these as project assumptions and rules, not basketball guarantees.
+- The self-relative score, hypothetical markers, and prohibition on treating the
+  tool as coaching or betting advice follow the approved scope. The notice makes
+  no claim to enumerate unknown limitations or predict future player development.
+- Shot technique is distinguished from two-/three-point value: the calculation
+  uses the latter but does not adjust make probability for pull-ups, catch-and-shoot
+  attempts, dribbling, balance, or how the shot opportunity arose.
+
+### Notation and production equivalence
+
+The variable key now precedes all seven equations. It defines `A` as included
+season attempts, `w′` as relocated share, EPPS and its current/relocated subscripts,
+cell expected points, percentile notation, and arithmetic/grouping symbols.
+The notation changes no calculation. Point value remains
+`2 + three_point_attempts / point_value_attempts` per player-season cell. Empty
+cells retain no observed point value and contribute zero with zero shot weight.
+Gains remain draw means; scores remain medians of draw ratios clipped to 0–100;
+90% ranges remain type-7 fifth and ninety-fifth percentiles. The 25% score scenario
+uses feasible movement. These are verified against the same production helpers
+cited in the preceding revision.
+
+### Final build and browser checks
+
+- Final `npm run build` passed at 00:09 on 11 September: six pages, 2.60 seconds,
+  with only the existing empty-blog collection warnings. No test script or new
+  dependency was added.
+- Initial LeBron/2025-26/0% remains. The permanent notice is outside disclosures;
+  all three native disclosures begin closed. The twelve definition headings match
+  the proposal's inventory. The formula key precedes the first equation in the DOM.
+- LeBron's six settings reproduce the earlier recorded points and per-100 gains.
+  Returning to zero reproduces the historical SVG markup. Slider changes leave
+  Shooting Map markup unchanged. LeBron persists across all five season selections,
+  each resetting movement to zero.
+- Wembanyama retains 22.5% movement, 243 attempt-equivalents, +184 points, +17.1 per
+  100, score 87.0, and the same displayed ranges at the 25% request.
+- Chris Paul's 2024-25 insufficient-evidence chart remains with a disabled slider
+  and no estimates. His 2025-26 absence explains 56 attempts in 16 games. Reset
+  returns to LeBron. Rapid Wembanyama-to-LeBron selection ends with LeBron.
+- Search matched `lUkA don-cic`; keyboard selection worked. Typing produced no
+  requests, and selecting Wembanyama produced only his player-file request.
+  The existing review-only 600ms player delay remains outside production files.
+- Native disclosures passed mouse, 375px tap-style clicks, Enter, and Space.
+  Their collapsed states appeared in the accessibility tree. Seven math elements
+  carry descriptive labels. Inline definitions passed focus via Shift+Tab, visible
+  outline, Enter, Space, Escape, outside clicks, and mobile click placement.
+  Standalone pointer-hover behavior relies on the previous verified pass plus
+  byte-identical definition-component code; no physical touchscreen or speech-reader
+  testing was performed.
+- Desktop 1440px, exact 375px mobile, and half-width 720px reflow representing 200%
+  had no page, disclaimer, key, or equation overflow. This is a reflow test, not
+  native browser zoom. The browser console contained no application warnings/errors.
+- The complete source diff passed whitespace review. All tracked public assets,
+  explorer and definition components, layouts, and collection configuration match
+  `fc3eea5`. Analytics remains at `23b52b1` with its existing untracked observations.
+  The layout-test and prototype hashes remain those recorded above.
+- A live page fetch returned the existing page without the new notice or formulas.
+  No merge, deployment, pull request, hosting edit, or main-branch push occurred.
+
+### Latest screenshots and approval boundary
+
+Screenshots are outside the production repository in:
+`/Users/narayanlekhi/.codex/visualizations/2026/09/05/01a06fff-1e92-7d90-89cf-0a912c4ba691/nba-limitations-reference-review/`
+
+Main review set: `desktop-opening.jpg`, `desktop-disclaimer.jpg`,
+`desktop-disclaimer-details.jpg`, `desktop-collapsed-references.jpg`,
+`desktop-definitions-opening.jpg`, `desktop-methodology-opening.jpg`,
+`desktop-formulas-opening.jpg`, `desktop-formula-key.jpg`, `desktop-equations.jpg`,
+`mobile-disclaimer.jpg`, `mobile-formula-key.jpg`, `mobile-equations.jpg`, and
+`mobile-score.jpg`. Additional interior Definitions and methodology captures remain
+in that directory. Earlier review directories were preserved.
+
+Narayan should review the visible notice's length, the three closed references, and
+the key-first notation. Only the preview branch is authorized for this push; a merge
+or deployment requires separate approval. A general notation-order lesson was logged
+outside the repository for later skill review; no skill was changed.
