@@ -566,9 +566,30 @@ textarea {
 .nba-fraction > span { padding-inline: var(--space-2xs); }
 .nba-fraction > span + span { border-top: var(--rule-thin) solid currentColor; }
 .nba-variable-key {
+	margin-block: var(--space-m);
+}
+.nba-variable-row {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
 	gap: var(--space-xs) var(--space-s);
+	padding-block: var(--space-s);
+}
+.nba-variable-row + .nba-variable-row {
+	border-top: var(--rule-thin) solid var(--sand);
+}
+.nba-variable-key dt {
+	display: flex;
+	align-items: baseline;
+	gap: var(--space-xs);
+}
+.nba-variable-symbol { min-width: 0; }
+.nba-variable-leader {
+	flex: 1 0 var(--space-m);
+	border-bottom: var(--rule-thin) dotted var(--green);
 }
 .nba-variable-key dt,
 .nba-variable-key dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 40rem) {
+	.nba-variable-row { grid-template-columns: minmax(0, 1fr); }
+	.nba-variable-key dt { font-weight: 600; }
+}
