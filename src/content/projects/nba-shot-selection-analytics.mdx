@@ -17,8 +17,9 @@ import DefinitionHelp from '../../components/DefinitionHelp.astro';
 
 <Band offset="edge">
 
-This project uses a player's past shots to estimate where they score more points per attempt.
-It estimates how many extra points they could score by moving some shots from weaker areas to stronger ones.
+This project estimates how a player's scoring could change by moving shots from weaker locations toward areas where their past shots show stronger ability.
+With the slider, you can explore possible efficiency gains and see the tradeoffs in where those shots go.
+The estimates do not predict real-game results or prove a player should change their shot selection.
 
 ## How to use it
 
@@ -205,33 +206,91 @@ Players may take shots from an area only when conditions favor them. Taking more
 Field-goal records also miss part of the value of drawing free throws.
 The ranges do not include all these missing effects. The project does not establish that moving shots causes extra points.
 
-<details class="nba-formulas">
-<summary>The formulas</summary>
-
-For one possible shooting-ability estimate, let `B` mean estimated points per attempt
-with the past shot mix. Let `A(s)` mean points per attempt after feasible movement at
-slider request `s`. Let `N` be the number of included shots in the selected season.
-
-- Extra points over the observed season: `N × (A(s) − B)`.
-- Extra points per 100 shots: `100 × (A(s) − B)`.
-- One score calculation: `100 × B / A(25%)`, limited to 0–100.
-- Actual share moved: the smallest of the requested share, available weak-source share, and remaining receiving-area capacity.
-- Receiving-area capacity: add up `max(0, 0.50 − past attempt share)` across areas that pass the evidence rules.
-
-Calculate these values across 4,000 joint ability estimates. Show average gains,
-the median of the limited scores, and the fifth-to-ninety-fifth-percentile ranges.
-The score is a median of ratios; dividing two displayed averages does not reproduce it.
-The 25% score request uses the achievable movement, which can be less than 25%.
-Unavailable relocation keeps both the score and gains missing, including at 0%.
-
-</details>
-
 ### Project details
 
 - **Data:** Recorded NBA field-goal attempts in five separate regular seasons.
 - **Approach:** Estimate shooting chances by location, then test a limited change in shot mix.
 - **Seasons:** 2021–22 through 2025–26.
 - **Analysis code:** [View the analysis on GitHub](https://github.com/nanu731/nba-shot-analytics).
+
+</details>
+
+<details class="nba-formulas">
+<summary>Formulas</summary>
+
+These equations describe one of the model's 4,000 joint shooting-ability estimates.
+The calculation uses the same make probabilities for the historical and relocated shot mixes in each comparison.
+EPPS means expected points per shot.
+
+<div class="nba-formula-block">
+<h3>1. Expected points in a cell</h3>
+<p class="nba-equation" role="math" aria-label="Cell expected points per shot equals modeled make probability times point value."><span aria-hidden="true">E<sub>c</sub> = p<sub>c</sub> × v<sub>c</sub></span></p>
+<p>Multiply the chance of a make by the cell's two-point and three-point value.</p>
+</div>
+
+<div class="nba-formula-block">
+<h3>2. Current expected points per shot</h3>
+<p class="nba-equation" role="math" aria-label="Current expected points per shot, B, equals the sum across cells of current shot share times modeled make probability times point value."><span aria-hidden="true">B = Σ<sub>c</sub> w<sub>c</sub> × p<sub>c</sub> × v<sub>c</sub></span></p>
+<p>Weight each cell's expected points by how often the player shot there.</p>
+</div>
+
+<div class="nba-formula-block">
+<h3>3. Expected points after relocation</h3>
+<p class="nba-equation" role="math" aria-label="Relocated expected points per shot, A of s, equals the sum across cells of relocated shot share at slider request s times modeled make probability times point value."><span aria-hidden="true">A(s) = Σ<sub>c</sub> q<sub>c</sub>(s) × p<sub>c</sub> × v<sub>c</sub></span></p>
+<p>Use the changed shot shares while keeping the same estimated shooting ability.</p>
+</div>
+
+<div class="nba-formula-block">
+<h3>4. Extra points in the selected season</h3>
+<p class="nba-equation" role="math" aria-label="Season gain at s equals included season attempts times the difference between relocated and current expected points per shot."><span aria-hidden="true">G<sub>season</sub>(s) = N × [A(s) − B]</span></p>
+<p>Apply the difference per shot to the player's included season attempts.</p>
+</div>
+
+<div class="nba-formula-block">
+<h3>5. Extra points per 100 shots</h3>
+<p class="nba-equation" role="math" aria-label="Gain per 100 shots at s equals 100 times the difference between relocated and current expected points per shot."><span aria-hidden="true">G<sub>100</sub>(s) = 100 × [A(s) − B]</span></p>
+<p>Express the same difference over 100 attempts, regardless of season shot volume.</p>
+</div>
+
+<div class="nba-formula-block">
+<h3>6. Shot Selection Score</h3>
+<p class="nba-equation" role="math" aria-label="One score calculation equals 100 times current expected points per shot divided by expected points after feasible relocation at the 25 percent request."><span aria-hidden="true">S = 100 × <span class="nba-fraction"><span>B</span><span>A(25%)</span></span></span></p>
+<p>Compare the past mix with the feasible mix at the largest slider request.</p>
+<p>The calculation limits each of the 4,000 scores to 0–100, then displays their median.
+Dividing two displayed averages does not reproduce that median of ratios.
+The 25% request uses the actual feasible movement when source shots, evidence, or the 50% destination cap prevent moving all 25%.</p>
+</div>
+
+<div class="nba-formula-block">
+<h3>7. Estimated Range (90%)</h3>
+<p class="nba-equation" role="math" aria-label="The estimated 90 percent range runs from the fifth percentile to the ninety-fifth percentile of the 4,000 calculated values."><span aria-hidden="true">Range<sub>90%</sub> = [Q<sub>0.05</sub>, Q<sub>0.95</sub>]</span></p>
+<p>Keep the middle 90% of the model's 4,000 calculated values.</p>
+<p>Gains display the average across those values. Scores display the median after the 0–100 limit.
+The ranges reflect uncertainty in modeled ability, not a simulation of future makes and misses.</p>
+</div>
+
+### Variable key
+
+<dl class="nba-variable-key">
+<dt>c</dt><dd>A four-foot court cell; Σ adds across cells.</dd>
+<dt>p<sub>c</sub></dt><dd>Make probability in cell c for one joint model estimate.</dd>
+<dt>v<sub>c</sub></dt><dd>Cell point value: 2 plus its observed share of three-point attempts.</dd>
+<dt>w<sub>c</sub>, q<sub>c</sub>(s)</dt><dd>Historical and relocated shares of all included attempts.</dd>
+<dt>s, N</dt><dd>Requested relocation share and included season attempts.</dd>
+<dt>B, A(s)</dt><dd>Current and relocated expected points per shot.</dd>
+<dt>G, S, Q</dt><dd>Gain, one score calculation, and a percentile of the 4,000 values.</dd>
+</dl>
+
+### Where the values come from
+
+- **Make probability:** The player's season-specific spatial shooting model (CAR) supplies 4,000 joint estimates across court cells.
+- **Point value:** For each player and season, divide three-point attempts in a cell by all attempts in that cell, then add 2. A cell with only twos has value 2; one with only threes has value 3. A cell crossing the arc uses the player's observed mix, not its center's location. Empty cells have no observed point value and receive no shot share in these calculations.
+- **Current shares:** Divide attempts in each cell by the player's total included season attempts.
+- **Relocated shares:** Remove shots weakest first from below-baseline areas. Add them to supported areas in proportion to existing usage, redistributing when an area reaches the 50% cap. Freeze this plan before evaluating the 4,000 estimates.
+- **Feasible movement:** Use the smallest of the requested share, eligible weak-source share, and supported receiving capacity. Each supported cell has added capacity of `max(0, 0.50 − historical share)`; add those capacities across supported cells.
+- **Uncertainty:** Apply the fixed shot shares and point values to each joint model estimate, then summarize the resulting gains and scores with the ranges above.
+
+Unavailable relocation keeps scores and gains missing, including at 0%. None of these equations turns missing evidence into a zero estimate.
 
 </details>
 

@@ -537,3 +537,36 @@ textarea {
 .nba-methodology[open] > summary,
 .nba-formulas[open] > summary { margin-bottom: var(--space-m); }
 .nba-formulas { margin-block: var(--space-m); }
+.nba-formula-block {
+	border: var(--rule-thin) solid var(--green);
+	padding: var(--space-s);
+	margin-block: var(--space-m);
+	min-width: 0;
+}
+.nba-formula-block h3 { font-size: var(--type-body); }
+.nba-formula-block > :last-child { margin-bottom: 0; }
+.nba-equation,
+.nba-variable-key dt {
+	font-family: var(--font-numeric);
+	font-variant-numeric: tabular-nums;
+}
+.nba-equation {
+	font-size: clamp(1rem, 2vw, 1.25rem);
+	line-height: 1.8;
+	overflow-wrap: anywhere;
+}
+.nba-fraction {
+	display: inline-grid;
+	vertical-align: middle;
+	text-align: center;
+	line-height: 1.4;
+}
+.nba-fraction > span { padding-inline: var(--space-2xs); }
+.nba-fraction > span + span { border-top: var(--rule-thin) solid currentColor; }
+.nba-variable-key {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+	gap: var(--space-xs) var(--space-s);
+}
+.nba-variable-key dt,
+.nba-variable-key dd { margin: 0; overflow-wrap: anywhere; }
