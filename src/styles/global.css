@@ -533,6 +533,11 @@ textarea {
 	outline-offset: var(--space-2xs);
 }
 .nba-reference[open] > summary { margin-bottom: var(--space-m); }
+.nba-reference [data-reference-target] { scroll-margin-block-start: var(--space-m); }
+.nba-reference [data-reference-target]:focus {
+	outline: var(--rule-thick) solid var(--green);
+	outline-offset: var(--space-2xs);
+}
 .nba-formula-block {
 	border: var(--rule-thin) solid var(--green);
 	padding: var(--space-s);

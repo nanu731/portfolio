@@ -70,11 +70,11 @@ import DefinitionHelp from './DefinitionHelp.astro';
 				</div>
 
 				<div hidden data-qualified-result>
-					<div class="evidence-note label" hidden data-evidence-note><DefinitionHelp id="one-area" label="Estimate from One Area">One area passes the evidence rules for receiving moved shots. It cannot receive more shots once it reaches half the player’s total attempts.</DefinitionHelp></div>
+					<div class="evidence-note label" hidden data-evidence-note><DefinitionHelp id="one-area" detailTarget="definition-one-area" detailLabel="See full definition" label="Estimate from One Area">One area passes the evidence rules for receiving moved shots. It cannot receive more shots once it reaches half the player’s total attempts.</DefinitionHelp></div>
 					<div class="slider-block">
 						<div class="slider-label">
 							<label class="label" for="relocation-share">Shots to Move</label>
-							<DefinitionHelp id="shots-to-move" label="Shots to Move" compact>Your 0% setting allows up to 0 of every 100 shots to move. The amount moved can be lower because suitable shots or room in receiving areas can run out.</DefinitionHelp>
+							<DefinitionHelp id="shots-to-move" detailTarget="definition-shots-to-move" detailLabel="See full definition" label="Shots to Move" compact>Your 0% setting allows up to 0 of every 100 shots to move. The amount moved can be lower because suitable shots or room in receiving areas can run out.</DefinitionHelp>
 							<output class="numeric" for="relocation-share" data-slider-output>Up to 0%</output>
 						</div>
 						<p class="measure-note" id="slider-help">Choose the largest share of shots you want to move, from 0% to 25%.</p>
@@ -109,7 +109,7 @@ import DefinitionHelp from './DefinitionHelp.astro';
 
 				<p class="court-guide" data-shot-guide>Recorded shots at 0%: green circles show makes; rust crosses show misses.</p>
 				<div class="map-help" hidden data-map-help>
-					<DefinitionHelp id="shooting-map" label="Make-chance map">Each color shows the estimated chance of making a shot in that area. Outlined diamonds mark areas that pass the rules for receiving moved shots.</DefinitionHelp>
+					<DefinitionHelp id="shooting-map" detailTarget="method-shooting-chances" detailLabel="See how the model works" label="Make-chance map">Each color shows the estimated chance of making a shot in that area. Outlined diamonds mark areas that pass the rules for receiving moved shots.</DefinitionHelp>
 					<p>Darker blocks mean a higher estimated chance of a make. Outlined diamonds mark evidence for relocation; shot value also matters.</p>
 					<p>The slider changes the scoring estimate, not this map. The fixed scale below applies to every player and season.</p>
 				</div>
@@ -167,7 +167,7 @@ import DefinitionHelp from './DefinitionHelp.astro';
 					<li><span class="swatch heat-5"></span><span class="numeric">60% and above</span></li>
 					<li class="destination-key">
 						<span class="destination-symbol" aria-hidden="true"></span>
-						<DefinitionHelp id="supported" label="Area with Evidence for Moving Shots">The area has at least 10 recorded attempts and at least 90% model probability of beating the player’s past points per shot. An outlined diamond marks it; the 50% limit may leave no room to add shots.</DefinitionHelp>
+						<DefinitionHelp id="supported" detailTarget="method-receiving-areas" detailLabel="See how the model works" label="Area with Evidence for Moving Shots">The area has at least 10 recorded attempts and at least 90% model probability of beating the player’s past points per shot. An outlined diamond marks it; the 50% limit may leave no room to add shots.</DefinitionHelp>
 					</li>
 				</ul>
 
@@ -187,15 +187,15 @@ import DefinitionHelp from './DefinitionHelp.astro';
 			<div class="result-panel metrics-panel" hidden data-metrics-result>
 					<div class="gain-grid">
 						<div>
-							<div class="label"><DefinitionHelp id="season-gain" label="Extra Points in 2025–26">The model estimates 0 extra points over the same recorded shots. This compares possible shot mixes, not a future season forecast.</DefinitionHelp></div>
+							<div class="label"><DefinitionHelp id="season-gain" detailTarget="formula-season-gain" detailLabel="See the formula" label="Extra Points in 2025–26">The model estimates 0 extra points over the same recorded shots. This compares possible shot mixes, not a future season forecast.</DefinitionHelp></div>
 							<p class="gain-value numeric" data-season-gain></p>
-							<div class="interval"><DefinitionHelp id="range" label="Estimated Range (90%)">This range covers the middle 90% of the model’s estimates. It does not include every uncertainty in a real game.</DefinitionHelp></div>
+							<div class="interval"><DefinitionHelp id="range" detailTarget="formula-range" detailLabel="See the formula" label="Estimated Range (90%)">This range covers the middle 90% of the model’s estimates. It does not include every uncertainty in a real game.</DefinitionHelp></div>
 							<p class="interval numeric" data-season-interval></p>
 							<p class="measure-note" data-season-note></p>
 							<p class="measure-note">The middle 90% of estimates within this model. Real games can differ for reasons the model does not include.</p>
 						</div>
 						<div>
-							<div class="label"><DefinitionHelp id="per-100" label="Extra Points per 100 Shots">The model estimates 0.0 extra points for every 100 attempts at this slider setting. This puts players with different shot counts on the same scale.</DefinitionHelp></div>
+							<div class="label"><DefinitionHelp id="per-100" detailTarget="formula-per-100" detailLabel="See the formula" label="Extra Points per 100 Shots">The model estimates 0.0 extra points for every 100 attempts at this slider setting. This puts players with different shot counts on the same scale.</DefinitionHelp></div>
 							<p class="gain-value numeric" data-per-100-gain></p>
 							<p class="interval">Estimated Range (90%)</p>
 							<p class="interval numeric" data-per-100-interval></p>
@@ -204,7 +204,7 @@ import DefinitionHelp from './DefinitionHelp.astro';
 					</div>
 
 					<div class="score-block">
-						<div class="label"><DefinitionHelp id="score" label="Shot Selection Score">The score compares the past shot mix with the allowed scenario at the 25% request. Higher means less estimated room to improve; this is not a league rank or overall player rating.</DefinitionHelp></div>
+						<div class="label"><DefinitionHelp id="score" detailTarget="formula-score" detailLabel="See the formula" label="Shot Selection Score">The score compares the past shot mix with the allowed scenario at the 25% request. Higher means less estimated room to improve; this is not a league rank or overall player rating.</DefinitionHelp></div>
 						<p class="score numeric"><span data-score></span><span class="score-denominator"> / 100</span></p>
 						<p class="interval">Estimated Range (90%)</p>
 						<p class="interval numeric" data-score-interval></p>
@@ -838,7 +838,7 @@ import DefinitionHelp from './DefinitionHelp.astro';
 			const resetVersion = this.requestVersion + 1;
 			await this.loadSeason(DEFAULT_SEASON, PRELOAD_PLAYER_ID);
 			if (this.requestVersion === resetVersion && this.currentPlayer?.player_id === PRELOAD_PLAYER_ID) {
-				this.setStatus('Reset complete. LeBron James, 2025–26. Before & After at 0%; no shots moved.');
+				this.setStatus('Reset complete. LeBron James, 2025–26. Shot locations at 0%; no shots moved.');
 			}
 		}
 
@@ -1417,7 +1417,7 @@ import DefinitionHelp from './DefinitionHelp.astro';
 			const help = requireElement<HTMLElement>(this, `[data-term="${term}"]`);
 			if (!help.querySelector('.compact')) requireElement<HTMLElement>(help, '[data-help-label]').textContent = label;
 			requireElement<HTMLButtonElement>(help, 'button').setAttribute('aria-label', `Explain ${label}`);
-			requireElement<HTMLElement>(help, '[popover]').textContent = explanation;
+			requireElement<HTMLElement>(help, '[data-help-copy]').textContent = explanation;
 			help.dispatchEvent(new Event('definition-update'));
 		}
 
@@ -1892,7 +1892,7 @@ import DefinitionHelp from './DefinitionHelp.astro';
 	.map-help p { margin-block: var(--space-2xs); font-size: var(--type-small); }
 	.evidence-note {
 		margin-top: var(--space-2xs) !important;
-		color: var(--accent);
+		color: var(--green);
 	}
 	.interval {
 		font-size: var(--type-label);
