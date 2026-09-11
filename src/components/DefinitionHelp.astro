@@ -6,7 +6,7 @@ interface Props {
 	detailTarget?: string;
 	detailLabel?: string;
 }
-const { id, label, compact = false, detailTarget, detailLabel = 'See full definition' } = Astro.props;
+const { id, label, compact = false, detailTarget, detailLabel = 'See all definitions' } = Astro.props;
 ---
 
 <definition-help data-term={id}>
