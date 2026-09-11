@@ -55,16 +55,50 @@ import DefinitionHelp from './DefinitionHelp.astro';
 			<button type="button" class="retry" hidden data-retry>Try again</button>
 		</div>
 
-		<fieldset class="view-controls" hidden data-view-controls>
-			<legend class="label">Court view</legend>
-			<div class="view-options">
-				<label><input type="radio" name="court-view" value="combined" checked /> Before &amp; After</label>
-				<label><input type="radio" name="court-view" value="ability" /> Shooting Map</label>
-			</div>
-		</fieldset>
-
 		<div class="plot explorer-plot" aria-busy="true" data-explorer-stage>
+			<aside class="result-panel controls-panel" aria-label="Court controls">
+				<fieldset class="view-controls" hidden data-view-controls>
+					<legend class="guide-step"><span>1</span> Choose what to see</legend>
+					<div class="view-options">
+						<label><input type="radio" name="court-view" value="combined" checked /> Shot locations</label>
+						<label><input type="radio" name="court-view" value="ability" /> Make-chance map</label>
+					</div>
+				</fieldset>
+				<h3 class="guide-step"><span>2</span> Set the change</h3>
+				<div class="result-empty" data-result-empty>
+					<p>Choose a player</p>
+				</div>
+
+				<div hidden data-qualified-result>
+					<div class="evidence-note label" hidden data-evidence-note><DefinitionHelp id="one-area" label="Estimate from One Area">One area passes the evidence rules for receiving moved shots. It cannot receive more shots once it reaches half the player’s total attempts.</DefinitionHelp></div>
+					<div class="slider-block">
+						<div class="slider-label">
+							<label class="label" for="relocation-share">Shots to Move</label>
+							<DefinitionHelp id="shots-to-move" label="Shots to Move" compact>Your 0% setting allows up to 0 of every 100 shots to move. The amount moved can be lower because suitable shots or room in receiving areas can run out.</DefinitionHelp>
+							<output class="numeric" for="relocation-share" data-slider-output>Up to 0%</output>
+						</div>
+						<p class="measure-note" id="slider-help">Choose the largest share of shots you want to move, from 0% to 25%.</p>
+						<input type="range" id="relocation-share" min="0" max="25" step="5" value="0" disabled data-slider aria-describedby="slider-help" />
+						<div class="slider-ends label numeric" aria-hidden="true"><span>0%</span><span>25%</span></div>
+						<p class="actual-share numeric" data-actual-share></p>
+						<p class="measure-note" data-moved-count></p>
+						<p class="measure-note" hidden data-fraction-note>A faded cyan diamond represents the fraction of a shot at the movement boundary.</p>
+						<p class="measure-note" hidden data-cap-note></p>
+					</div>
+
+				</div>
+				<div class="insufficient" hidden data-insufficient-result>
+					<h4 data-unavailable-title>No Clear Area for Moving Shots</h4>
+					<p data-unavailable-copy></p>
+				</div>
+				<div class="insufficient" hidden data-season-unavailable>
+					<h4 data-season-unavailable-title>Analysis unavailable</h4>
+					<p data-season-unavailable-copy></p>
+					<button type="button" class="retry reset-default" data-reset-default>Reset to LeBron James, 2025–26</button>
+				</div>
+			</aside>
 			<div class="court-panel">
+				<h3 class="guide-step"><span>3</span> Read the court</h3>
 				<div class="court-title-row">
 					<div>
 						<p class="label" data-court-mode-label>Player chart</p>
@@ -73,11 +107,11 @@ import DefinitionHelp from './DefinitionHelp.astro';
 					<p class="label numeric" data-season>2025–26</p>
 				</div>
 
+				<p class="court-guide" data-shot-guide>Recorded shots at 0%: green circles show makes; rust crosses show misses.</p>
 				<div class="map-help" hidden data-map-help>
-					<DefinitionHelp id="shooting-map" label="Best Shooting Areas">Each color shows the estimated chance of making a shot in that area. Outlined diamonds mark areas that pass the rules for receiving moved shots.</DefinitionHelp>
-					<p>Darker areas mean a higher estimated chance of making a shot. The same color scale applies to each player and season.</p>
-					<p>Outlined diamonds mark areas with enough evidence to receive moved shots. Shot value also matters: threes are worth more than twos.</p>
-					<p>The slider changes the points estimate. It does not change this shooting map.</p>
+					<DefinitionHelp id="shooting-map" label="Make-chance map">Each color shows the estimated chance of making a shot in that area. Outlined diamonds mark areas that pass the rules for receiving moved shots.</DefinitionHelp>
+					<p>Darker blocks mean a higher estimated chance of a make. Outlined diamonds mark evidence for relocation; shot value also matters.</p>
+					<p>The slider changes the scoring estimate, not this map. The fixed scale below applies to every player and season.</p>
 				</div>
 
 				<svg
@@ -149,40 +183,7 @@ import DefinitionHelp from './DefinitionHelp.astro';
 				</p>
 			</div>
 
-			<aside class="result-panel controls-panel" aria-label="Estimated extra points">
-				<p class="label">Estimated extra points</p>
-				<div class="result-empty" data-result-empty>
-					<p>Choose a player</p>
-				</div>
 
-				<div hidden data-qualified-result>
-					<div class="evidence-note label" hidden data-evidence-note><DefinitionHelp id="one-area" label="Estimate from One Area">One area passes the evidence rules for receiving moved shots. It cannot receive more shots once it reaches half the player’s total attempts.</DefinitionHelp></div>
-					<div class="slider-block">
-						<div class="slider-label">
-							<label class="label" for="relocation-share">Shots to Move</label>
-							<DefinitionHelp id="shots-to-move" label="Shots to Move" compact>Your 0% setting allows up to 0 of every 100 shots to move. The amount moved can be lower because suitable shots or room in receiving areas can run out.</DefinitionHelp>
-							<output class="numeric" for="relocation-share" data-slider-output>Up to 0%</output>
-						</div>
-						<p class="measure-note" id="slider-help">Choose the largest share of shots you want to move, from 0% to 25%.</p>
-						<input type="range" id="relocation-share" min="0" max="25" step="5" value="0" disabled data-slider aria-describedby="slider-help" />
-						<div class="slider-ends label numeric" aria-hidden="true"><span>0%</span><span>25%</span></div>
-						<p class="actual-share numeric" data-actual-share></p>
-						<p class="measure-note" data-moved-count></p>
-						<p class="measure-note">The calculation allows part of a shot, so this count can include a decimal.</p>
-						<p class="measure-note" hidden data-cap-note></p>
-					</div>
-
-				</div>
-				<div class="insufficient" hidden data-insufficient-result>
-					<h4 data-unavailable-title>No Clear Area for Moving Shots</h4>
-					<p data-unavailable-copy></p>
-				</div>
-				<div class="insufficient" hidden data-season-unavailable>
-					<h4 data-season-unavailable-title>Analysis unavailable</h4>
-					<p data-season-unavailable-copy></p>
-					<button type="button" class="retry reset-default" data-reset-default>Reset to LeBron James, 2025–26</button>
-				</div>
-			</aside>
 			<div class="result-panel metrics-panel" hidden data-metrics-result>
 					<div class="gain-grid">
 						<div>
@@ -1083,7 +1084,8 @@ import DefinitionHelp from './DefinitionHelp.astro';
 			document.dispatchEvent(new Event('close-definitions'));
 			this.courtView = view;
 			if (view === 'ability') this.renderHeatmap(this.currentPlayer);
-			else this.renderShotChart();
+			else if (!this.currentPlayer.relocation_available) this.renderShotChart();
+			if (this.currentPlayer.relocation_available) this.updateSlider();
 		}
 
 		private clearCourtLayers() {
@@ -1105,7 +1107,12 @@ import DefinitionHelp from './DefinitionHelp.astro';
 				item.hidden = !isAfter;
 			});
 			requireElement<HTMLElement>(this, '[data-court-mode-label]').textContent =
-				isAfter ? 'After: possible shot locations' : 'Before: past shots';
+				isAfter ? 'Shot locations · after' : 'Shot locations · historical before';
+			const guide = requireElement<HTMLElement>(this, '[data-shot-guide]');
+			guide.hidden = false;
+			guide.textContent = isAfter
+				? 'Cyan diamonds show hypothetical new locations; faint rings mark their origins. Green circles and rust crosses show shots that stay. Cyan does not mean a guaranteed make.'
+				: 'Recorded shots at 0%: green circles show makes; rust crosses show misses. No shots move.';
 
 			const slider = this.currentPlayer.sliders.find(
 				(row) => Math.abs(row.requested_share - percent / 100) < 1e-9,
@@ -1178,12 +1185,13 @@ import DefinitionHelp from './DefinitionHelp.astro';
 		private renderHeatmap(player: PlayerPayload) {
 			this.clearCourtLayers();
 			requireElement<HTMLElement>(this, '[data-map-help]').hidden = false;
+			requireElement<HTMLElement>(this, '[data-shot-guide]').hidden = true;
 			const cellsLayer = requireElement<SVGGElement>(this, '[data-heatmap-cells]');
 			const markersLayer = requireElement<SVGGElement>(this, '[data-destination-markers]');
 			requireElement<HTMLElement>(this, '[data-heat-legend]').hidden = false;
 			requireElement<HTMLElement>(this, '[data-shot-legend]').hidden = true;
 			requireElement<HTMLElement>(this, '[data-court-mode-label]').textContent =
-				'Estimated chance of making a shot';
+				'Make-chance map · estimated ability';
 			requireElement<SVGTitleElement>(this, '[data-court-title]').textContent =
 				`${player.player_name}, ${player.season}: estimated chance of a make by court area`;
 			requireElement<SVGDescElement>(this, '[data-court-description]').textContent =
@@ -1303,7 +1311,7 @@ import DefinitionHelp from './DefinitionHelp.astro';
 			} else {
 				title.textContent = 'No Clear Area for Moving Shots';
 				copy.textContent =
-					'No area has both enough shots and enough evidence of an advantage over this player’s current shot mix. You can still view their past shots and Shooting Map, but no extra-points estimate or score is available.';
+					'No area has both enough shots and enough evidence of an advantage over this player’s current shot mix. You can still view their past shots and Make-chance map, but no extra-points estimate or score is available.';
 			}
 			this.slider.disabled = true;
 			this.slider.value = '0';
@@ -1384,6 +1392,8 @@ import DefinitionHelp from './DefinitionHelp.astro';
 			const seasonName = this.seasonLabel(this.currentPlayer.season as SeasonId);
 			requireElement<HTMLElement>(this, '[data-moved-count]').textContent =
 				`Equal to ${result.actual_relocated_attempt_equivalents.toFixed(2)} shots in the calculation`;
+			requireElement<HTMLElement>(this, '[data-fraction-note]').hidden =
+				this.courtView !== 'combined' || Math.abs(result.actual_relocated_attempt_equivalents - Math.round(result.actual_relocated_attempt_equivalents)) < 1e-9;
 			const capNote = requireElement<HTMLElement>(this, '[data-cap-note]');
 			capNote.hidden = result.actual_relocated_share + 1e-9 >= share;
 			capNote.textContent = `You asked for ${percent}%. The model can move ${oneDecimal(result.actual_relocated_share * 100)}% before suitable source shots or receiving-area space runs out.`;
@@ -1413,6 +1423,7 @@ import DefinitionHelp from './DefinitionHelp.astro';
 
 		private clearResult(playerName: string, message: string) {
 			document.dispatchEvent(new Event('close-definitions'));
+			requireElement<HTMLElement>(this, '[data-shot-guide]').hidden = true;
 			requireElement<HTMLElement>(this, '[data-map-help]').hidden = true;
 			requireElement<HTMLElement>(this, '[data-cell-detail]').textContent = message;
 			requireElement<SVGDescElement>(this, '[data-court-description]').textContent = message;
@@ -1862,7 +1873,16 @@ import DefinitionHelp from './DefinitionHelp.astro';
 		font-weight: 600;
 		line-height: 1;
 	}
-	.controls-panel { align-self: start; }
+	.controls-panel { align-self: start; padding: 0; border: 0; background: transparent; gap: var(--space-s); }
+	.guide-step { display: flex; align-items: baseline; gap: var(--space-xs); margin: 0 0 var(--space-s); font-size: 1.15rem; line-height: 1.35; }
+	.guide-step span { font-family: var(--font-numeric); font-size: 1rem; border-bottom: var(--rule-thick) solid var(--green); }
+	.court-guide { margin: 0 0 var(--space-s); font-size: var(--type-small); }
+	.court-guide[hidden] { display: none; }
+	.controls-panel .view-options { grid-template-columns: 1fr; }
+	.controls-panel .view-options label { justify-content: start; text-align: start; }
+	.controls-panel .slider-label { grid-template-columns: minmax(0, 1fr) 44px; }
+	.controls-panel .slider-label output { grid-column: 1 / -1; justify-self: start; }
+	.controls-panel .view-controls { margin-bottom: var(--space-s); }
 	.metrics-panel[hidden] { display: none; }
 	.metrics-panel,
 	.disclaimer { grid-column: 1 / -1; }
@@ -1958,7 +1978,7 @@ import DefinitionHelp from './DefinitionHelp.astro';
 		.gain-grid { display: contents; }
 		.score-block { margin-top: 0; }
 		.explorer-plot {
-			grid-template-columns: minmax(0, 1.5fr) minmax(19rem, 1fr);
+			grid-template-columns: minmax(15rem, 0.75fr) minmax(0, 1.6fr);
 			padding: var(--space-m);
 		}
 	}
@@ -1968,8 +1988,10 @@ import DefinitionHelp from './DefinitionHelp.astro';
 			padding: var(--space-xs);
 		}
 		.court-title-row {
-			align-items: end;
+			align-items: start;
+			flex-wrap: wrap;
 		}
+		.controls-panel { padding: 0; }
 		.court-title-row h3 {
 			font-size: 1.35rem;
 		}
