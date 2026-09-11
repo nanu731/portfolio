@@ -1,6 +1,8 @@
 # Plain-language NBA preview review
 
-Verified 10 September 2026. Local review only; no merge or deployment is approved.
+Historical review record beginning 10 September 2026. The final section records
+Narayan's deployment approval, the completed release preflight, and the blocked
+push. Earlier approval boundaries describe their respective sessions.
 
 ## Starting point and scope
 
@@ -576,3 +578,61 @@ Review the final preview and complete the hands-on checks before granting furthe
 approval. Main, analytics, all data exports, dependencies, and hosting are unchanged.
 The untracked prototype and 2,309-byte layout test retain their recorded hashes
 and are excluded from every commit.
+
+## Release preflight and permission blocker, 11 September 2026
+
+Recovered `codex/nba-plain-language-copy` at `e4d65bb`, with the six local commits
+since remote `7433871` intact. Fetched origin and checked direct remote references:
+local and remote main both remained `c1e39fc`. The index and tracked working tree
+were clean, with no conflicts or Git locks. The complete 11-file feature diff
+contains only the approved copy, Option B presentation, contextual help, references,
+associated styles, metadata placement opt-in, and documentation. Public assets,
+JSON exports, dependencies, and hosting configuration have no diff against main.
+
+Fresh `npm run build` passed at 01:42:21 local time: six pages in 3.33 seconds.
+Only existing empty-blog warnings appeared. The existing port-4323 server served
+the fresh build without starting another server. No application repair was needed.
+
+Repeated preflight checks:
+
+- LeBron/2025–26/zero preloads with all three reference disclosures closed.
+- All five LeBron seasons load in both views with 156 map cells. Newest-to-oldest
+  scores remain 86.8, 88.5, 88.8, 86.3, and 88.3.
+- All six 2025–26 settings produce season gains 0, +35, +68, +99, +128, +157;
+  per-100 values 0.0, +3.9, +7.4, +10.7, +14.0, +17.0. Score stays 86.8.
+- `LuKa... don-cic` finds Luka Dončić. Selection loads Luka, and a change to
+  2024–25 preserves him with slider zero. Chris Paul's 2024–25 unavailable
+  relocation hides metrics. His 2025–26 transition explains 56 shots/16 games
+  without substituting another player. Reset restores LeBron/2025–26/zero.
+- Wembanyama at 25% retains 22.5% movement, +184 points, and score 87.0.
+- Definition, formula, and methodology actions open/focus their exact targets;
+  Back restores the originating term and 25% selection. Mouse clicks and keyboard
+  Enter/Space work; Tab reaches the action and Escape restores trigger focus.
+- The 14-pair semantic key precedes seven equations, with CSS dotted leaders
+  hidden from the accessibility tree. At 1440×1000, exact 375×812, and 720×500
+  reflow, checked controls, rows, equations, and page have no horizontal overflow.
+  The numbered Choose/Set/Read order matches the mobile document order.
+- Current browser logs after 05:42:21 UTC contain no application warnings/errors.
+  The native zoom shortcut changed neither viewport width nor pixel ratio. The
+  browser API exposes no free pointer-movement action. Native zoom and pointer
+  transit remain unverified, as do physical touch and screen-reader speech.
+- Request logs show one root manifest/catalog load at 05:42:45 UTC. Typing the
+  normalized Luka query added no player request. Selecting him requested only
+  his selected-season payload at 05:43:30.875. Season changes fetch the active
+  index and selected player, never the complete bundle.
+
+The push command was rejected before execution. The permission reviewer stated
+that the attachment did not satisfy its requirement for direct user authorization
+to publish this branch externally. No workaround or retry was attempted. No
+feature push, main checkout, merge, main push, or deployment ran. Live acceptance
+tests and deployed-file hash checks therefore remain pending, not failed.
+
+Narayan's attachment approves those actions. The remaining permission step is to
+confirm them in the chat body. Reuse this preflight after a brief state check;
+do not recreate the implementation. Both untracked artifacts retain their original
+hashes and sizes recorded above and are excluded from commits.
+
+Current captures are outside production files in
+`/Users/narayanlekhi/.codex/visualizations/2026/09/05/01a06fff-1e92-7d90-89cf-0a912c4ba691/nba-plain-language-deployment/`:
+`preflight-desktop.jpg` and `preflight-mobile-controls.jpg`. Earlier complete
+desktop/mobile court and formula galleries remain preserved.

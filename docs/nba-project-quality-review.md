@@ -87,8 +87,14 @@ checks, and make dense mobile results easier to inspect. Close the publishing
 check and protect the fragile interaction paths with repeatable tests. More
 seasons, more models, or a larger interface would not address the current gaps.
 
-## Decision
+## Review-stage decision
 
 Narayan should review the new key and final Option B screenshots, complete or
 arrange the hands-on checks, and approve any follow-up work by scope. Approval of
 this assessment does not authorize its recommendations, a push, merge, or deployment.
+
+Subsequent release status: Narayan approved deployment of the completed redesign
+in a separate request. The permission system rejected the feature push because
+the authorization was in the attachment rather than direct chat. Production
+remains unchanged. The recommendations above remain unimplemented; the release
+request does not expand their scope.
