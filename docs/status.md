@@ -36,9 +36,10 @@ Highlighted terms open short explanations through mouse hover, keyboard focus, o
 click and tap-style selection. Escape and outside clicks close them. Only one opens
 at a time. Definitions retains all twelve approved terms with shorter explanations.
 
-Important limitations remains visible after the results. It describes the simplified
-thought experiment, limited control over shot opportunities, missing defensive and
-game context, health and shot-creation factors, and potential optimism at higher volume.
+Important limitations remains visible after the results. Fourteen single-sentence
+bullets replace the longer notice; thirteen contain fewer than eighteen words.
+They cover limited control over shot opportunities, missing defensive and game
+context, health and shot-creation factors, and potential optimism at higher volume.
 It also explains court-cell simplification, project rules, historical-season scope,
 missing estimates, within-model ranges, the self-relative score, one-area caution,
 free-throw omissions, and the hypothetical markers. It rules out coaching and betting use.
@@ -55,13 +56,18 @@ median of scores limited to 0–100, and explain the feasible 25% score scenario
 
 This preview awaits visual and wording approval. It has not been merged or deployed.
 
-## Verified in this session
+## Verification record
 
-The final production build passed after the limitations and reference revisions.
+The latest production build passed after shortening the limitations notice.
 Its warnings concern the existing empty blog collection.
-No dependency was added. The built page passed local browser checks for LeBron in all
+No dependency was added. Earlier checks of the same explorer covered LeBron in all
 five seasons, player persistence, both court views, every slider setting, normalized
 search, unavailable seasons, reset, and delayed rapid player selections.
+
+The latest copy-only check repeated LeBron and Wembanyama's results, reference
+disclosure keyboard and click behavior, initial collapsed states, and desktop,
+375-pixel, and half-width reflow measurements. Typing made no data request;
+selecting Wembanyama requested his player file and no other player file.
 
 LeBron's 2025-26 score remains 86.8. At 25%, the page shows +157 points, a range of
 129 to 183, and +17.0 points per 100 shots. At zero, gains return to zero and the

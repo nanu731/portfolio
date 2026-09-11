@@ -280,3 +280,40 @@ Narayan should review the visible notice's length, the three closed references, 
 the key-first notation. Only the preview branch is authorized for this push; a merge
 or deployment requires separate approval. A general notation-order lesson was logged
 outside the repository for later skill review; no skill was changed.
+
+## Short notice verification, 11 September 2026
+
+Recovered pushed `9c126b8`, ahead of the five commits listed in the new request.
+Remote and local main remain `c1e39fc`. No tracked changes or Git locks existed.
+The visible notice, three sibling disclosures, and complete key-first formulas
+already existed; none was duplicated. Only the notice required correction.
+
+Fourteen one-sentence bullets replace ten long bullets and their background prose.
+Thirteen bullets are under eighteen words; the longest is nineteen. The list
+retains the requested basketball limitations plus health/travel, technique,
+free-throw omissions, eligibility, and receiving-capacity caveats from the prior
+audit. Existing methodology and formulas retain technical details, including
+the cap's treatment of pre-existing concentration above 50% and per-cell
+point value `2 + observed three-point-attempt share`.
+
+Production build passed at 00:25 local time: six pages, 2.92 seconds, with the
+existing empty-blog warnings. Definitions, How the model works, and Formulas
+are sibling native disclosures without `open`; all passed Enter, Space, and
+mobile click checks. Native accessibility reports collapsed states; keyboard
+focus has a visible outline. The fourteen-entry variable key precedes seven
+unchanged equations. No page, notice, key, or equation overflow occurred at
+1440px, exact 375px, or 720px reflow (200%-equivalent, not browser zoom).
+
+LeBron's 25% result stays +157 points (129–183), +17.0 per 100, score 86.8;
+his court retains 919 markers, 230 moved markers/origins including the fractional
+boundary, and 156 map cells with two evidence markers. Wembanyama stays at
+22.5% movement, +184 points (156–211), +17.1 per 100, and score 87.0.
+Request logs show one manifest, catalog, and active index load, no requests
+from typing, and only Wembanyama's selected player request on selection.
+The console contains no application warnings/errors. Explorer, popovers,
+formulas, styles, and exports match the recovered commit without modification.
+
+Screenshots for this pass are in the external `nba-court-clarity-options-review`
+directory beside earlier review sets. Court design work will use separate
+review-only mockups; this copy correction does not apply a court redesign.
+Physical-device touch and screen-reader speech have not been tested.
