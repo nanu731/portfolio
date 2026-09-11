@@ -1,8 +1,11 @@
 # NBA court clarity: three review options
 
-11 September 2026. Proposals only. Narayan has not selected an option.
+11 September 2026. Narayan approved **B: Follow the change**, with the view names
+**Shot locations** and **Make-chance map**. The shared explorer now implements B
+on the private preview branch. Final visual approval and deployment remain pending.
+The alternatives and screenshots below record the earlier proposal stage.
 
-## Recommendation
+## Original recommendation, before Narayan selected B
 
 Choose **A: Court-side guide** if the priority is immediate comprehension with
 the smallest implementation change. One court stays large, its heading names
@@ -33,7 +36,7 @@ Shot coordinates, outcomes, marker opacity, cells, fills, and court geometry
 are unchanged. Paired courts receive distinct accessibility IDs.
 No statistical calculation runs in the prototypes.
 
-The shared explorer remains untouched. Temporary HTML, CSS, JavaScript, SVGs,
+At the proposal stage, the shared explorer remained untouched. Temporary HTML, CSS, JavaScript, SVGs,
 and screenshots live outside the production repository at:
 
 `/Users/narayanlekhi/.codex/visualizations/2026/09/05/01a06fff-1e92-7d90-89cf-0a912c4ba691/nba-court-clarity-options-review/`
@@ -215,10 +218,14 @@ Earlier review artifacts remain preserved.
 [Short notice, mobile](/Users/narayanlekhi/.codex/visualizations/2026/09/05/01a06fff-1e92-7d90-89cf-0a912c4ba691/nba-court-clarity-options-review/mobile-limitations.jpg) ·
 [Mobile variable key](/Users/narayanlekhi/.codex/visualizations/2026/09/05/01a06fff-1e92-7d90-89cf-0a912c4ba691/nba-court-clarity-options-review/mobile-variable-key.jpg)
 
-## Decision needed
+## Current decision needed
 
-Narayan should choose **A, B, or C**, including the two view names shown for that
-option, or identify specific elements to combine. A is the recommendation.
-After approval, implement that choice in the existing shared explorer, retain
-the data and calculations, and run the full behavioral and accessibility checks.
-No option is authorized for implementation or deployment by this document.
+Option B and its two view names are approved and implemented in the existing
+shared explorer. The six slider settings, all player-season behavior, geometry,
+data, and calculations remain intact. The new popup actions link exact entries.
+The latest verification record is in `nba-plain-language-preview-review.md`.
+Narayan should review the implemented desktop/mobile layout and manually check
+hover transit into a popup button. Definition actions now say See all definitions,
+and the formula key uses aligned desktop rows and separated mobile pairs.
+The quality assessment is in `nba-project-quality-review.md`. The latest request
+authorizes local commits only. Pushing, merging, and deployment need separate approval.

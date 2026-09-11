@@ -340,3 +340,239 @@ formulas, and network code in the functioning explorer remain untouched.
 Only a recommendation was made; Narayan must choose a court option before work
 on the component. The screenshot tool's stitched output duplicated content, so
 the final review uses separate viewport captures for long sections.
+
+## Implemented Option B and exact detail links, 11 September 2026
+
+### Recovery and scope
+
+Recovered clean tracked state at pushed `7433871`, including `b69a743`.
+Both local and GitHub main remain `c1e39fc`. Existing preview server on port
+4323 was reused; no duplicate process was started or existing process stopped.
+The local layout test remains untracked, 2,309 bytes, SHA-256
+`0080c804c394d15dfa9d29f05b258a9c57110a53877becb202ec7514c47aabe3`.
+The untracked LeBron prototype retains SHA-256
+`18e3488cc373773f1bf04b0df76f95a568f08db7f4944984da5b8b973e748548`.
+
+Narayan selected B after the preceding proposal record. The implementation changes
+the shared explorer, not the isolated mockups. `cc0c4da` implements the numbered
+sequence; `6f6623b` adds detail navigation and accessibility corrections.
+At that stage, the request authorized a preview-feature push. The final-refinement
+request below supersedes that authorization and permits local commits only.
+
+Git result at the end of that session: local implementation commits were `cc0c4da`, `6f6623b`, and
+`a9922ef` (fresh-visit origin guard). The permission reviewer rejected the
+documentation commit and feature push twice, treating the older visual-approval
+gate as controlling even after the latest attachment's line 166 was quoted.
+No rejected command ran. Three documentation files remained uncommitted and
+the remote preview branch remained `7433871`. No bypass was attempted. The
+final-refinement session below resolves the local documentation commit; it does
+not attempt a push.
+
+### Court and data checks
+
+Actual DOM order is choose view, set movement, read court. Desktop uses a left
+control column and one large right court; 375px stacks the same DOM.
+Shot locations and Make-chance map replace the prior names, including the reset
+announcement and missing-evidence explanation. Controls and legends remain outside
+the court. Historical circles/crosses, cyan diamonds, origin rings, and fractional
+opacity retain the same rendering calculations. The fractional note hides at zero
+and in the map view. A new player/season returns to historical zero.
+
+LeBron 2025-26 remains 919 attempts, 473 makes and 446 misses. At requests
+0/5/10/15/20/25, season gains are 0/+35/+68/+99/+128/+157; per-100 gains
+0.0/+3.9/+7.4/+10.7/+14.0/+17.0. Score stays 86.8.
+Moved marker/origin counts are 0/46/92/138/184/230. At 25%, 229.75 attempt
+equivalents include the faded boundary diamond. Zero restores identical marker HTML.
+
+All five LeBron seasons loaded in both views with 156 map cells. Newest to oldest
+shot counts: 919/1268/1268/1219/1221; scores: 86.8/88.5/88.8/86.3/88.3.
+Map position, size, and fill attributes remain unchanged as the slider moves;
+the active inspection outline can change when the pointer crosses an area.
+Keyboard area inspection and the five fixed numeric bins remain available.
+
+Wembanyama stays at 22.5% actual movement for a 25% request, 243 markers,
++184 points and score 87.0. His committed allocation confirms final share 0.5.
+Chris Paul 2024-25 retains 581 shots (249 makes, 332 misses), a 156-cell map,
+and hidden unavailable gains/score. His 2025-26 transition explains 56 eligible
+shots across 16 games; reset returns LeBron/2025-26/zero.
+A deliberate Jokić selection persisted into 2024-25.
+
+The existing server's 600ms player delay exercised overlapping requests:
+Luka selection at 05:07:59.598 UTC, Jokić selection at 05:07:59.888 UTC.
+Only Jokić remained displayed. Accent/punctuation matching found Luka Dončić from
+`LuKa... don-cic` and Nikola Jokić from `nikola jokic`.
+Logs from 05:06:45 show one root manifest, catalog, active index, and default
+LeBron payload. Typing `wEMB` fetched nothing; selection requested only
+Wembanyama's file at 05:06:54.725. No complete-bundle download occurred.
+
+### Popup mapping and navigation at that stage
+
+| Inline term | Action | Exact target |
+| --- | --- | --- |
+| Shot relocation | See full definition | definition-relocation |
+| Shots to Move | See full definition | definition-shots-to-move |
+| Estimate from One Area | See full definition | definition-one-area |
+| Make-chance map | See how the model works | method-shooting-chances |
+| Area with Evidence for Moving Shots | See how the model works | method-receiving-areas |
+| Extra Points in selected season | See the formula | formula-season-gain |
+| Estimated Range (90%) | See the formula | formula-range |
+| Extra Points per 100 Shots | See the formula | formula-per-100 |
+| Shot Selection Score | See the formula | formula-score |
+
+All nine actions reached their headings, opened the correct native disclosure,
+and removed the popup. Reused dynamic terms keep the same targets across slider
+and season updates. Dedicated copy spans prevent result updates from deleting
+the buttons. Distinct popup/entry ID namespaces fix a collision found in testing;
+the rendered document has no duplicate IDs.
+
+Buttons retain Enter/Space activation. Tab moves from trigger to action;
+Shift+Tab returns. Escape closes the panel and returns focus from its action.
+Outside clicks close it. Target headings have programmatic focus and a visible
+outline without joining the normal tab order. Actions carry target relationships.
+Browser Back restores the originating term and preserves player, season, slider
+and results; a final per-100 test returned with LeBron, 25%, and +157 points.
+Fragments link exact entries. A fragment guard prevents ordinary section navigation
+from restoring an unrelated origin.
+
+Hover now covers trigger and panel with a 200ms transit allowance, and a hovering
+term cannot steal a different popup's keyboard focus. Free-pointer hover/transit
+was reviewed in code but NOT exercised with an unpressed mouse: the browser API
+offers no free pointer-move action. This needs Narayan's manual check.
+Mobile click activation is touch-style, not a physical-device touch test.
+
+### Build, preservation, and visual limits
+
+Final build passed at 01:14:18 local time: six pages, 3.05 seconds. Only existing
+empty-blog warnings appeared. There is no separate test script in the package.
+The final console check caught a false-valued missing origin reaching an element
+method. A type guard fixed it before push. A fresh tab then loaded LeBron/zero
+with all references closed and no console errors or warnings. Back and direct
+formula-link checks also passed with no new errors after the fix.
+
+1440px desktop, exact 375px mobile and 720×500 reflow showed no horizontal
+overflow, clipped popup buttons, overlapping controls or formula overflow.
+The 720px check represents 200%-equivalent reflow, not native browser zoom.
+Screen-reader speech and physical touch were not tested.
+Green text measures 7.52:1 on cream and 5.01:1 on sand.
+The one-area label changed from rust to green to fix its 3.72:1 sand contrast.
+Shape keys and numeric map labels supplement color; origin rings remain faint
+secondary marks. Mobile needs scrolling from controls to court, as specified by B.
+
+Exact comparisons against recovered `7433871` confirm unchanged shot/cell rendering
+loops, court-line geometry, purpose paragraph, fourteen limitations, variable key,
+and all seven equation lines. Tracked public assets show no diff. No analytics,
+models, data, legacy bundles, prototypes or production branch changed.
+The interface-review skill informed DOM/focus/contrast checks; the writing skill
+kept new guidance concise. A reusable dynamic-popup observation was logged outside
+the repository for later skill review; no skill was changed.
+
+### Screenshots and approval
+
+[Complete visual gallery](/Users/narayanlekhi/.codex/visualizations/2026/09/05/01a06fff-1e92-7d90-89cf-0a912c4ba691/nba-option-b-detail-navigation-review/review.md)
+
+- [Desktop, recorded shots at 0%](/Users/narayanlekhi/.codex/visualizations/2026/09/05/01a06fff-1e92-7d90-89cf-0a912c4ba691/nba-option-b-detail-navigation-review/desktop-0.jpg)
+- [Desktop, relocated shots at 25%](/Users/narayanlekhi/.codex/visualizations/2026/09/05/01a06fff-1e92-7d90-89cf-0a912c4ba691/nba-option-b-detail-navigation-review/desktop-25.jpg)
+- [375px, controls before the court](/Users/narayanlekhi/.codex/visualizations/2026/09/05/01a06fff-1e92-7d90-89cf-0a912c4ba691/nba-option-b-detail-navigation-review/mobile-controls-25.jpg)
+- [375px, relocated court](/Users/narayanlekhi/.codex/visualizations/2026/09/05/01a06fff-1e92-7d90-89cf-0a912c4ba691/nba-option-b-detail-navigation-review/mobile-court-25.jpg)
+- [375px, historical court](/Users/narayanlekhi/.codex/visualizations/2026/09/05/01a06fff-1e92-7d90-89cf-0a912c4ba691/nba-option-b-detail-navigation-review/mobile-court-0.jpg)
+- [Map explanation and fixed legend](/Users/narayanlekhi/.codex/visualizations/2026/09/05/01a06fff-1e92-7d90-89cf-0a912c4ba691/nba-option-b-detail-navigation-review/make-chance-map.jpg)
+- [Popup with See full definition](/Users/narayanlekhi/.codex/visualizations/2026/09/05/01a06fff-1e92-7d90-89cf-0a912c4ba691/nba-option-b-detail-navigation-review/popup-definition.jpg)
+- [Opened and focused definition](/Users/narayanlekhi/.codex/visualizations/2026/09/05/01a06fff-1e92-7d90-89cf-0a912c4ba691/nba-option-b-detail-navigation-review/focused-definition.jpg)
+- [Popup with See the formula](/Users/narayanlekhi/.codex/visualizations/2026/09/05/01a06fff-1e92-7d90-89cf-0a912c4ba691/nba-option-b-detail-navigation-review/popup-formula.jpg)
+- [Opened and focused formula](/Users/narayanlekhi/.codex/visualizations/2026/09/05/01a06fff-1e92-7d90-89cf-0a912c4ba691/nba-option-b-detail-navigation-review/focused-formula.jpg)
+- [Mobile popup](/Users/narayanlekhi/.codex/visualizations/2026/09/05/01a06fff-1e92-7d90-89cf-0a912c4ba691/nba-option-b-detail-navigation-review/mobile-popup.jpg)
+- [Mobile focused definition](/Users/narayanlekhi/.codex/visualizations/2026/09/05/01a06fff-1e92-7d90-89cf-0a912c4ba691/nba-option-b-detail-navigation-review/mobile-focused-definition.jpg)
+- [200%-equivalent reflow](/Users/narayanlekhi/.codex/visualizations/2026/09/05/01a06fff-1e92-7d90-89cf-0a912c4ba691/nba-option-b-detail-navigation-review/reflow-focused-formula.jpg)
+- [Concise limitations](/Users/narayanlekhi/.codex/visualizations/2026/09/05/01a06fff-1e92-7d90-89cf-0a912c4ba691/nba-option-b-detail-navigation-review/limitations.jpg)
+- [Notice ending and three closed references](/Users/narayanlekhi/.codex/visualizations/2026/09/05/01a06fff-1e92-7d90-89cf-0a912c4ba691/nba-option-b-detail-navigation-review/limitations-and-closed-references.jpg)
+
+These are viewport captures, not stitched full-page images. The mobile controls
+and court appear in separate frames of the same shared component. Narayan should
+review Option B, popup hover transit and detail navigation before approving any
+merge or deployment. No new dependency, deployment, pull request or main push
+was authorized or performed.
+
+## Final refinements and quality review, 11 September 2026
+
+### Recovery and changes
+
+Recovered branch `codex/nba-plain-language-copy` at `a9922ef`, with local commits
+`cc0c4da` and `6f6623b` retained. The three preceding documentation changes were
+preserved. Direct remote inspection confirmed feature `7433871` and main
+`c1e39fc`, matching their local remote-tracking references. Local main remains
+`c1e39fc`. The existing preview server on 4323 was reused.
+
+`494f78e` changes the default definition action and the two explicit explorer
+labels to **See all definitions**. All three actions keep their exact destination;
+the four formula actions and two methodology actions retain their specific labels.
+No navigation or chart JavaScript changed in these refinements.
+
+`67b7934` groups each formula variable and definition in one semantic definition-list
+row. Desktop keeps consistent left and right columns with CSS dotted leaders.
+At widths through 40rem, each term sits above its meaning with a row separator.
+Decorative leader spans have `aria-hidden="true"`. All 14 entries retain their
+original order and wording; all seven equation lines remain byte-identical.
+The rest of the project write-up is byte-identical to recovered `a9922ef`.
+
+### Focused verification
+
+All nine routes passed activation, popup closure, correct disclosure opening,
+exact fragment, heading focus, and browser Back:
+
+| Term | Action | Target |
+| --- | --- | --- |
+| Shot relocation | See all definitions | definition-relocation |
+| Shots to Move | See all definitions | definition-shots-to-move |
+| Estimate from One Area | See all definitions | definition-one-area |
+| Make-chance map | See how the model works | method-shooting-chances |
+| Area with Evidence for Moving Shots | See how the model works | method-receiving-areas |
+| Extra Points in selected season | See the formula | formula-season-gain |
+| Estimated Range (90%) | See the formula | formula-range |
+| Extra Points per 100 Shots | See the formula | formula-per-100 |
+| Shot Selection Score | See the formula | formula-score |
+
+Focused headings sit about 24 pixels below the viewport top with a visible outline.
+Back restores the originating term and preserves the selected player and slider.
+Enter and Space activate buttons. Tab reaches the action, Shift+Tab returns to
+the trigger, and Escape closes the popup and restores trigger focus. The mobile
+Shots to Move route also passed at 375 pixels with LeBron's 25% value preserved.
+
+At 1440×1000 every desktop definition starts at the same horizontal coordinate.
+At exact 375×812 the meanings occupy one consistent full-width inset below their
+terms. At 720×500 every definition remains aligned and no row overflows.
+All three sizes have no horizontal document overflow. The accessibility snapshot
+lists 14 terms followed by their definitions and omits the decorative leaders.
+There are no duplicate IDs. The 720-pixel check represents 200%-equivalent reflow,
+not native zoom. Screen-reader speech, physical touch, and free-pointer hover
+transit remain hands-on checks, not claimed passes.
+
+LeBron at 25% still shows +157 points, 129–183, +17.0 per 100, and score 86.8.
+Returning to zero restores identical historical marker markup and zero season gain.
+Wembanyama still shows 22.5% movement, +184 points, 156–211, +17.1 per 100, and
+score 87.0. The broader season, cap, unavailable-player, and network/race tests
+recorded above were reused, not rerun in full. No data-loading code changed.
+
+The final source build passed at 01:30:31 local time, six pages in 2.93 seconds.
+It used the approved existing-font network path and added no dependency.
+Warnings concern the existing empty blog collection. There is no separate package
+test script. Browser error/warning logs contain no new entries during the focused
+checks after 05:27 UTC. Source comparison and `git diff --check` passed.
+
+### Review, screenshots, and approval
+
+The private assessment in `nba-project-quality-review.md` rates the project 7.5/10.
+It separates observed checks from subjective judgments and documents five ranked
+improvements. None is implemented by this session. The interface-review skill
+guided row alignment and reflow checks; the writing skill guided the assessment.
+
+[Final screenshot gallery](/Users/narayanlekhi/.codex/visualizations/2026/09/05/01a06fff-1e92-7d90-89cf-0a912c4ba691/nba-final-key-quality-review/review.md)
+
+The gallery contains the new popup, focused definition, desktop/mobile variable
+keys, half-width reflow, desktop court, and separate phone controls/court frames.
+Earlier screenshots and prototypes remain preserved. These are viewport captures.
+
+Narayan authorized local implementation and documentation commits, but no push.
+Review the final preview and complete the hands-on checks before granting further
+approval. Main, analytics, all data exports, dependencies, and hosting are unchanged.
+The untracked prototype and 2,309-byte layout test retain their recorded hashes
+and are excluded from every commit.
