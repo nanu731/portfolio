@@ -1,86 +1,110 @@
 # Portfolio site status
 
-Snapshot for a reader new to the site. Updated 6 September 2026.
+Snapshot for a reader new to the site. Updated 11 September 2026.
 
-## What is stable
+## Public site
 
-The visual system remains unchanged. Cream is the dominant surface, dark green carries
-type and rules, sand belongs to charts and tables, and rust marks focus and links. The
-page still uses full-width bands, shifting prose offsets, and a fixed figure gutter.
+The deployed five-season explorer has not changed during this preview session.
+Local and GitHub production branches still point to the combined-view release.
+The public page retains its earlier wording; the last live fetch on 11 September
+preceded this implementation. This session did not deploy or change hosting.
 
-The NBA project uses the verified five-season capped targeted spatial export. The season
-indexes contain 318 players in 2025-26, 304 in 2024-25, 281 in 2023-24, 292 in 2022-23,
-and 312 in 2021-22. Together they contain 1,507 analyzed player-seasons, 968,595
-historical shots, and 156 modeled court cells per analysis. Each player-season has six
-settings from 0% through 25%.
+## Private review preview
 
-The explorer opens with LeBron James in 2025-26. Its season menu lists all five seasons
-from newest to oldest. A reader who selects another player can change seasons without
-losing that player when the new season has an analysis for the same NBA player ID. The
-explorer names the player and season when no analysis exists, explains whether the data
-has no recorded shots or the player missed model eligibility, and offers a reset to the
-default LeBron view.
+Narayan approved Follow the change. The shared explorer now presents three steps:
+Choose what to see, Set the change, and Read the court. The controls sit beside
+one large court on desktop. Mobile puts those controls before the court in the
+document's reading order.
 
-The browser loads the root availability catalog once, then the active season index and
-one selected player file. Focusing the search field shows every analyzed player for the
-active season in a bounded list. Typing ignores accents and punctuation, ranks prefix
-matches first, and preserves the original display name. Before shows green circles for
-historical makes and rust crosses for misses at the 0% slider setting. Raising the
-slider updates the same Before & After court with hypothetical relocations as cyan
-diamonds and faint rings at their origins. Modeled Ability remains a separate view with
-one fixed probability scale and supported destinations.
+The two views are Shot locations and Make-chance map. Zero movement shows recorded
+makes as green circles and misses as rust crosses. Positive movement adds cyan
+hypothetical locations and faint origin rings; a faded diamond represents a
+partial attempt when needed. Requested and achieved movement stay separate.
+The map retains its fixed numeric scale, evidence diamonds, and individual-area
+inspection. Its guide explains that the slider changes scoring estimates, not ability.
 
-Players with feasible relocation receive a Shot Selection Score with a 90% interval and
-the six-step relocation control. One-location results carry a single-destination label.
-The page reports requested and actual relocated shares, season gains as whole points,
-and gains per 100 shots to one decimal place. The zero setting displays zero gain.
-Unavailable values stay null and receive a reason instead of a substitute zero.
+Highlighted terms retain short explanations. Nine contextual buttons now open an
+exact definition, method explanation, or formula. Each action closes its popup,
+opens the correct reference, and puts visible keyboard focus on the matching
+heading. Browser Back returns to the term without resetting the player or slider.
+Dynamic explanations retain their buttons when the displayed numbers change.
+The three definition actions now say See all definitions; formula and method
+actions keep their specific labels. They still open the matching entry.
 
-## What was verified
+The three-sentence purpose paragraph and fourteen concise limitations remain
+unchanged. Definitions, How the model works, and Formulas follow the limitations
+as separate, initially closed dropdowns. Direct links to detailed entries open
+their containing dropdown. The variable key still precedes seven unchanged
+equations, including the verified cell point value and missing-value conventions.
+Each of its fourteen terms now pairs with its meaning in one aligned row, with
+dotted leaders on desktop and separated stacked pairs on mobile. The wording
+and equations did not change.
 
-The analytics and portfolio version-four copies contain the same 1,514 JSON files and
-280,809,899 bytes. A directory comparison found no differences. The manifest SHA-256 is
-`685aa02b5003cb292fbe0926b242a351200f0cd785a169c31942f8518ac03242`; the root
-availability-catalog SHA-256 is
-`e78e4c68ba22e74e45b95bb5b26d6b4a7a01494a271e96016cbd9318e923732e`. Two export
-builds matched byte for byte. The complete 2025-26 subtree matches version three.
+## Verification
 
-Focused analytics tests covered zero, one, and multiple supported destinations;
-fractional source boundaries; exhausted source and destination capacity; proportional
-redistribution after a cap binds; outcome-independent movement; and Victor Wembanyama's
-single-destination case. Every receiving destination finishes at or below 50%.
+The fresh pre-deployment build passed on 11 September. Its warnings concern the
+existing empty blog collection; no dependency was added.
 
-The production site build completed with the NBA page included. Browser checks covered
-LeBron in all five seasons, preserved player IDs, both unavailable reasons, all three
-evidence states, accent and punctuation normalization, pointer and keyboard selection,
-Escape, outside clicks, no results, and rapid season and player changes. Network records
-showed one root catalog request and requests for the active season index and chosen
-player. The browser console reported no warnings or errors.
+The release preflight repeated all five LeBron seasons in both views, all six
+slider settings, normalized search, player persistence, Chris Paul's unavailable
+season and reset, and Wembanyama's capped result. Reference actions passed exact
+focus, fragments, and Back checks. The request record shows one catalog load,
+no player request from typing, and one selected-player request on selection.
+The key retains fourteen accessible pairs before seven formulas. Desktop,
+375-pixel mobile, and half-width reflow had no horizontal overflow. No new
+application console errors appeared. No interface repair was needed.
 
-The combined-view browser checks covered every 0% through 25% slider setting. The 0%
-state reproduced the historical marker markup, positive settings added cyan relocation
-markers and origin rings, and fractional boundary markers retained reduced opacity.
-Player, season, unavailable-player, and full reset paths returned the court to 0%.
-Modeled Ability preserved a nonzero slider value without changing the heatmap.
+The preceding Option B checks covered LeBron in all five seasons and both views, all six slider
+settings, Wembanyama's capped one-area result, and Chris Paul's missing estimates.
+Normalized search, player persistence, an unavailable season, reset, and overlapping
+player requests retained their behavior. Typing made no request; selecting a
+player fetched that player's file. The catalog loaded once per page load.
+The final refinement check repeated all nine reference routes, exact focus and
+Back, keyboard order, mobile definition navigation, both reference players, and
+the revised key at desktop, phone, and half-width sizes. It did not repeat the
+entire season or network suite; the loading and chart code did not change.
 
-Desktop, 375-pixel mobile, and 200%-equivalent reflow checks found no horizontal
-overflow, clipped controls, overlapping labels, or court-alignment problem. The score,
-legend, slider, intervals, definitions, and caveats remained readable.
+LeBron's score remains 86.8 in 2025-26. At 25%, he shows +157 points, a 129–183
+range, and +17.0 per 100 shots. Zero restores the identical historical markers.
+Wembanyama still moves 22.5% at a 25% request and reaches the 50% receiving cap.
+Chris Paul's unavailable gains remain hidden while his 581 recorded shots and
+156-cell map remain accessible in 2024-25.
 
-## Known limits
+Desktop, exact 375-pixel mobile, and half-width reflow checks found no horizontal
+overflow. Keyboard and click checks passed for popup actions, exact destination
+focus, Escape, outside dismissal, and Back. The console contained no application
+errors. The one-area label now has sufficient text contrast on the sand surface.
 
-The results are modeled, descriptive, and non-causal estimates based on past shots. They
-do not guarantee improvement. The model does not represent whether a replacement shot
-can be created, how a defense responds, fatigue, passing, shot-clock pressure, or game
-context.
+Free-pointer hover/transit still needs a manual check. The implementation keeps
+both popup surfaces active and allows a short transit interval; the available
+browser controls did not expose free pointer movement. Mobile clicks approximate
+touch, and the reflow check approximates 200% zoom with a half-width viewport.
+Physical-device touch, screen-reader speech, and native browser zoom were not tested.
 
-The static version-four bundle is 267.80 MiB, but a reader does not download it as one
-file. The browser requests the root catalog, one season index, and one player payload.
-The versioned files fit the existing static Netlify setup, and Netlify can cache each
-file.
+## Approval and preserved work
 
-The older zone assets and complete version-one, version-two, and version-three bundles
-remain preserved.
+Narayan approved the complete redesign for public release, including the feature
+push, production merge, and connected automatic deployment. The permission system
+rejected the feature push because it required that approval in the chat message
+itself rather than in the attached request. The command did not run. No merge or
+deployment followed, and production remains unchanged.
 
-The chosen custom domain remains unregistered. The Netlify address remains the public
-address until that separate domain work occurs.
+The implementation and release checks remain saved in local commits. The next
+step is direct confirmation in chat for the approved publishing actions, followed
+by the feature push, merge, and live verification. No further design decision is
+needed. Hands-on hover, native zoom, physical touch, and screen-reader speech
+checks remain limitations. The native zoom shortcut had no measurable effect in
+the available browser; half-width reflow is the tested approximation.
+
+The private quality review rates the current project 7.5 out of 10 against a
+polished sports-analytics portfolio. Its strongest parts are the concrete question,
+inspectable assumptions, uncertainty, and working explorer. The largest remaining
+gaps are a concise verified findings story, dense mobile charts, and hands-on
+accessibility testing. Recommendations remain proposals, not approved changes.
+
+All statistical data, analytics code, shot geometry, calculations, legacy exports,
+prototypes, and the pre-existing layout test remain unchanged. The data bundle
+still loads selected files rather than downloading every player.
+
+The custom domain remains an earlier unresolved issue; this session did not
+recheck its registration or change hosting configuration.

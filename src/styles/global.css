@@ -514,3 +514,82 @@ textarea {
 	/* added line to stop words getting smushed together (as they go onto separate lines and some screen readers do not understand line feeds as a space */
 	white-space: nowrap;
 }
+/* The NBA write-up keeps technical detail behind native, keyboard-ready disclosures. */
+.nba-limitations h2 { color: inherit; }
+.nba-limitations li + li { margin-top: var(--space-s); }
+.nba-reference {
+	border-block: var(--rule) solid var(--green);
+	padding-block: var(--space-s);
+}
+.nba-reference + .nba-reference { margin-top: var(--space-m); }
+.nba-reference > summary {
+	cursor: pointer;
+	font-family: var(--font-display);
+	font-size: var(--type-h3);
+	min-height: 44px;
+}
+.nba-reference > summary:focus-visible {
+	outline: var(--rule-thick) solid currentColor;
+	outline-offset: var(--space-2xs);
+}
+.nba-reference[open] > summary { margin-bottom: var(--space-m); }
+.nba-reference [data-reference-target] { scroll-margin-block-start: var(--space-m); }
+.nba-reference [data-reference-target]:focus {
+	outline: var(--rule-thick) solid var(--green);
+	outline-offset: var(--space-2xs);
+}
+.nba-formula-block {
+	border: var(--rule-thin) solid var(--green);
+	padding: var(--space-s);
+	margin-block: var(--space-m);
+	min-width: 0;
+}
+.nba-formula-block h3 { font-size: var(--type-body); }
+.nba-formula-block > :last-child { margin-bottom: 0; }
+.nba-equation,
+.nba-variable-key dt {
+	font-family: var(--font-numeric);
+	font-variant-numeric: tabular-nums;
+}
+.nba-equation {
+	font-size: clamp(1rem, 2vw, 1.25rem);
+	line-height: 1.8;
+	overflow-wrap: anywhere;
+}
+.nba-term { white-space: nowrap; }
+.nba-fraction {
+	display: inline-grid;
+	vertical-align: middle;
+	text-align: center;
+	line-height: 1.4;
+}
+.nba-fraction > span { padding-inline: var(--space-2xs); }
+.nba-fraction > span + span { border-top: var(--rule-thin) solid currentColor; }
+.nba-variable-key {
+	margin-block: var(--space-m);
+}
+.nba-variable-row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+	gap: var(--space-xs) var(--space-s);
+	padding-block: var(--space-s);
+}
+.nba-variable-row + .nba-variable-row {
+	border-top: var(--rule-thin) solid var(--sand);
+}
+.nba-variable-key dt {
+	display: flex;
+	align-items: baseline;
+	gap: var(--space-xs);
+}
+.nba-variable-symbol { min-width: 0; }
+.nba-variable-leader {
+	flex: 1 0 var(--space-m);
+	border-bottom: var(--rule-thin) dotted var(--green);
+}
+.nba-variable-key dt,
+.nba-variable-key dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 40rem) {
+	.nba-variable-row { grid-template-columns: minmax(0, 1fr); }
+	.nba-variable-key dt { font-weight: 600; }
+}
