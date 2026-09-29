@@ -2,7 +2,7 @@
 
 Snapshot for a reader new to the site. Updated 29 September 2026.
 
-## Two-player comparison ready for review
+## Released two-player comparison
 
 A separate NBA comparison page now pairs two existing player explorers. It opens
 with LeBron in the first slot and the second slot empty. One season, relocation
@@ -19,8 +19,19 @@ season/slider/view combinations, desktop, 375-pixel mobile and half-width reflow
 checks passed. The original explorer retains its calculations and court views,
 with one added link to the comparison. Native zoom, screen-reader speech and
 physical touch still need manual review. The unavailable-season Loading wording
-remains unchanged. This feature is not merged or released; Narayan must review it
-and approve a separate merge and deployment.
+remains unchanged. Narayan approved release. The merge and push succeeded, and
+Vercel reported a successful automatic deployment. Both nslanalytics.com and its
+www address serve the comparison; the apex redirects to www.
+
+Live checks passed for all five seasons, all six slider settings across three
+views in 2025-26, LeBron and Wembanyama, unavailable estimates, duplicate-player
+rejection, reset, rapid season changes and keyboard focus. Desktop, 375-pixel
+mobile and half-width reflow had no horizontal overflow or application console
+errors. The home, comparison and single-player pages matched the verified build
+byte-for-byte, as did referenced comparison assets and 15 sampled public data
+files. The live resource inventory showed no added flow-data path; the unchanged
+script retains the earlier request-count verification. No analytics, data,
+dependencies or hosting settings changed.
 
 ## Released Shot movement view
 
@@ -53,8 +64,8 @@ horizontal overflow or application console errors. The live resource inventory
 showed no new flow-data route; the unchanged script passed the earlier request
 count check. Analytics, exports, dependencies and hosting settings remain unchanged.
 
-The unavailable-season Loading wording remains an unchanged limitation. Player
-comparison needs separate authorization and has not begun.
+The unavailable-season Loading wording remains an unchanged limitation. The
+two-player comparison has since been released, as recorded above.
 
 ## Earlier public release record
 

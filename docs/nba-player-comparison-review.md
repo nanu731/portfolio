@@ -1,9 +1,10 @@
-# Two-player Location comparison: review only
+# Two-player Location comparison: review and release
 
 Verified 29 September 2026. Branch `codex/location-player-comparison` starts from
 main `80844ab17342de59c3334f2328dcb96ed2e93201`. Implementation: `4c20c23`.
 Narayan approved one page route and exact per-attempt-to-per-100 display conversion.
-No merge or deployment is authorized. Refer to the Shot movement review record
+The initial task excluded merge and deployment; Narayan then approved release.
+Refer to the Shot movement review record
 and analytics Location flow contract for unchanged data and model history.
 
 ## Scope and contract
@@ -93,8 +94,40 @@ touch and screen-reader speech remain manual review items. The inherited
 unavailable-season Loading placeholder remains unchanged; no prior numeric
 estimate or chart replaces the unavailable state. No hosting configuration,
 dependency, analytics code, model, export, main commit or unrelated file changed.
-No production deployment was requested or performed. Provider-created feature
-previews, if any, are not production release approval.
+No production deployment occurred during the feature task. Provider-created
+feature previews, if any, were not production release approval.
 
-Next: review the screenshots, then authorize merging this feature branch and
-the existing automatic production deployment as a separate task.
+## Approved release: 29 September 2026
+
+Reviewed feature `5b4208e87382db2767c22f36b6e8dc41ba35caf2` matched the local and
+remote feature refs. Local and remote main started at
+`80844ab17342de59c3334f2328dcb96ed2e93201`. The tracked tree and index were clean;
+the seven-file diff contained the reviewed implementation and documentation only.
+Both full-payload verifiers and the seven-page production build passed again.
+
+Merge `5a56fa9ce3cc22e8e3bfe8e1074a1756105c3f69` reached GitHub main. GitHub's
+Vercel status reported success for that exact commit. No manual deployment ran.
+Both domains returned HTTP 200 for home, comparison and single-player pages;
+the apex redirected to www. Those six responses matched the local build, as did
+the six comparison assets referenced in its HTML and 15 sampled public data files.
+
+Live Chrome checks confirmed LeBron/unselected defaults, normalized keyboard
+search, all five seasons, 18 slider/view combinations in 2025-26, zero movement,
+LeBron's two receiving areas and Wembanyama's single capped area. Chris Paul's
+2024-25 missing relocation estimates stayed unavailable while his baseline
+remained visible; his 2025-26 ineligible state hid stale metrics. Duplicate-player
+rejection, reset, rapid season changes and visible keyboard focus passed.
+All three views had no horizontal overflow at 375, 720 and 1440 pixels. No
+application console errors or warnings appeared. The single-player explorer kept
+its three views and LeBron's +157 points and 229.75 moved-attempt display.
+
+Live resource inventories added no data paths during subsequent view/slider
+checks. This inventory does not count repeat requests to an existing path; the
+byte-identical script retains the recorded pre-release request-count tests.
+The initial comparison request returned 404 while Vercel was still building;
+it returned the verified page after deployment succeeded.
+
+Native 200% zoom, physical touch and screen-reader speech remain unverified.
+The known unavailable-season Loading wording remains unchanged. No analytics,
+export, dependency, hosting setting or preserved untracked file changed.
+Further features or limitation fixes require separate authorization.
