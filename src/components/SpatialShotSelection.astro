@@ -1,11 +1,12 @@
 ---
 import DefinitionHelp from './DefinitionHelp.astro';
+const { comparisonSlot } = Astro.props as { comparisonSlot?: 'A' | 'B' };
 // The browser fetches the compact player index once, then one player payload per
 // selection. Keeping the data in public/ lets Netlify cache each versioned file
 // separately and keeps the versioned export out of Astro's JavaScript graph.
 ---
 
-<spatial-shot-explorer data-base-path="/data/spatial-shot-selection/v4">
+<spatial-shot-explorer data-base-path="/data/spatial-shot-selection/v4" data-comparison-slot={comparisonSlot}>
 	<figure class="figure spatial-explorer" aria-label="Shot selection explorer">
 
 		<div class="player-controls" aria-describedby="player-status">
@@ -249,6 +250,8 @@ import DefinitionHelp from './DefinitionHelp.astro';
 					The model leaves out defense, fatigue, passing, shot creation, shot-clock pressure, and game situation.</p>
 		</div>
 
+		{comparisonSlot && <section class="comparison-metrics" aria-label={`Player ${comparisonSlot} estimates`} data-comparison-metrics hidden><h3>Points per 100 attempts</h3><dl data-comparison-values></dl><p>Ranges cover the middle 90% of this model’s estimates. They do not cover all real-game uncertainty or measure a head-to-head advantage.</p><a href="/projects/nba-shot-selection-analytics/#definitions">Definitions and uncertainty</a></section>}
+		{!comparisonSlot && <p><a href="/projects/nba-player-comparison/">Compare two players’ shot mixes</a></p>}
 		<noscript>
 			<p class="noscript">Turn on JavaScript to use the player search and shot charts. The explanations below remain available.</p>
 		</noscript>
@@ -263,6 +266,8 @@ import DefinitionHelp from './DefinitionHelp.astro';
 
 <script>
 	import { relocationFlow, type FlowSlider } from '../lib/relocation-flow';
+	import { displaySummary, createComparisonLoader } from '../lib/player-comparison';
+	const comparisonFetch = createComparisonLoader();
 	type EvidenceStatus =
 		| 'insufficient_evidence'
 		| 'single_destination'
@@ -359,6 +364,7 @@ import DefinitionHelp from './DefinitionHelp.astro';
 		availability_reason: AvailabilityReason;
 		score_available: boolean;
 		observed_attempts: number;
+		baseline_expected_points_per_attempt: PosteriorSummary;
 		makes: number;
 		misses: number;
 		source_cell_count: number;
@@ -462,6 +468,7 @@ import DefinitionHelp from './DefinitionHelp.astro';
 		connectedCallback() {
 			if (this.dataset.initialized === 'true') return;
 			this.dataset.initialized = 'true';
+			if (this.dataset.comparisonSlot) this.prepareComparison();
 
 			this.search.addEventListener('input', () => this.updateSuggestions());
 			this.search.addEventListener('focus', () => this.showAllSuggestions());
@@ -469,7 +476,7 @@ import DefinitionHelp from './DefinitionHelp.astro';
 			this.seasonSelect.addEventListener('change', () => void this.changeSeason());
 			document.addEventListener('pointerdown', this.handleOutsidePointer);
 			this.slider.addEventListener('input', () => this.updateSlider());
-			this.querySelectorAll<HTMLInputElement>('input[name="court-view"]').forEach((control) => {
+			this.querySelectorAll<HTMLInputElement>('input[type="radio"]').forEach((control) => {
 				control.addEventListener('change', () => {
 					if (control.checked) this.setCourtView(control.value as CourtView);
 				});
@@ -482,6 +489,75 @@ import DefinitionHelp from './DefinitionHelp.astro';
 			this.court.addEventListener('keydown', (event) => this.moveCell(event));
 
 			void this.loadCatalog();
+		}
+
+		private prepareComparison() {
+			const prefix = `comparison-${this.dataset.comparisonSlot}-`;
+			const ids = new Map(Array.from(this.querySelectorAll('[id]'), node => [node.id, prefix + node.id]));
+			for (const node of this.querySelectorAll('*')) {
+				for (const attr of ['for', 'aria-controls', 'aria-describedby', 'aria-labelledby']) {
+					const value = node.getAttribute(attr);
+					if (value) node.setAttribute(attr, value.split(' ').map(id => ids.get(id) ?? id).join(' '));
+				}
+				if (node.id) node.id = ids.get(node.id)!;
+			}
+			this.querySelectorAll<HTMLInputElement>('input[type="radio"]').forEach(input => input.name = prefix + 'view');
+			this.querySelector('label[for="' + this.search.id + '"]')!.textContent = `Player ${this.dataset.comparisonSlot}`;
+			this.querySelector('figure')!.setAttribute('aria-label', `Player ${this.dataset.comparisonSlot} shot selection`);
+			// Keep existing popover explanations; full definitions remain on the original page.
+			this.querySelectorAll<HTMLButtonElement>('[data-detail-target]').forEach(button => {
+				const link = document.createElement('a');
+				link.href = `/projects/nba-shot-selection-analytics/#${button.dataset.detailTarget}`;
+				link.textContent = button.textContent;
+				button.replaceWith(link);
+			});
+		}
+
+		async comparisonSeason(season: SeasonId, reset = false) {
+			if (reset) this.deliberatePlayerId = undefined;
+			const id = this.deliberatePlayerId ?? (this.dataset.comparisonSlot === 'A' ? PRELOAD_PLAYER_ID : undefined);
+			await this.loadSeason(season, id);
+		}
+
+		comparisonControls(view: CourtView, share: number) {
+			if (!this.currentPlayer) return;
+			this.slider.value = String(share);
+			this.setCourtView(view);
+			this.renderComparisonMetrics();
+		}
+
+		private comparisonChanged() {
+			if (this.dataset.comparisonSlot) this.dispatchEvent(new CustomEvent('comparison-rendered', { bubbles: true }));
+		}
+
+		private renderComparisonMetrics() {
+			const player = this.currentPlayer;
+			if (!this.dataset.comparisonSlot || !player) return;
+			const slider = player.sliders.find(row => row.requested_share === Number(this.slider.value) / 100)!;
+			const rows = [
+				['Current expected points', displaySummary(player.baseline_expected_points_per_attempt, 100)],
+				['Expected points after relocation', displaySummary(slider.relocated_expected_points_per_attempt, 100)],
+				['Improvement per 100', displaySummary(slider.gain_per_100)],
+				['Shot-selection score (0–100)', displaySummary({ mean: player.score.point, lower_90: player.score.lower_90, upper_90: player.score.upper_90 })],
+			] as const;
+			const list = requireElement<HTMLElement>(this, '[data-comparison-values]');
+			list.replaceChildren();
+			for (const [label, summary] of rows) {
+				const term = document.createElement('dt'); term.textContent = label;
+				const value = document.createElement('dd');
+				value.textContent = summary.mean === null ? 'Unavailable; 90% range unavailable' : `${oneDecimal(summary.mean)} · 90% range ${oneDecimal(summary.lower_90!)} to ${oneDecimal(summary.upper_90!)}`;
+				list.append(term, value);
+			}
+			for (const [label, value] of [
+				['Relocation requested', `${this.slider.value}%`],
+				['Actual relocation', player.relocation_available ? `${oneDecimal(slider.actual_relocated_share * 100)}% (${slider.actual_relocated_attempt_equivalents.toLocaleString('en-US', {maximumSignificantDigits:15})} equivalent attempts)` : 'Unavailable'],
+				['Evidence', player.evidence_status === 'multiple_destinations' ? 'Multiple areas pass the evidence rules' : player.evidence_status === 'single_destination' ? 'One area passes the evidence rules' : 'No clear area for moving shots'],
+			]) {
+				const term = document.createElement('dt'); term.textContent = label;
+				const detail = document.createElement('dd'); detail.textContent = value;
+				list.append(term, detail);
+			}
+			requireElement<HTMLElement>(this, '[data-comparison-metrics]').hidden = false;
 		}
 
 		private get basePath() {
@@ -533,6 +609,7 @@ import DefinitionHelp from './DefinitionHelp.astro';
 		}
 
 		private async fetchJson(path: string, signal?: AbortSignal): Promise<unknown> {
+			if (this.dataset.comparisonSlot) return comparisonFetch(path);
 			const response = await fetch(path, { signal, headers: { Accept: 'application/json' } });
 			if (!response.ok) throw new Error(`Request returned ${response.status}`);
 			return response.json();
@@ -851,7 +928,8 @@ import DefinitionHelp from './DefinitionHelp.astro';
 					throw new Error('LeBron James is missing from the player catalog');
 				}
 				this.seasonSelect.disabled = false;
-				await this.loadSeason(DEFAULT_SEASON, PRELOAD_PLAYER_ID);
+				await this.loadSeason(DEFAULT_SEASON, this.dataset.comparisonSlot === 'B' ? undefined : PRELOAD_PLAYER_ID);
+				if (this.dataset.comparisonSlot) { this.dataset.comparisonReady = 'true'; this.comparisonChanged(); }
 			} catch (error) {
 				this.showError('We couldn’t load the seasons and players. Check your connection and try again.');
 			}
@@ -875,11 +953,12 @@ import DefinitionHelp from './DefinitionHelp.astro';
 			}
 		}
 
-		private async loadSeason(season: SeasonId, playerId: string) {
+		private async loadSeason(season: SeasonId, playerId?: string) {
 			const seasonManifest = this.seasons.get(season);
 			if (!seasonManifest) throw new Error(`Season ${season} is missing from the manifest`);
 			const request = this.beginRequest();
-			const playerName = this.catalog.get(playerId)?.player_name ?? 'Selected player';
+			const playerName = (playerId && this.catalog.get(playerId)?.player_name) || 'Choose a player';
+			if (this.dataset.comparisonSlot) this.dataset.selectedId = playerId ?? '';
 			this.selectedSeason = season;
 			this.seasonSelect.value = season;
 			this.suggestions.setAttribute('aria-label', `Players in ${this.seasonLabel(season)}`);
@@ -903,6 +982,14 @@ import DefinitionHelp from './DefinitionHelp.astro';
 				);
 				this.search.disabled = false;
 				this.search.placeholder = `Search players in ${this.seasonLabel(season)}`;
+				if (!playerId && this.dataset.comparisonSlot) {
+					this.search.value = '';
+					this.clearResult('Choose a player', `Choose Player ${this.dataset.comparisonSlot}`);
+					this.stage.setAttribute('aria-busy', 'false');
+					this.setStatus(`Choose Player ${this.dataset.comparisonSlot}.`);
+					this.comparisonChanged();
+					return;
+				}
 				const entry = this.players.find((player) => player.player_id === playerId);
 				if (entry) {
 					this.search.value = entry.player_name;
@@ -916,6 +1003,7 @@ import DefinitionHelp from './DefinitionHelp.astro';
 				}
 				this.search.value = playerName;
 				this.showSeasonUnavailable(playerName, season, availability);
+				this.comparisonChanged();
 			} catch (error) {
 				if (error instanceof DOMException && error.name === 'AbortError') return;
 				if (!this.requestIsCurrent(request.controller, request.version)) return;
@@ -988,7 +1076,7 @@ import DefinitionHelp from './DefinitionHelp.astro';
 			} else {
 				this.matches.forEach((player, index) => {
 					const option = document.createElement('div');
-					option.id = `player-option-${player.player_id}`;
+					option.id = `${this.dataset.comparisonSlot ?? ''}player-option-${player.player_id}`;
 					option.className = 'suggestion-option';
 					option.setAttribute('role', 'option');
 					option.setAttribute('aria-selected', String(index === this.activeSuggestionIndex));
@@ -1054,6 +1142,11 @@ import DefinitionHelp from './DefinitionHelp.astro';
 		}
 
 		private selectSuggestion(entry: PlayerIndexEntry) {
+			if (this.dataset.comparisonSlot) {
+				const allowed = this.dispatchEvent(new CustomEvent('comparison-select', { bubbles: true, cancelable: true, detail: { playerId: entry.player_id } }));
+				if (!allowed) { this.closeSuggestions(); this.search.value = this.catalog.get(this.dataset.selectedId ?? '')?.player_name ?? ''; this.setStatus('Choose a different player. This player is already selected on the other side.'); return; }
+				this.dataset.selectedId = entry.player_id;
+			}
 			this.deliberatePlayerId = entry.player_id;
 			this.search.value = entry.player_name;
 			this.closeSuggestions();
@@ -1078,10 +1171,20 @@ import DefinitionHelp from './DefinitionHelp.astro';
 				);
 				if (!this.requestIsCurrent(request.controller, request.version)) return;
 				const player = this.validatePlayer(raw, entry, season);
+				if (this.dataset.comparisonSlot) {
+					if (displaySummary(player.baseline_expected_points_per_attempt, 100).mean === null) throw new Error('Missing baseline');
+					displaySummary({ mean: player.score.point, lower_90: player.score.lower_90, upper_90: player.score.upper_90 });
+					player.sliders.forEach(row => {
+						const after = displaySummary(row.relocated_expected_points_per_attempt, 100);
+						displaySummary(row.gain_per_100);
+						if ((after.mean !== null) !== player.relocation_available) throw new Error('Invalid relocation availability');
+					});
+				}
 				this.currentPlayer = player;
 				this.renderPlayer(player);
 				this.stage.setAttribute('aria-busy', 'false');
 				this.setStatus(`${player.player_name}, ${this.seasonLabel(season)} loaded.`);
+				this.comparisonChanged();
 			} catch (error) {
 				if (error instanceof DOMException && error.name === 'AbortError') return;
 				if (!this.requestIsCurrent(request.controller, request.version)) return;
@@ -1193,7 +1296,7 @@ import DefinitionHelp from './DefinitionHelp.astro';
 						item.textContent = description;
 						list.append(item);
 					}
-					requireElement<SVGTitleElement>(panel, `#flow-${direction}-title`).textContent =
+					requireElement<SVGTitleElement>(panel, `[data-flow-court="${direction}"] > title`).textContent =
 						`${player.player_name}, ${player.season}: ${amount(total)} attempts ${direction === 'removed' ? 'removed from' : 'added to'} ${count} areas. Read movement by area for the full list.`;
 					summary.append(heading, list);
 				}
@@ -1532,6 +1635,10 @@ import DefinitionHelp from './DefinitionHelp.astro';
 		}
 
 		private clearResult(playerName: string, message: string) {
+			if (this.dataset.comparisonSlot) {
+				requireElement<HTMLElement>(this, '[data-comparison-metrics]').hidden = true;
+				requireElement<HTMLElement>(this, '[data-comparison-values]').replaceChildren();
+			}
 			requireElement<HTMLElement>(this, '[data-movement]').hidden = true;
 			this.querySelectorAll('[data-flow-bubbles], [data-flow-summary], [data-flow-total]').forEach((node) => node.replaceChildren());
 			this.court.removeAttribute('hidden');

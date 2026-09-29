@@ -1,0 +1,117 @@
+---
+import SpatialShotSelection from './SpatialShotSelection.astro';
+---
+<player-comparison>
+  <div class="shared-controls">
+    <label>Season <select data-shared-season disabled aria-label="Comparison season">
+      {['2025-26','2024-25','2023-24','2022-23','2021-22'].map(season => <option value={season}>{season.replace('-', '–')}</option>)}
+    </select></label>
+    <fieldset data-shared-views disabled><legend>Court view for both players</legend>
+      <label><input type="radio" name="comparison-view" value="combined" checked /> Shot locations</label>
+      <label><input type="radio" name="comparison-view" value="movement" /> Shot movement</label>
+      <label><input type="radio" name="comparison-view" value="ability" /> Make-chance map</label>
+    </fieldset>
+    <label>Shots to move: <output data-shared-output aria-label="Requested relocation share">0%</output>
+      <input type="range" min="0" max="25" step="5" value="0" data-shared-slider disabled aria-label="Shots to move for both players" />
+    </label>
+    <button type="button" data-comparison-reset disabled>Reset comparison</button>
+  </div>
+  <p>Both players use the same court geometry and make-chance colors. Shot movement uses one bubble-area scale across both players for the selected setting.</p>
+  <p role="status" data-comparison-status>Loading comparison controls…</p>
+  <div class="comparison-columns">
+    <section aria-label="Player A"><h2>Player A</h2><SpatialShotSelection comparisonSlot="A" /></section>
+    <section aria-label="Player B"><h2>Player B</h2><SpatialShotSelection comparisonSlot="B" /></section>
+  </div>
+</player-comparison>
+
+<script>
+  type Explorer = HTMLElement & { comparisonControls(view: string, share: number): void; comparisonSeason(season: string, reset?: boolean): Promise<void> };
+  class PlayerComparison extends HTMLElement {
+    private explorers: Explorer[] = [];
+    private ready = false;
+    private get slider() { return this.querySelector<HTMLInputElement>('[data-shared-slider]')!; }
+    private get season() { return this.querySelector<HTMLSelectElement>('[data-shared-season]')!; }
+    private get status() { return this.querySelector<HTMLElement>('[data-comparison-status]')!; }
+    async connectedCallback() {
+      await customElements.whenDefined('spatial-shot-explorer');
+      this.explorers = Array.from(this.querySelectorAll<Explorer>('spatial-shot-explorer'));
+      this.addEventListener('comparison-rendered', () => {
+        if (!this.ready && this.explorers.every(e => e.dataset.comparisonReady === 'true')) {
+          this.ready = true;
+          this.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLButtonElement | HTMLFieldSetElement>('.shared-controls [disabled]').forEach(e => e.disabled = false);
+          this.status.textContent = 'Choose Player B to compare two historical shot mixes.';
+        }
+        this.sync();
+      });
+      this.addEventListener('comparison-select', event => {
+        const selected = (event as CustomEvent).detail.playerId;
+        if (this.explorers.some(e => e !== event.target && e.dataset.selectedId === selected)) {
+          event.preventDefault();
+          this.status.textContent = 'Choose a different player. The same player cannot fill both sides.';
+          return;
+        }
+        this.status.textContent = 'Player changed. Relocation reset to 0% for both players.';
+        this.slider.value = '0'; this.sync();
+      });
+      this.slider.addEventListener('input', () => { this.status.textContent = `Shared relocation request: ${this.slider.value}%. Actual movement can differ by player.`; this.sync(); });
+      this.querySelectorAll('input[name="comparison-view"]').forEach(input => input.addEventListener('change', () => this.sync()));
+      this.season.addEventListener('change', () => {
+        this.slider.value = '0';
+        this.status.textContent = 'Season changed. Relocation reset to 0% for both players.';
+        this.explorers.forEach(e => void e.comparisonSeason(this.season.value));
+        this.sync();
+      });
+      this.querySelector('[data-comparison-reset]')!.addEventListener('click', () => {
+        this.slider.value = '0'; this.season.value = '2025-26';
+        this.querySelector<HTMLInputElement>('input[name="comparison-view"][value="combined"]')!.checked = true;
+        this.explorers.forEach(e => void e.comparisonSeason('2025-26', true));
+        this.status.textContent = 'Reset: LeBron James in Player A, Player B unselected, 2025–26, Shot locations, 0%.';
+        this.sync();
+      });
+    }
+    private sync() {
+      const view = this.querySelector<HTMLInputElement>('input[name="comparison-view"]:checked')!.value;
+      this.querySelector('[data-shared-output]')!.textContent = `${this.slider.value}%`;
+      this.explorers.forEach(e => e.comparisonControls(view, Number(this.slider.value)));
+      // Reuse the exact derived mass, changing display radius only. Four courts share one scale.
+      const bubbles = Array.from(this.querySelectorAll<SVGCircleElement>('.flow-bubble'));
+      const maximum = Math.max(0, ...bubbles.map(b => Number(b.dataset.mass)));
+      for (const bubble of bubbles) bubble.setAttribute('r', String(17 * Math.sqrt(Number(bubble.dataset.mass) / maximum)));
+    }
+  }
+  if (!customElements.get('player-comparison')) customElements.define('player-comparison', PlayerComparison);
+</script>
+
+<style>
+  player-comparison { display: block; }
+  .shared-controls { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-m); border-block: var(--rule) solid var(--green); padding-block: var(--space-s); }
+  .shared-controls label, fieldset { display: block; min-width: 0; }
+  fieldset { margin: 0; border: 0; padding: 0; }
+  fieldset label { display: inline-flex; align-items: center; gap: var(--space-2xs); min-height: 44px; margin-right: var(--space-s); }
+  select, button, input[type="range"] { min-height: 44px; max-width: 100%; }
+  select, button { font: inherit; color: var(--green); background: var(--cream); border: var(--rule) solid var(--green); padding: var(--space-2xs); }
+  button { cursor: pointer; }
+  input { accent-color: var(--green); }
+  input[type="range"] { display: block; width: 100%; }
+  :is(input,select,button):focus-visible { outline: var(--rule-thick) solid var(--accent); outline-offset: var(--space-3xs); }
+  .comparison-columns { display: grid; gap: var(--space-l); }
+  .comparison-columns > section { min-width: 0; }
+  @media (min-width: 64rem) { .comparison-columns { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+  /* The existing renderer remains intact. Only comparison instances use this layout. */
+  :global([data-comparison-slot] .figure) { margin: 0; width: 100%; max-width: 100%; }
+  :global([data-comparison-slot] .player-controls), :global([data-comparison-slot] .explorer-plot) { display: block !important; min-width: 0; }
+  :global([data-comparison-slot] .season-control), :global([data-comparison-slot] .view-controls),
+  :global([data-comparison-slot] .controls-panel > .guide-step), :global([data-comparison-slot] .slider-label),
+  :global([data-comparison-slot] .slider-block > input), :global([data-comparison-slot] .slider-ends),
+  :global([data-comparison-slot] .slider-block > .measure-note:first-of-type), :global([data-comparison-slot] .metrics-panel),
+  :global([data-comparison-slot] .reset-default), :global([data-comparison-slot] figcaption) { display: none !important; }
+  :global([data-comparison-slot] .controls-panel) { padding: 0; border: 0; }
+  :global([data-comparison-slot] .court-panel) { padding: 0; border: 0; min-width: 0; }
+  :global([data-comparison-slot] .court-panel > .guide-step) { display: none; }
+  :global([data-comparison-slot] .court-title-row) { margin-top: var(--space-s); }
+  :global([data-comparison-slot] .movement-courts) { display: flex; flex-direction: column; }
+  :global([data-comparison-slot] .comparison-metrics) { padding: var(--space-s); border-top: var(--rule) solid var(--green); }
+  :global([data-comparison-slot] .comparison-metrics[hidden]) { display: none; }
+  :global([data-comparison-slot] .comparison-metrics dt) { font-weight: 600; margin-top: var(--space-s); }
+  :global([data-comparison-slot] .comparison-metrics dd) { margin: 0; font-family: var(--font-numeric); font-size: var(--type-small); overflow-wrap: anywhere; }
+</style>
