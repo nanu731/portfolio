@@ -2,6 +2,26 @@
 
 Snapshot for a reader new to the site. Updated 29 September 2026.
 
+## Two-player comparison ready for review
+
+A separate NBA comparison page now pairs two existing player explorers. It opens
+with LeBron in the first slot and the second slot empty. One season, relocation
+slider and court-view selector control both players. Duplicate selections are
+blocked, and player or season changes reset movement to zero.
+
+Each player has current and relocated expected points per 100, improvement,
+score, model ranges and evidence status. The only new numeric operation converts
+verified per-attempt summaries to per-100 units. Missing estimates remain
+unavailable. The page makes no head-to-head probability or talent claim.
+
+Build, full-payload tests, selective network loading, keyboard controls, all
+season/slider/view combinations, desktop, 375-pixel mobile and half-width reflow
+checks passed. The original explorer retains its calculations and court views,
+with one added link to the comparison. Native zoom, screen-reader speech and
+physical touch still need manual review. The unavailable-season Loading wording
+remains unchanged. This feature is not merged or released; Narayan must review it
+and approve a separate merge and deployment.
+
 ## Released Shot movement view
 
 The NBA explorer now has a third view live on nslanalytics.com and its www address.
