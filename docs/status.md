@@ -1,10 +1,35 @@
 # Portfolio site status
 
-Snapshot for a reader new to the site. Updated 11 September 2026.
+Snapshot for a reader new to the site. Updated 29 September 2026.
 
-## Public site
+## Review-only Shot movement view
 
-The approved plain-language NBA redesign is live on the Netlify address. Narayan
+The NBA explorer now has a third view ready for review. Shot movement shows areas
+losing attempts in rust and receiving areas in cyan, with the total moved volume
+between them in mobile reading order. The desktop courts sit side by side.
+At zero movement, a short explanation asks readers to use the slider. The existing
+shot-location and make-chance views remain intact.
+
+The view uses the already-loaded player data and preserves fractional attempts.
+It does not match individual source shots to destinations or recalculate scores
+and gains. A readable list supplies each area's amount; the court markers do not
+create extra keyboard stops. Invalid totals show an error and retry option.
+
+Checks passed across five seasons and all six slider settings, including LeBron,
+Wembanyama's capped single-area case, unavailable estimates, reset and rapid
+selection changes. Mobile at 375 pixels and half-width reflow had no horizontal
+overflow. The build passed, console checks were clean, and switching views or
+moving the slider added no data requests. Native zoom, physical-device touch and
+screen-reader speech still need manual review.
+
+This change has not been merged or deployed. Narayan must approve the visual
+review before authorizing a production merge and deployment. Analytics, exports,
+dependencies and hosting settings remain unchanged.
+
+## Last verified public release
+
+The September release check found the approved plain-language NBA redesign live
+on the Netlify address. This task did not recheck the live site or hosting. Narayan
 authorized the feature push, production merge, and automatic deployment in chat.
 The push and merge succeeded. Public fetches confirmed the new release about a
 minute after the merge. No hosting settings changed or manual deployment ran.
