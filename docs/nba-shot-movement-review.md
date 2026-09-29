@@ -1,6 +1,9 @@
-# Shot movement: review-only implementation
+# Shot movement: reviewed implementation and release
 
-Verified locally on 29 September 2026. No merge or deployment is authorized.
+Verified locally and released on 29 September 2026. Narayan approved the reviewed
+feature revision `86ae0fa8b2ecee96831c7c8d9eb685928d0a0b98` for merge and the
+existing GitHub-connected Vercel deployment. The review record below describes
+the original review-only scope; the release section records the later approval.
 
 ## Scope and provenance
 
@@ -117,14 +120,58 @@ the correct no-analysis status appears. It contains no prior-player flow or
 numeric result. This task preserved the existing views instead of repairing that
 separate placeholder issue. No live-site verification or deployment occurred.
 
-## Protected work and next decision
+## Protected work during implementation
 
 Analytics, model fits, posterior draws, scores, gains, v1-v4 exports, Context M1,
 M3, 2026-27, hosting configuration and main are unchanged. No dependency, export,
 private artifact or shot-level record was added. Existing untracked prototype,
 layout test, notes, skill observations and temporary work remain uncommitted.
 
-Narayan must review the screenshots and authorize merging the reviewed feature
-branch and its associated production deployment separately. Nothing in this
-record grants either approval. Use the existing integration and plain-language
-review documents for unchanged release history.
+Use the existing integration and plain-language review documents for unchanged
+release history.
+
+## Approved release verification
+
+Before merging, feature HEAD and origin matched the approved `86ae0fa` revision.
+Local and remote main and the merge base were
+`182226096eeb25f4f6fe785e341c301d23f07cba`. The tracked tree and index were clean;
+the five-file diff contained only the reviewed feature, tests and documentation.
+The production build passed with the existing empty-blog notices. All 9,042
+contract cases passed again, and all inventoried v4 payload hashes matched.
+
+Merge commit `0ae11633cbc987c7bf80905d9df14694e80dbeb9` has the same file tree as
+the approved feature. GitHub's Vercel status reported success for deployment
+`BZUxYJmzUHsHfqy4UdcTJVjdikQ3`. No manual deployment or hosting change ran.
+`https://nslanalytics.com/projects/nba-shot-selection-analytics/` redirects to
+`https://www.nslanalytics.com/projects/nba-shot-selection-analytics/`, which
+returns HTTP 200 through Vercel. On both domains, the page and six referenced
+scripts, stylesheets and fonts matched the verified build byte-for-byte. Page
+SHA-256: `f857382602783834075091910bdbf654c9b0fc61d7593fab64c21ab995bcc1d8`.
+Fifteen live data files matched committed v4 bytes: manifest, catalog, five
+season indexes, five LeBron files, two Wembanyama files and Chris Paul's 2024-25 file.
+
+Live Chrome checks passed for the three controls, LeBron/2025-26 preload, the
+approved zero-state explanation, rust/cyan bubbles and balanced fractional mass.
+All 30 LeBron season/slider combinations passed. Wembanyama retained 243 moved
+attempts, one receiver, 22.5% actual movement and the cap explanation. Chris Paul's
+insufficient and unavailable states hid metrics and flow bubbles. Reset restored
+LeBron, 2025-26, Shot locations and 0%. Rapid player and season changes retained
+the last selected result after loading completed. Both existing court layers
+remained identical when switching away and back at the same setting.
+
+Arrow-key view selection, visible focus, named court images and the text
+disclosure passed; bubbles created no focus stops. Desktop at 1440px and mobile
+at an explicit 375px viewport had no horizontal overflow. The mobile courts
+stacked in source, total, destination order. Application console warnings and
+errors were absent. Screen-reader speech and native zoom remain manual checks.
+
+The live asset inventory contained only the existing data routes. View and
+slider changes introduced no new data URL; selecting Wembanyama added only his
+payload. This inventory does not count repeated requests to the same URL. The
+deployed script matches the build whose pre-release request log confirmed no
+extra requests for view/slider changes, and the fetch logic is unchanged.
+
+The pre-existing unavailable-season Loading wording remains unchanged. No
+analytics, data, dependencies, scores, gains, hosting settings, Netlify controls
+or preserved untracked files changed. Player comparison has not begun and needs
+separate scope and implementation authorization. This release does not authorize it.

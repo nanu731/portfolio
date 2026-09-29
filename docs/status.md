@@ -2,9 +2,10 @@
 
 Snapshot for a reader new to the site. Updated 29 September 2026.
 
-## Review-only Shot movement view
+## Released Shot movement view
 
-The NBA explorer now has a third view ready for review. Shot movement shows areas
+The NBA explorer now has a third view live on nslanalytics.com and its www address.
+Shot movement shows areas
 losing attempts in rust and receiving areas in cyan, with the total moved volume
 between them in mobile reading order. The desktop courts sit side by side.
 At zero movement, a short explanation asks readers to use the slider. The existing
@@ -22,11 +23,20 @@ overflow. The build passed, console checks were clean, and switching views or
 moving the slider added no data requests. Native zoom, physical-device touch and
 screen-reader speech still need manual review.
 
-This change has not been merged or deployed. Narayan must approve the visual
-review before authorizing a production merge and deployment. Analytics, exports,
-dependencies and hosting settings remain unchanged.
+Narayan approved the reviewed feature for release. The merge and push succeeded,
+and GitHub reported a successful Vercel deployment. The apex address redirects
+to www. Both domains served the verified page, script, stylesheets and fonts.
+Fifteen sampled live data files matched the committed data. Live checks covered
+all 30 LeBron season-and-slider combinations, Wembanyama, unavailable states,
+reset, rapid changes and keyboard controls. Desktop and 375-pixel mobile had no
+horizontal overflow or application console errors. The live resource inventory
+showed no new flow-data route; the unchanged script passed the earlier request
+count check. Analytics, exports, dependencies and hosting settings remain unchanged.
 
-## Last verified public release
+The unavailable-season Loading wording remains an unchanged limitation. Player
+comparison needs separate authorization and has not begun.
+
+## Earlier public release record
 
 The September release check found the approved plain-language NBA redesign live
 on the Netlify address. This task did not recheck the live site or hosting. Narayan
@@ -47,7 +57,7 @@ model works, and Formulas start closed beneath fourteen limitations. Fourteen
 variable-and-meaning pairs precede seven equations. Desktop uses aligned rows
 with dotted leaders; mobile stacks each pair.
 
-## Verified release checks
+## Earlier release checks
 
 The successful production build was reused because the source had not changed.
 It built six pages and reported only the existing empty-blog warnings. No
@@ -96,5 +106,6 @@ testing. Release approval did not authorize those recommendations.
 
 Analytics, models, calculations, all statistical exports, prototypes, and the
 pre-existing layout test remain unchanged. Both untracked artifacts retain their
-recorded hashes and remain excluded from commits. The custom-domain issue remains
-outside this release; its registration was not rechecked.
+recorded hashes and remain excluded from commits. The older narayanlekhi.com
+registration question was not rechecked. The current nslanalytics.com addresses
+were verified for the Shot movement release above; no domain configuration changed.
