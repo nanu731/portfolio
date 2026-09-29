@@ -1561,6 +1561,13 @@ const { comparisonSlot } = Astro.props as { comparisonSlot?: 'A' | 'B' };
 					`A shooting map exists for ${playerName} in ${this.seasonLabel(season)}, but no area passes the rules for moving shots.`;
 			}
 
+			const chartMessage = 'Chart unavailable';
+			requireElement<HTMLElement>(this, '[data-cell-detail]').textContent = chartMessage;
+			requireElement<SVGTitleElement>(this, '[data-court-title]').textContent =
+				`${playerName}, ${this.seasonLabel(season)}: chart unavailable`;
+			requireElement<SVGDescElement>(this, '[data-court-description]').textContent = copy.textContent;
+			requireElement<SVGTextElement>(this, '[data-court-empty] text').textContent = chartMessage;
+
 			requireElement<HTMLElement>(this, '[data-caption-player]').textContent =
 				`${playerName}, ${this.seasonLabel(season)}.`;
 			requireElement<HTMLElement>(this, '[data-caption-body]').textContent =

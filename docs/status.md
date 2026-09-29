@@ -2,6 +2,14 @@
 
 Snapshot for a reader new to the site. Updated 29 September 2026.
 
+## Unreleased unavailable-season wording repair
+
+The unavailable-season state now replaces the court's temporary loading label
+with Chart unavailable after the season check finishes. The detailed reason,
+reset behavior and empty numerical state remain unchanged. A focused regression
+check, all 9,042 existing payload-and-slider checks and the production build
+passed. This repair remains on a feature branch and is not yet deployed.
+
 ## Released two-player comparison
 
 A separate NBA comparison page now pairs two existing player explorers. It opens
@@ -119,11 +127,9 @@ bottom of a screenshot; readers can scroll the page to reveal the covered text.
 
 ## Remaining limitations and next decision
 
-One unavailable-season edge case needs a follow-up: Chris Paul's 2025-26 selection
-explains that 56 shots in 16 games fail eligibility, but the empty court still says
-Loading. No previous player's chart or numerical result appears. Reset works.
-This release verification found and recorded the placeholder issue; it did not
-change the approved interface. Narayan can authorize a narrow repair separately.
+The unavailable-season Loading issue has a verified local repair, recorded above.
+The deployed site will retain the old wording until that branch is reviewed and
+released.
 
 Free-pointer hover transit, native 200% zoom, physical-device touch, and
 screen-reader speech remain untested. Browser clicks approximate touch, and the
