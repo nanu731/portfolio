@@ -62,6 +62,7 @@ import DefinitionHelp from './DefinitionHelp.astro';
 					<div class="view-options">
 						<label><input type="radio" name="court-view" value="combined" checked /> Shot locations</label>
 						<label><input type="radio" name="court-view" value="ability" /> Make-chance map</label>
+						<label><input type="radio" name="court-view" value="movement" /> Shot movement</label>
 					</div>
 				</fieldset>
 				<h3 class="guide-step"><span>2</span> Set the change</h3>
@@ -114,6 +115,37 @@ import DefinitionHelp from './DefinitionHelp.astro';
 					<p>The slider changes the scoring estimate, not this map. The fixed scale below applies to every player and season.</p>
 				</div>
 
+				<section class="movement-view" hidden data-movement aria-label="Shot movement">
+					<p class="court-guide">The model estimates how much shooting volume leaves each area and how much is added to supported areas. It does not match a specific original shot to a specific destination.</p>
+					<p class="movement-empty" data-flow-empty role="status">Move the slider above 0% to see where attempts leave and where they are added.</p>
+					<div hidden data-flow-positive>
+						<div class="movement-courts">
+							{['removed', 'added'].map((direction) => (
+								<Fragment>
+									{direction === 'added' && <div class="movement-total" role="status" aria-live="polite"><h4>Relocated attempts</h4><p class="numeric" data-flow-total></p><p>Equivalent attempts, including fractions.</p></div>}
+									<div class={`movement-court movement-court--${direction}`}>
+										<h4>{direction === 'removed' ? 'Attempts removed from' : 'Attempts added to'}</h4>
+										<svg viewBox="-20 -20 540 490" role="img" aria-labelledby={`flow-${direction}-title`} data-flow-court={direction}>
+											<title id={`flow-${direction}-title`}>{direction === 'removed' ? 'Areas losing attempts' : 'Areas receiving attempts'}</title>
+											<g class="court-lines court-lines--ink" aria-hidden="true">
+												<rect x="1" y="1" width="498" height="448" />
+												<path d="M30 450 L30 308 A237.5 237.5 0 0 1 470 308 L470 450" />
+												<rect x="170" y="260" width="160" height="190" />
+												<circle cx="250" cy="260" r="60" />
+												<path d="M210 397.5 A40 40 0 0 0 290 397.5" />
+												<line x1="220" y1="410" x2="280" y2="410" />
+												<circle cx="250" cy="397.5" r="7.5" />
+											</g>
+											<g data-flow-bubbles={direction} aria-hidden="true" />
+										</svg>
+									</div>
+								</Fragment>
+							))}
+						</div>
+						<p class="measure-note">Larger circles mean more attempts. Both courts use the same circle scale for this selection. Rust shows removal; cyan shows additions.</p>
+						<details class="movement-details"><summary>Read movement by area</summary><p>Area numbers match the Make-chance map. Positions are in feet from the basket; negative sideways values are left on this court.</p><div data-flow-summary></div></details>
+					</div>
+				</section>
 				<svg
 					class="court"
 					viewBox="0 0 500 450"
@@ -230,6 +262,7 @@ import DefinitionHelp from './DefinitionHelp.astro';
 </spatial-shot-explorer>
 
 <script>
+	import { relocationFlow, type FlowSlider } from '../lib/relocation-flow';
 	type EvidenceStatus =
 		| 'insufficient_evidence'
 		| 'single_destination'
@@ -290,7 +323,7 @@ import DefinitionHelp from './DefinitionHelp.astro';
 		supported_destination: boolean;
 	};
 
-	type SliderResult = {
+	type SliderResult = FlowSlider & {
 		requested_share: number;
 		actual_relocated_share: number;
 		actual_relocated_attempt_equivalents: number;
@@ -341,7 +374,7 @@ import DefinitionHelp from './DefinitionHelp.astro';
 		shots: Shot[];
 	};
 
-	type CourtView = 'combined' | 'ability';
+	type CourtView = 'combined' | 'ability' | 'movement';
 
 	const SVG_NS = 'http://www.w3.org/2000/svg';
 	const ROOT_SCHEMA = '4.0.0';
@@ -1083,6 +1116,14 @@ import DefinitionHelp from './DefinitionHelp.astro';
 			if (!this.currentPlayer) return;
 			document.dispatchEvent(new Event('close-definitions'));
 			this.courtView = view;
+			this.court.toggleAttribute('hidden', view === 'movement');
+			requireElement<HTMLElement>(this, '[data-cell-detail]').hidden = view === 'movement';
+			requireElement<HTMLElement>(this, '[data-movement]').hidden = view !== 'movement';
+			if (view === 'movement') {
+				if (this.currentPlayer.relocation_available) this.updateSlider();
+				else this.renderMovement();
+				return;
+			}
 			if (view === 'ability') this.renderHeatmap(this.currentPlayer);
 			else if (!this.currentPlayer.relocation_available) this.renderShotChart();
 			if (this.currentPlayer.relocation_available) this.updateSlider();
@@ -1093,6 +1134,74 @@ import DefinitionHelp from './DefinitionHelp.astro';
 			requireElement<SVGGElement>(this, '[data-destination-markers]').replaceChildren();
 			requireElement<SVGGElement>(this, '[data-shot-origins]').replaceChildren();
 			requireElement<SVGGElement>(this, '[data-shot-dots]').replaceChildren();
+		}
+
+		private renderMovement() {
+			const player = this.currentPlayer;
+			if (!player) return;
+			const panel = requireElement<HTMLElement>(this, '[data-movement]');
+			const positive = requireElement<HTMLElement>(panel, '[data-flow-positive]');
+			const empty = requireElement<HTMLElement>(panel, '[data-flow-empty]');
+			positive.hidden = true;
+			panel.querySelectorAll('[data-flow-bubbles], [data-flow-summary]').forEach((node) => node.replaceChildren());
+			for (const selector of ['[data-shot-guide]', '[data-map-help]', '[data-shot-legend]', '[data-heat-legend]']) {
+				requireElement<HTMLElement>(this, selector).hidden = true;
+			}
+			requireElement<HTMLElement>(this, '[data-court-mode-label]').textContent = 'Shot movement';
+			try {
+				const slider = player.sliders.find((row) => row.requested_share === Number(this.slider.value) / 100);
+				if (!slider) throw new Error('Missing movement setting');
+				const flow = relocationFlow(player, slider);
+				const total = flow.actual_relocated_attempt_equivalents;
+				empty.hidden = flow.relocation_available && total > 0;
+				if (!flow.relocation_available) {
+					empty.textContent = requireElement<HTMLElement>(this, '[data-unavailable-copy]').textContent;
+				} else {
+					empty.textContent = 'Move the slider above 0% to see where attempts leave and where they are added.';
+				}
+				requireElement<HTMLElement>(this, '[data-caption-body]').textContent = !empty.hidden
+					? empty.textContent : 'Separate totals show areas losing and receiving attempts, without matching individual shots.';
+				if (!empty.hidden) return;
+				// Format only after aggregation; suppress binary tails such as 63.400000000000006.
+				const amount = (value: number) => value.toLocaleString('en-US', { maximumSignificantDigits: 15 });
+				requireElement<HTMLElement>(panel, '[data-flow-total]').textContent = amount(total);
+				const maximum = Math.max(...flow.cells.flatMap((cell) => [cell.removed_attempt_equivalents, cell.added_attempt_equivalents]));
+				const summary = requireElement<HTMLElement>(panel, '[data-flow-summary]');
+				for (const direction of ['removed', 'added'] as const) {
+					const heading = document.createElement('h5');
+					heading.textContent = direction === 'removed' ? 'Attempts removed from' : 'Attempts added to';
+					const list = document.createElement('ul');
+					const layer = requireElement<SVGGElement>(panel, `[data-flow-bubbles="${direction}"]`);
+					let count = 0;
+					for (const cell of flow.cells) {
+						const value = cell[`${direction}_attempt_equivalents`];
+						if (value === 0) continue;
+						count++;
+						const bounds = player.heatmap_cells[cell.cell_id - 1];
+						const circle = document.createElementNS(SVG_NS, 'circle');
+						circle.setAttribute('cx', String(courtX((bounds.x_min_ft + bounds.x_max_ft) / 2)));
+						circle.setAttribute('cy', String(courtY((bounds.y_min_ft + bounds.y_max_ft) / 2)));
+						circle.setAttribute('r', String(17 * Math.sqrt(value / maximum)));
+						circle.setAttribute('class', `flow-bubble flow-bubble--${direction}`);
+						circle.dataset.mass = String(value);
+						const description = `Area ${cell.cell_id}: ${amount(value)} attempts; sideways ${bounds.x_min_ft} to ${bounds.x_max_ft} feet, upcourt ${bounds.y_min_ft} to ${bounds.y_max_ft} feet.`;
+						const title = document.createElementNS(SVG_NS, 'title');
+						title.textContent = description;
+						circle.append(title);
+						layer.append(circle);
+						const item = document.createElement('li');
+						item.textContent = description;
+						list.append(item);
+					}
+					requireElement<SVGTitleElement>(panel, `#flow-${direction}-title`).textContent =
+						`${player.player_name}, ${player.season}: ${amount(total)} attempts ${direction === 'removed' ? 'removed from' : 'added to'} ${count} areas. Read movement by area for the full list.`;
+					summary.append(heading, list);
+				}
+				positive.hidden = false;
+			} catch {
+				this.clearResult(player.player_name, 'Chart unavailable');
+				this.showError('We couldn’t verify this player’s shot movement. Try again.');
+			}
 		}
 
 		private renderShotChart() {
@@ -1411,6 +1520,7 @@ import DefinitionHelp from './DefinitionHelp.astro';
 			if (this.courtView === 'combined') {
 				this.renderShotChart();
 			}
+			if (this.courtView === 'movement') this.renderMovement();
 		}
 
 		private updateHelp(term: string, label: string, explanation: string) {
@@ -1422,6 +1532,10 @@ import DefinitionHelp from './DefinitionHelp.astro';
 		}
 
 		private clearResult(playerName: string, message: string) {
+			requireElement<HTMLElement>(this, '[data-movement]').hidden = true;
+			this.querySelectorAll('[data-flow-bubbles], [data-flow-summary], [data-flow-total]').forEach((node) => node.replaceChildren());
+			this.court.removeAttribute('hidden');
+			requireElement<HTMLElement>(this, '[data-cell-detail]').hidden = false;
 			document.dispatchEvent(new Event('close-definitions'));
 			requireElement<HTMLElement>(this, '[data-shot-guide]').hidden = true;
 			requireElement<HTMLElement>(this, '[data-map-help]').hidden = true;
@@ -1480,6 +1594,28 @@ import DefinitionHelp from './DefinitionHelp.astro';
 </script>
 
 <style>
+	.movement-view[hidden], .court[hidden], [data-cell-detail][hidden], [data-flow-positive][hidden], [data-flow-empty][hidden] { display: none; }
+	.movement-empty { padding: var(--space-m); border-block: var(--rule) solid var(--green); }
+	.movement-courts { display: grid; gap: var(--space-s); }
+	.movement-court { min-width: 0; }
+	.movement-court h4, .movement-total h4 { margin: 0 0 var(--space-xs); font-size: 1rem; }
+	.movement-court svg { display: block; width: 100%; background: var(--cream); }
+	.movement-total { padding-block: var(--space-s); border-block: var(--rule) solid var(--green); }
+	.movement-total p { margin: 0; overflow-wrap: anywhere; }
+	.movement-total .numeric { font-size: var(--type-h3); }
+	.movement-details { margin-top: var(--space-s); font-size: var(--type-small); }
+	.movement-details summary { cursor: pointer; padding-block: var(--space-xs); min-height: var(--control-height); }
+	.movement-details summary:focus-visible { outline: var(--rule-thick) solid var(--accent); outline-offset: var(--space-3xs); }
+	.movement-details :global(li) { overflow-wrap: anywhere; }
+	:global(.flow-bubble) { stroke: var(--green); stroke-width: 1.2; }
+	:global(.flow-bubble--removed) { fill: var(--accent); }
+	:global(.flow-bubble--added) { fill: var(--relocated); }
+	@media (min-width: 58rem) {
+		.movement-courts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+		.movement-court--removed { grid-column: 1; grid-row: 1; }
+		.movement-court--added { grid-column: 2; grid-row: 1; }
+		.movement-total { grid-column: 1 / -1; }
+	}
 	.spatial-explorer {
 		--control-height: 3rem;
 		--suggestion-max-height: 18rem;
