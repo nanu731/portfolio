@@ -1,0 +1,23 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import PlayerComparison from '../../components/PlayerComparison.astro';
+---
+<!doctype html>
+<html lang="en">
+  <head><BaseHead title="Compare NBA shot mixes | Narayan Lekhi" description="Compare two players’ own historical shot mixes and supported relocation scenarios." /></head>
+  <body>
+    <Header />
+    <main class="band">
+      <div class="band-inner band-inner--wide at-edge">
+        <p><a href="/projects/nba-shot-selection-analytics/">Return to the single-player explorer</a></p>
+        <h1>Compare two shot mixes</h1>
+        <p>These estimates compare each player with their own historical shot mix. They do not rank overall talent or prove that one player is a better shooter.</p>
+        <p>Choose two players in one season. A shared slider and court view keep the scenario aligned. Changing either player or the season resets relocation to 0%.</p>
+        <PlayerComparison />
+      </div>
+    </main>
+    <Footer />
+  </body>
+</html>
