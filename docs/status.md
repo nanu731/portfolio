@@ -1,6 +1,19 @@
 # Portfolio site status
 
-Snapshot for a reader new to the site. Updated 29 September 2026.
+Snapshot for a reader new to the site. Updated 3 October 2026.
+
+## Review-only design tooling
+
+Impeccable is installed for this portfolio on an isolated feature branch. The
+setup includes the official design skill and Codex hook; no application
+dependency or visible site change was added. The project instructions now
+require an audit before restrained polish and visual checks before committing.
+
+Work stopped at the approval boundary: a fresh portfolio task must discover the
+skill, and Narayan must review the hook before UI work continues. Product/design
+initialization, before/after screenshots, and browser checks remain pending.
+Nothing was merged or deployed. The separate unavailable-chart repair and
+preserved untracked work remain excluded.
 
 ## Released two-player comparison
 

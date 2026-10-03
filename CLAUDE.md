@@ -62,6 +62,24 @@ Always start in background mode so the terminal stays free: `astro dev
 
 ## Visual direction
 
+### Impeccable workflow
+
+- Use the project-local Impeccable skill at `.agents/skills/impeccable/SKILL.md`
+  for UI work. If it is not discovered or its Codex hook needs approval, stop
+  before UI edits and ask for a fresh portfolio task and hook review.
+- Read durable product and design context before editing. Initialize from the
+  existing site, these instructions, and verified project documentation; do not
+  invent content. Keep shared `PRODUCT.md`, `DESIGN.md`, and design records in
+  Git once established, but exclude caches, screenshots, and session state.
+- Audit and critique before editing. Prefer subtle, evidence-backed changes to
+  hierarchy, typography, spacing, alignment, density, and controls over redesign.
+- Preserve the cream/green/rust/cyan identity, established fonts, accessibility,
+  responsive layouts, wording, analytics, and behavior. Scope and user-approved
+  design constraints take precedence over generic skill suggestions.
+- Capture matched before/after views and verify keyboard focus, desktop, 375px
+  mobile, reflow, overflow, console, and production build before committing UI
+  changes. Keep installation and UI polish in separate commits.
+
 Bold and graphic. Strong color, large type, confident layout, real contrast.
 
 Bold is the easiest direction to get wrong, because the default "bold" output
