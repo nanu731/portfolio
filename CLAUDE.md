@@ -22,26 +22,34 @@ hand-waving immediately. Be concrete and skip jargon that isn't doing work.
   shot explorer loads the player index once and only the selected player payload.
   The older build-time zone chart remains preserved for now.
 - Analysis code lives in separate repos, linked from each project page
-- Deployed on Netlify from GitHub. Serving at `nlekhi.netlify.app`; `narayanlekhi.com`
-  is configured but unregistered, so it is not yet an address. See Build and hosting.
+- Serving at `www.nslanalytics.com` through Vercel and `nlekhi.netlify.app`
+  through Netlify. Public requests verified both hosts on 10 October 2026.
+  The custom apex redirects to www. See Build and hosting.
 
 ### Build and hosting
 
-Netlify builds this repo. These settings live in the Netlify dashboard, not in the
-project, so they are written here rather than left invisible.
+Vercel and Netlify serve this portfolio. The last recorded Netlify build settings
+are below; the 10 October 2026 security work did not inspect either dashboard.
 
 - Branch: `main`. Every push deploys.
 - Build command: `npm run build`
 - Publish directory: `dist`
 - Node: pinned to 22 by environment variable in the dashboard, matching the
   `engines` floor in `package.json`
-- Serving at `nlekhi.netlify.app`. That is the real address until the domain exists.
+- Serving at `nlekhi.netlify.app` in addition to the Vercel custom address.
 
-`site` in `astro.config.mjs` is set to `https://narayanlekhi.com` ahead of
-registration. The domain is not bought yet, so canonical URLs, the sitemap, RSS,
-and link previews stay broken until it exists and points at Netlify. They point at
-the unregistered domain rather than at the netlify.app address, so they are wrong on
-the live site too, not merely absent.
+`site` in `astro.config.mjs` now uses `https://www.nslanalytics.com`. The local
+production build verified the corrected canonical URLs, sitemap and RSS on
+10 October 2026; deployment remains pending. The older narayanlekhi.com
+registration claim was not rechecked.
+
+Security headers live in `vercel.json` and `netlify.toml`; the latter contains no
+build-setting overrides. Astro generates the per-page CSP script/style hashes.
+The host CSP adds framing protection without a second default-src or script-src
+rule that would reject those hashed inline modules. Keep the two host header sets
+aligned, and test changes against built pages rather than the development server.
+The style-attribute exception preserves existing chart swatches and highlighting;
+script attributes remain blocked. These settings need live verification after release.
 
 Project write-ups are `.mdx`, so a page can place band components, an interactive
 chart, and tables at chosen points in the body. Blog posts stay plain `.md`. Plots

@@ -6,9 +6,8 @@ import { defineConfig, fontProviders } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
-	// Set ahead of registration. The domain is not bought yet, so canonical URLs,
-	// the sitemap, RSS, and link previews only resolve once it exists and points here.
-	site: 'https://narayanlekhi.com',
+	// Use the verified public address for canonical URLs, sitemap and RSS.
+	site: 'https://www.nslanalytics.com',
 	security: {
 		// Astro hashes bundled and inline scripts at build time. The hosts add
 		// frame-ancestors through response headers, where browsers enforce it.

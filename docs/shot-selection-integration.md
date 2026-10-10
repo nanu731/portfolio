@@ -1,5 +1,13 @@
 # Integrating the NBA shot selection project
 
+> **Hosting and security update, 10 October 2026:** Public requests verified
+> www.nslanalytics.com through Vercel and nlekhi.netlify.app through Netlify.
+> The local build now uses www.nslanalytics.com for canonical URLs, sitemap and
+> RSS. The repository now contains both host header configurations and Astro CSP
+> settings. These changes await release and live verification. Configuration
+> excerpts below remain historical snapshots; use the current repository files
+> for builds.
+
 > **Current status, verified 6 September 2026:** The targeted version-four spatial
 > integration supersedes the zone-era data and chart plan in this document. The
 > portfolio covers five separate seasons from 2021-22 through 2025-26, with 1,507
@@ -1748,13 +1756,14 @@ that reason: a listing that forgets it links to a page the build never made.
 
 ### Deployment
 
-**`site` points at a domain nobody owns.** Canonical URLs, the sitemap, and RSS all
-resolve to a dead host until registration. Never build a data URL from `Astro.site`. Use
-root-relative paths, which work on localhost, on the Netlify preview URL, and on the real
-domain.
+**Use root-relative data paths.** The local build now uses the verified custom
+address for canonical URLs, sitemap and RSS, with release pending. Data paths
+should still work on localhost and both hosts, so never build them from `Astro.site`.
 
-**No `netlify.toml` exists.** Build settings live in the Netlify dashboard, which is not
-in this repo. Adding the file is a repo-root change and needs Narayan's approval.
+**Host headers now have repository configuration.** `netlify.toml` contains
+security headers, with no build-setting overrides. `vercel.json` contains the
+matching headers. The dashboard build settings remain outside this document's
+verified current scope.
 
 ### Content
 
