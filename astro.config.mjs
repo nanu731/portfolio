@@ -9,6 +9,27 @@ export default defineConfig({
 	// Set ahead of registration. The domain is not bought yet, so canonical URLs,
 	// the sitemap, RSS, and link previews only resolve once it exists and points here.
 	site: 'https://narayanlekhi.com',
+	security: {
+		// Astro hashes bundled and inline scripts at build time. The hosts add
+		// frame-ancestors through response headers, where browsers enforce it.
+		csp: {
+			directives: [
+				"default-src 'self'",
+				"base-uri 'self'",
+				"object-src 'none'",
+				"form-action 'none'",
+				"frame-src 'none'",
+			],
+			scriptDirective: {
+				resources: ["'self'", { resource: "'none'", kind: 'attribute' }],
+			},
+			styleDirective: {
+				// Existing chart swatches and syntax highlighting use style attributes.
+				// Keep that exception on attributes; style elements retain their hashes.
+				resources: ["'self'", { resource: "'unsafe-inline'", kind: 'attribute' }],
+			},
+		},
+	},
 	integrations: [
 		mdx(),
 		// /styleguide is an internal reference page. Keep it out of the sitemap so

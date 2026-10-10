@@ -1,0 +1,11 @@
+# Astro supplies script/style hashes in each built page's CSP meta element.
+# Do not add default-src or script-src here: a second policy would block those
+# inline modules unless it also contained their build-specific hashes.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'none'"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
