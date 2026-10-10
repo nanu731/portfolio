@@ -4,6 +4,28 @@ Snapshot for a reader new to the site. Updated 10 October 2026.
 
 ## Security audit
 
+Security repairs now pass local checks and await release. The dependency audit
+reports zero known vulnerabilities after patches within the existing version
+ranges. Both hosts now have matching browser security configurations, and the
+build generates policies that allow the site's own scripts through content hashes.
+The local pages, sitemap and RSS use the verified www.nslanalytics.com address.
+
+The production build passes. Browser checks covered both explorers, player
+search, comparison reset, all eighteen slider/view combinations in the comparison,
+all five LeBron seasons and the contextual help popup. The tested pages had no
+console warnings or errors. A new mobile check remains unverified because the
+browser did not apply the requested viewport. The build emits CSP scope and
+syntax-highlighting warnings; the existing style-attribute exception preserves
+formatting while the policy still blocks inline JavaScript attributes.
+
+Account checks await sign-in: GitHub, Vercel and Netlify each showed a login screen.
+MFA, collaborators, environment settings, preview access and spending controls
+remain unverified. No account change, push or deployment occurred. Public headers
+and metadata still need verification after release. The audit remains open.
+
+The initial audit findings below describe the public deployment before these
+local repairs.
+
 The 10 October audit checked the application, reachable local Git history,
 dependency advisories, and public responses from both serving hosts. The site
 has no visitor login, database, uploads, or paid API calls. The credential scan
@@ -18,11 +40,10 @@ nine packages, including Astro. The static site limits exposure to server-side
 attacks, but the packages still need patch review. Hosting account permissions,
 environment settings, preview access and spending controls remain unverified.
 
-The canonical address still names narayanlekhi.com. The audit did not check that
-domain's registration. Earlier Netlify-only hosting instructions need to account
-for the verified Vercel custom address and the still-serving Netlify address.
-The full twenty-item checklist records the findings and scope. No application
-repair, dependency update, hosting change or deployment occurred in this audit.
+The initial canonical address named narayanlekhi.com. The audit did not check that
+domain's registration. The revised hosting instructions now account for the
+verified Vercel custom address and the still-serving Netlify address. The full
+twenty-item checklist records the initial findings and subsequent local repairs.
 
 ## Released two-player comparison
 
