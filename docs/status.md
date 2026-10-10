@@ -1,6 +1,28 @@
 # Portfolio site status
 
-Snapshot for a reader new to the site. Updated 29 September 2026.
+Snapshot for a reader new to the site. Updated 10 October 2026.
+
+## Security audit
+
+The 10 October audit checked the application, reachable local Git history,
+dependency advisories, and public responses from both serving hosts. The site
+has no visitor login, database, uploads, or paid API calls. The credential scan
+found no matches for the tested secret formats. This result covers local history,
+not remote-only records or every possible secret format.
+
+Public requests confirmed that www.nslanalytics.com serves through Vercel and
+nlekhi.netlify.app serves through Netlify. Both redirect HTTP to HTTPS and send
+headers that tell browsers to keep using HTTPS. Both lack a Content Security
+Policy and several other browser security headers. The dependency audit flagged
+nine packages, including Astro. The static site limits exposure to server-side
+attacks, but the packages still need patch review. Hosting account permissions,
+environment settings, preview access and spending controls remain unverified.
+
+The canonical address still names narayanlekhi.com. The audit did not check that
+domain's registration. Earlier Netlify-only hosting instructions need to account
+for the verified Vercel custom address and the still-serving Netlify address.
+The full twenty-item checklist records the findings and scope. No application
+repair, dependency update, hosting change or deployment occurred in this audit.
 
 ## Released two-player comparison
 
