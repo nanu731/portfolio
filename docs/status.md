@@ -10,18 +10,24 @@ ranges. Both hosts now have matching browser security configurations, and the
 build generates policies that allow the site's own scripts through content hashes.
 The local pages, sitemap and RSS use the verified www.nslanalytics.com address.
 
-The production build passes. Browser checks covered both explorers, player
-search, comparison reset, all eighteen slider/view combinations in the comparison,
-all five LeBron seasons and the contextual help popup. The tested pages had no
-console warnings or errors. A new mobile check remains unverified because the
-browser did not apply the requested viewport. The build emits CSP scope and
-syntax-highlighting warnings; the existing style-attribute exception preserves
-formatting while the policy still blocks inline JavaScript attributes.
+The isolated release passes a clean installation, dependency audit and production
+build. Both explorers passed all six slider settings across all three court views
+and loaded all five LeBron seasons. Player selection, comparison reset, keyboard
+controls, help opening and dismissal, and unavailable estimates passed. Chrome
+confirmed desktop at 1440 by 1000 and mobile at 375 by 812, with no horizontal
+overflow or application console warnings or errors.
 
-Account checks await sign-in: GitHub, Vercel and Netlify each showed a login screen.
-MFA, collaborators, environment settings, preview access and spending controls
-remain unverified. No account change, push or deployment occurred. Public headers
-and metadata still need verification after release. The audit remains open.
+Chrome blocked the framing test. The browser client blocked the negative script
+fixture before the page loaded, so that attempt does not prove policy enforcement.
+Static checks confirmed permitted script hashes and blocked script attributes.
+The existing unavailable-season Loading wording remains unchanged. No application
+source, public data or layout changed in this release.
+
+GitHub returned only Narayan's account as a repository collaborator. Its API did
+not expose MFA. GitHub, Vercel and Netlify settings still require sign-in; MFA,
+hosting access, environment settings, preview access and spending controls remain
+unverified. No account change, push or deployment occurred. Public headers and
+metadata still need verification after release. The audit remains open.
 
 The initial audit findings below describe the public deployment before these
 local repairs.
