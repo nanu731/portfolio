@@ -2,9 +2,9 @@
 
 > **Hosting and security update, 10 October 2026:** Public requests verified
 > www.nslanalytics.com through Vercel and nlekhi.netlify.app through Netlify.
-> The local build now uses www.nslanalytics.com for canonical URLs, sitemap and
-> RSS. The repository now contains both host header configurations and Astro CSP
-> settings. These changes await release and live verification. Configuration
+> Both public hosts now use www.nslanalytics.com for canonical URLs, sitemap and
+> RSS. Live response headers, generated page policies and both explorers passed
+> release verification. Account settings still require sign-in. Configuration
 > excerpts below remain historical snapshots; use the current repository files
 > for builds.
 
@@ -1756,8 +1756,8 @@ that reason: a listing that forgets it links to a page the build never made.
 
 ### Deployment
 
-**Use root-relative data paths.** The local build now uses the verified custom
-address for canonical URLs, sitemap and RSS, with release pending. Data paths
+**Use root-relative data paths.** The release and both public hosts now use the
+verified custom address for canonical URLs, sitemap and RSS. Data paths
 should still work on localhost and both hosts, so never build them from `Astro.site`.
 
 **Host headers now have repository configuration.** `netlify.toml` contains

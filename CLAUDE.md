@@ -38,9 +38,9 @@ are below; the 10 October 2026 security work did not inspect either dashboard.
   `engines` floor in `package.json`
 - Serving at `nlekhi.netlify.app` in addition to the Vercel custom address.
 
-`site` in `astro.config.mjs` now uses `https://www.nslanalytics.com`. The local
-production build verified the corrected canonical URLs, sitemap and RSS on
-10 October 2026; deployment remains pending. The older narayanlekhi.com
+`site` in `astro.config.mjs` now uses `https://www.nslanalytics.com`. The production
+build and both public hosts verified the corrected canonical URLs, sitemap and
+RSS on 10 October 2026. The older narayanlekhi.com
 registration claim was not rechecked.
 
 Security headers live in `vercel.json` and `netlify.toml`; the latter contains no
@@ -49,7 +49,7 @@ The host CSP adds framing protection without a second default-src or script-src
 rule that would reject those hashed inline modules. Keep the two host header sets
 aligned, and test changes against built pages rather than the development server.
 The style-attribute exception preserves existing chart swatches and highlighting;
-script attributes remain blocked. These settings need live verification after release.
+script attributes remain blocked. Live header and explorer checks passed on both hosts on 10 October 2026.
 
 Project write-ups are `.mdx`, so a page can place band components, an interactive
 chart, and tables at chosen points in the body. Blog posts stay plain `.md`. Plots

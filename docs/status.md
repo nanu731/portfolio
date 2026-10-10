@@ -2,54 +2,49 @@
 
 Snapshot for a reader new to the site. Updated 10 October 2026.
 
-## Security audit
+## Released security repairs
 
-Security repairs now pass local checks and await release. The dependency audit
-reports zero known vulnerabilities after patches within the existing version
-ranges. Both hosts now have matching browser security configurations, and the
-build generates policies that allow the site's own scripts through content hashes.
-The local pages, sitemap and RSS use the verified www.nslanalytics.com address.
+The reviewed security release now serves through Vercel at www.nslanalytics.com
+and through Netlify at nlekhi.netlify.app. The isolated release includes the five
+approved security changes and excludes design tooling, prototypes and layout-test
+content. The push to production succeeded. Vercel reports a successful deployment;
+public responses establish the Netlify result, whose dashboard remains inaccessible.
 
-The isolated release passes a clean installation, dependency audit and production
-build. Both explorers passed all six slider settings across all three court views
-and loaded all five LeBron seasons. Player selection, comparison reset, keyboard
-controls, help opening and dismissal, and unavailable estimates passed. Chrome
-confirmed desktop at 1440 by 1000 and mobile at 375 by 812, with no horizontal
-overflow or application console warnings or errors.
+The clean dependency installation and production build pass. The dependency audit
+reports zero known vulnerabilities. Both hosts return the intended matching browser
+security headers, and each page carries its generated script policy. HTTPS redirects
+and browser HTTPS enforcement remain intact. The custom apex redirects to www.
+All canonical metadata, sitemap and RSS use the corrected custom address.
 
-Chrome blocked the framing test. The browser client blocked the negative script
-fixture before the page loaded, so that attempt does not prove policy enforcement.
-Static checks confirmed permitted script hashes and blocked script attributes.
-The existing unavailable-season Loading wording remains unchanged. No application
-source, public data or layout changed in this release.
+All seven public pages match the verified build on each host. Nine referenced
+scripts, stylesheets and fonts, fifteen sampled data files and three metadata feeds
+match too. Sensitive environment and development paths remain unavailable. The
+release contains no application, analytics, data, content or layout change.
 
-GitHub returned only Narayan's account as a repository collaborator. Its API did
-not expose MFA. GitHub, Vercel and Netlify settings still require sign-in; MFA,
-hosting access, environment settings, preview access and spending controls remain
-unverified. No account change, push or deployment occurred. Public headers and
-metadata still need verification after release. The audit remains open.
+Both explorers passed all ninety combinations of five seasons, six slider settings
+and three views on each host. Player selection, capped estimates, keyboard controls,
+help popups, comparison reset and unavailable estimates passed. Chrome confirmed
+actual desktop dimensions of 1440 by 1000 and mobile dimensions of 375 by 812.
+Neither page overflowed horizontally or produced application console errors or
+policy violations during these checks. The earlier unavailable-season Loading
+placeholder remains unchanged; no release regression required rollback.
 
-The initial audit findings below describe the public deployment before these
-local repairs.
+Chrome blocked the local framing test. The browser client blocked the injected
+script fixture before loading, so that attempt does not prove policy enforcement.
+Static checks confirm permitted script hashes and blocked script attributes. The
+build retains its empty-blog, policy-scope and syntax-highlighting warnings; the
+style-attribute exception preserves existing formatting.
 
-The 10 October audit checked the application, reachable local Git history,
-dependency advisories, and public responses from both serving hosts. The site
-has no visitor login, database, uploads, or paid API calls. The credential scan
-found no matches for the tested secret formats. This result covers local history,
-not remote-only records or every possible secret format.
+GitHub confirms that Narayan's account is the only portfolio collaborator. All
+three account-settings pages require sign-in. MFA, hosting access, project and
+shared environment settings, preview access, plans, alerts and spending controls
+remain unverified. Sign in yourself and identify which account tabs are ready.
+The deployment is complete; the security audit remains open until those settings
+receive inspection. No account, authentication or billing setting changed.
 
-Public requests confirmed that www.nslanalytics.com serves through Vercel and
-nlekhi.netlify.app serves through Netlify. Both redirect HTTP to HTTPS and send
-headers that tell browsers to keep using HTTPS. Both lack a Content Security
-Policy and several other browser security headers. The dependency audit flagged
-nine packages, including Astro. The static site limits exposure to server-side
-attacks, but the packages still need patch review. Hosting account permissions,
-environment settings, preview access and spending controls remain unverified.
-
-The initial canonical address named narayanlekhi.com. The audit did not check that
-domain's registration. The revised hosting instructions now account for the
-verified Vercel custom address and the still-serving Netlify address. The full
-twenty-item checklist records the initial findings and subsequent local repairs.
+All 85 recorded untracked files in the original checkout retain their hashes and
+remain outside the release. The worktree preserves the security release record
+without changing the user's working branch.
 
 ## Released two-player comparison
 
