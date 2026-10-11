@@ -115,9 +115,9 @@ Native selects and range controls drive the explorer. Definition buttons open
 contextual help. Court SVGs support keyboard inspection. Unavailable analysis
 keeps explicit reasons and null estimates.
 
-The saved critique records the historical baseline. The local refinement branch
-fixes its eight scoped issues; production retains the released version until a
-separate approved release. The footer adjustment remains deferred.
+The saved critique records the historical baseline. The approved UI refinement
+fixes its eight scoped issues and serves on both public hosts, verified on
+11 October 2026. The footer adjustment remains deferred.
 
 ## Do's and Don'ts
 

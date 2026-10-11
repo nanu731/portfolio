@@ -5,7 +5,9 @@ The continuation started from clean `6dc3dd4`; tooling/context preparation is
 `1212802`. The eight UI repairs are committed; the subsequent desktop selector-width
 correction is recorded in the verification report. The approved 80rem comparison and desktop spacing steps are now implemented
 in `f21f1bc` and `9645dc2`; focused checks passed in all three engines at both
-desktop sizes and mobile. No push, merge or deployment ran.
+desktop sizes and mobile. Narayan approved release on 11 October 2026. The merge
+and push succeeded; both public hosts now serve the reviewed build. See the
+verification record for live checks and the Netlify badge policy messages.
 
 ## Current completed work
 
@@ -81,13 +83,13 @@ Footer polish stays deferred. Physical touch, screen-reader speech, speech
 control, native browser zoom, low-end performance and slow-network race testing
 remain unverified. The tests use browser keyboard/pointer automation and
 programmatic state changes; the 360 matrix does not claim 360 physical gestures.
-No production deployment or live-host revalidation of these UI repairs ran.
+Production deployment and live-host revalidation passed on 11 October 2026.
 
 ## Historical baseline at 6dc3dd4
 
 The record below describes the completed preceding audit. Its absent-native-tool
 and absent-product/design statements are historical; the current continuation
-above supersedes them. Its eight scoped UI defects are repaired in the current local branch; the footer remains deferred.
+above supersedes them. Its eight scoped UI defects are repaired in the released UI; the footer remains deferred.
 
 ## Isolated branch and preservation
 

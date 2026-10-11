@@ -4,7 +4,8 @@ Verified 10 October 2026, America/New_York. Branch:
 `codex/portfolio-ui-refinement`. Starting commit: `6dc3dd4`; preparation:
 `1212802`. Narayan confirmed worktree hook trust and enabled status and approved
 comparison regrouping. The review used the saved independent critique; no new
-reviewer or baseline audit ran. No push or deployment occurred.
+reviewer or baseline audit ran. No push or deployment occurred during that repair
+pass. The release record below supersedes the earlier local-only disposition.
 
 ## Repair commits and matched evidence
 
@@ -220,7 +221,8 @@ Updated reproducible checks: `scripts/playwright-ui-regressions.js` and
 `/private/tmp/portfolio-space-final-layout-scan.json`.
 
 Footer/caption changes, 84rem widening and other-page widening remain deferred.
-No push, merge or deployment ran; the implementation awaits release approval.
+At the implementation review, no push, merge or deployment had run. Narayan
+subsequently approved the release recorded below.
 
 ## Raw evidence
 
@@ -253,5 +255,51 @@ The footer adjustment stays deferred. Physical touch, screen-reader speech,
 speech control, native browser zoom, low-end performance and slow-network race
 checks remain unverified. The tests use browser keyboard/pointer automation and
 programmatic state dispatch. They do not establish physical gesture or
-assistive-technology behavior. Production remains on the released version;
-these UI repairs require a separate release instruction.
+assistive-technology behavior. Narayan supplied the separate release instruction;
+the UI repairs now serve on both public hosts.
+
+## Approved production release, 11 October 2026
+
+Narayan explicitly approved release in chat. Main had no divergent changes after
+the remote fetch. The isolated release checkout merged reviewed branch head
+`aa6b7a9` into main as `1d868e5`, then pushed main. The primary checkout and its
+untracked work stayed untouched. No hosting or account setting changed.
+
+The release production build passed. All 2,504 output files match the reviewed
+build byte-for-byte. All seven pages' generated policy hashes pass; both host
+header configurations match. Application dependencies, analytics, data and
+security policies remain unchanged. Reviewed design tooling stays outside dist.
+
+Public responses from Vercel at www.nslanalytics.com and Netlify at
+nlekhi.netlify.app match the build: seven pages, ten referenced scripts, styles
+and fonts, fifteen sampled data files, and three XML feeds per host. This samples
+data rather than fetching every player payload. Canonical metadata and inline
+policy hashes match. Both hosts return the expected security headers and HSTS,
+redirect HTTP to HTTPS, and deny environment, Git and development-client paths.
+The custom apex redirects to www. Dashboard deployment identifiers were not
+inspected; response hashes establish the deployed artifact.
+
+Live Chromium focused regressions passed on each host at 1440 x 1000,
+1920 x 1000 and 375 x 812. Keyboard search and dismissal, help, court keyboard
+inspection, selector order and width, one-line desktop guidance, identifiers,
+duplicate rejection, player persistence, reset, capped movement, unavailable
+estimates and unavailable court text passed. Desktop courts aligned and mobile
+selectors preceded results without horizontal overflow. Reflow at 320 pixels
+with doubled root text passed; reduced-motion checks found no active animations.
+Neither host produced application page errors. Vercel logged no console errors.
+Netlify logged two CSP blocks for inline style and script in its `nl-badge-frame`
+iframe titled Powered by Netlify. Those host badge messages do not affect the
+portfolio controls and were not addressed by changing the approved policies.
+
+Local Chromium, Firefox and WebKit regressions, the 60-case desktop alignment
+matrix and 14 normal/enlarged-text reflow cases remain the cross-engine evidence.
+No application source changed during release. Optional footer/caption work and
+manual device and accessibility limits above remain outside this release.
+
+Raw release evidence stays outside Git:
+
+- `/private/tmp/portfolio-ui-release-build.log`
+- `/private/tmp/portfolio-ui-release-security.json`
+- `/private/tmp/portfolio-live-verification.json`
+- `/private/tmp/portfolio-release-vercel-result.txt`
+- `/private/tmp/portfolio-release-netlify-result.txt`

@@ -2,10 +2,26 @@
 
 Snapshot for a reader new to the site. Updated 11 October 2026.
 
-## Eight UI repairs complete in the isolated branch
+## UI refinement released on both hosts
+
+Narayan approved release on 11 October 2026. The merge and push to production
+succeeded. Both www.nslanalytics.com and nlekhi.netlify.app serve the reviewed
+UI. All seven pages, ten referenced assets, fifteen sampled data files and three
+metadata feeds match the verified build. Browser security headers match on both
+hosts; HTTPS and the custom apex redirects pass. The hosting dashboards were
+not inspected for this release.
+
+Live Chromium checks passed at 1440 and 1920 pixels and 375-pixel mobile.
+Keyboard search, shared controls, reset, season persistence, capped and
+unavailable estimates, court alignment and selector order passed. The 320-pixel
+enlarged-text check passed. Vercel logged no console errors. Netlify logged two
+policy blocks inside its Powered by Netlify badge iframe; the portfolio had no
+application errors.
+
+## Eight UI repairs complete
 
 Narayan reviewed and trusted both project hooks and approved comparison
-regrouping. The local branch now fixes the range help name, home project row,
+regrouping. The released site now fixes the range help name, home project row,
 search dismissal, unavailable court text, enlarged-text header, shared control
 identifiers, desktop court alignment and mobile selector order. Each completed
 repair has its own commit and matched desktop/mobile views. Both selectors now
@@ -36,22 +52,21 @@ and existing visual system; reproducible checks and traces accompany the work.
 
 Footer polish remains deferred. Physical touch, assistive-technology speech,
 native browser zoom, slow-network races and low-end performance remain
-unverified. No push, deployment or live-host revalidation of the UI repairs ran.
-Production continues to serve the released UI. The local branch is ready for
-review; release requires a separate instruction.
+unverified. The release and live-host checks above complete the authorized UI
+repairs.
 
 ## Selector width correction after visual review
 
 The proposed desktop comparison had narrow search fields and excess wrapping
-in their guidance. The local correction restores both fields to their player
+in their guidance. The released correction restores both fields to their player
 column widths. Mobile grouping, wording and chart behavior stay intact. Focused
 Chromium, Firefox and WebKit checks pass; intermediate widths and doubled-text
 reflow pass. The production build and generated policy hashes pass. The correction
-awaits release with the other UI repairs.
+is live with the other UI repairs.
 
 Two optional visual follow-ups remain: spacing between adjacent figure-caption
 parts and a green footer that reaches the viewport bottom on short pages. Both
-were checked in the current local interface. Neither has been implemented.
+were checked during local review. Neither has been implemented.
 
 ## Approved desktop comparison complete
 
@@ -74,15 +89,17 @@ policy hashes passed; the final layout scan found no findings.
 
 The approved width and spacing changes have separate commits and matched views.
 The wider candidate and single-explorer widening remain deferred, as do optional
-footer and caption improvements. Nothing was pushed, merged or deployed.
-The local work is ready for release review and awaits Narayan's approval.
+footer and caption improvements. Narayan approved release; both public hosts
+now serve the approved result.
 
 ## Released security repairs
 
 The reviewed security release now serves through Vercel at www.nslanalytics.com
-and through Netlify at nlekhi.netlify.app. The isolated release includes the five
-approved security changes and excludes design tooling, prototypes and layout-test
-content. The push to production succeeded. Vercel reports a successful deployment;
+and through Netlify at nlekhi.netlify.app. The earlier security release included the five
+approved security changes and excluded design tooling, prototypes and layout-test
+content. The current UI release includes the reviewed design tools in Git; they
+stay outside the published site, along with prototypes and layout-test content.
+The security push succeeded. Vercel reported a successful security deployment;
 public responses establish the Netlify result, whose dashboard remains inaccessible.
 
 The clean dependency installation and production build pass. The dependency audit
@@ -102,8 +119,8 @@ help popups, comparison reset and unavailable estimates passed. Chrome confirmed
 actual desktop dimensions of 1440 by 1000 and mobile dimensions of 375 by 812.
 Neither page overflowed horizontally or produced application console errors or
 policy violations during these checks. At that release, the unavailable-season placeholder retained Loading; no
-release regression required rollback. The local UI refinement now fixes that
-wording without deploying it.
+release regression required rollback. The UI release above now fixes that
+wording on both hosts.
 
 Chrome blocked the local framing test. The browser client blocked the injected
 script fixture before loading, so that attempt does not prove policy enforcement.
@@ -138,8 +155,9 @@ Build, full-payload tests, selective network loading, keyboard controls, all
 season/slider/view combinations, desktop, 375-pixel mobile and half-width reflow
 checks passed. The original explorer retains its calculations and court views,
 with one added link to the comparison. Native zoom, screen-reader speech and
-physical touch still need manual review. At that release, unavailable-season text retained Loading. The local UI
-refinement now fixes it; production still uses the released version. Narayan approved release. The merge and push succeeded, and
+physical touch still need manual review. At that release, unavailable-season
+text retained Loading. The UI release above now fixes it on both hosts. Narayan
+approved that comparison release. The merge and push succeeded, and
 Vercel reported a successful automatic deployment. Both nslanalytics.com and its
 www address serve the comparison; the apex redirects to www.
 
@@ -184,9 +202,9 @@ horizontal overflow or application console errors. The live resource inventory
 showed no new flow-data route; the unchanged script passed the earlier request
 count check. Analytics, exports, dependencies and hosting settings remain unchanged.
 
-The released version retains the unavailable-season Loading wording. The local
-UI refinement now fixes it; no deployment ran for that change. The
-two-player comparison has since been released, as recorded above.
+That earlier release retained the unavailable-season Loading wording. The UI
+release above now fixes it on both hosts. The two-player comparison has since
+been released, as recorded above.
 
 ## Earlier public release record
 
@@ -242,9 +260,9 @@ bottom of a screenshot; readers can scroll the page to reveal the covered text.
 
 At that release, Chris Paul's 2025-26 selection explained that 56 shots in
 16 games fail eligibility, but its empty court retained Loading. The authorized
-local UI repair now finishes the court text with the existing reason and preserves
-unavailable values. The repair has passed browser checks and awaits deployment;
-the released site still has the older placeholder.
+UI repair now finishes the court text with the existing reason and preserves
+unavailable values. The repair has passed local and live browser checks and
+serves on both hosts.
 
 Free-pointer hover transit, native 200% zoom, physical-device touch, and
 screen-reader speech remain untested. Browser clicks approximate touch, and the

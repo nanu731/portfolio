@@ -38,7 +38,7 @@ An empty collection has no dummy entries or filler cards. The old zone chart
 remains preserved; its future remains undecided.
 
 Narayan requires approval before dependencies, file reorganization or deletion.
-This branch must not be pushed or deployed during the refinement task.
+Pushing, merging or deploying requires Narayan's explicit release approval.
 
 ## Brand Commitments
 

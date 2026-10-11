@@ -5,7 +5,8 @@ spacing refinement are implemented in `f21f1bc` and `9645dc2`. The approved scop
 preserves mobile selector order, prose widths, wording and behavior. The earlier
 version ambiguity is superseded by the user's explicit implementation instruction.
 No rollback was requested. The 84rem candidate and single-explorer widening remain
-outside the approved scope. No push or deployment ran.
+outside the approved scope. Narayan approved release on 11 October 2026; the
+merge and push succeeded, and both public hosts serve the verified result.
 
 The assessment and candidate measurements below are the historical basis for
 that decision. See the verification record for the implemented result.
@@ -87,8 +88,8 @@ Matched view, same viewport and scenario:
 
 The approved comparison changes were implemented one at a time with matched
 views, keyboard and enlarged-text checks, production builds and separate commits.
-Further widening or restructuring needs a new instruction. Release approval is
-still required before pushing, merging or deploying.
+Further widening or restructuring needs a new instruction. Narayan supplied
+release approval for the implemented comparison changes.
 
 Raw measurements and scan remain outside Git at
 `/private/tmp/portfolio-desktop-space-measurements.json` and
