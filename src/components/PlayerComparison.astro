@@ -114,4 +114,25 @@ import SpatialShotSelection from './SpatialShotSelection.astro';
   :global([data-comparison-slot] .comparison-metrics[hidden]) { display: none; }
   :global([data-comparison-slot] .comparison-metrics dt) { font-weight: 600; margin-top: var(--space-s); }
   :global([data-comparison-slot] .comparison-metrics dd) { margin: 0; font-family: var(--font-numeric); font-size: var(--type-small); overflow-wrap: anywhere; }
+  /* Share intrinsic row heights, including evidence and guidance. No fixed
+     note height assumes a particular player or text size. */
+  @media (min-width: 64rem) {
+    .comparison-columns { row-gap: var(--space-s); }
+    .comparison-columns > section { display: grid; grid-row: 1 / span 10; grid-template-rows: subgrid; }
+    .comparison-columns > section:first-child { grid-column: 1; }
+    .comparison-columns > section:last-child { grid-column: 2; }
+    :global([data-comparison-slot]) { display: grid; grid-row: 2 / span 9; grid-template-rows: subgrid; }
+    :global([data-comparison-slot] .figure) { display: grid; grid-row: 1 / span 9; grid-template-rows: subgrid; }
+    :global([data-comparison-slot] .player-controls) { grid-row: 1; }
+    :global([data-comparison-slot] .status-row) { grid-row: 2; }
+    :global([data-comparison-slot] .explorer-plot) { display: grid !important; grid-template-columns: minmax(0, 1fr) !important; grid-row: 3 / span 6; grid-template-rows: subgrid; }
+    :global([data-comparison-slot] .controls-panel) { grid-row: 1; }
+    :global([data-comparison-slot] .court-panel) { display: grid; grid-row: 2 / span 5; grid-template-rows: subgrid; }
+    :global([data-comparison-slot] .court-title-row) { grid-row: 1; }
+    :global([data-comparison-slot] .court-guide), :global([data-comparison-slot] .map-help) { grid-row: 2; }
+    :global([data-comparison-slot] .court), :global([data-comparison-slot] .movement-view) { grid-row: 3; align-self: start; }
+    :global([data-comparison-slot] .heat-legend), :global([data-comparison-slot] .shot-legend) { grid-row: 4; }
+    :global([data-comparison-slot] .cell-detail) { grid-row: 5; }
+    :global([data-comparison-slot] .comparison-metrics) { grid-row: 9; }
+  }
 </style>
