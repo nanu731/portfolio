@@ -12,7 +12,8 @@ creating the managed worktree. No push or deployment ran.
 Only the reviewed Impeccable installation from
 `456b1db3b0802b59c9645d77e8ee1ecbbf481eed` was copied from the foundation branch:
 the skill, hook manifest, ignored runtime rules, installation record and workflow
-instructions. The foundation branch's other changes were not merged. The
+instructions. All 64 vendored files match the reviewed source commit byte-for-byte.
+The foundation branch's other changes were not merged. The
 application source, public data, dependency files and hosting policies remain
 identical to the released security baseline. All 85 recorded untracked files in
 the original checkout retain their hashes.

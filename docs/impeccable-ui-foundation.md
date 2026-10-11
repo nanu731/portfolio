@@ -16,8 +16,9 @@ Installed with `npx impeccable install --providers=codex --scope=project` on
 The npm installer reports 4.1.0, the installed skill reports 4.5.0, and the
 platform engine reports 0.1.11. These are separate upstream version numbers.
 
-The 62 installed skill files match the official `skill-v4.5.0` universal archive
-byte-for-byte. The hook matches that release after the installer's path change
+The original installation verified the skill files against the official
+`skill-v4.5.0` universal archive byte-for-byte. The reviewed Git installation
+contains 64 vendored files, including LICENSE and NOTICE. The hook matches that release after the installer's path change
 from `.codex/skills/` to `.agents/skills/`. It runs the design detector on
 PostToolUse and Stop, with respective 5-second and 30-second timeouts.
 Upstream LICENSE and NOTICE accompany the vendored files.
