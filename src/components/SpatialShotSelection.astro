@@ -1617,7 +1617,7 @@ const { comparisonSlot } = Astro.props as { comparisonSlot?: 'A' | 'B' };
 				`The model estimates ${signed(season, 0)} extra points over the same ${whole(this.currentPlayer.observed_attempts)} recorded shots in ${seasonName}. This compares possible shot mixes, not a future season forecast.`);
 			this.updateHelp('range', 'Estimated Range (90%)',
 				`The middle 90% of the model’s estimates run from ${whole(seasonLow)} to ${whole(seasonHigh)} extra points. This range describes uncertainty within the model, not a guarantee about real games.`);
-			requireElement<HTMLButtonElement>(this, '[data-term="range"] button').setAttribute('aria-label', `Explain Estimated Range for Extra Points in ${seasonName}`);
+			requireElement<HTMLButtonElement>(this, '[data-term="range"] button').setAttribute('aria-label', `Explain Estimated Range (90%) for Extra Points in ${seasonName}`);
 			this.updateHelp('per-100', 'Extra Points per 100 Shots',
 				`The model estimates ${signed(per100, 1)} extra points for every 100 attempts at this slider setting. This puts players with different shot counts on the same scale.`);
 			if (this.courtView === 'combined') {
