@@ -87,7 +87,8 @@ spacing scale above 48rem; narrow screens use a consistent inset. Figures return
 to one fixed gutter and outgrow the prose measure. Ordinary pages have one green
 band plus the footer; project pages have two plus the footer.
 
-Keep the current responsive court layouts. Comparison groups both selectors ahead of mobile results. Desktop comparison
+Keep the current responsive court layouts. Comparison groups both selectors ahead of mobile results. Moved selector controls
+use a single-column layout and preserve the existing search measure cap. Desktop comparison
 uses shared intrinsic grid rows to align courts across evidence states. The
 header uses a text-relative container query to wrap enlarged text; normal-size
 header geometry remains unchanged.

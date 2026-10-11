@@ -1,6 +1,6 @@
 # Portfolio site status
 
-Snapshot for a reader new to the site. Updated 10 October 2026.
+Snapshot for a reader new to the site. Updated 11 October 2026.
 
 ## Eight UI repairs complete in the isolated branch
 
@@ -39,6 +39,19 @@ native browser zoom, slow-network races and low-end performance remain
 unverified. No push, deployment or live-host revalidation of the UI repairs ran.
 Production continues to serve the released UI. The local branch is ready for
 review; release requires a separate instruction.
+
+## Selector width correction after visual review
+
+The proposed desktop comparison had narrow search fields and excess wrapping
+in their guidance. The local correction restores both fields to their player
+column widths. Mobile grouping, wording and chart behavior stay intact. Focused
+Chromium, Firefox and WebKit checks pass; intermediate widths and doubled-text
+reflow pass. The production build and generated policy hashes pass. The correction
+awaits release with the other UI repairs.
+
+Two optional visual follow-ups remain: spacing between adjacent figure-caption
+parts and a green footer that reaches the viewport bottom on short pages. Both
+were checked in the current local interface. Neither has been implemented.
 
 ## Released security repairs
 

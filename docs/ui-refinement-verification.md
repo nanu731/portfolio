@@ -116,6 +116,48 @@ styles because the new design record omitted those component exceptions. The
 record now includes them; the final scan returned zero findings. UI type and
 detector ignores did not change.
 
+## 11 October selector-width correction
+
+Side-by-side visual review exposed a regression after selector regrouping: the
+moved controls inherited the single explorer's two-column season/search grid.
+A scoped comparison override now renders those controls as a block. At 1440px,
+each search field spans its 484px player column. At 375px, each stays 343px wide.
+The existing 36rem search measure cap remains in intermediate stacked layouts.
+
+Matched current before/after captures supersede earlier comparison captures for
+selector sizing:
+
+- Desktop: [before](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/selector-width-before-1440.png) / [after](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/selector-width-after-1440.png).
+- Mobile: [before](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/selector-width-before-375.png) / [after](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/selector-width-after-375.png).
+
+The focused Chromium, Firefox and WebKit suites passed again with a new width
+assertion. Comparison passed 320, 768, 1024 and 1440px widths at normal and doubled
+root text with no horizontal overflow. A breakpoint assertion initially assumed
+full width in the intermediate stacked layout; it was corrected to honor the
+existing measure cap. The 360-state matrix was not repeated for this CSS-only
+correction. The production build passed and all seven pages' inline hashes and
+preservation checks passed again. No dependency, policy, copy, data or behavior
+change occurred. No push or deployment ran.
+
+The review used Impeccable's narrow-defect and spacing guidance, Apple Design's
+craft and grouping guidance, UI-UX-Pro-Max style/palette/UX searches, and the
+refreshed Vercel checklist. Generic search output proposed replacement colors,
+fonts and landing patterns; the supplied portfolio brief takes precedence.
+No new reviewers or plugins were added.
+
+Verified optional follow-ups, not implemented: adjacent caption spans render
+`2025-26.Before`, and the short blog/projects pages leave cream below their green
+footer. At a 1000px viewport, footer bottoms measured about 635px and 770px.
+Mobile courts remain dense; preserve real marks and shape cues rather than
+adding decorative imagery or removing evidence. No further redesign is recommended.
+
+Additional results outside Git:
+`/private/tmp/portfolio-width-{chromium,firefox,webkit}-result.txt`,
+`/private/tmp/portfolio-width-breakpoints-result.txt`,
+`/private/tmp/portfolio-selector-width-build.log`,
+`/private/tmp/portfolio-width-security-result.txt`, and
+`/private/tmp/portfolio-visual-followups-result.txt`.
+
 ## Raw evidence
 
 Structured results are retained outside Git:

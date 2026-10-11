@@ -1,8 +1,9 @@
 # Design tools and UI refinement handoff
 
-Updated 10 October 2026, America/New_York. Branch: `codex/portfolio-ui-refinement`.
+Updated 11 October 2026, America/New_York. Branch: `codex/portfolio-ui-refinement`.
 The continuation started from clean `6dc3dd4`; tooling/context preparation is
-`1212802`. The eight UI repairs are committed. No push or deployment ran.
+`1212802`. The eight UI repairs are committed; the subsequent desktop selector-width
+correction is recorded in the verification report. No push or deployment ran.
 
 ## Current completed work
 

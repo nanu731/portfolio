@@ -101,7 +101,8 @@ import SpatialShotSelection from './SpatialShotSelection.astro';
   .comparison-selections { display: grid; gap: var(--space-s) var(--space-l); margin-block: var(--space-m); }
   .comparison-selections > section { min-width: 0; }
   :global([data-comparison-controls] .season-control) { display: none !important; }
-  :global([data-comparison-controls]) { display: block; }
+  /* Moved selectors must not inherit the single explorer's season/search grid. */
+  :global([data-comparison-controls].player-controls) { display: block !important; min-width: 0; }
   .comparison-columns { display: grid; gap: var(--space-l); }
   .comparison-columns > section { min-width: 0; }
   @media (min-width: 64rem) { .comparison-selections, .comparison-columns { grid-template-columns: repeat(2,minmax(0,1fr)); } }
