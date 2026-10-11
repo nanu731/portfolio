@@ -1,139 +1,158 @@
-# Design tools and verification handoff
+# Design tools and UI audit handoff
 
-Updated 10 October 2026. Tooling setup is complete. UI review and refinement
-remain pending; this record does not claim a completed design audit.
+Updated 10 October 2026, America/New_York. Completed installations were reused.
+Two independent reviewers completed the critique and baseline audit. UI repairs
+and their confirmation pass remain pending because first-use hook approval is
+unverified. No push or deployment ran.
 
-## Isolated branch
+## Isolated branch and preservation
 
-Branch: `codex/portfolio-ui-refinement`.
-Base: remote main `62498a81ec8a6445fe5b2ec7b62b61de576f0314`, fetched before
-creating the managed worktree. No push or deployment ran.
+Branch: `codex/portfolio-ui-refinement`; reviewed starting commit: `b2a9325`.
+Base: released security main `62498a81ec8a6445fe5b2ec7b62b61de576f0314`.
+The setup copied only the reviewed Impeccable installation from
+`456b1db3b0802b59c9645d77e8ee1ecbbf481eed`, with 64 matching vendored files.
+No installation was repeated. Application source, public data, dependency files
+and hosting policies match the released security baseline. The final production
+build's 2,503 files also match the security output byte for byte. All 85 recorded
+untracked files in the original checkout retain their hashes.
 
-Only the reviewed Impeccable installation from
-`456b1db3b0802b59c9645d77e8ee1ecbbf481eed` was copied from the foundation branch:
-the skill, hook manifest, ignored runtime rules, installation record and workflow
-instructions. All 64 vendored files match the reviewed source commit byte-for-byte.
-The foundation branch's other changes were not merged. The
-application source, public data, dependency files and hosting policies remain
-identical to the released security baseline. All 85 recorded untracked files in
-the original checkout retain their hashes.
+## Installed tools and native availability
 
-## Installed development tools
-
-| Tool | Version or revision | Location and configuration |
+| Tool | Retained version | Verified status |
 | --- | --- | --- |
-| Impeccable | Skill 4.5.0; engine 0.1.11; historical installer 4.1.0 | Project-local skill and hooks; downloaded platform engine ignored |
-| shadcn MCP | `@jpisnice/shadcn-ui-mcp-server@3.0.0` | Codex user configuration; stdio through the existing Node installation; no token |
-| Chrome DevTools MCP | `chrome-devtools-mcp@1.10.1` | Codex user configuration; `--isolated --no-usage-statistics --no-performance-crux` |
-| Apple Design | `emilkowalski/skills` at `e8a175de22ae1e49370fc144c1f3bb9aeedf988d` | User skill installation; appears in the next task's skill discovery |
+| Impeccable | Skill 4.5.0, engine 0.1.11; historical installer 4.1.0 | Skill discovered; reviewed local files present; hook approval unverified |
+| Apple Design | `emilkowalski/skills` revision `e8a175de22ae1e49370fc144c1f3bb9aeedf988d` | Installed user skill discovered and read |
+| shadcn MCP | `@jpisnice/shadcn-ui-mcp-server@3.0.0` | Configured; actual tooltip tool call passed; absent from native tool catalog |
+| Chrome DevTools MCP | `chrome-devtools-mcp@1.10.1` | Configured; actual browser tool calls passed; absent from native tool catalog |
 
-Both servers use the existing Node 24.16.0 installation. No website dependency
-or lockfile changed. The five pre-existing MCP entries were compared before and
-after configuration and remain identical. A private settings backup remains
-outside the repository. No credential values were requested or recorded.
+The MCP servers reuse Node 24.16.0 outside the website. Chrome retains an isolated
+profile, disabled usage statistics and disabled CrUX requests. No browser profile,
+credential value, website dependency or lockfile changed. The shadcn React/Radix
+reference was inspected; no component library was introduced.
+
+Actual initialization, discovery and calls used a temporary stdio MCP client
+with the authorized worktree/evidence roots. This verifies server connectivity;
+it does not prove native Codex catalog availability. This chat remains attached
+to the original checkout despite commands targeting the UI worktree. Computer
+use denied inspection of Codex's own app; no alternate automation bypass was used.
 
 Sources: [shadcn MCP](https://github.com/Jpisnice/shadcn-ui-mcp-server),
 [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp),
 [Apple Design](https://github.com/emilkowalski/skills/blob/main/skills/apple-design/SKILL.md),
-[Codex MCP configuration](https://learn.chatgpt.com/docs/extend/mcp?surface=cli).
+[Codex MCP configuration](https://learn.chatgpt.com/docs/extend/mcp?surface=cli),
+[Codex hook trust](https://learn.chatgpt.com/docs/hooks).
 
-## Actual connection evidence
+## Hook approval remains required
 
-The new servers are absent from this already-running task's native tool catalog.
-Their configuration alone was not counted as a connection test. A temporary MCP
-stdio client performed real initialization, tool discovery and tool calls against
-the pinned servers. It declared the authorized worktree and evidence directory as
-MCP workspace roots. These are server smoke tests, not proof that a fresh Codex
-task has loaded the native tools.
+The project instructions stop UI edits when the Impeccable hook needs approval.
+The hook reference states: “On Codex, the user must approve the hook via `/hooks`
+the first time.” The reviewed manifest invokes the local launcher on PostToolUse
+and Stop. File presence, project trust and engine defaults do not establish that
+Codex approved or executed it. No trust record was changed and no bypass was used.
+A user confirmation request remains unanswered.
 
-- shadcn returned its 3.0.0 handshake and the `get_component` tooltip reference
-  without a GitHub token. The React/Radix example remains reference material.
-- Chrome returned its 1.10.1 handshake, opened the built portfolio, captured twelve
-  screenshots and inspected console messages and network requests.
-- The temporary browser used an isolated profile, with usage statistics and CrUX
-  requests disabled. The protocol process closed after verification.
+Open this existing worktree as a fresh local portfolio task, load both native MCP
+servers, and review the exact project hook through Codex CLI `/hooks`. Confirm
+approval before UI edits. Keep the installations and existing branch. Two-agent
+permission is already granted and does not need to be requested again.
 
-The first local preview attempt failed because its temporary root-route guard
-returned 403. The guard was corrected in the temporary preview server. Initial
-screenshot writes also failed before the client declared its authorized MCP
-workspace roots. The successful final run used the built local pages. These early
-failures were not treated as successful browser or security checks.
+## Independent critique and technical audit
 
-## Baseline checks
+The user authorized two reviewers. Assessment A (`/root/design_review`) performed
+an independent visual/design review; Assessment B (`/root/technical_review`)
+performed detector and browser evidence checks. They used separate new browser
+pages/profiles. A completed and entered parent context before B findings did.
 
-The built preview applied the actual Vercel response headers, after verifying
-that Netlify's configured header values match. Chrome inspected home, About,
-projects, blog, NBA project and comparison at both actual 1440 x 1000 and
-375 x 812 viewports. The tool read `innerWidth` and `innerHeight`; this was viewport
-emulation with a mouse, not a physical touch-device test.
+The [combined durable critique](../.impeccable/critique/2026-10-11T02-43-09Z__src-pages-index-astro.md)
+contains scores, locations, repairs, evidence and criterion dispositions.
+Nielsen design score: 28/40, Good. Separate technical score: 16/20, Good.
+The source detector reported zero primary findings and one `em-dash-overuse`
+advisory in the internal style reference. Token names containing `--` caused a
+false positive; no ignore was added. The detector overlay was skipped to preserve
+CSP. Real screenshots, DOM/accessibility snapshots, console/network records and
+Lighthouse replaced overlay evidence. No overlay or live detector server is
+claimed.
 
-Each opening view had no horizontal overflow, application console error, CSP
-violation or failed network request. The comparison page produced one DevTools
-issue on each viewport: a form field lacks an ID or name. The affected element
-and impact still need investigation before deciding a fix.
+Nine distinct findings remain unresolved:
 
-Screenshots and protocol/network evidence remain outside committed source. No
-after screenshots exist because no UI edit occurred. Opening-view checks do not
-establish complete explorer interaction or accessibility compliance.
+| Priority | Finding |
+| --- | --- |
+| P1 | The Estimated Range (90%) trigger's accessible name omits (90%) |
+| P1 | Mobile comparison separates Player A and B searches by 2,174px |
+| P2 | Home project title and season run together in an unstyled list |
+| P2 | Different evidence notes shift paired desktop courts by 52px |
+| P2 | Enlarged root text overflows the narrow header to 442px |
+| P2 | Search suggestions remain open after keyboard focus leaves search |
+| P2 | Unavailable-season court text retains Loading after loading finishes |
+| P3 | Short pages leave cream below the green footer |
+| P3 | Shared comparison season select and range lack ID/name |
 
-The clean installation passed. The application dependency audit reports zero
-vulnerabilities. The production build passed with seven pages and the existing
-empty-blog, CSP-scope and syntax-highlighting warnings. All seven built HTML
-pages contain generated CSP; inline scripts match permitted hashes; script
-attributes are denied; arbitrary inline scripts are not allowed. Published
-output contains no environment-file, Git, MCP, skill or dependency-directory
-paths. Configuration and dependency files match the security release.
+Chrome identifies the shared season select as the form-field advisory's affected
+resource. DOM inspection also confirms missing identifiers on the shared range.
+Both have accessible labels and working controls; no unlabeled-control or
+security failure was established. Stable identifiers are the narrow repair.
 
-## Required review before UI edits
+PRODUCT.md and DESIGN.md remain absent. The existing site, project instructions
+and verified documentation supplied the bounded audit context. Impeccable context
+was not rerun. UI-UX-Pro-Max design-system, editorial-style and warm-palette
+searches were completed and read as references. Their generic replacement fonts,
+colors, grids and effects were rejected under the binding portfolio constraints.
+Craft-floor remains for immediately before the first actual UI edit.
 
-The project instructions stop UI edits when Impeccable's hook needs approval.
-The reviewed hook invokes the versioned local launcher on PostToolUse and Stop.
-The hook reference requires first-use approval by the user through Codex
-`/hooks`. No hook trust record was altered or bypassed. Engine hook status shows
-configuration defaults, which does not prove Codex approval or automatic execution.
+## Current verification
 
-Impeccable context ran once with the home-page source target. It permits narrow
-refinement against the incumbent site while recording the missing PRODUCT.md and
-DESIGN.md as documentation gaps. Applicable critique, audit, polish and hook
-references were read. Apple guidance was read. Impeccable reported 4.5.2 available;
-the reviewed 4.5.0 installation was retained. Update only in a later session so
-a running task does not replace its active instructions.
+The background built preview applied the real Vercel response headers after
+asserting equality with Netlify. It was stopped after the audit. Each reviewer
+captured the six requested routes at actual 1440 x 1000 and 375 x 812, verified
+through innerWidth/innerHeight. Normal-size 320 x 812 also reflowed without page
+overflow. The 200% root-text test exposed the header issue; it was not native zoom.
 
-Critique's Codex-specific gate requires permission for its two independent
-reviewers. Permission was requested; no answer has arrived. No sub-agent was
-spawned and no critique score was fabricated.
+Both explorers completed all five seasons, six slider settings and three views
+at both viewports: 360 rendered states. The matrix dispatched input/change events
+through MCP evaluation and checked rendered readiness, mode and values. Separate
+native keyboard checks covered search, range, court inspection, popup dismissal,
+duplicate rejection and reset. Wembanyama's cap and Chris Paul's unavailable
+states were inspected in both explorers. No state caused page overflow or new
+slider/view data requests. This does not claim 360 physical gestures.
 
-## Guidance status
+A separate browser profile confirmed prefers-reduced-motion was true. All six
+routes at both sizes had no active animation or nonzero transition; both explorers
+also rendered the three views at 25%. Ordinary application routes/matrix had no
+console errors, failed requests or CSP violations. Same-origin fonts loaded.
 
-| Criteria | Status | Evidence and remaining work |
-| --- | --- | --- |
-| Impeccable installation, context and external-tool setup | Passed | Pinned installation and successful protocol calls |
-| Impeccable hook review and native Codex tool discovery | Needs work | Fresh task and user hook approval required |
-| Impeccable independent critique and deterministic audit | Needs work | Reviewer permission and complete review pending |
-| Impeccable matched refinement and confirmation | Needs work | Baselines captured; no UI edits or after views |
-| Existing identity, fonts, layout, data and security preservation | Passed for setup | Application and public files unchanged |
-| Apple immediate feedback, input continuity and spatial consistency | Needs work | Full interaction paths not reviewed this session |
-| Apple typography, reflow and reduced motion | Needs work | Opening views have no overflow; expanded checks pending |
-| Apple spring animations, glass materials and replacement fonts | Not applicable | Binding portfolio constraints and limited refinement scope |
-| Physical touch, screen-reader speech and complete accessibility compliance | Needs work | No such evidence gathered |
+Seven built HTML pages have generated CSP and valid permitted inline hashes.
+Script attributes remain denied. Host header sets match. Canonical URLs, sitemap
+and RSS use https://www.nslanalytics.com. Published output contains no environment,
+Git, skill, MCP or dependency-directory paths. A normal HTML negative fixture
+kept the actual page policy: Chrome blocked its unhashed inline script and its
+inline event handler after a real tool click. Both probes remained BLOCKED;
+expected fixture CSP errors were recorded separately from application errors.
 
-## Continue in the existing worktree
+The current production build passed with seven pages and the existing empty-blog,
+CSP-scope and syntax-highlighting warnings. The current dependency audit reports
+zero vulnerabilities. The earlier clean installation remains valid for unchanged
+dependency files. Screenshots, raw protocols and temporary clients remain outside
+Git. No matched after views exist because no UI repair occurred.
 
-Open a fresh portfolio task using this managed worktree and branch. Check that
-Impeccable and Apple Design are discovered and both MCP servers expose native
-tools; restart Codex only if those additions are absent. Review and approve only
-the project's Impeccable hooks in `/hooks`. Do not reinstall or merge the
-foundation branch again.
+## Evidence and limits
 
-Resolve the pending reviewer permission. Capture durable product/design context
-from the confirmed project instructions and existing code. Search ui-ux-pro-max
-style and palette references before visual decisions; preserve the established
-system. Read craft-floor immediately before the first UI edit.
+Independent reports: `/private/tmp/portfolio-ui-assessment-A.md` and
+`/private/tmp/portfolio-ui-assessment-B.md`; B's report indexes the detector,
+360-state matrix, reduced motion, keyboard, distinct states, network and Lighthouse
+records. Current parent evidence includes the production-build log, dependency
+audit JSON, static-security JSON, negative-security JSON and final-preservation JSON
+under `/private/tmp/portfolio-ui-`. A-/B-prefixed screenshots remain in the
+authorized visualization directory. The stored critique is this target's first
+snapshot; there is no improvement trend yet.
 
-Complete one evidence-based critique/audit, make focused refinements, show and
-commit each completed change, then perform one confirmation pass. Verify both
-explorers across all five seasons, six slider settings and three court views,
-player selection, reset, help, capped and unavailable estimates, keyboard, reflow,
-reduced motion, console/network and CSP. Keep source-only UI changes separate
-from setup. Finish with matched screenshots, actual dimensions and per-criterion
-evidence. Do not push or deploy this UI branch.
+Unverified: physical touch, speech-control device, screen-reader speech, native
+zoom, other browsers, slow-network races and low-end performance. Lighthouse
+category scores of 100 do not cancel its experimental range-label failure. No
+analytics revalidation, account-control inspection, live-host validation, push or
+deployment occurred. Existing security/account records remain historical evidence.
+
+Next: resolve hook/native-tool task context; complete focused repairs one at a
+time, show and commit each completed change, then one matched confirmation pass.
+Ask before any necessary comparison restructuring or dependency addition.
+Preserve all identity, factual copy, analytics, data and policies. Do not push or
+deploy this branch.
