@@ -3,7 +3,7 @@ import SpatialShotSelection from './SpatialShotSelection.astro';
 ---
 <player-comparison>
   <div class="shared-controls">
-    <label>Season <select data-shared-season disabled aria-label="Comparison season">
+    <label>Season <select id="comparison-season" name="comparison-season" data-shared-season disabled aria-label="Comparison season">
       {['2025-26','2024-25','2023-24','2022-23','2021-22'].map(season => <option value={season}>{season.replace('-', '–')}</option>)}
     </select></label>
     <fieldset data-shared-views disabled><legend>Court view for both players</legend>
@@ -12,7 +12,7 @@ import SpatialShotSelection from './SpatialShotSelection.astro';
       <label><input type="radio" name="comparison-view" value="ability" /> Make-chance map</label>
     </fieldset>
     <label>Shots to move: <output data-shared-output aria-label="Requested relocation share">0%</output>
-      <input type="range" min="0" max="25" step="5" value="0" data-shared-slider disabled aria-label="Shots to move for both players" />
+      <input type="range" id="comparison-relocation-share" name="comparison-relocation-share" min="0" max="25" step="5" value="0" data-shared-slider disabled aria-label="Shots to move for both players" />
     </label>
     <button type="button" data-comparison-reset disabled>Reset comparison</button>
   </div>
