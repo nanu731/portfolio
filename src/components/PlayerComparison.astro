@@ -126,6 +126,15 @@ import SpatialShotSelection from './SpatialShotSelection.astro';
   /* Share intrinsic row heights, including evidence and guidance. No fixed
      note height assumes a particular player or text size. */
   @media (min-width: 64rem) {
+    /* The shared grid owns vertical separation; avoid stacking child margins. */
+    .comparison-selections { margin-block: var(--space-s); }
+    .comparison-selections h2 { margin-bottom: var(--space-s); }
+    :global([data-comparison-controls].player-controls) { padding-block: var(--space-2xs) !important; }
+    :global([data-comparison-slot] .figure) { margin-block: 0 !important; }
+    :global([data-comparison-slot] .court-title-row) { margin-block: 0 !important; }
+    :global([data-comparison-slot] .court-guide) { margin-bottom: 0 !important; }
+    :global([data-comparison-slot] .map-help) { margin-block: 0 !important; }
+    :global([data-comparison-slot] .explorer-plot) { row-gap: var(--space-s) !important; }
     .comparison-columns { row-gap: var(--space-s); }
     .comparison-columns > section { display: grid; grid-row: 1 / span 8; grid-template-rows: subgrid; }
     .comparison-columns > section:first-child { grid-column: 1; }
