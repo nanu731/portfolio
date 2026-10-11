@@ -2,6 +2,27 @@
 
 Snapshot for a reader new to the site. Updated 10 October 2026.
 
+## Design tooling prepared for review
+
+The isolated UI branch contains the reviewed Impeccable installation. The shadcn
+and Chrome DevTools development servers are configured outside the website, and
+Apple Design is installed for the next task. Actual server calls retrieved a
+component reference, captured the built portfolio and inspected its console and
+network activity. This running task has not loaded the servers as native tools.
+
+The build and dependency audit pass with zero reported vulnerabilities. Opening
+views of all six requested pages passed at confirmed desktop dimensions of 1440
+by 1000 and mobile dimensions of 375 by 812, with no horizontal overflow, failed
+requests or policy violations. Chrome flagged a comparison form field without an
+ID or name. Its impact and remedy remain to be investigated.
+
+UI edits wait for the project's first-use Impeccable hook approval and a fresh
+task that loads the new tools. Permission for the critique's two independent
+reviewers is pending. Durable product and design records, the full design audit,
+interaction matrix, refinements and matched after views remain unfinished.
+The site has no UI change from this session. No push or deployment ran, and the
+original checkout's 85 recorded untracked files retain their hashes.
+
 ## Released security repairs
 
 The reviewed security release now serves through Vercel at www.nslanalytics.com
