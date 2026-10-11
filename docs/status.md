@@ -53,6 +53,20 @@ Two optional visual follow-ups remain: spacing between adjacent figure-caption
 parts and a green footer that reaches the viewport bottom on short pages. Both
 were checked in the current local interface. Neither has been implemented.
 
+## Desktop space proposal, awaiting confirmation
+
+Narayan requested fewer wrapped lines beneath Player A and Player B and a
+review of desktop negative space. Measurements show that the comparison uses
+1008 pixels of a 1440-pixel viewport. A temporary wider preview uses 1200 pixels
+and enlarges each court from 432 to 528 pixels while retaining the left gutter
+and gap between players. This is the preferred starting point for review.
+A second preview uses 1264 pixels and remains an upper candidate.
+
+The proposal preserves narrower reading widths on text pages, the band offsets,
+mobile grouping, wording and analytical behavior. No application layout changed
+in this assessment. The earlier-version reference and wider-layout direction
+await confirmation. Push and deployment remain unapproved.
+
 ## Released security repairs
 
 The reviewed security release now serves through Vercel at www.nslanalytics.com
