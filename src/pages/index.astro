@@ -71,4 +71,35 @@ const projects = await getCollection('projects', isPublished);
 		font-family: var(--font-display);
 		font-variation-settings: 'opsz' 36, 'SOFT' 0, 'WONK' 0;
 	}
+	/* Rows, not cards. All rows share one inset; alternating offsets per row would
+	   read as noise rather than rhythm. */
+	.rows {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		border-top: var(--rule) solid var(--green);
+	}
+	.rows li {
+		border-bottom: var(--rule-thin) solid rgb(20 83 45 / 22%);
+	}
+	.rows a {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-3xs);
+		padding-block: var(--space-m);
+		text-decoration: none;
+	}
+	.rows a:hover {
+		background: none;
+	}
+	.rows a:hover .row-title {
+		color: var(--accent);
+	}
+	.row-title {
+		max-width: 40rem;
+		font-family: var(--font-display);
+		font-size: var(--type-h3);
+		font-variation-settings: 'opsz' 36, 'SOFT' 0, 'WONK' 0;
+		line-height: 1.15;
+	}
 </style>
