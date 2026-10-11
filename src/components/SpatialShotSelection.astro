@@ -473,6 +473,11 @@ const { comparisonSlot } = Astro.props as { comparisonSlot?: 'A' | 'B' };
 			this.search.addEventListener('input', () => this.updateSuggestions());
 			this.search.addEventListener('focus', () => this.showAllSuggestions());
 			this.search.addEventListener('keydown', (event) => this.handleSearchKeydown(event));
+			this.combobox.addEventListener('focusout', (event) => {
+				if (!(event.relatedTarget instanceof Node) || !this.combobox.contains(event.relatedTarget)) {
+					this.closeSuggestions();
+				}
+			});
 			this.seasonSelect.addEventListener('change', () => void this.changeSeason());
 			document.addEventListener('pointerdown', this.handleOutsidePointer);
 			this.slider.addEventListener('input', () => this.updateSlider());
@@ -1121,6 +1126,10 @@ const { comparisonSlot } = Astro.props as { comparisonSlot?: 'A' | 'B' };
 		}
 
 		private handleSearchKeydown(event: KeyboardEvent) {
+			if (event.key === 'Tab') {
+				this.closeSuggestions();
+				return;
+			}
 			if (event.key === 'Escape') {
 				if (!this.suggestions.hidden) event.preventDefault();
 				this.closeSuggestions();
