@@ -1543,6 +1543,7 @@ const { comparisonSlot } = Astro.props as { comparisonSlot?: 'A' | 'B' };
 			season: SeasonId,
 			availability: PlayerSeasonAvailability,
 		) {
+			this.clearResult(playerName, 'Analysis unavailable');
 			this.stage.setAttribute('aria-busy', 'false');
 			requireElement<HTMLElement>(this, '[data-result-empty]').hidden = true;
 			const unavailable = requireElement<HTMLElement>(this, '[data-season-unavailable]');
@@ -1569,6 +1570,11 @@ const { comparisonSlot } = Astro.props as { comparisonSlot?: 'A' | 'B' };
 				copy.textContent =
 					`A shooting map exists for ${playerName} in ${this.seasonLabel(season)}, but no area passes the rules for moving shots.`;
 			}
+
+			requireElement<SVGTitleElement>(this, '[data-court-title]').textContent =
+				`${playerName}, ${this.seasonLabel(season)}: Analysis unavailable`;
+			requireElement<SVGDescElement>(this, '[data-court-description]').textContent = copy.textContent;
+			requireElement<HTMLElement>(this, '[data-cell-detail]').textContent = copy.textContent;
 
 			requireElement<HTMLElement>(this, '[data-caption-player]').textContent =
 				`${playerName}, ${this.seasonLabel(season)}.`;
