@@ -158,6 +158,70 @@ Additional results outside Git:
 `/private/tmp/portfolio-width-security-result.txt`, and
 `/private/tmp/portfolio-visual-followups-result.txt`.
 
+## 11 October approved desktop implementation
+
+Starting from `a691ea1`, the user approved the comparison-only 80rem cap and
+vertical spacing refinement. Two completed steps were committed separately:
+
+- `f21f1bc`: widen desktop comparison courts while preserving prose measure.
+- `9645dc2`: tighten desktop spacing with shared grid gaps.
+
+At actual 1440 x 1000 and 1920 x 1000, usable comparison width is 1200px, the left
+gutter and player gap stay 40px, and each court is 528px wide. Introductory copy
+retains its 1008px cap. Player guidance stays one line at both desktop widths;
+natural wrapping remains available at smaller widths and doubled root text.
+The scoped rules activate only on desktop comparison instances.
+
+The shared grid now supplies vertical separation instead of stacking child
+margins with row gaps. In the matched LeBron/Curry state the courts start 120px
+earlier relative to the selection heading. Evidence notes and guidance remain,
+and paired courts stay aligned. Mobile geometry is unchanged; the matched
+375px before/after spacing files have identical SHA-256 hashes.
+
+Matched step evidence and final views, outside Git:
+
+| Step | 1440 x 1000 | 1920 x 1000 | 375 x 812 |
+| --- | --- | --- | --- |
+| Width | [before](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/space-width-before-1440.png) / [after](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/space-width-after-1440.png) | [before](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/space-width-before-1920.png) / [after](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/space-width-after-1920.png) | [before](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/space-width-before-375.png) / [after](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/space-width-after-375.png) |
+| Spacing | [before](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/space-spacing-before-1440.png) / [final](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/space-final-1440.png) | [before](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/space-spacing-before-1920.png) / [final](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/space-final-1920.png) | [before](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/space-spacing-before-375.png) / [final](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/space-final-375.png) |
+
+Scroll anchoring was disabled only while positioning final screenshots to avoid
+capture-time heading clipping. Earlier spacing captures retain the same UI but
+have anchoring-dependent framing. Application scroll behavior was not changed.
+
+The focused suite passed in Chromium, Firefox and WebKit at all three target
+sizes with no page errors. It covers search/Tab/arrow/Enter/pointer selection,
+visible focus, court keyboard inspection, help dismissal, identifiers, duplicate
+rejection, season persistence, reset, capped movement and unavailable values.
+It now asserts search measure caps and one-line desktop guidance.
+
+The additional Chromium layout suite passed 60 state combinations: widths 1024,
+1280, 1440 and 1920px, five evidence/selection states, three court modes with a
+25% relocation request. It also passed 14 reflow cases: widths 320, 375, 768,
+1024, 1280, 1440 and 1920px at normal and doubled root text. Courts aligned
+across empty B, Curry, Wembanyama, Nesmith and unavailable Chris Paul states;
+no horizontal overflow occurred. These are automated text-enlargement checks,
+not native browser zoom or physical touch tests. The previous 360-season matrix
+was not repeated for these scoped CSS changes.
+
+Both steps passed production builds. The final build contains seven pages.
+Generated inline hashes, matching host policies, unchanged data/dependencies,
+unchanged analytics and exclusion of tooling from published output passed again.
+Since `a691ea1`, application source changes are confined to the comparison page
+and component. The final layout detector returned zero findings. Existing build
+and Firefox warning categories recorded above remain outside this CSS scope.
+
+Updated reproducible checks: `scripts/playwright-ui-regressions.js` and
+`scripts/playwright-comparison-layout.js`. Final raw results:
+`/private/tmp/portfolio-space-{chromium,firefox,webkit}-result.txt`,
+`/private/tmp/portfolio-space-layout-result.txt`,
+`/private/tmp/portfolio-space-spacing-build.log`,
+`/private/tmp/portfolio-space-security.json`, and
+`/private/tmp/portfolio-space-final-layout-scan.json`.
+
+Footer/caption changes, 84rem widening and other-page widening remain deferred.
+No push, merge or deployment ran; the implementation awaits release approval.
+
 ## Raw evidence
 
 Structured results are retained outside Git:

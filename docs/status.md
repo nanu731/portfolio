@@ -53,19 +53,29 @@ Two optional visual follow-ups remain: spacing between adjacent figure-caption
 parts and a green footer that reaches the viewport bottom on short pages. Both
 were checked in the current local interface. Neither has been implemented.
 
-## Desktop space proposal, awaiting confirmation
+## Approved desktop comparison complete
 
-Narayan requested fewer wrapped lines beneath Player A and Player B and a
-review of desktop negative space. Measurements show that the comparison uses
-1008 pixels of a 1440-pixel viewport. A temporary wider preview uses 1200 pixels
-and enlarges each court from 432 to 528 pixels while retaining the left gutter
-and gap between players. This is the preferred starting point for review.
-A second preview uses 1264 pixels and remains an upper candidate.
+The comparison now uses 1200 pixels of content at the two checked desktop widths,
+1440 and 1920 pixels. Each court grows from 432 to 528 pixels. The left gutter
+and gap between players remain 40 pixels, and introductory prose keeps its
+previous width. Player guidance stays on one line when the desktop space allows.
 
-The proposal preserves narrower reading widths on text pages, the band offsets,
-mobile grouping, wording and analytical behavior. No application layout changed
-in this assessment. The earlier-version reference and wider-layout direction
-await confirmation. Push and deployment remain unapproved.
+The desktop spacing pass removes repeated gaps above the courts. In the matched
+LeBron/Curry view the courts appear 120 pixels earlier and remain aligned.
+Mobile selector order and geometry remain unchanged. Other pages, factual copy,
+fonts, colors, analytical data and behavior remain unchanged.
+
+Focused Chromium, Firefox and WebKit checks passed at both desktop sizes and
+375-pixel mobile. Additional checks covered 60 combinations of desktop width,
+evidence state and court view, including positive relocation, plus 14 normal
+and enlarged-text reflow cases. Empty, supported, insufficient-evidence and
+unavailable courts remain aligned. The production build and all seven pages'
+policy hashes passed; the final layout scan found no findings.
+
+The approved width and spacing changes have separate commits and matched views.
+The wider candidate and single-explorer widening remain deferred, as do optional
+footer and caption improvements. Nothing was pushed, merged or deployed.
+The local work is ready for release review and awaits Narayan's approval.
 
 ## Released security repairs
 

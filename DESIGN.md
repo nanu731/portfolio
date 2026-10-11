@@ -89,7 +89,10 @@ band plus the footer; project pages have two plus the footer.
 
 Keep the current responsive court layouts. Comparison groups both selectors ahead of mobile results. Moved selector controls
 use a single-column layout and preserve the existing search measure cap. Desktop comparison
-uses shared intrinsic grid rows to align courts across evidence states. The
+uses an 80rem desktop cap with the 40px gutter and inter-player gap retained.
+Introductory prose keeps its previous measure. Shared intrinsic grid rows align
+courts across evidence states; desktop child margins yield to the grid gaps,
+and selector padding uses the smaller spacing token. Mobile spacing remains unchanged. The
 header uses a text-relative container query to wrap enlarged text; normal-size
 header geometry remains unchanged.
 

@@ -3,7 +3,9 @@
 Updated 11 October 2026, America/New_York. Branch: `codex/portfolio-ui-refinement`.
 The continuation started from clean `6dc3dd4`; tooling/context preparation is
 `1212802`. The eight UI repairs are committed; the subsequent desktop selector-width
-correction is recorded in the verification report. No push or deployment ran.
+correction is recorded in the verification report. The approved 80rem comparison and desktop spacing steps are now implemented
+in `f21f1bc` and `9645dc2`; focused checks passed in all three engines at both
+desktop sizes and mobile. No push, merge or deployment ran.
 
 ## Current completed work
 

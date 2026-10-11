@@ -1,10 +1,14 @@
 # Desktop space design brief
 
-Measured 11 October 2026 on the built refinement branch after the selector-width
-correction. This is a proposal, not an implemented layout change. No push or
-deployment ran. The user's preference is fewer wrapped lines below Player A and
-Player B, with more of the available desktop space used. Which earlier version
-they meant remains awaiting clarification; no rollback has been inferred.
+Measured and approved 11 October 2026. The comparison-only 80rem cap and desktop
+spacing refinement are implemented in `f21f1bc` and `9645dc2`. The approved scope
+preserves mobile selector order, prose widths, wording and behavior. The earlier
+version ambiguity is superseded by the user's explicit implementation instruction.
+No rollback was requested. The 84rem candidate and single-explorer widening remain
+outside the approved scope. No push or deployment ran.
+
+The assessment and candidate measurements below are the historical basis for
+that decision. See the verification record for the implemented result.
 
 ## Workflow and evidence
 
@@ -44,7 +48,7 @@ block or force single-line text at enlarged text sizes.
 
 | Width cap | Usable content | Viewport occupied | Right-side space | Each court |
 | --- | ---: | ---: | ---: | ---: |
-| Current, 68rem | 1008px | 70.0% | 392px | 432px |
+| Baseline, 68rem | 1008px | 70.0% | 392px | 432px |
 | Preferred starting point, 80rem | 1200px | 83.3% | 200px | 528px |
 | Upper candidate, 84rem | 1264px | 87.8% | 136px | 560px |
 
@@ -62,7 +66,7 @@ Matched view, same viewport and scenario:
 - [Preferred 80rem](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/desktop-space-80rem-1440.png)
 - [Upper candidate 84rem](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/desktop-space-84rem-1440.png)
 
-## Proposed direction for confirmation
+## Approved direction and deferred candidates
 
 - Give the comparison an 80rem desktop cap first. Consider 84rem on larger
   screens only after viewing the first change. Preserve its left gutter and
@@ -81,10 +85,10 @@ Matched view, same viewport and scenario:
   evidence-state alignment and contextual explanations. No typography, palette,
   content, data, animation or dependency change is proposed.
 
-Next implementation requires confirmation of this direction. It should proceed
-one change at a time, with matched desktop/mobile views, keyboard and enlarged
-text checks, a production build and a separate commit. This brief is not an
-approval to push or deploy.
+The approved comparison changes were implemented one at a time with matched
+views, keyboard and enlarged-text checks, production builds and separate commits.
+Further widening or restructuring needs a new instruction. Release approval is
+still required before pushing, merging or deploying.
 
 Raw measurements and scan remain outside Git at
 `/private/tmp/portfolio-desktop-space-measurements.json` and
