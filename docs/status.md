@@ -2,49 +2,35 @@
 
 Snapshot for a reader new to the site. Updated 10 October 2026.
 
-## UI audit complete; refinements await hook review
+## UI tooling ready; refinements await hook review
 
-The existing isolated UI branch reused the completed design-tool installations.
-Both design skills are discovered. Actual server calls retrieved a component
-reference and inspected the built portfolio. Neither development server appears
-as a native tool in this chat, which remains attached to the original checkout.
-The first-use Impeccable hook approval remains unverified. The project requires
-that approval before UI edits; a confirmation request is still unanswered.
+The isolated UI branch preserves the completed independent critique and existing
+work. Both design skills are available. Native browser inspection and component
+reference calls now pass in this chat. The supplementary Vercel audit skill and
+pinned Playwright CLI are installed outside the website's dependencies.
 
-Two authorized independent reviewers completed the design critique and technical
-baseline audit. The design score is 28 out of 40; the separate technical score is
-16 out of 20. They found nine unresolved issues: the range help label omits its
-visible percentage; mobile comparison puts the second player selector more than
-two screens below the first; the home project entry lacks its intended styling;
-paired courts drift when evidence notes differ; enlarged text overflows the
-narrow header; search suggestions remain open after keyboard focus leaves;
-unavailable court text still says Loading; short-page footers leave space below;
-and shared comparison controls lack identifiers. The last issue is a browser
-advisory, and the controls have accessible labels and function.
+Chromium, Firefox and WebKit loaded the existing built home page at confirmed
+1440 by 1000 and 375 by 812, with no horizontal overflow. Firefox reported an
+unused font-preload warning. These smoke checks establish that the tools run;
+they do not verify the requested repairs. The local preview uses the matching
+production response headers.
 
-Both explorers passed all 360 combinations of five seasons, six slider settings,
-three views and two viewports. Chrome confirmed actual desktop dimensions of
-1440 by 1000 and mobile dimensions of 375 by 812. Keyboard controls, help, reset,
-duplicate-player rejection, capped estimates and unavailable data behavior were
-checked. The stale unavailable wording remains an exception. Normal-size reflow
-also passed at 320 pixels. Enlarging root text to twice its size exposed the
-header overflow; native browser zoom was not tested.
+The first-use Impeccable hook approval remains unverified for this worktree.
+Trust records cover the original checkout. Narayan received the exact hook
+review action and a comparison proposal that groups both mobile selectors ahead
+of results and aligns desktop courts. Both approvals remain pending.
 
-Reduced-motion preference was confirmed in a separate browser profile across all
-six requested surfaces, with no active animations. Ordinary application checks
-had no console errors, failed requests or policy violations. A negative test page
-proved that the unchanged policy blocks an unapproved inline script and event
-handler. The current production build passed; the current dependency audit
-reports zero vulnerabilities. All published output still matches the security
-release, and the original checkout's 85 recorded untracked files retain their
-hashes.
+All eight requested UI repairs remain unfinished. The low-impact footer change
+stays deferred. Shared product and design records now capture the supplied facts
+and existing visual system. Website source, factual copy, analytics, public data,
+dependencies and security policies remain unchanged. No push or deployment ran.
 
-The durable audit records include evidence, repair order and limitations. Shared
-product/design initialization, repairs, after views and the confirmation pass
-remain unfinished. Physical touch, screen-reader speech, speech control, native
-zoom and other browsers remain unverified. No website UI change, push or
-deployment ran. Open the existing worktree as a fresh local task, load its native
-tools and approve the project's reviewed hook before continuing the repairs.
+The preceding audit checked all 360 explorer combinations, keyboard behavior,
+reduced motion, matching headers and permitted script hashes. Its production
+build passed and its dependency audit reported zero vulnerabilities. This
+continuation has not rerun those checks; the bounded confirmation pass belongs
+after the repairs. No after views exist. Physical touch, screen-reader speech,
+speech control and native browser zoom remain unverified.
 
 ## Released security repairs
 

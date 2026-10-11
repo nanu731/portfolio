@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-11T03:20:00Z",
+  "title": "Design System: Narayan Lekhi",
+  "extensions": {},
+  "components": [],
+  "narrative": {
+    "overview": "Flat color blocks, a strong type scale, asymmetric prose and charts as the visual identity.",
+    "keyCharacteristics": [
+      "Cream is the dominant surface",
+      "Figures share one gutter",
+      "Chart shape cues accompany color"
+    ],
+    "rules": [],
+    "dos": [
+      "Preserve supplied wording, analytical results, palette and fonts."
+    ],
+    "donts": [
+      "Avoid replacement imagery, motion, React, Tailwind and component libraries."
+    ]
+  }
+}
