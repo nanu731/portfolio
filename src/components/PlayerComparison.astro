@@ -18,9 +18,13 @@ import SpatialShotSelection from './SpatialShotSelection.astro';
   </div>
   <p>Both players use the same court geometry and make-chance colors. Shot movement uses one bubble-area scale across both players for the selected setting.</p>
   <p role="status" data-comparison-status>Loading comparison controls…</p>
+  <div class="comparison-selections">
+    <section aria-label="Player A selection"><h2>Player A</h2><div data-comparison-selection="A"></div></section>
+    <section aria-label="Player B selection"><h2>Player B</h2><div data-comparison-selection="B"></div></section>
+  </div>
   <div class="comparison-columns">
-    <section aria-label="Player A"><h2>Player A</h2><SpatialShotSelection comparisonSlot="A" /></section>
-    <section aria-label="Player B"><h2>Player B</h2><SpatialShotSelection comparisonSlot="B" /></section>
+    <section aria-label="Player A"><SpatialShotSelection comparisonSlot="A" /></section>
+    <section aria-label="Player B"><SpatialShotSelection comparisonSlot="B" /></section>
   </div>
 </player-comparison>
 
@@ -94,9 +98,13 @@ import SpatialShotSelection from './SpatialShotSelection.astro';
   input { accent-color: var(--green); }
   input[type="range"] { display: block; width: 100%; }
   :is(input,select,button):focus-visible { outline: var(--rule-thick) solid var(--accent); outline-offset: var(--space-3xs); }
+  .comparison-selections { display: grid; gap: var(--space-s) var(--space-l); margin-block: var(--space-m); }
+  .comparison-selections > section { min-width: 0; }
+  :global([data-comparison-controls] .season-control) { display: none !important; }
+  :global([data-comparison-controls]) { display: block; }
   .comparison-columns { display: grid; gap: var(--space-l); }
   .comparison-columns > section { min-width: 0; }
-  @media (min-width: 64rem) { .comparison-columns { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+  @media (min-width: 64rem) { .comparison-selections, .comparison-columns { grid-template-columns: repeat(2,minmax(0,1fr)); } }
   /* The existing renderer remains intact. Only comparison instances use this layout. */
   :global([data-comparison-slot] .figure) { margin: 0; width: 100%; max-width: 100%; }
   :global([data-comparison-slot] .player-controls), :global([data-comparison-slot] .explorer-plot) { display: block !important; min-width: 0; }
@@ -118,14 +126,13 @@ import SpatialShotSelection from './SpatialShotSelection.astro';
      note height assumes a particular player or text size. */
   @media (min-width: 64rem) {
     .comparison-columns { row-gap: var(--space-s); }
-    .comparison-columns > section { display: grid; grid-row: 1 / span 10; grid-template-rows: subgrid; }
+    .comparison-columns > section { display: grid; grid-row: 1 / span 8; grid-template-rows: subgrid; }
     .comparison-columns > section:first-child { grid-column: 1; }
     .comparison-columns > section:last-child { grid-column: 2; }
-    :global([data-comparison-slot]) { display: grid; grid-row: 2 / span 9; grid-template-rows: subgrid; }
-    :global([data-comparison-slot] .figure) { display: grid; grid-row: 1 / span 9; grid-template-rows: subgrid; }
-    :global([data-comparison-slot] .player-controls) { grid-row: 1; }
-    :global([data-comparison-slot] .status-row) { grid-row: 2; }
-    :global([data-comparison-slot] .explorer-plot) { display: grid !important; grid-template-columns: minmax(0, 1fr) !important; grid-row: 3 / span 6; grid-template-rows: subgrid; }
+    :global([data-comparison-slot]) { display: grid; grid-row: 1 / span 8; grid-template-rows: subgrid; }
+    :global([data-comparison-slot] .figure) { display: grid; grid-row: 1 / span 8; grid-template-rows: subgrid; }
+    :global([data-comparison-slot] .status-row) { grid-row: 1; }
+    :global([data-comparison-slot] .explorer-plot) { display: grid !important; grid-template-columns: minmax(0, 1fr) !important; grid-row: 2 / span 6; grid-template-rows: subgrid; }
     :global([data-comparison-slot] .controls-panel) { grid-row: 1; }
     :global([data-comparison-slot] .court-panel) { display: grid; grid-row: 2 / span 5; grid-template-rows: subgrid; }
     :global([data-comparison-slot] .court-title-row) { grid-row: 1; }
@@ -133,6 +140,6 @@ import SpatialShotSelection from './SpatialShotSelection.astro';
     :global([data-comparison-slot] .court), :global([data-comparison-slot] .movement-view) { grid-row: 3; align-self: start; }
     :global([data-comparison-slot] .heat-legend), :global([data-comparison-slot] .shot-legend) { grid-row: 4; }
     :global([data-comparison-slot] .cell-detail) { grid-row: 5; }
-    :global([data-comparison-slot] .comparison-metrics) { grid-row: 9; }
+    :global([data-comparison-slot] .comparison-metrics) { grid-row: 8; }
   }
 </style>
