@@ -449,6 +449,7 @@ const { comparisonSlot } = Astro.props as { comparisonSlot?: 'A' | 'B' };
 		private players: PlayerIndexEntry[] = [];
 		private catalog = new Map<string, PlayerCatalogEntry>();
 		private seasons = new Map<SeasonId, SeasonManifestEntry>();
+		private selectionControls?: HTMLElement;
 		private matches: PlayerIndexEntry[] = [];
 		private activeSuggestionIndex = -1;
 		private activeRequest?: AbortController;
@@ -473,6 +474,11 @@ const { comparisonSlot } = Astro.props as { comparisonSlot?: 'A' | 'B' };
 			this.search.addEventListener('input', () => this.updateSuggestions());
 			this.search.addEventListener('focus', () => this.showAllSuggestions());
 			this.search.addEventListener('keydown', (event) => this.handleSearchKeydown(event));
+			this.combobox.addEventListener('focusout', (event) => {
+				if (!(event.relatedTarget instanceof Node) || !this.combobox.contains(event.relatedTarget)) {
+					this.closeSuggestions();
+				}
+			});
 			this.seasonSelect.addEventListener('change', () => void this.changeSeason());
 			document.addEventListener('pointerdown', this.handleOutsidePointer);
 			this.slider.addEventListener('input', () => this.updateSlider());
@@ -511,6 +517,11 @@ const { comparisonSlot } = Astro.props as { comparisonSlot?: 'A' | 'B' };
 				link.textContent = button.textContent;
 				button.replaceWith(link);
 			});
+			// Move the existing controls, retaining node identity and explorer ownership.
+			this.selectionControls = requireElement<HTMLElement>(this, '.player-controls');
+			this.selectionControls.dataset.comparisonControls = this.dataset.comparisonSlot;
+			requireElement<HTMLElement>(this.closest('player-comparison')!,
+				`[data-comparison-selection="${this.dataset.comparisonSlot}"]`).append(this.selectionControls);
 		}
 
 		async comparisonSeason(season: SeasonId, reset = false) {
@@ -565,17 +576,17 @@ const { comparisonSlot } = Astro.props as { comparisonSlot?: 'A' | 'B' };
 		}
 
 		private get seasonSelect() {
-			return requireElement<HTMLSelectElement>(this, '[data-season-select]');
+			return requireElement<HTMLSelectElement>(this.selectionControls ?? this, '[data-season-select]');
 		}
 
 		private get search() {
-			return requireElement<HTMLInputElement>(this, '[data-player-search]');
+			return requireElement<HTMLInputElement>(this.selectionControls ?? this, '[data-player-search]');
 		}
 		private get combobox() {
-			return requireElement<HTMLElement>(this, '[data-combobox-shell]');
+			return requireElement<HTMLElement>(this.selectionControls ?? this, '[data-combobox-shell]');
 		}
 		private get suggestions() {
-			return requireElement<HTMLElement>(this, '[data-player-suggestions]');
+			return requireElement<HTMLElement>(this.selectionControls ?? this, '[data-player-suggestions]');
 		}
 		private get status() {
 			return requireElement<HTMLElement>(this, '[data-status]');
@@ -1121,6 +1132,10 @@ const { comparisonSlot } = Astro.props as { comparisonSlot?: 'A' | 'B' };
 		}
 
 		private handleSearchKeydown(event: KeyboardEvent) {
+			if (event.key === 'Tab') {
+				this.closeSuggestions();
+				return;
+			}
 			if (event.key === 'Escape') {
 				if (!this.suggestions.hidden) event.preventDefault();
 				this.closeSuggestions();
@@ -1534,6 +1549,7 @@ const { comparisonSlot } = Astro.props as { comparisonSlot?: 'A' | 'B' };
 			season: SeasonId,
 			availability: PlayerSeasonAvailability,
 		) {
+			this.clearResult(playerName, 'Analysis unavailable');
 			this.stage.setAttribute('aria-busy', 'false');
 			requireElement<HTMLElement>(this, '[data-result-empty]').hidden = true;
 			const unavailable = requireElement<HTMLElement>(this, '[data-season-unavailable]');
@@ -1560,6 +1576,11 @@ const { comparisonSlot } = Astro.props as { comparisonSlot?: 'A' | 'B' };
 				copy.textContent =
 					`A shooting map exists for ${playerName} in ${this.seasonLabel(season)}, but no area passes the rules for moving shots.`;
 			}
+
+			requireElement<SVGTitleElement>(this, '[data-court-title]').textContent =
+				`${playerName}, ${this.seasonLabel(season)}: Analysis unavailable`;
+			requireElement<SVGDescElement>(this, '[data-court-description]').textContent = copy.textContent;
+			requireElement<HTMLElement>(this, '[data-cell-detail]').textContent = copy.textContent;
 
 			requireElement<HTMLElement>(this, '[data-caption-player]').textContent =
 				`${playerName}, ${this.seasonLabel(season)}.`;
@@ -1617,7 +1638,7 @@ const { comparisonSlot } = Astro.props as { comparisonSlot?: 'A' | 'B' };
 				`The model estimates ${signed(season, 0)} extra points over the same ${whole(this.currentPlayer.observed_attempts)} recorded shots in ${seasonName}. This compares possible shot mixes, not a future season forecast.`);
 			this.updateHelp('range', 'Estimated Range (90%)',
 				`The middle 90% of the model’s estimates run from ${whole(seasonLow)} to ${whole(seasonHigh)} extra points. This range describes uncertainty within the model, not a guarantee about real games.`);
-			requireElement<HTMLButtonElement>(this, '[data-term="range"] button').setAttribute('aria-label', `Explain Estimated Range for Extra Points in ${seasonName}`);
+			requireElement<HTMLButtonElement>(this, '[data-term="range"] button').setAttribute('aria-label', `Explain Estimated Range (90%) for Extra Points in ${seasonName}`);
 			this.updateHelp('per-100', 'Extra Points per 100 Shots',
 				`The model estimates ${signed(per100, 1)} extra points for every 100 attempts at this slider setting. This puts players with different shot counts on the same scale.`);
 			if (this.courtView === 'combined') {

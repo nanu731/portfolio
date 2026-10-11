@@ -3,7 +3,7 @@ import SpatialShotSelection from './SpatialShotSelection.astro';
 ---
 <player-comparison>
   <div class="shared-controls">
-    <label>Season <select data-shared-season disabled aria-label="Comparison season">
+    <label>Season <select id="comparison-season" name="comparison-season" data-shared-season disabled aria-label="Comparison season">
       {['2025-26','2024-25','2023-24','2022-23','2021-22'].map(season => <option value={season}>{season.replace('-', '–')}</option>)}
     </select></label>
     <fieldset data-shared-views disabled><legend>Court view for both players</legend>
@@ -12,15 +12,19 @@ import SpatialShotSelection from './SpatialShotSelection.astro';
       <label><input type="radio" name="comparison-view" value="ability" /> Make-chance map</label>
     </fieldset>
     <label>Shots to move: <output data-shared-output aria-label="Requested relocation share">0%</output>
-      <input type="range" min="0" max="25" step="5" value="0" data-shared-slider disabled aria-label="Shots to move for both players" />
+      <input type="range" id="comparison-relocation-share" name="comparison-relocation-share" min="0" max="25" step="5" value="0" data-shared-slider disabled aria-label="Shots to move for both players" />
     </label>
     <button type="button" data-comparison-reset disabled>Reset comparison</button>
   </div>
   <p>Both players use the same court geometry and make-chance colors. Shot movement uses one bubble-area scale across both players for the selected setting.</p>
   <p role="status" data-comparison-status>Loading comparison controls…</p>
+  <div class="comparison-selections">
+    <section aria-label="Player A selection"><h2>Player A</h2><div data-comparison-selection="A"></div></section>
+    <section aria-label="Player B selection"><h2>Player B</h2><div data-comparison-selection="B"></div></section>
+  </div>
   <div class="comparison-columns">
-    <section aria-label="Player A"><h2>Player A</h2><SpatialShotSelection comparisonSlot="A" /></section>
-    <section aria-label="Player B"><h2>Player B</h2><SpatialShotSelection comparisonSlot="B" /></section>
+    <section aria-label="Player A"><SpatialShotSelection comparisonSlot="A" /></section>
+    <section aria-label="Player B"><SpatialShotSelection comparisonSlot="B" /></section>
   </div>
 </player-comparison>
 
@@ -94,9 +98,14 @@ import SpatialShotSelection from './SpatialShotSelection.astro';
   input { accent-color: var(--green); }
   input[type="range"] { display: block; width: 100%; }
   :is(input,select,button):focus-visible { outline: var(--rule-thick) solid var(--accent); outline-offset: var(--space-3xs); }
+  .comparison-selections { display: grid; gap: var(--space-s) var(--space-l); margin-block: var(--space-m); }
+  .comparison-selections > section { min-width: 0; }
+  :global([data-comparison-controls] .season-control) { display: none !important; }
+  /* Moved selectors must not inherit the single explorer's season/search grid. */
+  :global([data-comparison-controls].player-controls) { display: block !important; min-width: 0; }
   .comparison-columns { display: grid; gap: var(--space-l); }
   .comparison-columns > section { min-width: 0; }
-  @media (min-width: 64rem) { .comparison-columns { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+  @media (min-width: 64rem) { .comparison-selections, .comparison-columns { grid-template-columns: repeat(2,minmax(0,1fr)); } }
   /* The existing renderer remains intact. Only comparison instances use this layout. */
   :global([data-comparison-slot] .figure) { margin: 0; width: 100%; max-width: 100%; }
   :global([data-comparison-slot] .player-controls), :global([data-comparison-slot] .explorer-plot) { display: block !important; min-width: 0; }
@@ -114,4 +123,33 @@ import SpatialShotSelection from './SpatialShotSelection.astro';
   :global([data-comparison-slot] .comparison-metrics[hidden]) { display: none; }
   :global([data-comparison-slot] .comparison-metrics dt) { font-weight: 600; margin-top: var(--space-s); }
   :global([data-comparison-slot] .comparison-metrics dd) { margin: 0; font-family: var(--font-numeric); font-size: var(--type-small); overflow-wrap: anywhere; }
+  /* Share intrinsic row heights, including evidence and guidance. No fixed
+     note height assumes a particular player or text size. */
+  @media (min-width: 64rem) {
+    /* The shared grid owns vertical separation; avoid stacking child margins. */
+    .comparison-selections { margin-block: var(--space-s); }
+    .comparison-selections h2 { margin-bottom: var(--space-s); }
+    :global([data-comparison-controls].player-controls) { padding-block: var(--space-2xs) !important; }
+    :global([data-comparison-slot] .figure) { margin-block: 0 !important; }
+    :global([data-comparison-slot] .court-title-row) { margin-block: 0 !important; }
+    :global([data-comparison-slot] .court-guide) { margin-bottom: 0 !important; }
+    :global([data-comparison-slot] .map-help) { margin-block: 0 !important; }
+    :global([data-comparison-slot] .explorer-plot) { row-gap: var(--space-s) !important; }
+    .comparison-columns { row-gap: var(--space-s); }
+    .comparison-columns > section { display: grid; grid-row: 1 / span 8; grid-template-rows: subgrid; }
+    .comparison-columns > section:first-child { grid-column: 1; }
+    .comparison-columns > section:last-child { grid-column: 2; }
+    :global([data-comparison-slot]) { display: grid; grid-row: 1 / span 8; grid-template-rows: subgrid; }
+    :global([data-comparison-slot] .figure) { display: grid; grid-row: 1 / span 8; grid-template-rows: subgrid; }
+    :global([data-comparison-slot] .status-row) { grid-row: 1; }
+    :global([data-comparison-slot] .explorer-plot) { display: grid !important; grid-template-columns: minmax(0, 1fr) !important; grid-row: 2 / span 6; grid-template-rows: subgrid; }
+    :global([data-comparison-slot] .controls-panel) { grid-row: 1; }
+    :global([data-comparison-slot] .court-panel) { display: grid; grid-row: 2 / span 5; grid-template-rows: subgrid; }
+    :global([data-comparison-slot] .court-title-row) { grid-row: 1; }
+    :global([data-comparison-slot] .court-guide), :global([data-comparison-slot] .map-help) { grid-row: 2; }
+    :global([data-comparison-slot] .court), :global([data-comparison-slot] .movement-view) { grid-row: 3; align-self: start; }
+    :global([data-comparison-slot] .heat-legend), :global([data-comparison-slot] .shot-legend) { grid-row: 4; }
+    :global([data-comparison-slot] .cell-detail) { grid-row: 5; }
+    :global([data-comparison-slot] .comparison-metrics) { grid-row: 8; }
+  }
 </style>

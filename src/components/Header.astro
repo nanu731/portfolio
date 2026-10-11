@@ -31,6 +31,7 @@ import HeaderLink from './HeaderLink.astro';
 	   viewport corners. */
 	header {
 		margin: 0;
+		container-type: inline-size;
 		background: var(--cream);
 		border-bottom: var(--rule) solid var(--green);
 	}
@@ -79,5 +80,11 @@ import HeaderLink from './HeaderLink.astro';
 		.social-links {
 			display: none;
 		}
+	}
+	/* Relative to header text size: normal 320px layouts keep their geometry,
+	   while enlarged text can put the same navigation on its own row. */
+	@container (width < 15em) {
+		nav { flex-wrap: wrap; gap: 0 var(--space-m); }
+		.internal-links { min-width: 0; width: 100%; }
 	}
 </style>
