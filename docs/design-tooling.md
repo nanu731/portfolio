@@ -1,73 +1,90 @@
 # Design tools and UI refinement handoff
 
-Updated 10 October 2026, America/New_York. Continuation began at clean commit
-`6dc3dd4` on `codex/portfolio-ui-refinement`. No push or deployment ran.
+Updated 10 October 2026, America/New_York. Branch: `codex/portfolio-ui-refinement`.
+The continuation started from clean `6dc3dd4`; tooling/context preparation is
+`1212802`. The eight UI repairs are committed. No push or deployment ran.
 
-## Current continuation
+## Current completed work
 
-Both native MCP servers now appear in the tool catalog. Chrome DevTools
-`list_pages`, navigation and DOM evaluation passed; shadcn `list_components`
-passed. Both existing design skills were discovered and read. Impeccable remains
-the primary workflow; Apple Design supports it. The saved independent critique
-supplies the repair scope. No new reviewer or baseline audit ran.
+Narayan confirmed that Codex CLI `/hooks` shows both Impeccable hooks trusted,
+enabled and without pending review in this worktree. That user review cleared
+the prerequisite; file presence and project trust were not used as substitutes.
+Narayan also approved comparison markup and reading-order regrouping.
 
-The original checkout has two hook trust records. No record names this worktree.
-Configuration and file presence do not prove worktree hook approval or execution.
-The user was asked to review this worktree's PostToolUse and Stop hooks through
-Codex CLI `/hooks`. Approval remains unverified; UI source has not changed.
+Both existing design skills are discovered and read. Native Chrome DevTools
+and shadcn server calls pass. Impeccable remains primary; Apple Design supplies
+supporting guidance. The saved independent critique supplied scope. No further
+reviewer or baseline audit ran. UI-UX-Pro-Max style and palette searches preceded
+visual decisions, and craft-floor preceded the repairs.
 
-The user also received a concrete comparison proposal: group the existing player
-selectors ahead of mobile results and use shared grid row sizing for desktop
-court alignment. Markup and reading-order approval remains pending. No comparison
-restructuring ran. All eight requested repairs remain pending; the footer stays
-outside scope. No matched after views or repair regressions exist yet.
+PRODUCT.md and DESIGN.md now record supplied project facts and extracted
+incumbent design. The font-size detector found eight advisories for existing
+chart/control exceptions missing from the new record; DESIGN.md now includes
+those sizes without changing UI type. The final detector scan returned zero
+findings. No detector ignore or overlay was added.
 
-## Authorized supplementary tooling
+The [verification record](ui-refinement-verification.md) lists the eight commits,
+matched desktop/mobile screenshots, engine checks, trace locations and limits.
+Both explorers passed the 360-state matrix. Focused repaired-behavior checks
+passed through Playwright CLI in Chromium, Firefox and WebKit. Actual target
+viewports were 1440 x 1000 and 375 x 812. All six routes passed 320/375px reflow
+with root text doubled; this is not native browser zoom. The final six-route
+capture at both target widths confirmed reduced-motion preference and zero
+active animations or nonzero transitions.
 
-- Vercel `web-design-guidelines` skill 1.0.0 installed under the user's Codex
-  skills at reviewed revision `063bee94c3f4df8453406c830b0a7df0f2860278`.
-  The skill will be available through discovery on the next turn; its installed
-  instructions were read in this turn. The official live checklist was fetched.
-  Apply relevant accessibility, focus, empty-state and layout rules to the repairs;
-  portfolio constraints override replacement styling, copy and framework advice.
-- Microsoft `@playwright/cli` 0.1.22 installed with an exact version and lockfile
-  in `/Users/narayanlekhi/.codex/tools/portfolio-playwright`, outside the website.
-  Its dependencies pin Playwright and playwright-core to
-  `1.64.0-alpha-1790635538000`. No website dependency file changed.
-- Installed browser builds: Chromium 155.0.8059.12 (1247), Firefox 156.0 (1553),
-  WebKit 26.6 (2368), plus the CLI's Chromium headless shell and FFmpeg helper.
-  Browser caches live outside the repository. Isolated profiles stay in memory;
-  smoke snapshots and configuration live under `/private/tmp/portfolio-playwright-smoke`.
-- CLI smoke checks loaded the existing built home page in all three engines at
-  actual 1440 x 1000 and 375 x 812, with no horizontal page overflow. Firefox
-  reported one unused font-preload warning. These are tooling checks, not a repair
-  confirmation pass. The preserved preview asserts matching Vercel/Netlify
-  headers before serving. Native Chrome DevTools also loaded that preview.
+Chrome DevTools inspected built pages served with the real matching response
+headers. Ordinary single/comparison loads had no console errors or CSP issues;
+same-origin fonts, scripts and selected data requests succeeded. Seven generated
+page policies contain valid permitted inline hashes. Chrome blocked both normal
+negative fixtures, an unhashed script and an event handler, without weakening
+policies. Firefox logged warnings for unused font preload, empty-fragment lookup
+and scroll-linked help positioning; the affected font/help source is unchanged.
 
-Official instructions were inspected before installation:
-[Microsoft Playwright CLI](https://github.com/microsoft/playwright-cli),
+The final production build passed with seven pages. The website dependency audit
+reports zero vulnerabilities. Existing empty-blog, policy-scope and Shiki warnings
+remain. Hash checks confirm unchanged public data, analytics, analysis libraries,
+website dependencies, Astro configuration and both hosting policies. Only the
+four intended UI source files changed. Published output contains no tooling,
+skills, MCP files, profiles, test scripts or dependency directories.
+
+## Pinned tooling outside website dependencies
+
+| Tool | Retained version/revision | Current evidence |
+| --- | --- | --- |
+| Impeccable | Skill 4.5.0, engine 0.1.11 | Read; context loaded; detector ran; user confirms hook approval |
+| Apple Design | `e8a175de22ae1e49370fc144c1f3bb9aeedf988d` | Existing installation reused and read |
+| shadcn MCP | `@jpisnice/shadcn-ui-mcp-server@3.0.0` | Native list_components call passed; no library added |
+| Chrome DevTools MCP | `chrome-devtools-mcp@1.10.1` | Native browser, accessibility, console and network calls passed |
+| Vercel web-design-guidelines | 1.0.0, `063bee94c3f4df8453406c830b0a7df0f2860278` | Installed user skill discovered; official checklist refreshed for final scoped review |
+| Playwright CLI | `@playwright/cli@0.1.22` | Exact installation and lockfile outside website; three-engine regressions passed |
+| Playwright runtime | `1.64.0-alpha-1790635538000` | Pinned by CLI; development use only |
+
+Browser builds: Chromium 155.0.8059.12 (1247), Firefox 156.0 (1553), WebKit 26.6
+(2368), plus Chromium headless shell and FFmpeg. The CLI installation lives in
+`/Users/narayanlekhi/.codex/tools/portfolio-playwright`. Browser caches remain
+outside the repo; isolated session profiles stay in memory. Trace resources and
+configuration live under `/private/tmp/portfolio-playwright-smoke`, screenshots
+in the authorized visualization directory. Website dependency files did not
+change. The CLI's reproducible checks live under scripts and do not enter dist.
+
+Official sources inspected before installation:
+[Microsoft CLI](https://github.com/microsoft/playwright-cli),
 [Vercel skill](https://github.com/vercel-labs/agent-skills/tree/063bee94c3f4df8453406c830b0a7df0f2860278/skills/web-design-guidelines),
 [Vercel checklist](https://github.com/vercel-labs/web-interface-guidelines/blob/main/command.md).
 
-The reproducible home-page smoke check lives in
-`scripts/playwright-tooling-smoke.js`; invoke it through CLI `run-code --filename`
-with an isolated engine session against the production-header preview. It
-asserts actual viewport dimensions and overflow. Tooling launch configuration
-remains outside published output. The application source, public data, analytics,
-dependency files and hosting policies retain their starting hashes.
+## Remaining limits
 
-Shared PRODUCT.md and DESIGN.md now record supplied project facts and extracted
-incumbent tokens. They introduce no new user copy, claims or visual decisions.
-UI-UX-Pro-Max style and palette searches ran; replacement colors, fonts and
-motion were rejected under the supplied constraints. Craft-floor remains for
-immediately before the first UI edit. The production build and dependency audit
-have not been rerun during this tooling-only continuation.
+Footer polish stays deferred. Physical touch, screen-reader speech, speech
+control, native browser zoom, low-end performance and slow-network race testing
+remain unverified. The tests use browser keyboard/pointer automation and
+programmatic state changes; the 360 matrix does not claim 360 physical gestures.
+No production deployment or live-host revalidation of these UI repairs ran.
 
 ## Historical baseline at 6dc3dd4
 
 The record below describes the completed preceding audit. Its absent-native-tool
 and absent-product/design statements are historical; the current continuation
-above supersedes them. Its UI defects remain unresolved.
+above supersedes them. Its eight scoped UI defects are repaired in the current local branch; the footer remains deferred.
 
 ## Isolated branch and preservation
 
@@ -137,7 +154,7 @@ CSP. Real screenshots, DOM/accessibility snapshots, console/network records and
 Lighthouse replaced overlay evidence. No overlay or live detector server is
 claimed.
 
-Nine distinct findings remain unresolved:
+At this historical baseline, nine findings remained unresolved:
 
 | Priority | Finding |
 | --- | --- |

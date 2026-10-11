@@ -1,0 +1,151 @@
+# Portfolio UI refinement verification
+
+Verified 10 October 2026, America/New_York. Branch:
+`codex/portfolio-ui-refinement`. Starting commit: `6dc3dd4`; preparation:
+`1212802`. Narayan confirmed worktree hook trust and enabled status and approved
+comparison regrouping. The review used the saved independent critique; no new
+reviewer or baseline audit ran. No push or deployment occurred.
+
+## Repair commits and matched evidence
+
+Each repair was built, shown and committed before the next change. The range
+name and shared-control identifiers change accessibility/DOM metadata; their
+visible screenshots remain the same. Screenshot files stay outside Git.
+
+| Repair | Commit | Desktop 1440 x 1000 | Mobile 375 x 812 |
+| --- | --- | --- | --- |
+| 1. Range help name includes Estimated Range (90%) | `4f17b54` | [before](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-1-before-1440.png) / [after](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-1-after-1440.png) | [before](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-1-before-375.png) / [after](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-1-after-375.png) |
+| 2. Home project title and season use ruled-row styling | `4f1dce1` | [before](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-2-before-1440.png) / [after](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-2-after-1440.png) | [before](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-2-before-375.png) / [after](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-2-after-375.png) |
+| 3. Search suggestions dismiss on Tab and focus exit | `780013b` | [before](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-3-before-1440.png) / [after](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-3-after-1440.png) | [before](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-3-before-375.png) / [after](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-3-after-375.png) |
+| 4. Unavailable season finishes court text with the existing reason | `a294ab7` | [before](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-4-before-1440.png) / [after](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-4-after-1440.png) | [before](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-4-before-375.png) / [after](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-4-after-375.png) |
+| 5. Enlarged header text reflows without changing normal geometry | `65fc6c5` | [before](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-5-before-1440.png) / [after](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-5-after-1440.png) | [before](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-5-before-375.png) / [after](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-5-after-375.png) |
+| 6. Shared season and slider have unique identifiers | `9ce7443` | [before](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-6-before-1440.png) / [after](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-6-after-1440.png) | [before](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-6-before-375.png) / [after](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-6-after-375.png) |
+| 7. Desktop comparison courts share intrinsic grid rows | `1c3afaf` | [before](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-7-before-1440.png) / [after](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-7-after-1440.png) | [before](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-7-before-375.png) / [after](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-7-after-375.png) |
+| 8. Both mobile selectors precede stacked results | `29f0807` | [before](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-8-before-1440.png) / [after](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-8-after-1440.png) | [before](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-8-before-375.png) / [after](/Users/narayanlekhi/.codex/visualizations/2026/10/11/01a128f2-60c9-75a1-8a85-ddfed49aa5fa/repair-8-after-375.png) |
+
+Desktop courts retain their 432px width and align in supported, one-area, empty
+and unavailable states. Both mobile searches appear before results; their gap
+measures about 235px across the engines, compared with the baseline's 2,174px.
+The selector nodes retain their identity and owning renderer when moved into the
+shared selection region. DOM order and keyboard order both place A before B.
+
+## Bounded confirmation
+
+- Playwright CLI Chromium completed both explorers x five seasons x six slider
+  values x three court views x two target viewports: 360 rendered states. The
+  matrix dispatches input/change events, checks readiness, chosen mode, player,
+  share and overflow. No matrix page error or failed request occurred. Changing
+  slider/view added no data requests. Comparison included both LeBron and Curry.
+- Focused Chromium, Firefox and WebKit regressions passed at actual 1440 x 1000
+  and 375 x 812. They exercise home-row focus, keyboard search/Tab dismissal,
+  arrow/Enter selection, pointer option selection, court arrow inspection, range
+  label context, help Escape/outside dismissal, duplicate rejection, season
+  persistence, reset, capped movement, unavailable estimates, unavailable season
+  reasons, selector keyboard order, identifiers and desktop court alignment.
+- All six routes passed normal 320/375px reflow and doubled root-text checks in
+  Chromium. The changed header preserved normal-size element rectangles. Each
+  engine also passed 320px comparison reflow with doubled root text. These are
+  CSS text-enlargement checks; native browser zoom remains untested.
+- Final six-route captures at both target dimensions confirmed reduced-motion
+  preference, zero active animations and zero nonzero transitions. Every engine
+  confirmed reduced-motion preference in the single explorer. The user received
+  matched views during each repair; final captures use the `final-` prefix in
+  the same screenshot directory.
+
+Reproducible CLI `run-code --filename` checks are saved in
+`playwright-ui-regressions.js`, `playwright-explorer-matrix.js` and
+`playwright-reflow-check.js` under scripts. Their default origin is the local
+production-header preview at port 4345. The first script is the focused engine
+suite; the matrix belongs in one engine unless a new failure warrants broader
+coverage. CLI engine configuration and session artifacts live outside the repo.
+
+## Browser evidence and security
+
+Native Chrome DevTools confirmed exact desktop/mobile dimensions, loaded
+Fraunces, Source Serif 4 and IBM Plex Mono, accessible selector labels and ordered
+selection regions. Ordinary comparison/single pages had no console errors or
+CSP issues. Same-origin script/font/data requests returned 200. The default
+single/comparison loads requested the manifest, root availability catalog,
+active-season player index and LeBron payload; no other player payload loaded
+until selection. Inspecting a chosen second player uses the existing loader.
+
+The preview asserts equality between the complete Vercel and Netlify response
+header sets before starting. Chrome read the actual host-equivalent response
+CSP and other security headers. Static checks verified generated page policy
+and hashes for every inline script and style on all seven HTML pages. Script
+attributes remain blocked; the existing style-attribute exception remains.
+
+A normal negative HTML fixture retained the generated policy and response
+headers. Chrome blocked its unhashed inline script and, after a native tool
+click, its inline event handler. Both markers stayed BLOCKED. These expected
+fixture errors are separate from ordinary application console checks. No policy,
+ignore rule, executable overlay or live detector server was added.
+
+Firefox reported warnings for an unused font preload, an empty-fragment lookup
+and scroll-linked help positioning. The source for these existing font/help
+behaviors is unchanged. Chromium/WebKit focused checks had no page errors;
+Firefox's warnings did not prevent its checks. These checks do not measure
+asynchronous panning on a physical device.
+
+## Build, preservation and implementation audit
+
+The final production build passed with seven pages. The website dependency
+audit reports zero vulnerabilities. Existing warnings cover the empty blog,
+CSP directive scope and Shiki's inline styles. The existing style exception
+continues to support those styles; script attributes stay denied.
+
+SHA-256 manifests prove public data, website dependency files, Astro config,
+Vercel/Netlify policies and source outside the four intended UI files unchanged.
+That includes analysis libraries, content, analytics and font assets. Static
+output checks found no tooling, profiles, skills, MCP files, test scripts or
+node_modules in published output.
+
+The refreshed Vercel checklist was applied to the changed implementation:
+
+- `src/components/Header.astro:86`: reflow and visible navigation pass.
+- `src/pages/index.astro:74`: ruled-row hierarchy and visible focus pass.
+- `src/components/SpatialShotSelection.astro:477`: focus exit and selection pass.
+- `src/components/PlayerComparison.astro:6`: identified native controls pass.
+- Comparison subgrid and selector regrouping: intrinsic sizing, DOM/keyboard
+  order and 320px/200% text checks pass.
+
+Portfolio constraints take precedence over generic copy, framework, motion and
+styling recommendations. No full Vercel/WCAG compliance certification is claimed.
+The Impeccable scan initially found eight font-size advisories in existing chart
+styles because the new design record omitted those component exceptions. The
+record now includes them; the final scan returned zero findings. UI type and
+detector ignores did not change.
+
+## Raw evidence
+
+Structured results are retained outside Git:
+
+- `/private/tmp/portfolio-confirmation-matrix-result.txt`
+- `/private/tmp/portfolio-repaired-chromium-result.txt`
+- `/private/tmp/portfolio-repaired-firefox-result.txt`
+- `/private/tmp/portfolio-repaired-webkit-result.txt`
+- `/private/tmp/portfolio-reflow-check-result.txt`
+- `/private/tmp/portfolio-final-surfaces-result.txt`
+- `/private/tmp/portfolio-final-security.json`
+- `/private/tmp/portfolio-final-build.log`
+- `/private/tmp/portfolio-final-audit.json`
+
+CLI traces and their network/resource companions:
+
+- Chromium: `/private/tmp/portfolio-playwright-smoke/chromium/traces/trace-1791690443216.trace`
+- Firefox: `/private/tmp/portfolio-playwright-smoke/firefox/traces/trace-1791690633292.trace`
+- WebKit: `/private/tmp/portfolio-playwright-smoke/webkit/traces/trace-1791690531861.trace`
+
+The CLI Chromium trace includes the corrected ambiguous test locator attempt;
+the successful suite's result is recorded above. A tool refused the Chrome MCP
+negative-fixture output path, so its confirmed BLOCKED result was read inline.
+This tool path refusal does not establish an application CSP failure.
+
+## Remaining limits
+
+The footer adjustment stays deferred. Physical touch, screen-reader speech,
+speech control, native browser zoom, low-end performance and slow-network race
+checks remain unverified. The tests use browser keyboard/pointer automation and
+programmatic state dispatch. They do not establish physical gesture or
+assistive-technology behavior. Production remains on the released version;
+these UI repairs require a separate release instruction.

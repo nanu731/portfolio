@@ -2,35 +2,43 @@
 
 Snapshot for a reader new to the site. Updated 10 October 2026.
 
-## UI tooling ready; refinements await hook review
+## Eight UI repairs complete in the isolated branch
 
-The isolated UI branch preserves the completed independent critique and existing
-work. Both design skills are available. Native browser inspection and component
-reference calls now pass in this chat. The supplementary Vercel audit skill and
-pinned Playwright CLI are installed outside the website's dependencies.
+Narayan reviewed and trusted both project hooks and approved comparison
+regrouping. The local branch now fixes the range help name, home project row,
+search dismissal, unavailable court text, enlarged-text header, shared control
+identifiers, desktop court alignment and mobile selector order. Each completed
+repair has its own commit and matched desktop/mobile views. Both selectors now
+appear ahead of mobile results; desktop courts share intrinsic row sizing.
 
-Chromium, Firefox and WebKit loaded the existing built home page at confirmed
-1440 by 1000 and 375 by 812, with no horizontal overflow. Firefox reported an
-unused font-preload warning. These smoke checks establish that the tools run;
-they do not verify the requested repairs. The local preview uses the matching
-production response headers.
+The confirmation pass covered both explorers across all five seasons, six
+relocation settings and three court views at desktop and mobile sizes: 360
+rendered states. Actual viewports measured 1440 by 1000 and 375 by 812. Focused
+Chromium, Firefox and WebKit checks passed for the repaired behaviors, keyboard
+focus, court inspection, help dismissal, duplicate rejection, season persistence,
+reset, capped estimates and unavailable estimates. All six routes passed reflow
+at 320 and 375 pixels with root text doubled. That test enlarges text; it does
+not establish native browser zoom behavior.
 
-The first-use Impeccable hook approval remains unverified for this worktree.
-Trust records cover the original checkout. Narayan received the exact hook
-review action and a comparison proposal that groups both mobile selectors ahead
-of results and aligns desktop courts. Both approvals remain pending.
+The six-route final capture confirmed reduced-motion preference with no active
+animations or transitions. Chrome's ordinary application checks had no console
+errors or policy violations. Fonts, scripts and selected data requests succeeded.
+Firefox logged warnings from the unchanged font-preload and help code. The local
+production-header preview matched both hosts' policies; generated hashes passed
+on all seven pages. Negative checks blocked an unhashed script and event handler.
 
-All eight requested UI repairs remain unfinished. The low-impact footer change
-stays deferred. Shared product and design records now capture the supplied facts
-and existing visual system. Website source, factual copy, analytics, public data,
-dependencies and security policies remain unchanged. No push or deployment ran.
+The production build passed. The website dependency audit reports zero known
+vulnerabilities. Existing empty-blog, policy-scope and syntax-highlighting
+warnings remain. Public data, analytical calculations, factual copy, analytics,
+dependencies and hosting policies remain unchanged. Development tooling stays
+outside published output. Product and design records capture the supplied facts
+and existing visual system; reproducible checks and traces accompany the work.
 
-The preceding audit checked all 360 explorer combinations, keyboard behavior,
-reduced motion, matching headers and permitted script hashes. Its production
-build passed and its dependency audit reported zero vulnerabilities. This
-continuation has not rerun those checks; the bounded confirmation pass belongs
-after the repairs. No after views exist. Physical touch, screen-reader speech,
-speech control and native browser zoom remain unverified.
+Footer polish remains deferred. Physical touch, assistive-technology speech,
+native browser zoom, slow-network races and low-end performance remain
+unverified. No push, deployment or live-host revalidation of the UI repairs ran.
+Production continues to serve the released UI. The local branch is ready for
+review; release requires a separate instruction.
 
 ## Released security repairs
 
@@ -56,8 +64,9 @@ and three views on each host. Player selection, capped estimates, keyboard contr
 help popups, comparison reset and unavailable estimates passed. Chrome confirmed
 actual desktop dimensions of 1440 by 1000 and mobile dimensions of 375 by 812.
 Neither page overflowed horizontally or produced application console errors or
-policy violations during these checks. The earlier unavailable-season Loading
-placeholder remains unchanged; no release regression required rollback.
+policy violations during these checks. At that release, the unavailable-season placeholder retained Loading; no
+release regression required rollback. The local UI refinement now fixes that
+wording without deploying it.
 
 Chrome blocked the local framing test. The browser client blocked the injected
 script fixture before loading, so that attempt does not prove policy enforcement.
@@ -92,8 +101,8 @@ Build, full-payload tests, selective network loading, keyboard controls, all
 season/slider/view combinations, desktop, 375-pixel mobile and half-width reflow
 checks passed. The original explorer retains its calculations and court views,
 with one added link to the comparison. Native zoom, screen-reader speech and
-physical touch still need manual review. The unavailable-season Loading wording
-remains unchanged. Narayan approved release. The merge and push succeeded, and
+physical touch still need manual review. At that release, unavailable-season text retained Loading. The local UI
+refinement now fixes it; production still uses the released version. Narayan approved release. The merge and push succeeded, and
 Vercel reported a successful automatic deployment. Both nslanalytics.com and its
 www address serve the comparison; the apex redirects to www.
 
@@ -138,7 +147,8 @@ horizontal overflow or application console errors. The live resource inventory
 showed no new flow-data route; the unchanged script passed the earlier request
 count check. Analytics, exports, dependencies and hosting settings remain unchanged.
 
-The unavailable-season Loading wording remains an unchanged limitation. The
+The released version retains the unavailable-season Loading wording. The local
+UI refinement now fixes it; no deployment ran for that change. The
 two-player comparison has since been released, as recorded above.
 
 ## Earlier public release record
@@ -193,11 +203,11 @@ bottom of a screenshot; readers can scroll the page to reveal the covered text.
 
 ## Remaining limitations and next decision
 
-One unavailable-season edge case needs a follow-up: Chris Paul's 2025-26 selection
-explains that 56 shots in 16 games fail eligibility, but the empty court still says
-Loading. No previous player's chart or numerical result appears. Reset works.
-This release verification found and recorded the placeholder issue; it did not
-change the approved interface. Narayan can authorize a narrow repair separately.
+At that release, Chris Paul's 2025-26 selection explained that 56 shots in
+16 games fail eligibility, but its empty court retained Loading. The authorized
+local UI repair now finishes the court text with the existing reason and preserves
+unavailable values. The repair has passed browser checks and awaits deployment;
+the released site still has the older placeholder.
 
 Free-pointer hover transit, native 200% zoom, physical-device touch, and
 screen-reader speech remain untested. Browser clicks approximate touch, and the

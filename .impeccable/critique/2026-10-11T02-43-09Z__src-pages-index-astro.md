@@ -15,6 +15,14 @@ Method: dual-agent (A: /root/design_review · B: /root/technical_review)
 
 # Portfolio UI critique and bounded audit
 
+Current disposition, 10 October 2026: Narayan confirmed worktree hook approval
+and approved comparison regrouping. The eight scoped repairs now pass the local
+confirmation checks, recorded in [the verification handoff](../../docs/ui-refinement-verification.md).
+The footer remains deferred. The scores and unresolved labels below describe
+the independent historical baseline; no new independent score is claimed.
+Production remains unchanged because this branch was not pushed or deployed.
+
+
 Reviewed 10 October 2026, America/New_York. Target: the existing portfolio at
 `b2a9325` on `codex/portfolio-ui-refinement`, rooted at the home page source and
 covering home, About, projects, blog, the NBA explorer and comparison.

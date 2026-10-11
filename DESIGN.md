@@ -23,6 +23,16 @@ typography:
   label:
     fontFamily: IBM Plex Mono
     fontSize: "0.75rem"
+  control-and-subheading:
+    fontSize: "1rem"
+  guide-step:
+    fontSize: "1.15rem"
+  mobile-court-title:
+    fontSize: "1.35rem"
+  mobile-heat-legend:
+    fontSize: "0.65rem"
+  court-empty-svg-text:
+    fontSize: "24px"
 spacing:
   space-3xs: "0.25rem"
   space-2xs: "0.5rem"
@@ -66,7 +76,9 @@ h1-h2 use WONK 1 with SOFT 80-100; h3 and smaller roles flatten those axes.
 Optical sizing follows the rendered role. Data columns require tabular numerals.
 
 The body starts at 1.25rem with a 1.5 scale ratio. Heading clamps protect narrow
-screens. Preserve the implemented axis settings during these focused repairs.
+screens. Preserve the implemented axis settings. The smaller control, guide-step, mobile
+court-title, heat-legend and court-empty SVG sizes above record existing component
+exceptions; they add no new type choices.
 
 ## Layout
 
@@ -75,8 +87,10 @@ spacing scale above 48rem; narrow screens use a consistent inset. Figures return
 to one fixed gutter and outgrow the prose measure. Ordinary pages have one green
 band plus the footer; project pages have two plus the footer.
 
-Keep the current responsive court layouts. Mobile comparison grouping and
-paired desktop court alignment remain repair proposals awaiting approval.
+Keep the current responsive court layouts. Comparison groups both selectors ahead of mobile results. Desktop comparison
+uses shared intrinsic grid rows to align courts across evidence states. The
+header uses a text-relative container query to wrap enlarged text; normal-size
+header geometry remains unchanged.
 
 ## Elevation & Depth
 
@@ -91,14 +105,15 @@ Retain chart circles, crosses, diamonds and hatches with their current meanings.
 ## Components
 
 The header presents the name, ordered navigation and GitHub link. Project
-indexes use ruled rows. The home row still needs the corresponding treatment.
+indexes use ruled rows. The home row uses the same ruled treatment with title and season on separate lines.
 Player search uses a labeled combobox, suggestions and arrow/Enter selection.
 Native selects and range controls drive the explorer. Definition buttons open
 contextual help. Court SVGs support keyboard inspection. Unavailable analysis
 keeps explicit reasons and null estimates.
 
-The saved critique records the current defects. This document records intended
-constraints without claiming that those repairs have shipped.
+The saved critique records the historical baseline. The local refinement branch
+fixes its eight scoped issues; production retains the released version until a
+separate approved release. The footer adjustment remains deferred.
 
 ## Do's and Don'ts
 
