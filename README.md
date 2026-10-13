@@ -208,3 +208,9 @@ local tooling state out of Git and published output.
 Site content and writing are © Narayan Lekhi. Fraunces uses the SIL Open Font
 License; see [OFL.txt](src/assets/fonts/OFL.txt). This repository does not declare
 a blanket open-source licence for the website or its analytical data.
+
+## Working-record exposure
+
+Local contributor instructions and internal working records are excluded from
+the current public snapshot. Earlier public commits remain available by design;
+ignore rules and current-file removal do not erase that earlier exposure.

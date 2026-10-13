@@ -77,3 +77,10 @@ claude*.md
 /docs/nba-court-clarity-options.md
 /docs/nba-plain-language-copy-proposal.md
 /docs/nba-project-quality-review.md
+
+# Local working records; historical public commits are not erased.
+/AGENTS*.md
+/CLAUDE*.md
+/docs/shot-selection-integration.md
+/docs/tennis-viewer-integration.md
+/tmp/
