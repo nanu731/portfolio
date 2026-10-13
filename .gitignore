@@ -51,3 +51,29 @@ pnpm-debug.log*
 
 # Platform-specific downloaded engine; keep the versioned launcher in Git.
 /.agents/skills/impeccable/scripts/bin/
+
+# Local working instructions and agent context (preserve local copies).
+AGENTS*.md
+CLAUDE*.md
+agents*.md
+claude*.md
+/PROJECT_CONTEXT.md
+/PRODUCT.md
+/DESIGN.md
+/.agents/
+/.codex/
+/.claude/
+/.impeccable/
+/skill-observations/
+/cross-cutting-principles.md
+/docs/status.md
+/docs/*ROADMAP*.md
+/docs/*ARCHITECTURE*.md
+
+# Local design briefs, copy proposals and tooling instructions.
+/docs/design-tooling.md
+/docs/impeccable-ui-foundation.md
+/docs/desktop-space-design-brief.md
+/docs/nba-court-clarity-options.md
+/docs/nba-plain-language-copy-proposal.md
+/docs/nba-project-quality-review.md
