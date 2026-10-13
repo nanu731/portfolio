@@ -28,9 +28,9 @@ npm run dev
 
 ## Where things are
 
-`CLAUDE.md` holds the design system and the writing rules: the palette and its
-contrast constraints, the type scale, and the rules that keep the banded layout
-coherent. `docs/status.md` is a plain-language snapshot of where the project stands.
+The public styles in `src/styles/global.css` define the palette and type scale.
+The `/styleguide` page displays those tokens. Local contributor instructions
+and working notes are excluded from the current public snapshot.
 
 `/styleguide` renders the colour and type system from the live tokens. It is unlinked
 and kept out of the sitemap, so it stays a reference rather than a page.
@@ -39,3 +39,9 @@ and kept out of the sitemap, so it stays a reference rather than a page.
 
 Fraunces is used under the SIL Open Font License; see `src/assets/fonts/OFL.txt`.
 Site content and writing are © Narayan Lekhi.
+
+## Working-record exposure
+
+Local contributor instructions and internal working records are excluded from
+the current public snapshot. Earlier public commits remain available by design;
+ignore rules and current-file removal do not erase that earlier exposure.
