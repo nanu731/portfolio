@@ -14,6 +14,23 @@ models, source-data audits, and research live in
 
 ## Available now
 
+### Tennis point stages
+
+[When do tennis players win and lose their points?](https://www.nslanalytics.com/projects/tennis-point-phases/)
+
+Explore recorded point endings, overlapping stage reaches, serving/receiving win
+rates, and break-point subsets. Counts and denominators remain visible. These
+sampled charted points do not establish career-wide strengths, rankings, causal
+credit or clutch ability. Research belongs to
+[tennis-analytics](https://github.com/nanu731/tennis-analytics).
+
+Source: The Tennis Abstract Match Charting Project, Jeff Sackmann and contributors.
+The adapted tennis display material is shared under
+[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+[Source, transformations and intended-use notice](public/tennis-mcp-notice.txt).
+This notice does not relicense unrelated website material or fonts.
+
+
 ### NBA Shot Selection: Location Edition
 
 How could a player's expected scoring change if some attempts moved toward

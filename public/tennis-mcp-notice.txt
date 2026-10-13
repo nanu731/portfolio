@@ -1,0 +1,43 @@
+Tennis point-phase aggregate display data — source and adaptation notice
+
+Crowdsourced shot-by-shot professional tennis data by The Tennis Abstract Match
+Charting Project, Jeff Sackmann and contributors.
+Source: https://github.com/JeffSackmann/tennis_MatchChartingProject
+Pinned source: https://github.com/JeffSackmann/tennis_MatchChartingProject/tree/1813a1309b7ed7ebf1c7e884b32bf675d00e4edf
+Project: http://www.tennisabstract.com/charting/meta.html
+Contributors: http://www.tennisabstract.com/charting/meta.html#contributors
+
+Source material is licensed under Creative Commons
+Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0).
+License: https://creativecommons.org/licenses/by-nc-sa/4.0/
+Full terms and disclaimer of warranties:
+https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.en
+The source is provided as-is and as-available, without warranties, to the extent
+allowed by applicable law. No endorsement by the source contributors is implied.
+
+Changes by Narayan Lekhi: the existing analysis selected 2021–2025 major/main-draw
+charts, applied its documented completion and whole-point notation exclusions,
+counted exclusive point endings and overlapping stage reaches, calculated
+serving/receiving point-win percentages, reconciled pre-point break-point scores,
+and classified explicitly recorded ending types and final-action players.
+Counts are pooled before division. This website packaging splits already frozen
+aggregate player/view records for selective loading and applies approved plain
+wording aliases. It also displays wins divided by wins plus losses for points ending at each stage,
+using existing counts. No raw point/action records or new scientific analysis
+are distributed.
+Analysis repository: https://github.com/nanu731/tennis-analytics
+
+To the extent the adapted display material carries copyright or database rights,
+Narayan Lekhi's adaptation is licensed under CC BY-NC-SA 4.0 with the same
+license link above. This notice covers the adapted tennis display material,
+not all website code, NBA data, third-party fonts or unrelated works.
+It does not authorize commercial use. Attribution, change notices and required
+ShareAlike conditions apply. The source's license notice and links are retained.
+
+INTENDED-USE DECISION, 13 October 2026:
+Narayan Lekhi describes this website as a personal portfolio for sharing his
+independent student research, without monetization or financial benefit. He
+bases his noncommercial-use decision on that intended purpose, not free hosting,
+and authorizes this publication under the source's existing CC BY-NC-SA 4.0
+license. This is his intended-use decision, not permission from the rights holder
+or a guarantee against complaints. The license conditions continue to apply.
