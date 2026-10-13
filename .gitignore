@@ -24,3 +24,26 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# Local working records; historical public commits are not erased.
+/AGENTS*.md
+/CLAUDE*.md
+/PROJECT_CONTEXT.md
+/PRODUCT.md
+/DESIGN.md
+/.agents/
+/.codex/
+/.claude/
+/.impeccable/
+/skill-observations/
+/cross-cutting-principles.md
+/docs/status.md
+/docs/design-tooling.md
+/docs/impeccable-ui-foundation.md
+/docs/desktop-space-design-brief.md
+/docs/nba-court-clarity-options.md
+/docs/nba-plain-language-copy-proposal.md
+/docs/nba-project-quality-review.md
+/docs/shot-selection-integration.md
+/docs/tennis-viewer-integration.md
+/tmp/
