@@ -136,13 +136,13 @@ import SpatialShotSelection from './SpatialShotSelection.astro';
     :global([data-comparison-slot] .map-help) { margin-block: 0 !important; }
     :global([data-comparison-slot] .explorer-plot) { row-gap: var(--space-s) !important; }
     .comparison-columns { row-gap: var(--space-s); }
-    .comparison-columns > section { display: grid; grid-row: 1 / span 8; grid-template-rows: subgrid; }
+    .comparison-columns > section { display: grid; grid-row: 1 / span 9; grid-template-rows: subgrid; }
     .comparison-columns > section:first-child { grid-column: 1; }
     .comparison-columns > section:last-child { grid-column: 2; }
-    :global([data-comparison-slot]) { display: grid; grid-row: 1 / span 8; grid-template-rows: subgrid; }
-    :global([data-comparison-slot] .figure) { display: grid; grid-row: 1 / span 8; grid-template-rows: subgrid; }
+    :global([data-comparison-slot]) { display: grid; grid-row: 1 / span 9; grid-template-rows: subgrid; }
+    :global([data-comparison-slot] .figure) { display: grid; grid-row: 1 / span 9; grid-template-rows: subgrid; }
     :global([data-comparison-slot] .status-row) { grid-row: 1; }
-    :global([data-comparison-slot] .explorer-plot) { display: grid !important; grid-template-columns: minmax(0, 1fr) !important; grid-row: 2 / span 6; grid-template-rows: subgrid; }
+    :global([data-comparison-slot] .explorer-plot) { display: grid !important; grid-template-columns: minmax(0, 1fr) !important; grid-row: 2 / span 7; grid-template-rows: subgrid; }
     :global([data-comparison-slot] .controls-panel) { grid-row: 1; }
     :global([data-comparison-slot] .court-panel) { display: grid; grid-row: 2 / span 5; grid-template-rows: subgrid; }
     :global([data-comparison-slot] .court-title-row) { grid-row: 1; }
@@ -150,6 +150,9 @@ import SpatialShotSelection from './SpatialShotSelection.astro';
     :global([data-comparison-slot] .court), :global([data-comparison-slot] .movement-view) { grid-row: 3; align-self: start; }
     :global([data-comparison-slot] .heat-legend), :global([data-comparison-slot] .shot-legend) { grid-row: 4; }
     :global([data-comparison-slot] .cell-detail) { grid-row: 5; }
-    :global([data-comparison-slot] .comparison-metrics) { grid-row: 8; }
+    /* Keep the disclaimer outside the court's final (summary) row. Subgrids
+       cannot create an implicit row when the summary wraps. */
+    :global([data-comparison-slot] .disclaimer) { grid-row: 7; }
+    :global([data-comparison-slot] .comparison-metrics) { grid-row: 9; }
   }
 </style>

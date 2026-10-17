@@ -6,7 +6,10 @@ async page => {
   const selectors=document.querySelector('.comparison-selections'),r=selectors.getBoundingClientRect();
   const regions=[...document.querySelectorAll('[data-comparison-slot]')].map(e=>{
    const main=e.querySelector('[data-court]').getBoundingClientRect(),flow=e.querySelector('[data-movement]').getBoundingClientRect();
-   return {name:e.currentPlayer?.player_name??'none',top:main.width?main.top:flow.top,width:main.width||flow.width};
+   const detail=e.querySelector('[data-cell-detail]'),disclaimer=e.querySelector('.disclaimer');
+   const text=document.createRange();text.selectNodeContents(detail);
+   const summaryGap=detail.hidden?null:disclaimer.getBoundingClientRect().top-text.getBoundingClientRect().bottom;
+   return {name:e.currentPlayer?.player_name??'none',top:main.width?main.top:flow.top,width:main.width||flow.width,summaryGap};
   });
   return {viewport:innerWidth,content:r.width,left:r.left,gap:parseFloat(getComputedStyle(selectors).columnGap),copy:document.querySelector('main > .band-inner > p').getBoundingClientRect().width,regions,overflow:document.documentElement.scrollWidth>innerWidth};
  });
@@ -19,7 +22,7 @@ async page => {
    for(const mode of ['combined','ability','movement']){
     await page.locator('[data-shared-slider]').evaluate(e=>{e.value='25';e.dispatchEvent(new Event('input',{bubbles:true}));});
     await page.locator('input[name=comparison-view][value='+mode+']').check();
-    const g=await geometry();if(g.overflow||Math.abs(g.regions[0].top-g.regions[1].top)>1)throw Error(JSON.stringify({name,mode,...g}));
+    const g=await geometry();if(g.overflow||Math.abs(g.regions[0].top-g.regions[1].top)>1||g.regions.some(r=>r.summaryGap!==null&&r.summaryGap<0))throw Error(JSON.stringify({name,mode,...g}));
     if(g.left!==40||g.gap!==40||g.copy!==Math.min(width-80,1008)||(width>=1440&&g.content!==1200))throw Error('Measures '+JSON.stringify(g));results.push({width,name:name??'empty',mode,...g});
    }
   }
@@ -27,7 +30,7 @@ async page => {
  for(const width of [320,375,768,1024,1280,1440,1920]){
   for(const scale of [1,2]){
    await page.setViewportSize({width,height:1000});await page.goto(origin+'/projects/nba-player-comparison/');await ready();await page.evaluate(scale=>document.documentElement.style.fontSize=16*scale+'px',scale);
-   const g=await geometry();if(g.overflow)throw Error('Reflow '+JSON.stringify({scale,...g}));results.push({scale,...g});
+   const g=await geometry();if(g.overflow||g.regions.some(r=>r.summaryGap!==null&&r.summaryGap<0))throw Error('Reflow '+JSON.stringify({scale,...g}));results.push({scale,...g});
   }
  }
  if(errors.length)throw Error(JSON.stringify(errors));return {results,errors};
