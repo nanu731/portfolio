@@ -1,7 +1,7 @@
 ---
 title: NFL QBs Re-evaluated
 heading: NFL QBs Re-evaluated
-description: A draft comparison of recorded quarterback performance and the evidence behind it.
+description: Compare recorded quarterback execution, shared play value and the limits of their repeatability across 2023 and 2024.
 question: Can public NFL data help describe repeatable quarterback execution with less dependence on supporting circumstances?
 dataset: nflverse regular-season play-by-play
 method: Matched-row annual associations and shared observed play value
@@ -9,7 +9,6 @@ seasons: 2023 and 2024
 repo: https://github.com/nanu731/nfl-qb-eval
 compact: true
 metadataInBody: true
-draft: true
 ---
 
 import Band from '../../components/Band.astro';
@@ -17,7 +16,7 @@ import NFLComparison from '../../components/NFLComparison.astro';
 
 <Band offset="edge">
 
-This project examines recorded quarterback execution and shared observed play value. Player comparisons are unavailable while the reviewed dataset is being prepared.
+Explore recorded execution and shared play value for 20 selected passers in 2023 and 2024. Isolated quarterback skill and a context-aware overall score remain incomplete.
 
 <NFLComparison />
 
@@ -25,11 +24,21 @@ This project examines recorded quarterback execution and shared observed play va
 
 <Band offset="step" green>
 
-## What these measures can tell us
+## Persistence has limits
+
+Annual CPOE association was **0.507**, compared with **0.452** for completion percentage on the same throws. Their difference was **0.055**, with a conditional interval from **−0.274 to 0.384**. Omitting one paired player reverses that difference. This evidence does not establish CPOE superiority.
+
+Recorded sack avoidance had a primary interleaved association of **0.265**, with a conditional interval from **−0.289 to 0.685**. Chronological and annual results answer separate questions; the study view retains all three.
+
+Run contributions combine frequency with shared observed value. Primary scramble association was **0.313 [−0.190, 0.686]**; non-scramble run association was **0.697 [0.004, 0.938]**. Annual associations were **0.727 [0.226, 0.924]** and **0.429 [−0.080, 0.761]**, respectively. Broad intervals and shared circumstances limit enduring-skill claims. The charts retain all four endpoints.
+
+## Read the denominators
 
 CPOE describes completion success above the supplied model expectation. Completion percentage uses the same eligible throws. EPA describes shared possession-team play value, including other participants and circumstances.
 
-These measures do not establish isolated skill or a context-adjusted overall score. Persistent supporting circumstances, survivor selection and conditional uncertainty limit interpretation.
+Recorded dropbacks **D** include played passes, sacks and scramble-runs. Combined opportunities **O** add recorded non-scramble player runs **R** to D. R includes aborted plays and laterals; intent remains unknown. Scrambles already belong to D. A contribution is the role's total EPA divided by O, while per-run EPA uses only that role's run count. Do not add these O-based contributions to D-based EPA.
+
+Arm strength and processing remain **unmeasured**. A context-adjusted overall score remains **unavailable**. These overlapping proxies do not establish independent traits, isolated mobility, rankings or forecasts. Persistent support, survivor selection, rare events, serial dependence and unknown vintage of the supplied completion-probability model remain limitations.
 
 </Band>
 
@@ -37,9 +46,22 @@ These measures do not establish isolated skill or a context-adjusted overall sco
 
 ## Sources and method
 
-The analysis uses 2023 and 2024 regular-season nflverse play-by-play. Player estimates use fixed opportunity definitions and cohort membership. Study-level association intervals and marginal player intervals answer different questions.
+<details>
+<summary>Methods, uncertainty and remaining gaps</summary>
 
-PBP data: nflverse, CC BY 4.0. Aggregated and transformed for this analysis. Original analysis code has a separate MIT license.
+The cohort requires at least 200 accepted eligible throws and ten eligible games in **each** year. It selects surviving, regular-use passers through supplied completion probability (CP) data availability; it does not represent all NFL quarterbacks or certify player positions.
+
+The analysis uses 2023 and 2024 regular-season nflverse play-by-play. Player estimates use fixed opportunity definitions and cohort membership across team changes. CPOE and completion use the same frozen eligible throws (E). Dropback and combined-opportunity populations have no CP filter. Sparse recorded runs remain visible with their counts. Cohort membership stays fixed; the analysis does not impute missing values, clip outcomes or shrink estimates.
+
+Player EPA and run-contribution bars show approximate 95% marginal conditional game-sampling sensitivities. They do not test player differences, ranks or season changes. No individual CPOE, completion or sack-avoidance intervals were estimated. Collapsed limits mean no observed deletion variation, not certainty. Zero recorded role events give zero share and contribution, with unavailable per-run EPA; missing evidence is never converted to zero.
+
+Study intervals delete whole contributing NFL games. Games serve as deletion/sampling units. The annual strata contain 223 + 208 games where reported; they do not form 431 independent quarterback pairs or repeated validation studies. Approximate independence between games remains a working assumption. CPOE and sack/run studies use different accepted variance centering rules. The study table keeps those rules and all ten results visible. Overlapping data do not support comparisons of statistical significance across studies.
+
+The historical expansion remains blocked by unresolved source conflicts in 2011. These charts use only the accepted 2023 and 2024 studies.
+
+</details>
+
+PBP data: nflverse, CC BY 4.0. Aggregated and transformed for this analysis. Retain applicable upstream notices and disclaimers; no endorsement is implied. The schedule reference has separate [nfldata notices](https://github.com/nflverse/nfldata). Original analysis code has a separate MIT license. These aggregates transform the source plays into fixed player-season summaries and copy the accepted conditional intervals; they introduce no new estimation.
 
 [Inspect the analysis and reproduction instructions](https://github.com/nanu731/nfl-qb-eval). [Read the data license](https://github.com/nflverse/nflverse-data/blob/master/LICENSE.md).
 
