@@ -31,6 +31,8 @@ const projects = defineCollection({
 		question: z.string(),
 			// Optional visible title for a project that retains its question beneath it.
 			heading: z.string().optional(),
+		// Optional long research question in the body keeps the comparison close to its controls.
+		questionInBody: z.boolean().default(false),
 		dataset: z.string(),
 		method: z.string(),
 		seasons: z.string(),

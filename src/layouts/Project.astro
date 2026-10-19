@@ -6,7 +6,7 @@ import Header from '../components/Header.astro';
 
 type Props = CollectionEntry<'projects'>['data'];
 
-const { title, description, question, heading, dataset, method, seasons, repo, compact, draft, metadataInBody } = Astro.props;
+const { title, description, question, heading, questionInBody, dataset, method, seasons, repo, compact, draft, metadataInBody } = Astro.props;
 ---
 
 <!doctype html>
@@ -31,10 +31,10 @@ const { title, description, question, heading, dataset, method, seasons, repo, c
 
 			<!-- Existing entries use their question as h1. An explicit heading keeps
 			     a requested project title visible, with its question beneath it. -->
-			<div class="band band--green question-band">
+			<div class:list={["band", "band--green", "question-band", {"question-in-body": questionInBody}]}>
 				<div class="band-inner at-edge">
 					<h1>{heading ?? question}</h1>
-					{heading && <p class="project-question">{question}</p>}
+					{heading && !questionInBody && <p class="project-question">{question}</p>}
 				</div>
 			</div>
 
@@ -105,6 +105,9 @@ const { title, description, question, heading, dataset, method, seasons, repo, c
 	}
 	.project--compact .question-band {
 		padding-block: var(--space-l);
+	}
+	.project--compact .question-band.question-in-body {
+		padding-block: var(--space-m);
 	}
 	.project--compact .question-band .band-inner {
 		max-width: 54rem;

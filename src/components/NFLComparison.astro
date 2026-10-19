@@ -1,42 +1,61 @@
 ---
 import {readFile} from 'node:fs/promises';
-import {validatePair,DATA_URL,MANIFEST_URL,METRICS,PRIMARY,VIEWS,fmt,evidence,interval,studyLabel} from '../lib/nfl-comparison';
-const data = await validatePair(await readFile('public'+DATA_URL),await readFile('public'+MANIFEST_URL));
-const players=data.rows.filter(r=>r.season===2023);
+import DefinitionHelp from './DefinitionHelp.astro';
+import {validatePair,DATA_URL,MANIFEST_URL,fmt,evidence,interval,studyLabel} from '../lib/nfl-comparison';
+const data=await validatePair(await readFile('public'+DATA_URL),await readFile('public'+MANIFEST_URL));
+const players=data.rows.filter(r=>r.season===2024);
+// Display names: nflverse players.csv, GSIS-keyed; verified2026-10-19.
+// https://github.com/nflverse/nflverse-data/releases/download/players/players.csv
+const displayNames:Record<string,string> = {"00-0026498": "Matthew Stafford", "00-0029263": "Russell Wilson", "00-0030565": "Geno Smith", "00-0031280": "Derek Carr", "00-0033106": "Jared Goff", "00-0033873": "Patrick Mahomes", "00-0034796": "Lamar Jackson", "00-0034855": "Baker Mayfield", "00-0034857": "Josh Allen", "00-0035289": "Gardner Minshew", "00-0036212": "Tua Tagovailoa", "00-0036264": "Jordan Love", "00-0036355": "Justin Herbert", "00-0036389": "Jalen Hurts", "00-0036442": "Joe Burrow", "00-0036971": "Trevor Lawrence", "00-0036972": "Mac Jones", "00-0037834": "Brock Purdy", "00-0039150": "Bryce Young", "00-0039163": "C.J. Stroud"};
+const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observed_name;
+
 ---
 <nfl-comparison data-state="loading">
-  <section aria-labelledby="nfl-comparison-heading">
-    <h2 id="nfl-comparison-heading">Compare quarterbacks</h2>
-    <p class="scope">20 matched passers · 2023 and 2024 regular seasons · observed values in native units</p>
-    <p class="availability" id="nfl-availability" role="status" aria-live="polite">Checking the reviewed comparison data. The full tables below work without JavaScript.</p>
-    <button type="button" data-retry hidden>Retry verified data</button>
-    <div class="player-controls">
-      <label for="nfl-player-a">QB A · filled circle<select id="nfl-player-a" name="nfl-player-a" data-a disabled>{players.map(r=><option value={r.player_key}>{r.observed_name}</option>)}</select></label>
-      <label for="nfl-player-b">QB B · open diamond<select id="nfl-player-b" name="nfl-player-b" data-b disabled>{players.map((r,i)=><option value={r.player_key} selected={i===1}>{r.observed_name}</option>)}</select></label>
-    </div>
-    <div class="shared-controls">
-      <label for="nfl-season">Season<select id="nfl-season" name="nfl-season" data-season disabled><option value="2023">2023</option><option value="2024">2024</option></select></label>
-      <label for="nfl-view">View<select id="nfl-view" name="nfl-view" data-view disabled>{Object.entries(VIEWS).map(([key,v])=><option value={key}>{v.title}</option>)}</select></label>
-      <label for="nfl-metric">Measure<select id="nfl-metric" name="nfl-metric" data-metric disabled>{PRIMARY.map(f=><option value={f}>{METRICS[f].label}</option>)}<option value="composition" hidden>Recorded composition</option><option value="study" hidden>All study associations</option></select></label>
-    </div>
-    <p class="control-note" data-control-note>Both players share the selected season and measure.</p>
-    <figure class="comparison-figure" aria-labelledby="nfl-view-heading">
-      <h3 id="nfl-view-heading" data-view-heading>Player comparison</h3>
-      <p data-description>{VIEWS.compare.description}</p>
-      <p class="identities" data-identities></p>
-      <p class="unit" data-unit></p>
-      <p class="plot-note" data-uncertainty></p>
-      <div data-chart-host class="chart-host"><svg hidden data-plot role="img" aria-labelledby="nfl-plot-title nfl-plot-description"></svg></div>
-      <figcaption>Each measure uses one fixed scale across the full cohort and both years, including available marginal limits. Zero reference lines appear where zero lies on that scale. Missing evidence stays unavailable. Players are listed by source ID, without a performance ordering.</figcaption>
-      <details class="composition-key"><summary>Composition patterns</summary><p>Solid green: other D passes. Forward hatch: sacks. Sand: scrambles. Backward hatch: non-scramble runs. Read exact counts and percentages in the view table.</p></details>
-    </figure>
-    <details open class="evidence-table"><summary>Data behind this view</summary><div class="table-scroll" data-view-table role="region" aria-label="Data for the selected view" tabindex="0"><p>Use the complete tables below while the interactive view loads.</p></div></details>
+ <section aria-label="Compare two quarterbacks">
+  <div class="fan-controls">
+   <label for="nfl-player-a">Quarterback A<select id="nfl-player-a" name="nfl-player-a" data-a disabled>{players.map(r=><option value={r.player_key}>{nameOf(r)}</option>)}</select></label>
+   <label for="nfl-player-b">Quarterback B<select id="nfl-player-b" name="nfl-player-b" data-b disabled>{players.map((r,i)=><option value={r.player_key} selected={i===1}>{nameOf(r)}</option>)}</select></label>
+   <label for="nfl-season">Season<select id="nfl-season" name="nfl-season" data-season disabled><option value="2024" selected>2024</option><option value="2023">2023</option></select></label>
+  </div>
+  <p class="coverage">20 selected passers. A missing player has no comparison here, not a poor rating. <a href="#nfl-definition-populations">Who is included?</a></p>
+  <p class="limit">These values also reflect teammates, opponents and circumstances. The two stats can disagree; neither names an overall winner.</p>
+  <p class="availability" role="status" aria-live="polite">Checking comparison data…</p><button type="button" data-retry hidden>Retry comparison data</button>
+  <div class="primary-comparisons">
+   <figure class="fan-comparison" aria-labelledby="nfl-value-heading">
+    <h2 id="nfl-value-heading"><DefinitionHelp id="nfl-value" label="Value per dropback" detailTarget="nfl-definition-epa-dropback" detailLabel="Formula and limits">How much the offense’s scoring outlook improved, on average, on this quarterback’s passes, sacks and scrambles.</DefinitionHelp><span class="chart-season" data-chart-season></span></h2>
+    <p class="explanation">How much the offense’s scoring outlook improved, on average, on this quarterback’s passes, sacks and scrambles.</p>
+    <p class="unit"><DefinitionHelp id="nfl-expected-points" label="Expected points" detailTarget="nfl-definition-ep" detailLabel="Model and limits">The model's value of a game situation, based on chances of the next scoring event in the half.</DefinitionHelp> per <DefinitionHelp id="nfl-dropback" label="recorded dropback" detailTarget="nfl-definition-populations" detailLabel="Definition and limits">Recorded passes, sacks and scrambles.</DefinitionHelp> (<DefinitionHelp id="nfl-epa" label="EPA" detailTarget="nfl-definition-epa" detailLabel="Formula and limits">How much a play improved or worsened the offense's expected points.</DefinitionHelp> per dropback). Higher means more recorded scoring value.</p>
+    <div data-chart-host><svg id="nfl-epa-plot" data-field="epa_per_dropback" hidden role="img" aria-labelledby="nfl-epa-plot-title nfl-epa-plot-description"></svg></div>
+    <figcaption>Bars show a <DefinitionHelp id="nfl-range" label="95% game-based range" detailTarget="nfl-method-uncertainty" detailLabel="Formula and limits">An approximate range based on game-to-game variation, under the study's assumptions. These conditional ranges are not probabilities for true talent, predictions for next season or bounds on every source of uncertainty.</DefinitionHelp> around each summary. They do not test the difference between players.</figcaption>
+    <p class="counts" data-counts="epa"></p>
+    <details class="pair-evidence" data-evidence="epa_per_dropback"><summary>Values, counts and ranges</summary><div class="table-scroll" role="region" aria-label="Selected value per dropback records" tabindex="0"><table><caption>Expected points per recorded dropback. Source counts and marginal conditional ranges.</caption><thead><tr><th scope="col">Quarterback</th><th scope="col">Value</th><th scope="col">Included dropbacks</th><th scope="col">Range / status</th></tr></thead><tbody data-selected-values></tbody></table></div></details>
+   </figure>
+   <figure class="fan-comparison" aria-labelledby="nfl-completion-heading">
+    <h2 id="nfl-completion-heading"><DefinitionHelp id="nfl-completions" label="Completions above expectation" detailTarget="nfl-definition-cpoe" detailLabel="Formula and limits">How many more or fewer passes were completed per 100 included throws than the model expected.</DefinitionHelp><span class="chart-season" data-chart-season></span></h2>
+    <p class="explanation">How many more or fewer passes were completed per 100 included throws than the model expected.</p>
+    <p class="unit"><DefinitionHelp id="nfl-percentage-points" label="Percentage points" detailTarget="nfl-definition-percentage-points" detailLabel="Definition and formula">Percentage points are differences between percentages, not percent improvement or a percentile.</DefinitionHelp> (<DefinitionHelp id="nfl-cpoe" label="CPOE" detailTarget="nfl-definition-cpoe" detailLabel="Formula and limits">How far the player's completion rate finished above or below the model's expectation for the included throws.</DefinitionHelp>). Higher means more completions above expectation.</p>
+    <div data-chart-host><svg id="nfl-cpoe-plot" data-field="cpoe_pp" hidden role="img" aria-labelledby="nfl-cpoe-plot-title nfl-cpoe-plot-description"></svg></div>
+    <figcaption>Drops, defenders and throw choices also affect this value. Individual uncertainty not estimated.</figcaption>
+    <p class="counts" data-counts="cpoe"></p>
+    <details class="pair-evidence" data-evidence="cpoe_pp"><summary>Values and included throws</summary><div class="table-scroll" role="region" aria-label="Selected completions above expectation records" tabindex="0"><table><caption>Percentage points on the same included throws used for completion rate.</caption><thead><tr><th scope="col">Quarterback</th><th scope="col">CPOE (pp)</th><th scope="col">Included throws</th></tr></thead><tbody data-selected-values></tbody></table></div></details>
+   </figure>
+  </div>
+  <p class="scale-note">Filled circle: A. Open diamond: B. Each stat keeps its own scale across both seasons and all 20 passers. Zero means matching the model's completion expectation for CPOE, or no modeled net gain for EPA.</p>
+  <details class="optional-sacks" data-sack-section><summary>How often did they avoid sacks?</summary>
+   <figure class="fan-comparison" aria-labelledby="nfl-sack-heading"><h2 id="nfl-sack-heading"><DefinitionHelp id="nfl-sack-avoidance" label="Dropbacks without a sack" detailTarget="nfl-definition-sack-avoidance" detailLabel="Formula and limits">The percentage of recorded dropbacks that did not end in a recorded sack.</DefinitionHelp><span class="chart-season" data-chart-season></span></h2>
+    <p>The percentage of recorded dropbacks that did not end in a recorded sack. Protection and receiver availability matter.</p><p class="unit">Percent of recorded dropbacks</p>
+    <div data-chart-host><svg id="nfl-sack-plot" data-field="sack_avoidance_pct" hidden role="img" aria-labelledby="nfl-sack-plot-title nfl-sack-plot-description"></svg></div><figcaption>Individual uncertainty not estimated. Interceptions, incompletions and low-value escapes can count as avoiding a sack.</figcaption>
+    <details class="pair-evidence" data-evidence="sack_avoidance_pct"><summary>Values, sacks and dropbacks</summary><div class="table-scroll" role="region" aria-label="Selected sack avoidance records" tabindex="0"><table><caption>Percent. The denominator is recorded dropbacks, not pressures or included throws.</caption><thead><tr><th scope="col">Quarterback</th><th scope="col">Without a sack (%)</th><th scope="col">Sacks / dropbacks</th></tr></thead><tbody data-selected-values></tbody></table></div></details>
+   </figure>
+  </details>
+
+  <details class="research-depth"><summary>Complete data and study results</summary>
     <details class="complete-table"><summary>All 40 player-season records · works without JavaScript</summary>
       <p>CPOE uses percentage points (pp); completion and sack avoidance use percent. D means recorded dropbacks; O combines D with recorded non-scramble runs. EPA means expected points added. Intervals are marginal conditional sensitivities, not tests of differences. Values below use display rounding; the downloadable data retain source precision.</p>
       <div class="table-scroll" role="region" aria-label="All 40 player-season records" tabindex="0">
         <table data-all-players><caption>Fixed 20-ID cohort, both seasons. Each metric cell names its denominator and uncertainty status.</caption>
           <thead><tr><th scope="col">Passer / season</th><th scope="col">CPOE (pp)</th><th scope="col">Completion (%)</th><th scope="col">EPA / D</th><th scope="col">Sack avoidance (%)</th><th scope="col">Scramble EPA / O</th><th scope="col">Non-scramble EPA / O</th><th scope="col">Scramble usage / diagnostic</th><th scope="col">Non-scramble usage / diagnostic</th></tr></thead>
-          <tbody>{data.rows.map(r=><tr><th scope="row">{r.observed_name}<br/>{r.season}<br/><small>{r.player_key}</small></th>
+          <tbody>{data.rows.map(r=><tr><th scope="row">{nameOf(r)}<br/>{r.season}<br/><small>{r.player_key}</small></th>
             {['cpoe_pp','completion_pct','epa_per_dropback','sack_avoidance_pct','scramble_contribution','nonscramble_contribution'].map(f=><td><strong>{fmt(r[f])}</strong><br/>{evidence(r,f)}<br/><small>{interval(r,f)}</small></td>)}
             {['scramble','nonscramble'].map(tag=><td>{r[`${tag}_runs`]} runs in {r[`${tag}_games`]} games<br/>{fmt(r[`${tag}_share_pct`])}% of {r.combined_opportunities} O in {r.combined_games} games<br/>{fmt(r[`${tag}_epa_per_run`])} EPA / role run<br/><small>{String(r[`${tag}_role_mean_status`]).replaceAll('_',' ')}; no share/per-run intervals</small></td>)}
           </tr>)}</tbody>
@@ -46,69 +65,60 @@ const players=data.rows.filter(r=>r.season===2023);
     <details class="complete-table"><summary>All 10 study rows · works without JavaScript</summary>
       <div class="table-scroll" role="region" aria-label="All ten study associations" tabindex="0"><table data-all-studies>
         <caption>Approximate 95% conditional working-model sensitivities. Annual CPOE uses full-estimate centering; sack/run studies center each season on its own replicate mean. Games are deletion/sampling units. Annual strata contain 223 + 208 games where reported; these are not 431 independent quarterback pairs. Approximate game independence remains a working assumption.</caption>
-        <thead><tr><th scope="col">Study</th><th scope="col">Estimate</th><th scope="col">Interval</th><th scope="col">Actors / contributing games</th><th scope="col">Status / influence</th></tr></thead>
+        <thead><tr><th scope="col">Study</th><th scope="col">Estimate</th><th scope="col">Interval</th><th scope="col">Passers / contributing games</th><th scope="col">Status / influence</th></tr></thead>
         <tbody>{data.study_associations.map(s=><tr><th scope="row">{studyLabel(s)}</th><td>{fmt(s.estimate)}</td><td>{fmt(s.lower)} to {fmt(s.upper)}</td><td>{s.cohort_count} passers; {s.contributing_games ?? 'game count not in base export'}</td><td>{s.status.replaceAll('_',' ')}{s.point_status && <span>; point: {s.point_status}</span>}{s.influence && <p>Game-deletion r: {fmt(s.influence.game_deletion_min)} to {fmt(s.influence.game_deletion_max)} ({s.influence.game_undefined} undefined). Passer-deletion r: {fmt(s.influence.actor_deletion_min)} to {fmt(s.influence.actor_deletion_max)} ({s.influence.actor_undefined} undefined; {s.influence.actor_sign_reversals} sign reversals).</p>}</td></tr>)}</tbody>
       </table></div>
     </details>
-    <noscript><p>The complete 40-record and ten-study tables above work without JavaScript. Open their headings to inspect the evidence. Switching charts requires JavaScript.</p></noscript>
-    <p class="download"><a href={DATA_URL} download>Download the reviewed aggregate data</a> · <a href={MANIFEST_URL}>Data manifest</a></p>
-  </section>
+
+  </details>
+  <noscript><p>Interactive player selection requires JavaScript. The complete 40-record and ten-study tables above remain available; open their headings to read them.</p></noscript>
+  <p class="download"><a href={DATA_URL} download>Download the reviewed data</a> · <a href={MANIFEST_URL}>Data manifest</a></p>
+ </section>
 </nfl-comparison>
-<script>
-  import {registerNFL} from '../lib/nfl-charts';
-  registerNFL();
-</script>
+<script>import {registerNFL} from '../lib/nfl-charts';registerNFL();</script>
 <style>
-  nfl-comparison {display:block;margin-block:var(--space-l);min-width:0;}
-  h2,h3 {margin-block:0 var(--space-s);}
-  p {max-width:65ch;}
-  .scope,.control-note,figcaption,caption,.unit,.plot-note,.download {font-size:var(--type-small);}
-  .availability {border-block:var(--rule) solid var(--green);padding-block:var(--space-s);}
-  .player-controls,.shared-controls {display:grid;gap:var(--space-s);margin-block:var(--space-m);}
-  label {display:grid;gap:var(--space-2xs);min-width:0;}
-  select,button {width:100%;min-height:44px;min-width:0;padding:var(--space-2xs);font:inherit;color:var(--green);background:var(--cream);border:var(--rule) solid var(--green);border-radius:0;}
-  select:disabled {opacity:1;border-style:dashed;}
-  button {width:auto;cursor:pointer;}
-  :is(select,button,summary,.table-scroll):focus-visible {outline:var(--rule-thick) solid var(--accent);outline-offset:var(--space-3xs);}
-  .comparison-figure {margin:var(--space-l) 0;}
-  .identities {font-weight:600;}
-  .unit {margin-bottom:var(--space-2xs);}
-  .chart-host {width:100%;min-width:0;}
-  svg {display:block;width:100%;height:auto;background:var(--sand);}
-  svg[hidden],[hidden] {display:none;}
-  svg :global(text) {fill:var(--green);font-family:var(--font-body);font-size:16px;font-variant-numeric:tabular-nums;}
-  svg :global(.tick) {font-family:var(--font-numeric);font-size:13px;}
-  svg :global(.axis),svg :global(.grid) {stroke:var(--green);stroke-width:1;}
-  svg :global(.grid) {stroke-opacity:.3;}
-  svg :global(.reference) {stroke:var(--green);stroke-width:1.5;stroke-dasharray:5 5;}
-  svg :global(.interval),svg :global(.trajectory) {stroke-width:2.5;}
-  svg :global(.series-a) {stroke:var(--green);}
-  svg :global(.series-b) {stroke:var(--accent);}
-  svg :global(.trajectory.series-b) {stroke-dasharray:6 4;}
-  svg :global(.mark-a) {fill:var(--green);stroke:var(--cream);stroke-width:1;}
-  svg :global(.mark-b) {fill:var(--sand);stroke:var(--accent);stroke-width:2.5;}
-  svg :global(.mark-cohort) {fill:var(--sand);stroke:var(--green);stroke-width:1.5;}
-  svg :global(.label-leader) {stroke:var(--green);stroke-width:1;}
-  svg :global(.cohort-interval) {stroke:var(--green);stroke-width:1;}
-  svg :global(.composition-part) {stroke:var(--cream);stroke-width:1.5;}
-  svg :global(.part-0) {fill:var(--green);}
-  svg :global(.part-1) {fill:url(#sack-hatch);}
-  svg :global(.part-2) {fill:var(--sand);stroke:var(--green);}
-  svg :global(.part-3) {fill:url(#run-hatch);}
-  svg :global(.pattern-ground) {fill:var(--cream);}
-  svg :global(.pattern-line) {stroke:var(--green);stroke-width:2;}
-  figcaption {margin-top:var(--space-s);max-width:65ch;}
-  details {border-top:var(--rule) solid var(--green);padding-block:var(--space-s);margin-top:var(--space-m);}
-  summary {cursor:pointer;min-height:44px;display:list-item;}
-  .table-scroll {overflow-x:auto;max-width:100%;scrollbar-color:var(--green) var(--cream);}
-  .table-scroll :global(table) {width:100%;border-collapse:collapse;font-size:var(--type-small);font-variant-numeric:tabular-nums;}
-  .table-scroll :global(caption) {text-align:left;padding-block:var(--space-s);max-width:65ch;}
-  .table-scroll :global(th),.table-scroll :global(td) {text-align:left;vertical-align:top;padding:var(--space-xs);border-bottom:var(--rule-thin) solid var(--green);min-width:8rem;max-width:23rem;overflow-wrap:anywhere;}
-  .table-scroll :global(th) {font-weight:600;}
-  .table-scroll :global(small) {font-size:inherit;}
-  .complete-table .table-scroll :global(td) {min-width:14rem;}
-  .composition-key {display:none;}
-  nfl-comparison[data-view="composition"] .composition-key {display:block;}
-  @media(min-width:40rem) {.player-controls {grid-template-columns:repeat(2,minmax(0,1fr));}.shared-controls {grid-template-columns:minmax(6rem,1fr) minmax(0,2fr) minmax(0,2fr);}}
-  @media(prefers-reduced-motion:reduce) {svg {scroll-behavior:auto;}}
+ nfl-comparison{display:block;min-width:0;margin-block:0 var(--space-m);}
+ .fan-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-xs);}
+ label{display:grid;gap:var(--space-3xs);min-width:0;font-size:var(--type-small);}
+ label:last-child{grid-column:1/-1;max-width:10rem;}
+ select,[data-retry]{min-width:0;width:100%;min-height:44px;padding:var(--space-2xs);font:inherit;color:var(--green);background:var(--cream);border:var(--rule) solid var(--green);border-radius:0;}
+ select:disabled{opacity:1;border-style:dashed;}
+ [data-retry]{width:auto;cursor:pointer;}
+ .coverage,.limit,.availability,.scale-note,.counts,.download,figcaption,.unit,.explanation{font-size:var(--type-small);line-height:1.5;max-width:65ch;}
+ .coverage{margin-block:var(--space-2xs);}
+ .limit{margin-block:var(--space-2xs);}
+ .availability{margin-block:var(--space-3xs);}
+ nfl-comparison[data-state="ready"] .availability{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;}
+ .primary-comparisons{display:grid;gap:var(--space-m);margin-top:var(--space-s);}
+ .fan-comparison{margin:0;min-width:0;}
+ .fan-comparison h2{font-size:var(--type-body);line-height:1.25;margin:0;}
+ .chart-season{display:inline-block;font-family:var(--font-numeric);font-size:var(--type-small);margin-left:var(--space-xs);}
+ .explanation{margin-block:var(--space-3xs);min-height:3em;}
+ .unit{margin-block:var(--space-3xs);}
+ .counts{margin-block:var(--space-2xs);}
+ figcaption{margin-block:var(--space-2xs);}
+ svg{display:block;width:100%;height:auto;background:var(--sand);}
+ svg[hidden],[hidden]{display:none;}
+ svg :global(text){fill:var(--green);font-family:var(--font-body);font-size:16px;font-variant-numeric:tabular-nums;}
+ svg :global(.tick){font-family:var(--font-numeric);font-size:13px;}
+ svg :global(.value){font-family:var(--font-numeric);font-size:15px;}
+ svg :global(.axis){stroke:var(--green);stroke-width:1;}
+ svg :global(.zero){stroke:var(--green);stroke-width:1.5;stroke-dasharray:4 4;}
+ svg :global(.interval){stroke-width:2.5;}
+ svg :global(.series-a){stroke:var(--green);}
+ svg :global(.series-b){stroke:var(--accent);}
+ svg :global(.mark-a){fill:var(--green);stroke:var(--cream);stroke-width:1;}
+ svg :global(.mark-b){fill:var(--sand);stroke:var(--accent);stroke-width:2.5;}
+ details{margin-top:var(--space-s);border-top:var(--rule-thin) solid var(--green);padding-top:var(--space-2xs);}
+ summary{cursor:pointer;min-height:44px;}
+ .pair-evidence{margin-top:var(--space-2xs);}
+ .table-scroll{overflow-x:auto;max-width:100%;scrollbar-color:var(--green) var(--cream);}
+ .table-scroll :global(table){width:100%;border-collapse:collapse;font-size:var(--type-small);font-variant-numeric:tabular-nums;}
+ .table-scroll :global(caption){text-align:left;padding-block:var(--space-s);max-width:65ch;}
+ .table-scroll :global(th),.table-scroll :global(td){text-align:left;vertical-align:top;padding:var(--space-xs);border-bottom:var(--rule-thin) solid var(--green);min-width:8rem;max-width:23rem;overflow-wrap:anywhere;}
+ .table-scroll :global(small){font-size:inherit;}
+ .complete-table .table-scroll :global(td){min-width:14rem;}
+ :is(select,summary,[data-retry],.table-scroll):focus-visible{outline:var(--rule-thick) solid var(--accent);outline-offset:var(--space-3xs);}
+ @media(min-width:48rem){.fan-controls{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(6rem,.4fr);}label:last-child{grid-column:auto;max-width:none;}.primary-comparisons{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-m);}}
+ @media(prefers-reduced-motion:reduce){svg{scroll-behavior:auto;}}
 </style>
