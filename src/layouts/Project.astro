@@ -6,7 +6,7 @@ import Header from '../components/Header.astro';
 
 type Props = CollectionEntry<'projects'>['data'];
 
-const { title, description, question, dataset, method, seasons, repo, compact, draft, metadataInBody } = Astro.props;
+const { title, description, question, heading, dataset, method, seasons, repo, compact, draft, metadataInBody } = Astro.props;
 ---
 
 <!doctype html>
@@ -29,12 +29,12 @@ const { title, description, question, dataset, method, seasons, repo, compact, d
 				)
 			}
 
-			<!-- The question is the h1. The write-up opens with the question rather than
-			     with context-setting, so repeating the short title here would be a
-			     redundant second headline. -->
+			<!-- Existing entries use their question as h1. An explicit heading keeps
+			     a requested project title visible, with its question beneath it. -->
 			<div class="band band--green question-band">
 				<div class="band-inner at-edge">
-					<h1>{question}</h1>
+					<h1>{heading ?? question}</h1>
+					{heading && <p class="project-question">{question}</p>}
 				</div>
 			</div>
 
@@ -93,6 +93,11 @@ const { title, description, question, dataset, method, seasons, repo, compact, d
 	   into a block and the mono row visibly overruns it to the right. */
 	.question-band .band-inner {
 		max-width: 44rem;
+	}
+	.project-question {
+		margin-block: var(--space-s) 0;
+		max-width: 65ch;
+		color: var(--cream);
 	}
 	.question-band h1 {
 		margin-bottom: 0;

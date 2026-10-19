@@ -29,6 +29,8 @@ const projects = defineCollection({
 		description: z.string(),
 		// The write-up opens with this, which is why it is a field and not a heading.
 		question: z.string(),
+			// Optional visible title for a project that retains its question beneath it.
+			heading: z.string().optional(),
 		dataset: z.string(),
 		method: z.string(),
 		seasons: z.string(),

@@ -1,0 +1,46 @@
+---
+title: NFL QBs Re-evaluated
+heading: NFL QBs Re-evaluated
+description: A draft comparison of recorded quarterback performance and the evidence behind it.
+question: Can public NFL data help describe repeatable quarterback execution with less dependence on supporting circumstances?
+dataset: nflverse regular-season play-by-play
+method: Matched-row annual associations and shared observed play value
+seasons: 2023 and 2024
+repo: https://github.com/nanu731/nfl-qb-eval
+compact: true
+metadataInBody: true
+draft: true
+---
+
+import Band from '../../components/Band.astro';
+import NFLComparison from '../../components/NFLComparison.astro';
+
+<Band offset="edge">
+
+This project examines recorded quarterback execution and shared observed play value. Player comparisons are unavailable while the reviewed dataset is being prepared.
+
+<NFLComparison />
+
+</Band>
+
+<Band offset="step" green>
+
+## What these measures can tell us
+
+CPOE describes completion success above the supplied model expectation. Completion percentage uses the same eligible throws. EPA describes shared possession-team play value, including other participants and circumstances.
+
+These measures do not establish isolated skill or a context-adjusted overall score. Persistent supporting circumstances, survivor selection and conditional uncertainty limit interpretation.
+
+</Band>
+
+<Band offset="edge">
+
+## Sources and method
+
+The analysis uses 2023 and 2024 regular-season nflverse play-by-play. Player estimates use fixed opportunity definitions and cohort membership. Study-level association intervals and marginal player intervals answer different questions.
+
+PBP data: nflverse, CC BY 4.0. Aggregated and transformed for this analysis. Original analysis code has a separate MIT license.
+
+[Inspect the analysis and reproduction instructions](https://github.com/nanu731/nfl-qb-eval). [Read the data license](https://github.com/nflverse/nflverse-data/blob/master/LICENSE.md).
+
+</Band>
