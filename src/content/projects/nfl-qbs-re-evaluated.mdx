@@ -22,6 +22,18 @@ import NFLComparison from '../../components/NFLComparison.astro';
 <details class="nfl-reference">
 <summary>Definitions, formulas and how the models work</summary>
 
+<h2 id="nfl-radar-scaling" tabIndex={-1} data-reference-target>Research radar: geometry and evidence limits</h2>
+
+The seven fixed clockwise positions are arm strength, processing, pocket presence, mobility, short accuracy, medium accuracy and deep accuracy. Arm strength and processing are **not measured**. The three depth-specific accuracy estimates are **not yet estimated**. Their gaps represent missing evidence, not low ratings.
+
+Only two admitted outcomes have plotted points: **dropbacks without a sack (%)** at the desired pocket-presence position, and **scramble contribution (EPA/O)** at the desired mobility position. These outcomes do not measure isolated pocket presence or athletic mobility. Sack avoidance also reflects protection, receiver availability and decisions with other costs. Scramble contribution combines usage with whole-play shared value; it omits non-scramble runs and direct movement measurements.
+
+The display maps each native value to radius using `(value − L) / (U − L)`. Each field keeps its exact accepted full-v2 bounds for all selected players and years. The unsigned sack percentage uses 89.98384491114702% at the center and 97.4025974025974% at the rim. The signed scramble scale uses -0.02742400920700434 at the center and 0.10729766327305992 at the rim, in expected points per included quarterback play. The scramble domain already includes its accepted marginal endpoints. The bounds stay fixed while selections change. Rounded values and scale endpoints appear beside the radar; the optional full-evidence table retains exact bounds and units. Sack percentages use one decimal place in the main comparison; scramble values and endpoints use three. The marks retain source precision. The center is the lower domain bound, not a common zero. The signed scramble spoke marks zero inside its displayed range. Zero percent is outside the unsigned sack-percentage display and has no plotted zero marker.
+
+Radius is display geometry, not a common ability unit, percentile or area score. A larger radius only means a higher value on that field's native scale. Neither distance between spokes nor the open segment supplies an overall rating. No line crosses an unavailable position, and no polygon closes or fills.
+
+Scramble whiskers retain the accepted marginal conditional game-based range around that outcome summary. They are not a joint confidence region, performance spread, prediction or test of a player/year difference. Individual sack-avoidance uncertainty was not estimated. [Read the range assumptions](#nfl-method-uncertainty), [the play populations](#nfl-definition-populations), [the sack formula](#nfl-definition-sack-avoidance), and [the scramble contribution formula](#nfl-definition-runs).
+
 <h2 id="nfl-definition-epa-dropback" tabIndex={-1} data-reference-target>Value per dropback</h2>
 
 Average EPA on this player's recorded passes, sacks and scrambles.

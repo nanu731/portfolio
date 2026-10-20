@@ -39,6 +39,32 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
   <p class="coverage">2023 and 2024 regular seasons · 20 selected passers. A missing player has no comparison here, not a poor rating. <a href="#nfl-definition-populations">Who is included?</a></p>
   <p class="limit">Teammates, opponents and model versions can differ across seasons. These observed summaries do not measure isolated skill or improvement. The two stats can disagree; neither names an overall winner.</p>
   <p class="availability" data-comparison-status role="status" aria-live="polite">Checking comparison data…</p><button type="button" data-retry hidden>Retry comparison data</button>
+  <section class="radar-prototype" aria-labelledby="nfl-radar-heading">
+   <h2 id="nfl-radar-heading">Quarterback evidence radar</h2>
+   <p class="prototype-subtitle">Research prototype · outcome proxies, not isolated skills</p>
+   <p class="radar-intro">Farther out means a higher recorded result on that spoke’s scale. Compare one spoke at a time; the shape is not an overall rating. Each spoke uses its own fixed display scale.</p>
+   <p class="radar-key" data-radar-legend></p>
+   <div class="radar-layout">
+    <figure class="radar-figure">
+     <p class="radar-series-key"><span><svg viewBox="0 0 44 20" aria-hidden="true"><line x1="0" y1="10" x2="44" y2="10" class="series-a"/><circle cx="22" cy="10" r="4.5" class="mark-a"/></svg>A · filled circle, solid line</span><span><svg viewBox="0 0 44 20" aria-hidden="true"><line x1="0" y1="10" x2="44" y2="10" class="series-b"/><path d="M22 2 L30 10 L22 18 L14 10 Z" class="mark-b"/></svg>B · open diamond, dashed line</span></p>
+     <div data-chart-host><svg id="nfl-radar" data-radar hidden role="img" aria-labelledby="nfl-radar-title nfl-radar-description"></svg></div>
+     <figcaption>Only adjacent measured positions connect; the five gaps stay open. Overlapping marks share the same recorded position.</figcaption>
+     <p class="radar-uncertainty">Scramble whiskers show a game-based uncertainty range under study assumptions. No individual range was estimated for sack avoidance.</p>
+    </figure>
+    <div class="radar-readout" data-radar-summary aria-label="Selected outcome values and evidence gaps"></div>
+   </div>
+   <details class="radar-detail"><summary>Full evidence: counts, ranges and exact scale bounds</summary>
+    <p>EPA/O means expected points added per included quarterback play. D means recorded dropbacks; O includes those dropbacks and non-scramble quarterback runs. A conditional range describes game-sampling variation under the study assumptions, not every source of uncertainty or a test of the difference between players.</p>
+    <div class="radar-values table-scroll" role="region" aria-label="Clockwise evidence map and selected values in original units" tabindex="0">
+     <table class="radar-table"><caption>Clockwise evidence map · original units</caption><thead><tr><th scope="col">Position / evidence</th><th scope="col" data-radar-a>Quarterback A</th><th scope="col" data-radar-b>Quarterback B</th></tr></thead><tbody data-radar-values></tbody></table>
+    </div>
+    <p class="radar-counts" data-radar-counts></p>
+    <p class="radar-limits">The pocket-presence and mobility traits are not directly measured. Sack avoidance also reflects protection and receivers; scramble contribution combines usage with shared play value and omits other runs and athletic movement.</p>
+   </details>
+   <p class="radar-scale"><DefinitionHelp id="nfl-radar-radius" label="How the radius works" detailTarget="nfl-radar-scaling" detailLabel="Formula, domains and limits">Each outcome uses its exact frozen range across all 40 accepted records. Center and rim bounds differ by spoke. Radius is display geometry, not a shared ability unit, percentile or area score.</DefinitionHelp> · <a href="#nfl-radar-scaling">Scale bounds, zero references and limitations</a></p>
+  </section>
+  <details class="comparison-evidence" data-comparison-evidence>
+   <summary>Inspect EPA, completion and sack comparisons in their original units</summary>
   <section class="reading-guide" aria-labelledby="nfl-reading-heading">
    <h2 id="nfl-reading-heading">How to read</h2>
    <p>Filled circle: A. Open diamond: B. Farther right means a higher value on that stat’s scale. Zero means no modeled net gain for EPA, or matching expected completions for CPOE. EPA bars show uncertainty around each summary; individual CPOE ranges were not estimated. These descriptive season summaries use each stat’s own units and do not give an overall quarterback rating.</p>
@@ -70,6 +96,8 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
     <div data-chart-host><svg id="nfl-sack-plot" data-field="sack_avoidance_pct" hidden role="img" aria-labelledby="nfl-sack-plot-title nfl-sack-plot-description"></svg></div><figcaption>Individual uncertainty not estimated. Interceptions, incompletions and low-value escapes can count as avoiding a sack.</figcaption>
     <details class="pair-evidence" data-evidence="sack_avoidance_pct"><summary>Values, sacks and dropbacks</summary><div class="table-scroll" role="region" aria-label="Selected sack avoidance records" tabindex="0"><table><caption>Percent. The denominator is recorded dropbacks, not pressures or included throws.</caption><thead><tr><th scope="col">Quarterback</th><th scope="col">Without a sack (%)</th><th scope="col">Sacks / dropbacks</th></tr></thead><tbody data-selected-values></tbody></table></div></details>
    </figure>
+  </details>
+
   </details>
 
   <details class="research-depth"><summary>Complete data and study results</summary>
@@ -119,6 +147,52 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
  .limit{margin-block:var(--space-2xs);}
  .availability{margin-block:var(--space-3xs);}
  nfl-comparison[data-state="ready"] .availability{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;}
+ .radar-prototype{margin-top:var(--space-m);}
+ .radar-prototype > h2{font-size:var(--type-h3);margin:0;}
+ .prototype-subtitle{font-family:var(--font-numeric);font-size:var(--type-small);margin-block:var(--space-2xs);}
+ .radar-intro,.radar-key,.radar-counts,.radar-limits,.radar-scale{font-size:var(--type-small);line-height:1.5;max-width:75ch;margin-block:var(--space-2xs);}
+ .radar-key{font-weight:600;}
+ .radar-layout{display:grid;gap:var(--space-s);align-items:start;}
+ .radar-readout{min-width:0;}
+ .radar-readout :global(.outcome){padding-block:var(--space-xs) var(--space-s);border-top:var(--rule) solid var(--green);}
+ .radar-readout :global(h3){font-size:var(--type-body);line-height:1.3;margin:0;}
+ .radar-readout :global(.outcome-unit),.radar-readout :global(.outcome-trait),.radar-readout :global(.outcome-bounds){font-size:var(--type-small);line-height:1.4;margin-block:var(--space-3xs);}
+ .radar-readout :global(.outcome-trait){margin-bottom:var(--space-xs);}
+ .radar-readout :global(dl){margin:0;}
+ .radar-readout :global(.outcome-player){display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--space-2xs);align-items:baseline;padding-block:var(--space-2xs);border-bottom:var(--rule-thin) solid var(--sand);}
+ .radar-readout :global(dt){font-size:16px;line-height:1.4;}
+ .radar-readout :global(dd){font:500 24px/1.2 var(--font-numeric);font-variant-numeric:tabular-nums;margin:0;white-space:nowrap;}
+ .radar-readout :global(.outcome-bounds){margin-top:var(--space-xs);font-family:var(--font-numeric);font-size:13px;}
+ .radar-readout :global(.evidence-gaps){border-top:var(--rule) solid var(--green);padding-top:var(--space-xs);}
+ .radar-readout :global(.evidence-gaps p){font-size:16px;line-height:1.5;margin-block:var(--space-2xs);overflow-wrap:normal;word-break:normal;}
+ .radar-series-key{display:flex;flex-wrap:wrap;gap:var(--space-2xs) var(--space-xs);font-size:14px;line-height:1.5;margin:0;}
+ .radar-series-key span{display:flex;align-items:center;gap:var(--space-2xs);}
+ .radar-series-key svg{width:44px;height:20px;background:none;flex:none;}
+ .radar-series-key :is(line,path){fill:none;stroke-width:2.5;}
+ .radar-series-key .series-b{stroke-dasharray:5 4;}
+ .radar-series-key .mark-b{fill:none;}
+ .radar-uncertainty{font-size:14px;line-height:1.5;margin-block:var(--space-2xs);}
+ .radar-detail > p{font-size:var(--type-small);}
+ #nfl-radar :global(.mark-b){fill:none;}
+ .radar-figure{margin:0;min-width:0;}
+ #nfl-radar{background:var(--cream);}
+ #nfl-radar :global(.radar-ring){fill:none;stroke:var(--sand);stroke-width:1;}
+ #nfl-radar :global(.radar-spoke){stroke:var(--green);stroke-width:1;stroke-dasharray:2 4;}
+ #nfl-radar :global(.radar-label){font-weight:600;font-size:16px;}
+ #nfl-radar :global(.radar-status){font-size:14px;}
+ #nfl-radar :global(.radar-segment){fill:none;stroke-width:2.5;}
+ #nfl-radar :global(.series-b.radar-segment),#nfl-radar :global(.series-b.radar-range){stroke-dasharray:5 4;}
+ #nfl-radar :global(.radar-range){stroke-width:1.5;}
+ #nfl-radar :global(.radar-zero){stroke:var(--green);stroke-width:1.5;}
+ #nfl-radar :global(.radar-zero-label){font:12px var(--font-numeric);}
+ .radar-values :global(table){table-layout:fixed;}
+ .radar-values.table-scroll :global(th),.radar-values.table-scroll :global(td){min-width:0;max-width:none;padding:var(--space-2xs);overflow-wrap:anywhere;line-height:1.4;}
+ .radar-values.table-scroll :global(tbody th){font:600 16px var(--font-body);text-transform:none;letter-spacing:normal;}
+ .radar-values.table-scroll :global(tbody th small){font-weight:400;}
+ .radar-values :global(th:first-child){width:36%;}
+ @media(max-width:47.99rem){.radar-values :global(thead){display:none;}.radar-values :global(table),.radar-values :global(tbody),.radar-values :global(tr),.radar-values :global(th),.radar-values :global(td){display:block;width:auto;}.radar-values.table-scroll :global(th),.radar-values.table-scroll :global(td){overflow-wrap:normal;word-break:normal;}.radar-values :global(td::before){content:attr(data-player);display:block;font-weight:600;margin-bottom:var(--space-3xs);}}
+ .radar-values :global(strong){display:block;font-weight:600;}
+ .radar-values :global(small){display:block;margin-top:var(--space-3xs);font-size:14px;}
  .primary-comparisons{display:grid;gap:var(--space-m);margin-top:var(--space-s);}
  .fan-comparison{margin:0;min-width:0;}
  .fan-comparison h2{font-size:var(--type-body);line-height:1.25;margin:0;}
@@ -148,6 +222,6 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
  .table-scroll :global(small){font-size:inherit;}
  .complete-table .table-scroll :global(td){min-width:14rem;}
  :is(select,input,[data-clear-search],summary,[data-retry],.table-scroll):focus-visible{outline:var(--rule-thick) solid var(--accent);outline-offset:var(--space-3xs);}
- @media(min-width:48rem){.fan-controls{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-s);}.primary-comparisons{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-m);}}
+ @media(min-width:48rem){.radar-layout{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);}.fan-controls{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-s);}.primary-comparisons{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-m);}}
  @media(prefers-reduced-motion:reduce){svg{scroll-behavior:auto;}}
 </style>
