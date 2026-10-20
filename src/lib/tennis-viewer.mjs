@@ -58,12 +58,30 @@ export function createPacketLoader(fetcher = fetch) {
   };
 }
 
+// Same matching and prefix-first ordering as SpatialShotSelection's player search.
+export const normalizePlayerSearch = value => value.normalize('NFD').replace(/\p{M}/gu, '')
+  .toLocaleLowerCase().replace(/[\p{P}\p{S}]+/gu, ' ').replace(/\s+/g, ' ').trim();
+const compactSearch = value => normalizePlayerSearch(value).replace(/\s/g, '');
+export function findTennisPlayers(players, category, text) {
+  const query = normalizePlayerSearch(text), compactQuery = compactSearch(text);
+  return players.filter(entry => entry.category === category && !entry.hidden)
+    .filter(entry => normalizePlayerSearch(entry.player).includes(query) || compactSearch(entry.player).includes(compactQuery))
+    .sort((a, b) => {
+      const aStarts = normalizePlayerSearch(a.player).startsWith(query) || compactSearch(a.player).startsWith(compactQuery);
+      const bStarts = normalizePlayerSearch(b.player).startsWith(query) || compactSearch(b.player).startsWith(compactQuery);
+      return aStarts !== bStarts ? (aStarts ? -1 : 1)
+        : a.player.localeCompare(b.player, undefined, { sensitivity: 'base' }) || a.file.localeCompare(b.file);
+    });
+}
+
 async function initialize(root) {
-  const controls = Object.fromEntries(['category', 'search', 'player', 'match', 'subset', 'view', 'search-status']
+  const controls = Object.fromEntries(['category', 'search', 'match', 'subset', 'view', 'search-status', 'suggestions']
     .map(id => [id, root.querySelector(`[data-tennis-control="${id}"]`)]));
   const defaults = { ATP: 'Adrian Mannarino', WTA: 'Ajla Tomljanovic' };
   const loader = createPacketLoader();
-  let catalog, packet, contexts = new Map(), termSerial = 0;
+  let catalog, packet, contexts = new Map(), termSerial = 0, selectedPlayer = '';
+  let matches = [], activeSuggestionIndex = -1;
+  const combobox = root.querySelector('[data-tennis-combobox]');
   const returnButton = root.querySelector('[data-tennis-definition-return]');
 
   function term(id, label) {
@@ -116,13 +134,13 @@ async function initialize(root) {
     }
   }
   async function loadSelected() {
-    const entry = catalog.players.find(entry => entry.category === controls.category.value && entry.player === controls.player.value && !entry.hidden);
+    const entry = catalog.players.find(entry => entry.category === controls.category.value && entry.player === selectedPlayer && !entry.hidden);
     if (!entry) { loader.invalidate(); unavailable('No matching player selected. Search or choose a player to see their recorded points.'); return; }
     unavailable(`Loading recorded points for ${entry.player}…`);
     controls.view.setAttribute('aria-busy', 'true');
     try {
       const result = await loader.load(entry);
-      if (!result.current || controls.category.value !== entry.category || controls.player.value !== entry.player) return;
+      if (!result.current || controls.category.value !== entry.category || selectedPlayer !== entry.player) return;
       packet = result.packet;
       contexts = new Map(packet.context.map(group => [key(group.meta), group]));
       controls.match.replaceChildren(option('ALL_MATCHES', 'All recorded matches'), ...packet.profiles
@@ -130,26 +148,70 @@ async function initialize(root) {
         .map(group => option(group.meta.match_id, matchLabel(group.meta.match_id))));
       controls.match.value = 'ALL_MATCHES'; controls.match.disabled = false;
       controls.view.setAttribute('aria-busy', 'false'); render();
+      controls['search-status'].textContent = `${entry.player}, ${categoryLabel()} loaded.`;
     } catch { unavailable(`Recorded points for ${entry.player} could not be loaded. No results are shown.`, true); }
   }
-  function playerOptions(reset = false) {
-    const category = controls.category.value, old = controls.player.value, query = controls.search.value.toLocaleLowerCase();
-    const names = catalog.players.filter(entry => entry.category === category && !entry.hidden).map(entry => entry.player).sort();
-    const shown = names.filter(name => name.toLocaleLowerCase().includes(query));
-    controls.player.replaceChildren(...shown.map(name => option(name, name)));
-    controls.player.disabled = !shown.length;
-    controls['search-status'].textContent = (shown.length ? `${shown.length} of ${names.length} selectable names.` : 'No matching player name.')
-      + (category === 'ATP' ? ' One name hidden from selection; 228 saved identities remain in the data.' : ' 222 saved identities remain in the data.');
-    if (shown.length) controls.player.value = reset && shown.includes(defaults[category]) ? defaults[category] : shown.includes(old) ? old : shown[0];
-    loadSelected();
+  const categoryLabel = () => controls.category.value === 'ATP' ? 'Men’s' : 'Women’s';
+  function closeSuggestions() {
+    controls.suggestions.hidden = true; matches = []; activeSuggestionIndex = -1;
+    controls.search.setAttribute('aria-expanded', 'false'); controls.search.removeAttribute('aria-activedescendant');
+  }
+  function renderSuggestions() {
+    controls.search.removeAttribute('aria-activedescendant');
+    const fragment = document.createDocumentFragment();
+    if (!matches.length) {
+      const empty = document.createElement('p'); empty.className = 'no-results';
+      empty.setAttribute('role', 'option'); empty.setAttribute('aria-disabled', 'true'); empty.setAttribute('aria-selected', 'false');
+      empty.textContent = 'No players found. Try another name or category.'; fragment.append(empty);
+    } else matches.forEach((entry, index) => {
+      const item = document.createElement('div'); item.id = `tennis-player-option-${entry.file.match(/[a-f0-9]{64}/)[0]}`;
+      item.className = 'suggestion-option'; item.setAttribute('role', 'option');
+      item.setAttribute('aria-selected', String(index === activeSuggestionIndex)); item.dataset.suggestionIndex = String(index);
+      item.textContent = entry.player;
+      item.addEventListener('mousedown', event => event.preventDefault());
+      item.addEventListener('click', () => selectSuggestion(entry)); fragment.append(item);
+    });
+    controls.suggestions.replaceChildren(fragment);
+  }
+  function updateSuggestions(showAll = false) {
+    if (!catalog || controls.search.disabled) return;
+    matches = findTennisPlayers(catalog.players, controls.category.value, showAll ? '' : controls.search.value);
+    activeSuggestionIndex = -1; renderSuggestions(); controls.suggestions.hidden = false;
+    controls.search.setAttribute('aria-expanded', 'true');
+    controls['search-status'].textContent = showAll
+      ? `${matches.length} players in ${categoryLabel()}. Type to narrow the list.`
+      : `${matches.length} ${matches.length === 1 ? 'player matches' : 'players match'} in ${categoryLabel()}.`;
+  }
+  function selectSuggestion(entry) {
+    selectedPlayer = entry.player; controls.search.value = entry.player; closeSuggestions(); loadSelected();
+  }
+  function resetCategory() {
+    closeSuggestions(); controls.suggestions.setAttribute('aria-label', `Players in ${categoryLabel()}`);
+    controls.search.placeholder = `Search players in ${categoryLabel()}`;
+    selectSuggestion(catalog.players.find(entry => entry.category === controls.category.value && entry.player === defaults[controls.category.value] && !entry.hidden));
+  }
+  function handleSearchKeydown(event) {
+    if (event.key === 'Tab') { closeSuggestions(); return; }
+    if (event.key === 'Escape') { if (!controls.suggestions.hidden) event.preventDefault(); closeSuggestions(); return; }
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault(); if (controls.suggestions.hidden) updateSuggestions(true);
+      if (!matches.length) return;
+      const step = event.key === 'ArrowDown' ? 1 : -1;
+      activeSuggestionIndex = activeSuggestionIndex === -1 ? (step === 1 ? 0 : matches.length - 1)
+        : (activeSuggestionIndex + step + matches.length) % matches.length;
+      renderSuggestions();
+      const active = controls.suggestions.querySelector(`[data-suggestion-index="${activeSuggestionIndex}"]`);
+      controls.search.setAttribute('aria-activedescendant', active.id); active.scrollIntoView({ block: 'nearest' }); return;
+    }
+    if (event.key === 'Enter' && activeSuggestionIndex >= 0) { event.preventDefault(); selectSuggestion(matches[activeSuggestionIndex]); }
   }
   async function loadCatalog() {
     unavailable('Loading player names…');
-    controls.player.disabled = true;
+    controls.search.disabled = true;
     try {
       const response = await fetch('/data/tennis-viewer-index-v1.json');
       if (!response.ok) throw new Error('Display index request failed');
-      catalog = validateCatalog(await response.json()); playerOptions(true);
+      catalog = validateCatalog(await response.json()); controls.search.disabled = false; resetCategory();
     } catch { unavailable('Player names could not be loaded. No results are shown.', true); }
   }
   root.querySelectorAll('[data-tennis-inline-term]').forEach(node => {
@@ -160,9 +222,12 @@ async function initialize(root) {
     if (event.target.closest('[data-detail-target]')) returnButton.hidden = false;
     if (event.target.closest('[data-tennis-definition-return]')) history.back();
   });
-  controls.category.addEventListener('change', () => { controls.search.value = ''; catalog && playerOptions(true); });
-  controls.search.addEventListener('input', () => catalog && playerOptions());
-  controls.player.addEventListener('change', loadSelected);
+  controls.category.addEventListener('change', () => catalog && resetCategory());
+  controls.search.addEventListener('input', () => updateSuggestions());
+  controls.search.addEventListener('focus', () => updateSuggestions(true));
+  controls.search.addEventListener('keydown', handleSearchKeydown);
+  combobox.addEventListener('focusout', event => { if (!(event.relatedTarget instanceof Node) || !combobox.contains(event.relatedTarget)) closeSuggestions(); });
+  document.addEventListener('pointerdown', event => { if (event.target instanceof Node && !combobox.contains(event.target)) closeSuggestions(); });
   controls.match.addEventListener('change', render);
   controls.subset.addEventListener('change', () => packet && render());
   await loadCatalog();
