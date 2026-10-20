@@ -43,6 +43,13 @@ export function formatStatValue(field:string,value:number|null){
  const metric=STATS.find(item=>item.field===field)!;
  return (field==='cpoe_pp'&&value>=0?'+':'')+value.toFixed(metric.digits);
 }
+export function readableStatTicks(min:number,max:number){
+ const raw=(max-min)/4,magnitude=10**Math.floor(Math.log10(raw)),ratio=raw/magnitude;
+ let step=(ratio<=1?1:ratio<=2?2:ratio<=5?5:10)*magnitude;
+ const ticks=()=>Array.from({length:Math.max(0,Math.floor(max/step)-Math.ceil(min/step)+1)},(_,i)=>Number(((Math.ceil(min/step)+i)*step).toPrecision(12)));
+ if(ticks().length<3)step/=2;
+ return ticks();
+}
 export function registerNFL(){
  if(customElements.get('nfl-comparison'))return;
  class NFLComparison extends HTMLElement{
@@ -77,8 +84,9 @@ export function registerNFL(){
    if(!fact){target.append(cell('strong','Unavailable'),cell('small',point.reason));return;}
    const source=expertSource(fact),link=document.createElement('a');link.className='expert-source';link.href=source.url;link.textContent=`${source.publisher} · ${source.published}`;
    target.dataset.rank=String(fact.rank);target.dataset.expertCategory=fact.trait;target.dataset.edition=String(fact.year);
-   target.append(cell('strong',`${point.display} rank`),cell('small',`${fact.category} · ${fact.year} preseason`),link,cell('small',source.shortAuthors));
-   if(detail)target.append(cell('small',`${source.byline}; ${source.authorship}. ${source.method} Ordinal drawing index, not a percentile or calibrated skill grade.`));
+   target.append(cell('strong',`${point.display} rank`));
+   if(detail)target.append(cell('small',`${fact.category} · ${fact.year} preseason`),link,cell('small',source.shortAuthors),cell('small',`${source.byline}; ${source.authorship}. ${source.method} Ordinal drawing index, not a percentile or calibrated skill grade.`));
+   else if(axis.expert==='processing')target.append(cell('small',fact.category));
   }
   statsAvailable(id:string,year:number){
    const row=this.annual?.rows.find(r=>r.player_key===id&&r.season===year);
@@ -243,8 +251,9 @@ export function registerNFL(){
    this.querySelectorAll('svg[data-field],svg[data-radar],svg[data-stat-plot]').forEach(s=>{s.replaceChildren();s.setAttribute('hidden','');});
    this.querySelectorAll('[data-selected-values],[data-radar-values],[data-selected-depth]').forEach(e=>e.replaceChildren());
    this.querySelectorAll<HTMLElement>('[data-profile-values] td').forEach(td=>{td.textContent='Unavailable';td.className='unavailable';td.removeAttribute('data-rank');td.removeAttribute('data-percentile');});
-   this.querySelectorAll('[data-counts],[data-pair-legend],[data-radar-legend],[data-radar-counts],[data-radar-gaps],[data-availability-a],[data-availability-b]').forEach(e=>e.textContent='');
+   this.querySelectorAll('[data-counts],[data-pair-legend],[data-expert-summary],[data-radar-counts],[data-radar-gaps],[data-availability-a],[data-availability-b]').forEach(e=>e.textContent='');
    this.querySelectorAll<HTMLElement>('[data-stat-value],[data-stat-counts],[data-stat-range],[data-stat-player]').forEach(e=>{e.textContent='Unavailable';e.removeAttribute('data-value');});
+   this.querySelectorAll('[data-radar-legend-name]').forEach(e=>e.textContent='Unavailable');
    const methodNote=this.querySelector<HTMLElement>('[data-expert-method-note]')!;methodNote.textContent='';methodNote.hidden=true;
    this.querySelector('[data-radar-a]')!.textContent='Quarterback A';this.querySelector('[data-radar-b]')!.textContent='Quarterback B';
    for(const side of ['a','b'])this.closeSuggestions(side);
@@ -259,7 +268,7 @@ export function registerNFL(){
     const [{annual,depth},legacy]=await Promise.all([validateAnnualDepth(bytes[0],bytes[1],bytes[2],bytes[3]),validatePair(bytes[4],bytes[5])]);const mobility=await validateAnnualMobility(bytes[6],bytes[7],annual,legacy);validateExpertRanks(EXPERT_RANKS);const [references,mobilityReferences]=await Promise.all([buildPercentileReferences(annual,depth,legacy),buildMobilityReferences(mobility)]);await document.fonts.ready;
     if(token!==this.request||!this.isConnected)return;this.annual=annual;this.depth=depth;this.legacy=legacy;this.mobility=mobility;this.references=references;this.mobilityReferences=mobilityReferences;this.dataset.state='ready';
     this.querySelectorAll<HTMLSelectElement|HTMLInputElement|HTMLButtonElement>('select,input[type=search],[data-complete-example],[data-require-attribute],[data-clear-requirements],[data-stat-metric]').forEach(e=>e.disabled=false);for(const side of ['a','b'])this.reconcileSelection(side);this.render();if(restore)this.search('a').focus();
-   }catch{if(token!==this.request)return;this.clear();this.dataset.state='error';this.querySelector('[data-comparison-status]')!.textContent='The comparison data could not be verified. Retry, or open the complete annual, Mobility and original-cohort tables below.';this.querySelector<HTMLButtonElement>('[data-retry]')!.hidden=false;}
+   }catch{if(token!==this.request)return;this.clear();this.dataset.state='error';this.querySelector('[data-comparison-status]')!.textContent='The comparison data could not be verified. Retry, or open Data and research details below for tables and downloads.';this.querySelector<HTMLButtonElement>('[data-retry]')!.hidden=false;}
   }
   render(announce=true){
    if(!this.annual||!this.depth||!this.legacy)return;
@@ -328,7 +337,7 @@ export function registerNFL(){
     for(let i=0;i<AXES.length-1;i++){const a=points[i].radius,b=points[i+1].radius;if(a!==null&&b!==null)line(point(i,radius(a)),point(i+1,radius(b)),{class:`radar-segment ${series}`,'data-side':s.side,'data-from':i,'data-to':i+1});}
     if(points.every(p=>p.radius!==null))line(point(6,radius(points[6].radius!)),point(0,radius(points[0].radius!)),{class:`radar-segment ${series}`,'data-side':s.side,'data-from':6,'data-to':0});
     AXES.forEach((a,i)=>{const value=points[i];if(value.radius===null)return;const p=point(i,radius(value.radius));
-     const mark=s.side==='b'?element('path',{d:`M ${p.x} ${p.y-8} l 8 8 l -8 8 l -8 -8 Z`,class:`mark-b radar-mark${a.expert?' expert-mark':''}`}):element('circle',{cx:p.x,cy:p.y,r:a.expert?6:4.5,class:`mark-a radar-mark${a.expert?' expert-mark':''}`});
+     const mark=s.side==='b'?element('path',{d:`M ${p.x} ${p.y-5.5} l 5.5 5.5 l -5.5 5.5 l -5.5 -5.5 Z`,class:`mark-b radar-mark${a.expert?' expert-mark':''}`}):element('circle',{cx:p.x,cy:p.y,r:4.5,class:`mark-a radar-mark${a.expert?' expert-mark':''}`});
      const attrs:Record<string,string|number>={'data-side':s.side,'data-position':i,'data-field':a.field??a.expert!,'data-kind':value.kind,'data-radius':radius(value.radius),'data-radius-max':R,'data-year':s.year};
      if(value.fact){attrs['data-rank']=value.rank!;attrs['data-source']=expertSource(value.fact).url;attrs['data-expert-category']=value.fact.trait;attrs['data-edition']=value.fact.year;attrs['data-rank-label']=value.fact.rankLabel;attrs['data-tied']=String(value.fact.tied);attrs['data-marker']=value.fact.marker;attrs['data-field']=value.fact.trait;}else{const rank=this.standing(s,a);Object.assign(attrs,{'data-value':this.outcome(s,a).value!,'data-percentile':rank.percentile!,'data-n':rank.n,'data-key-hash':rank.keyHash!,'data-cohort':rank.cohort});}
      for(const[k,v]of Object.entries(attrs))mark.setAttribute(k,String(v));mark.append(element('title',{},`${s.side.toUpperCase()} · ${this.label(s)} · ${a.title}: ${value.display}${value.fact?` expert rank · ${value.fact.category} · ${value.fact.year} preseason · ${expertSource(value.fact).shortAuthors} · ${expertSource(value.fact).published}`:` percentile; ${this.referenceLabel(s,a)}`}`));svg.append(mark);
@@ -351,11 +360,16 @@ export function registerNFL(){
    }));
    this.querySelector('[data-profile-a]')!.textContent='A';this.querySelector('[data-profile-b]')!.textContent='B';
    const incomplete=pair.some(s=>AXES.some(a=>this.profilePoint(s,a).radius===null)),gaps=this.querySelector<HTMLElement>('[data-radar-gaps]')!;
-   gaps.hidden=!incomplete;gaps.textContent=incomplete?'Unavailable attributes remain gaps. An unlisted or missing expert fact does not mean low ability, and no rank carries across years.':'';
+   gaps.hidden=!incomplete;gaps.textContent=incomplete?'Unavailable attributes are left blank.':'';
+   this.querySelector<HTMLButtonElement>('[data-complete-example]')!.hidden=!incomplete;
    this.querySelector('[data-profile-window]')!.textContent='Expert ranks describe their listed preseason. Stats describe each selected regular season.';
    const opinions=pair.flatMap(s=>[expertFor('arm_strength',s.year,s.id),processingFor(s.year,s.id)]).filter((fact):fact is ExpertRank=>!!fact),mixed=mixedExpertSources(opinions);
-   const notice=this.querySelector<HTMLElement>('[data-expert-method-note]')!;notice.hidden=!mixed;notice.textContent=mixed?'Expert ranks use different editions, categories or source methods here. These partial opinions do not form a comparable skill time series; a rank difference does not measure improvement.':'';
-   this.querySelector('[data-radar-a]')!.textContent=`A · ${this.label(pair[0])}`;this.querySelector('[data-radar-b]')!.textContent=`B · ${this.label(pair[1])}`;this.querySelector('[data-radar-legend]')!.textContent=pair.map(s=>`${s.side.toUpperCase()} · ${this.label(s)}`).join(' / ');this.querySelector('[data-radar-counts]')!.textContent='All five outcomes use their own fixed same-year finite annual-eligible peers. The one blocked Mobility point is excluded from its percentile pool. Raw ranges are not percentile intervals.';
+   const notice=this.querySelector<HTMLElement>('[data-expert-method-note]')!;notice.hidden=!mixed;notice.textContent=mixed?'These expert lists use different editions or methods. Rank changes do not measure improvement.':'';
+   const summary=this.querySelector('[data-expert-summary]')!;summary.replaceChildren();
+   const sources=new Map<number,{fact:ExpertRank;sides:string[]}>();
+   for(const selected of pair)for(const fact of [expertFor('arm_strength',selected.year,selected.id),processingFor(selected.year,selected.id)])if(fact){const entry=sources.get(fact.year)??{fact,sides:[]};if(!entry.sides.includes(selected.side))entry.sides.push(selected.side);sources.set(fact.year,entry);}
+   if(sources.size){summary.append('Expert rankings: ');let i=0;for(const {fact,sides}of sources.values()){if(i++)summary.append(' · ');const source=expertSource(fact),link=document.createElement('a');link.href=source.url;link.textContent=`${sides.length===2?'':sides.join('/').toUpperCase()+' · '}${fact.year} preseason · ${source.shortAuthors} · ${source.published}`;summary.append(link);}}
+   this.querySelector('[data-radar-a]')!.textContent=`A · ${this.label(pair[0])}`;this.querySelector('[data-radar-b]')!.textContent=`B · ${this.label(pair[1])}`;pair.forEach(s=>{this.querySelector(`[data-radar-legend-name="${s.side}"]`)!.textContent=`${s.side.toUpperCase()} · ${this.label(s)}`;});this.querySelector('[data-radar-counts]')!.textContent='All five outcomes use their own fixed same-year finite annual-eligible peers. The one blocked Mobility point is excluded from its percentile pool. Raw ranges are not percentile intervals.';
    const selected=this.querySelector('[data-selected-depth]')!;selected.replaceChildren();pair.forEach(s=>{if(!s.row){const tr=document.createElement('tr');tr.append(cell('th',`${s.side.toUpperCase()} · ${this.label(s)}`),cell('td','Unavailable'),cell('td',this.missing(s)),cell('td','Unavailable'));selected.append(tr);return;}s.depth.forEach(r=>{const tr=document.createElement('tr');tr.dataset.side=s.side;tr.dataset.bin=r.bin;tr.append(cell('th',`${s.side.toUpperCase()} · ${this.label(s)} · ${r.bin} [${r.air_yards_lower}, ${r.air_yards_upper})`),cell('td',fmt(r.cpoe_pp)),cell('td',`${r.bin_throws} throws; ${r.positive_bin_games} positive-bin games / ${r.eligible_games} all E games`),cell('td',`${fmt(r.lower)} to ${fmt(r.upper)} pp; ${r.interval_status.replaceAll('_',' ')}`));selected.append(tr);});});
   }
   draw(svg:SVGSVGElement,pair:Selected[],field:string,width:number,showRanges=true){
@@ -365,7 +379,7 @@ export function registerNFL(){
    svg.append(element('title',{id:id+'-title'},`${field==='epa_per_dropback'?'Value per dropback':field==='cpoe_pp'?'Completions above expectation':'Dropbacks without a sack'}: ${pair.map(s=>this.label(s)).join(' versus ')}`));svg.append(element('desc',{id:id+'-description'},pair.map(s=>`${s.side.toUpperCase()} · ${this.label(s)}: ${s.row?displayValue(s.row[field])+' '+metric.unitLabel:this.missing(s)}`).join('; ')+'. Available points are shown independently; no difference statistic is calculated.'));
    const line=(x1:number,y1:number,x2:number,y2:number,cls:string)=>svg.append(element('line',{x1,y1,x2,y2,class:cls}));const text=(px:number,py:number,t:string,anchor='start',cls='')=>svg.append(element('text',{x:px,y:py,'text-anchor':anchor,class:cls},t));const hasZero=domain.min!<=0&&domain.max!>=0;if(hasZero)line(x(0),35,x(0),138,'zero');
    pair.forEach((s,i)=>{const nameY=20+i*67,py=48+i*67; text(L,nameY,`${s.side.toUpperCase()} · ${this.label(s)}`);if(!s.row){text(L,py,'Unavailable','start','value');return;}const r=s.row,v=Number(r[field]);text(R,py,displayValue(v),'end','value');if(showRanges&&metric.lower&&typeof r[metric.lower]==='number'&&typeof r[metric.upper!]==='number'){const lo=x(Number(r[metric.lower])),hi=x(Number(r[metric.upper!]));line(lo,py,hi,py,`interval series-${s.side}`);line(lo,py-5,lo,py+5,`interval series-${s.side}`);line(hi,py-5,hi,py+5,`interval series-${s.side}`);}const px=x(v),mark=i?element('path',{d:`M ${px} ${py-6} l 6 6 l -6 6 l -6 -6 Z`,class:'mark-b'}):element('circle',{cx:px,cy:py,r:6,class:'mark-a'});mark.dataset.side=s.side;mark.dataset.value=String(v);mark.append(element('title',{},`${s.side.toUpperCase()} · ${this.label(s)}: ${displayValue(v)}`));svg.append(mark);});
-   line(L,axisY,R,axisY,'axis');const span=domain.max!-domain.min!;let ticks=[domain.min!,domain.min!+span/2,domain.max!];if(hasZero){ticks=ticks.filter(v=>v===domain.min||v===domain.max||Math.abs(v)/span>.17);if(!ticks.includes(0))ticks.push(0);}for(const v of ticks){line(x(v),axisY,x(v),axisY+5,'axis');text(x(v),axisY+25,fmt(v,2),v===domain.min?'start':v===domain.max?'end':'middle','tick');}svg.dataset.domain=`${domain.min},${domain.max}`;
+   line(L,axisY,R,axisY,'axis');const span=domain.max!-domain.min!;let ticks=[domain.min!,domain.min!+span/2,domain.max!];if(hasZero){ticks=ticks.filter(v=>v===domain.min||v===domain.max||Math.abs(v)/span>.17);if(!ticks.includes(0))ticks.push(0);}if(!showRanges)ticks=readableStatTicks(domain.min!,domain.max!);for(const v of ticks){line(x(v),axisY,x(v),axisY+5,'axis');text(x(v),axisY+25,fmt(v,2),v===domain.min?'start':v===domain.max?'end':'middle','tick');}svg.dataset.domain=`${domain.min},${domain.max}`;
   }
  }
  customElements.define('nfl-comparison',NFLComparison);

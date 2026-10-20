@@ -138,6 +138,12 @@ assert.equal(JSON.stringify([annual,depth,legacy]),sourcesBefore,'Requirements n
 assert.equal((html.match(/type="checkbox"[^>]*data-require-attribute=/g)??[]).length,7);
 assert.ok(/<button\b[^>]*data-clear-requirements/.test(html));
 // Stats uses annual records and ignores the saved profile requirements.
+const {readableStatTicks}=charts;
+assert.deepEqual(readableStatTicks(-12.01,10.78),[-10,0,10]);assert.deepEqual(readableStatTicks(-.60,.58),[-.5,0,.5]);assert.deepEqual(readableStatTicks(85.85,98.3),[87.5,90,92.5,95,97.5]);
+assert.ok(!html.includes('data-all-mobility'),'Raw Mobility ledger is not rendered in the visitor interface');
+assert.ok(html.includes('data-expert-summary'),'Consolidated visible attribution remains available');
+for(const side of ['a','b'])assert.ok(html.includes(`data-radar-legend-name="${side}"`));
+assert.ok(!html.includes('circle, solid line')&&!html.includes('open diamond, dashed line'));
 const {STATS,formatStatValue}=charts;assert.deepEqual(STATS.map(s=>s.field),['cpoe_pp','epa_per_dropback','sack_avoidance_pct']);
 assert.equal(formatStatValue('cpoe_pp',1.24),'+1.2');assert.equal(formatStatValue('cpoe_pp',-1.24),'-1.2');assert.equal(formatStatValue('cpoe_pp',0),'+0.0');
 assert.equal(formatStatValue('epa_per_dropback',.234),'0.23');assert.equal(formatStatValue('sack_avoidance_pct',98.456),'98.5');assert.equal(formatStatValue('cpoe_pp',null),'Unavailable');
