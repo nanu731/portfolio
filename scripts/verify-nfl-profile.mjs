@@ -1,0 +1,77 @@
+// Node24 source checks; native interaction and visual checks are recorded separately.
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {stripTypeScriptTypes} from 'node:module';
+import {fileURLToPath} from 'node:url';
+const root=new URL('../',import.meta.url),cache=new Map();
+async function load(relative){
+ if(cache.has(relative))return cache.get(relative);
+ let source=stripTypeScriptTypes(readFileSync(new URL(relative,root),'utf8'));
+ for(const match of [...source.matchAll(/from\s+['"](.\/.+?)['"]/g)]){
+  const target=fileURLToPath(new URL(match[1]+'.ts',new URL(relative,root))).slice(fileURLToPath(root).length);
+  source=source.replace(match[0],`from '${await load(target)}'`);
+ }
+ const url=`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`;cache.set(relative,url);return url;
+}
+const experts=await import(await load('src/lib/nfl-experts.ts'));
+const {EXPERT_RANKS,EXPERT_SOURCE,expertFor,expertRadius,validateExpertRanks}=experts;
+const expected=[['00-0033873','arm_strength',2,.9],['00-0034857','arm_strength',1,1],['00-0033873','field_vision',1,1],['00-0034857','field_vision',4,.7]];
+assert.equal(EXPERT_SOURCE.published,'2023-08-14');
+assert.equal(EXPERT_SOURCE.url,'https://africa.espn.com/nfl/story/_/id/38151402/nfl-quarterback-council-2023-ranking-top-10-traits');
+for(const [id,trait,rank,radius] of expected){assert.equal(expertFor(trait,2023,id).rank,rank);assert.equal(expertRadius(rank),radius);}
+for(const rank of [null,NaN,Infinity,-1,0,1.5,11])assert.equal(expertRadius(rank),null);
+assert.equal(expertRadius(10),.1);
+const annual=JSON.parse(readFileSync(new URL('public/data/nfl-qb-annual-2006-2025-v1.json',root)));
+const depth=JSON.parse(readFileSync(new URL('public/data/nfl-qb-depth-2006-2025-v1.json',root)));
+const legacy=JSON.parse(readFileSync(new URL('public/data/nfl-qb-2023-2024-v2.json',root)));
+let lookups=0;
+for(const row of annual.rows)for(const trait of ['arm_strength','field_vision']){
+ const found=expertFor(trait,row.season,row.player_key),fact=expected.find(([id,t])=>id===row.player_key&&t===trait&&row.season===2023);
+ assert.equal(found?.rank,fact?.[2]);lookups++;
+}
+assert.equal(expertFor('arm_strength',2011,'00-0033873'),undefined);
+assert.equal(expertFor('field_vision',2024,'00-0034857'),undefined);
+for(const mutate of [rows=>rows.pop(),rows=>rows.push({...rows[0]}),rows=>rows[0].rank=NaN,rows=>rows[0].rank=0,rows=>rows[0].rank=11,rows=>rows[0].rank=1.5,rows=>rows[0].rank=3,rows=>rows[0].year=2024,rows=>rows[0].playerKey='unknown',rows=>rows[0].trait='decision_making',rows=>rows[0].extra=true,rows=>rows[0]={...rows[1]}]){
+ const rows=structuredClone(EXPERT_RANKS);mutate(rows);assert.throws(()=>validateExpertRanks(rows));
+}
+// Exercise the real renderer with a minimal SVG DOM. Native-browser checks remain separate.
+class Node {constructor(tag){this.tag=tag;this.attrs={};this.children=[];this.dataset={};this.parentElement={getBoundingClientRect:()=>({width:560})};}setAttribute(k,v){this.attrs[k]=String(v);}removeAttribute(k){delete this.attrs[k];}append(...els){this.children.push(...els);}replaceChildren(...els){this.children=els;}}
+globalThis.document={createElementNS:(_,tag)=>new Node(tag)};
+globalThis.HTMLElement=class {};
+const registry=new Map();globalThis.customElements={get:k=>registry.get(k),define:(k,v)=>registry.set(k,v)};
+const charts=await import(await load('src/lib/nfl-charts.ts'));charts.registerNFL();
+const host=new (registry.get('nfl-comparison'))(),svg=new Node('svg');host.querySelector=()=>svg;host.annual=annual;host.depth=depth;host.legacy=legacy;
+const percentile=await import(await load('src/lib/nfl-percentiles.ts'));host.references=await percentile.buildPercentileReferences(annual,depth,legacy);
+const selected=(side,id,year)=>({side,id,year,name:annual.rows.find(r=>r.player_key===id)?.display_name??id,row:annual.rows.find(r=>r.player_key===id&&r.season===year),legacy:legacy.rows.find(r=>r.player_key===id&&r.season===year),depth:depth.rows.filter(r=>r.player_key===id&&r.season===year)});
+const a=selected('a','00-0033873',2023),b=selected('b','00-0034857',2023);
+const nodes=cls=>svg.children.filter(n=>(n.attrs.class??'').split(' ').includes(cls));
+host.drawRadar([a,b]);assert.equal(nodes('radar-mark').length,14);assert.equal(nodes('radar-segment').length,14);assert.equal(nodes('expert-spoke').length,2);
+assert.equal(svg.children.some(n=>n.tag==='polygon'),false);assert.equal(svg.children.some(n=>n.attrs.class==='tick'),false);
+for(const mark of nodes('radar-mark')){
+ const attrs=mark.attrs,fraction=Number(attrs['data-radius'])/Number(attrs['data-radius-max']);
+ if(attrs['data-kind']==='expert'){
+  const fact=expected.find(([id,trait])=>id===(attrs['data-side']==='a'?a.id:b.id)&&trait===attrs['data-field']);
+  assert.equal(Number(attrs['data-rank']),fact[2]);assert.equal(attrs['data-percentile'],undefined);assert.ok(Math.abs(fraction-fact[3])<1e-12);
+ }else assert.ok(Math.abs(fraction-Number(attrs['data-percentile'])/100)<1e-12);
+}
+for(const [name,pair,counts,closing] of [
+ ['independent2024',[a,selected('b',b.id,2024)],[7,5],[true,false]],
+ ['sourceblocked2011',[a,selected('b',b.id,2011)],[7,0],[true,false]],
+ ['unauditedQB',[a,selected('b','00-0037077',2023)],[7,4],[true,false]],
+ ['identical',[a,{...a,side:'b'}],[7,7],[true,true]],
+ ['nativeNull',[{...a,depth:a.depth.map(r=>r.bin==='medium'?{...r,cpoe_pp:null}:r)},b],[6,7],[false,true]],
+]){
+ host.drawRadar(pair);
+ for(const [i,side]of ['a','b'].entries()){
+  assert.equal(nodes('radar-mark').filter(n=>n.attrs['data-side']===side).length,counts[i],name);
+  assert.equal(nodes('radar-segment').some(n=>n.attrs['data-side']===side&&n.attrs['data-from']==='6'&&n.attrs['data-to']==='0'),closing[i],name);
+ }
+ assert.ok(nodes('radar-segment').every(n=>Number(n.attrs['data-to'])===Number(n.attrs['data-from'])+1||(n.attrs['data-from']==='6'&&n.attrs['data-to']==='0')),'No gap-bridging segment');
+}
+const html=readFileSync(new URL('dist/projects/nfl-qbs-re-evaluated/index.html',root),'utf8');
+const table=html.match(/<table data-static-default[\s\S]*?<\/table>/)[0];
+const expertCells=[...table.matchAll(/<td\b[^>]*data-static-expert[^>]*>([\s\S]*?)<\/td>/g)];
+assert.equal(expertCells.length,4);
+[2,1,1,4].forEach((rank,i)=>{assert.ok(expertCells[i][1].startsWith(`#${rank} expert rank`));assert.ok(expertCells[i][1].includes(EXPERT_SOURCE.url));});
+assert.ok(html.includes('Load complete 2023 example'));assert.ok(html.includes('Two expert assessments + five season outcomes'));
+console.log(JSON.stringify({status:'passed',expertFacts:4,expertLookups:lookups,invalidRecordCases:12,defaultPoints:14,defaultSegments:14,rendererScenarios:5,staticExpertCells:4,sourceDate:EXPERT_SOURCE.published,nativeBrowserChecks:'separate'},null,2));

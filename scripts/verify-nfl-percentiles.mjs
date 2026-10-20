@@ -136,14 +136,16 @@ if (existsSync(builtPage)) {
   const html = readFileSync(builtPage, 'utf8');
   const table = html.match(/<table data-static-default[\s\S]*?<\/table>/)?.[0];
   assert.ok(table, 'build includes a no-JavaScript default comparison');
-  const rows = [...table.matchAll(/<tr\b[^>]*>[\s\S]*?<\/tr>/g)].slice(1);
+  const allRows = [...table.matchAll(/<tr\b[^>]*>[\s\S]*?<\/tr>/g)].slice(1);
+  assert.equal(allRows.length, 7);
+  const rows = allRows.slice(2);
   const metrics = ['sack_avoidance_pct', 'scramble_contribution', 'short_cpoe_pp', 'medium_cpoe_pp', 'deep_cpoe_pp'];
   assert.equal(rows.length, metrics.length);
   rows.forEach(([row], i) => {
     const cells = [...row.matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)];
     assert.equal(cells.length, 2);
     cells.forEach(([, text], j) => {
-      const raw = rawGroups.get(`${metrics[i]}:2024`), id = ['00-0026498', '00-0029263'][j];
+      const raw = rawGroups.get(`${metrics[i]}:2023`), id = ['00-0033873', '00-0034857'][j];
       const value = raw.find(r => r.id === id).value;
       const expected = Math.floor(expectedRank(value, raw.map(r => r.value)) + 0.5);
       assert.ok(text.startsWith(`${expected} percentile`));

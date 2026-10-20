@@ -1,11 +1,11 @@
 ---
 title: NFL QBs Re-evaluated
 heading: NFL QBs Re-evaluated
-description: Compare recorded quarterback outcomes by season and throw depth, with visible evidence gaps and optional methods.
+description: Compare two sourced expert assessments and five quarterback season outcomes, with visible coverage and optional methods.
 question: Can public NFL data help describe repeatable quarterback execution with less dependence on supporting circumstances?
 questionInBody: true
 dataset: nflverse regular-season play-by-play, 560 qualifying player-seasons
-method: Same-year outcome percentiles, native conditional game-based ranges, and original fixed-cohort repeatability studies
+method: Attributed expert ranks, same-year outcome percentiles and native conditional game-based ranges
 seasons: 2006–2025, with 2011 source-blocked
 repo: https://github.com/nanu731/nfl-qb-eval
 compact: true
@@ -22,9 +22,9 @@ import NFLComparison from '../../components/NFLComparison.astro';
 <details class="nfl-reference">
 <summary>Definitions, formulas and how the models work</summary>
 
-<h2 id="nfl-radar-scaling" tabIndex={-1} data-reference-target>Outcome percentiles: peers, formula and limits</h2>
+<h2 id="nfl-radar-scaling" tabIndex={-1} data-reference-target>Attribute profile: two scales, sources and limits</h2>
 
-The seven fixed clockwise positions correspond to arm strength, processing, pocket presence, mobility, short accuracy, medium accuracy and deep accuracy. **Arm strength and processing remain not measured.** The other positions show named recorded outcomes where evidence exists. A gap means unavailable evidence, not a low rating. The number of plotted outcomes can differ between the selected player-seasons.
+The seven clockwise positions address arm strength, a processing proxy, pocket presence, mobility, short accuracy, medium accuracy and deep accuracy. The default Mahomes–Allen comparison combines two expert assessments published before the 2023 season with five outcomes from the 2023 regular season. These are different evidence types and observation windows. Other player-years retain their available outcomes and explicit expert gaps; no rank carries into another year.
 
 **Dropbacks without a sack (%)** occupies the desired pocket-presence position. **Scramble contribution** occupies the desired mobility position only when the selected ID and season match one of the original 40 audited records from 2023/2024. Other selections show **No audited scramble-value record**. Sack avoidance reflects protection, receiver availability and decisions with other costs. Scramble contribution combines usage with whole-play shared value. Neither isolates the desired trait.
 
@@ -36,17 +36,19 @@ Each percentile describes where a recorded outcome sits among its fixed same-yea
 
 The midpoint-percentile formula is `P = 100 × (B + 0.5 × T) / N`. Here `B` counts peer values below the selected value, `T` counts exact ties including the selected record, and `N` counts all finite peer values including that record. Ties use unrounded native values. Higher recorded outcomes receive higher percentiles on all five measured spokes. A constant finite cohort gives every record 50; fewer than two peers or an unavailable native value gives no percentile. Missing evidence never becomes zero or 50, and another season never supplies a replacement.
 
-The radar uses one 0–100 scale: radius is `P / 100`. Its center is 0 and its rim is 100; 50 describes midpoint standing, not a zero native outcome or average ability. Whole-number labels round half up using `floor(P + 0.5)`; geometry retains the full percentile. Endpoints are not stretched to force a 1 or 100. With 20 untied peers, percentiles run from 2.5 to 97.5 in five-point steps. Whole-number labels do not imply one-point skill resolution.
+The five outcome spokes use radius `P / 100`; 50 describes midpoint standing, not a zero native outcome or average ability. The two expert spokes instead use the ordinal drawing index `(11 - rank) / 10`: rank #1 is outer and #10 is at one-tenth radius. This index is not an NFL percentile or a calibrated ability grade. Numeric ring labels are omitted because the two scales have different meanings. Whole-number labels round half up using `floor(P + 0.5)`; geometry retains the full percentile. Endpoints are not stretched to force a 1 or 100. With 20 untied peers, percentiles run from 2.5 to 97.5 in five-point steps. Whole-number labels do not imply one-point skill resolution.
 
-Farther out means higher same-year standing on that outcome. Cross-year comparisons use different reference cohorts; they do not establish absolute ability or trait improvement. Equal percentile gaps need not mean equal differences in native outcomes or ability. The three depth outcomes share context and correlated evidence, so they do not count as three independent skill votes. Compare one spoke at a time: no area, aggregate score or winner combines them. Lines join adjacent available positions only. No line bridges a gap, and no polygon closes or fills.
+Farther out means higher same-year standing on that outcome. Cross-year comparisons use different reference cohorts; they do not establish absolute ability or trait improvement. Equal percentile gaps need not mean equal differences in native outcomes or ability. The three depth outcomes share context and correlated evidence, so they do not count as three independent skill votes. Compare one spoke at a time: no area, aggregate score or winner combines them. Lines join adjacent available positions only. No line bridges a gap. The final edge closes only when all seven positions are available; the shape has no fill.
 
 Optional full evidence retains raw values, counts and native-unit conditional game-based ranges. **Those raw ranges are not percentile confidence intervals.** They do not form a joint confidence region, predict performance or test a player/year difference. Individual sack-avoidance uncertainty was not estimated. The negative-depth diagnostic remains outside the radar. [Read the range assumptions](#nfl-method-uncertainty), [the play populations](#nfl-definition-populations), [the sack formula](#nfl-definition-sack-avoidance), and [the scramble formula](#nfl-definition-runs).
 
-<h3 id="nfl-unmeasured-traits" tabIndex={-1} data-reference-target>Why arm strength and processing have no points</h3>
+<h3 id="nfl-unmeasured-traits" tabIndex={-1} data-reference-target>Expert assessments: source, coverage and measurement limits</h3>
 
-Arm strength needs comparable, calibrated ball-speed measurements with release and arrival geometry, throw timing, and repeated attempts. Spin, spiral stability and delivery from an unbalanced posture require their own observations. A route name, completion or throw from outside the pocket does not establish those measurements.
+[ESPN's Quarterback Council](https://africa.espn.com/nfl/story/_/id/38151402/nfl-quarterback-council-2023-ranking-top-10-traits), published 14 August 2023, combined nine analysts' top-ten ballots using points. Individual ballots, exact weights and the full candidate denominator are undisclosed. This page uses four factual ranks: arm strength Mahomes #2 and Allen #1; field vision Mahomes #1 and Allen #4. Only those two players in 2023 have verified expert coverage here. An unavailable rank does not mean unranked, last or low ability.
 
-Processing needs validated observations of available reads and outlets, route-break and release timing, defensive changes, and pressure onset, together with a defensible assessment of the choice. Throw time or the recorded target alone cannot show what the quarterback recognized or which alternatives were available. Current inputs do not support comparable annual measurements of either trait. Both positions remain **Not measured**; existing outcome percentiles do not fill those gaps.
+Field vision addresses part of the requested processing trait. It remains a preseason editorial assessment, not a measured decision-speed or decision-quality grade. The two expert axes use solid spokes and outlined marks. They show published ranks, not outcome percentiles; equal rank steps do not establish equal skill gaps. Source rank uncertainty is unquantified, not zero.
+
+Comparable isolated arm strength would need calibrated ball-speed observations and throw geometry. Processing would need validated observations of available options and choices. Those measurements remain unavailable. The sourced judgments supply a distinct kind of evidence; they do not establish those missing measurements. No expert confidence interval or composite score is invented.
 
 <h2 id="nfl-definition-epa-dropback" tabIndex={-1} data-reference-target>Value per dropback</h2>
 
@@ -189,7 +191,7 @@ Study ranges remove a whole contributing NFL game across both teams and selected
 
 <h2 id="nfl-limitations" tabIndex={-1} data-reference-target>What these comparisons cannot tell us</h2>
 
-Receiver/defender actions, target choices and unmeasured circumstances remain. Protection, receivers and coaching are not isolated. These summaries do not establish precise placement, pocket awareness, designed rushing, athletic mobility, overall QB quality or forecasts. Arm strength, processing and a support-adjusted overall score remain unavailable.
+Receiver/defender actions, target choices and unmeasured circumstances remain. Protection, receivers and coaching are not isolated. These summaries do not establish precise placement, pocket awareness, designed rushing, athletic mobility, overall QB quality or forecasts. Isolated arm-strength and processing measurements and a support-adjusted overall score remain unavailable; the profile separately identifies its limited preseason expert assessments.
 
 The annual display exports qualifying records from 19 seasons within 2006–2025; unresolved source conflicts keep 2011 visible and blocked. Eligibility selects for recorded exposure and completion-model availability, and the original studies add survival across two years. Source coverage, overlap, persistent support and conditional uncertainty limit interpretation. Unknown generating model vintages and era changes prevent era-neutral skill claims. The depth residuals share outcomes and context; they do not validate three isolated accuracy traits. Percentiles describe standing within each declared outcome/year cohort. No aggregate percentile, win count or blended score combines the radar spokes or optional comparisons.
 

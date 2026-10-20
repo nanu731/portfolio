@@ -6,12 +6,14 @@ const data=await validatePair(await readFile('public'+DATA_URL),await readFile('
 import {validateAnnualDepth,ANNUAL_URL,ANNUAL_MANIFEST_URL,DEPTH_URL,DEPTH_MANIFEST_URL} from '../lib/nfl-annual';
 const {annual,depth}=await validateAnnualDepth(...await Promise.all([ANNUAL_URL,ANNUAL_MANIFEST_URL,DEPTH_URL,DEPTH_MANIFEST_URL].map(url=>readFile('public'+url))) as [Uint8Array,Uint8Array,Uint8Array,Uint8Array]);
 import {buildPercentileReferences,percentileFor,displayPercentile} from '../lib/nfl-percentiles';
+import {EXPERT_SOURCE,EXPERT_RANKS,validateExpertRanks,expertFor} from '../lib/nfl-experts';
+validateExpertRanks(EXPERT_RANKS);
 const references=await buildPercentileReferences(annual,depth,data);
 const staticMetrics=['sack_avoidance_pct','scramble_contribution','short_cpoe_pp','medium_cpoe_pp','deep_cpoe_pp'];
-const staticRank=(i:number,j:number)=>percentileFor(references,staticMetrics[i],2024,defaults[j].annual.player_key);
+const staticRank=(i:number,j:number)=>percentileFor(references,staticMetrics[i],2023,defaults[j].annual.player_key);
 const players=[...new Map(annual.rows.map(r=>[r.player_key,r])).values()].sort((a,b)=>a.display_name.localeCompare(b.display_name));
 const seasons=[...annual.season_catalog].sort((a,b)=>b.season-a.season);
-const defaults=['00-0026498','00-0029263'].map(id=>({annual:annual.rows.find(r=>r.player_key===id&&r.season===2024)!,legacy:data.rows.find(r=>r.player_key===id&&r.season===2024)!,depth:depth.rows.filter(r=>r.player_key===id&&r.season===2024)}));
+const defaults=['00-0033873','00-0034857'].map(id=>({annual:annual.rows.find(r=>r.player_key===id&&r.season===2023)!,legacy:data.rows.find(r=>r.player_key===id&&r.season===2023)!,depth:depth.rows.filter(r=>r.player_key===id&&r.season===2023)}));
 const staticOutcomes=['Dropbacks without a sack (%)','Scramble expected points per included QB play','Short completions above expectation (pp)','Medium completions above expectation (pp)','Deep completions above expectation (pp)'];
 const staticValue=(i:number,j:number)=>i===0?defaults[j].annual.sack_avoidance_pct:i===1?defaults[j].legacy.scramble_contribution:defaults[j].depth.find(r=>r.bin===['short','medium','deep'][i-2])!.cpoe_pp;
 const staticEvidence=(i:number,j:number)=>{
@@ -36,12 +38,12 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
       <label class="label" for="nfl-search-a">Quarterback A</label>
       <p class="search-help" id="nfl-search-help-a">Open the list or type a name. Accents and punctuation are optional.</p>
       <div class="combobox-shell" data-combobox-a>
-       <input id="nfl-search-a" type="search" data-search-a value={players.find(r=>r.player_key==='00-0026498')!.display_name} placeholder="Search players in 2024" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="nfl-suggestions-a" aria-describedby="nfl-search-help-a nfl-search-status-a" autocomplete="off" disabled />
+       <input id="nfl-search-a" type="search" data-search-a value={players.find(r=>r.player_key==='00-0033873')!.display_name} placeholder="Search players in 2023" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="nfl-suggestions-a" aria-describedby="nfl-search-help-a nfl-search-status-a" autocomplete="off" disabled />
        <div id="nfl-suggestions-a" class="suggestion-menu" role="listbox" aria-label="Quarterbacks for A" data-suggestions-a hidden></div>
       </div>
-      <select id="nfl-player-a" name="nfl-player-a" data-a aria-label="Selected quarterback A" hidden disabled>{players.map(r=><option value={r.player_key} selected={r.player_key==='00-0026498'}>{r.display_name}</option>)}</select>
+      <select id="nfl-player-a" name="nfl-player-a" data-a aria-label="Selected quarterback A" hidden disabled>{players.map(r=><option value={r.player_key} selected={r.player_key==='00-0033873'}>{r.display_name}</option>)}</select>
      </div>
-     <label class="label season-control" for="nfl-season-a">Season A<select id="nfl-season-a" name="nfl-season-a" data-season-a disabled>{seasons.map(y=><option value={y.season} selected={y.season===2024}>{y.season}{y.status==='source_blocked'?' · source blocked':''}</option>)}</select></label>
+     <label class="label season-control" for="nfl-season-a">Season A<select id="nfl-season-a" name="nfl-season-a" data-season-a disabled>{seasons.map(y=><option value={y.season} selected={y.season===2023}>{y.season}{y.status==='source_blocked'?' · source blocked':''}</option>)}</select></label>
     </div>
     <p class="search-status" id="nfl-search-status-a" data-search-status-a role="status" aria-live="polite"></p>
    </div>
@@ -51,12 +53,12 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
       <label class="label" for="nfl-search-b">Quarterback B</label>
       <p class="search-help" id="nfl-search-help-b">Open the list or type a name. Accents and punctuation are optional.</p>
       <div class="combobox-shell" data-combobox-b>
-       <input id="nfl-search-b" type="search" data-search-b value={players.find(r=>r.player_key==='00-0029263')!.display_name} placeholder="Search players in 2024" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="nfl-suggestions-b" aria-describedby="nfl-search-help-b nfl-search-status-b" autocomplete="off" disabled />
+       <input id="nfl-search-b" type="search" data-search-b value={players.find(r=>r.player_key==='00-0034857')!.display_name} placeholder="Search players in 2023" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="nfl-suggestions-b" aria-describedby="nfl-search-help-b nfl-search-status-b" autocomplete="off" disabled />
        <div id="nfl-suggestions-b" class="suggestion-menu" role="listbox" aria-label="Quarterbacks for B" data-suggestions-b hidden></div>
       </div>
-      <select id="nfl-player-b" name="nfl-player-b" data-b aria-label="Selected quarterback B" hidden disabled>{players.map(r=><option value={r.player_key} selected={r.player_key==='00-0029263'}>{r.display_name}</option>)}</select>
+      <select id="nfl-player-b" name="nfl-player-b" data-b aria-label="Selected quarterback B" hidden disabled>{players.map(r=><option value={r.player_key} selected={r.player_key==='00-0034857'}>{r.display_name}</option>)}</select>
      </div>
-     <label class="label season-control" for="nfl-season-b">Season B<select id="nfl-season-b" name="nfl-season-b" data-season-b disabled>{seasons.map(y=><option value={y.season} selected={y.season===2024}>{y.season}{y.status==='source_blocked'?' · source blocked':''}</option>)}</select></label>
+     <label class="label season-control" for="nfl-season-b">Season B<select id="nfl-season-b" name="nfl-season-b" data-season-b disabled>{seasons.map(y=><option value={y.season} selected={y.season===2023}>{y.season}{y.status==='source_blocked'?' · source blocked':''}</option>)}</select></label>
     </div>
     <p class="search-status" id="nfl-search-status-b" data-search-status-b role="status" aria-live="polite"></p>
    </div>
@@ -66,24 +68,29 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
   <p class="limit">Teammates, opponents and model versions can differ across seasons. These observed summaries do not measure isolated skill or improvement. Model versions and calibration are unknown across eras. The outcomes do not name an overall winner.</p>
   <p class="availability" data-comparison-status role="status" aria-live="polite">Checking comparison data…</p><button type="button" data-retry hidden>Retry comparison data</button>
   <section class="radar-prototype" aria-labelledby="nfl-radar-heading">
-   <h2 id="nfl-radar-heading">Quarterback outcome percentiles</h2>
-   <p class="prototype-subtitle">Research prototype · outcome proxies, not isolated skills</p>
-   <p class="radar-intro">Farther out means a higher percentile among that year’s named peers. Every spoke uses 0–100; 50 means middle standing, not zero outcome or ability. Compare one spoke at a time. The shape gives no overall rating.</p>
+   <h2 id="nfl-radar-heading">Quarterback attribute profile</h2>
+   <p class="prototype-subtitle">Two expert assessments + five season outcomes</p>
+   <p class="profile-window" data-profile-window>2023 preseason rankings + 2023 season outcomes</p>
+   <p class="radar-intro">Two scales: expert #1 outer / #10 inner; outcome percentiles rise outward. Distances are not comparable. No overall score.</p>
+   <button type="button" data-complete-example disabled>Load complete 2023 example</button>
    <p class="radar-key" data-radar-legend></p>
-   <noscript><p>The radar requires JavaScript. Static default comparison: Matthew Stafford · 2024 (A) and Russell Wilson · 2024 (B). Arm strength and processing remain not measured. All annual records and downloads are available below.</p><div class="table-scroll" role="region" aria-label="Static default outcome comparison" tabindex="0"><table data-static-default><thead><tr><th scope="col">Recorded outcome</th><th scope="col">A · Matthew Stafford · 2024</th><th scope="col">B · Russell Wilson · 2024</th></tr></thead><tbody>{staticOutcomes.map((label,i)=><tr><th scope="row">{label}</th>{[0,1].map(j=><td>{displayPercentile(staticRank(i,j).percentile)} percentile<br/>2024 · {i===1?'original 20-QB cohort':'annual eligible peers'} · N={staticRank(i,j).n}<br/>Recorded value: {fmt(staticValue(i,j),i===0?1:3)}<br/>{staticEvidence(i,j)} Raw ranges are not percentile intervals.</td>)}</tr>)}</tbody></table></div></noscript>
+   <noscript><p>The radar requires JavaScript. All seven default positions appear below: Patrick Mahomes · 2023 (A) and Josh Allen · 2023 (B). Expert assessments predate the season; outcome values describe the regular season.</p><div class="table-scroll" role="region" aria-label="Static default seven-attribute comparison" tabindex="0"><table data-static-default><thead><tr><th scope="col">Position / evidence</th><th scope="col">A · Patrick Mahomes · 2023</th><th scope="col">B · Josh Allen · 2023</th></tr></thead><tbody>
+    {(['arm_strength','field_vision'] as const).map(trait=><tr><th scope="row">{trait==='arm_strength'?'Arm strength':'Processing proxy · field vision'}</th>{defaults.map(d=><td data-static-expert={trait}>#{expertFor(trait,2023,d.annual.player_key)!.rank} expert rank<br/><a href={EXPERT_SOURCE.url}>ESPN Quarterback Council · 14 Aug 2023</a><br/>Preseason editorial assessment; drawing index only.</td>)}</tr>)}
+    {staticOutcomes.map((label,i)=><tr><th scope="row">{label}</th>{[0,1].map(j=><td>{displayPercentile(staticRank(i,j).percentile)} percentile<br/>2023 · {i===1?'original 20-QB cohort':'annual eligible peers'} · N={staticRank(i,j).n}<br/>Recorded value: {fmt(staticValue(i,j),i===0?1:3)}<br/>{staticEvidence(i,j)} Raw ranges are not percentile intervals.</td>)}</tr>)}</tbody></table></div></noscript>
    <div class="radar-layout">
     <figure class="radar-figure">
-     <p class="radar-series-key"><span><svg viewBox="0 0 44 20" aria-hidden="true"><line x1="0" y1="10" x2="44" y2="10" class="series-a"/><circle cx="22" cy="10" r="4.5" class="mark-a"/></svg>A · filled circle, solid line</span><span><svg viewBox="0 0 44 20" aria-hidden="true"><line x1="0" y1="10" x2="44" y2="10" class="series-b"/><path d="M22 2 L30 10 L22 18 L14 10 Z" class="mark-b"/></svg>B · open diamond, dashed line</span></p>
+     <p class="radar-series-key"><span><svg viewBox="0 0 44 20" aria-hidden="true"><line x1="0" y1="10" x2="44" y2="10" class="series-a"/><circle cx="22" cy="10" r="4.5" class="mark-a"/></svg>A · circle, solid line</span><span><svg viewBox="0 0 44 20" aria-hidden="true"><line x1="0" y1="10" x2="44" y2="10" class="series-b"/><path d="M22 2 L30 10 L22 18 L14 10 Z" class="mark-b"/></svg>B · open diamond, dashed line</span></p>
+     <p class="expert-key">Solid spokes + outlined marks: expert ranks. <a href={EXPERT_SOURCE.url}>ESPN · 14 Aug 2023</a></p>
      <div data-chart-host><svg id="nfl-radar" data-radar hidden role="img" aria-labelledby="nfl-radar-title nfl-radar-description"></svg></div>
-     <figcaption>Only adjacent available positions connect; missing evidence stays open. Overlapping marks share the same recorded position.</figcaption>
-     <p class="radar-uncertainty">Four outcomes use annual eligible peers; scramble uses the original 20-QB cohort in 2023 or 2024. Equal percentile gaps need not mean equal outcome or ability gaps. Raw game-based ranges are in the evidence below, not on the percentile radar.</p>
+     <figcaption>Field vision assesses part of processing. Lines close only when all seven values exist; missing evidence stays open. No fill or overall score. Overlapping marks share a position.</figcaption>
+     <p class="radar-uncertainty">Four outcomes use annual eligible peers; scramble uses the original 20-QB cohort in 2023 or 2024. Equal percentile gaps need not mean equal outcome or ability gaps. Raw game-based ranges are in the evidence below, not on the profile.</p>
     </figure>
     <div class="radar-readout" data-radar-summary aria-label="Selected outcome values and evidence gaps"></div>
    </div>
    <div class="depth-guide"><p><DefinitionHelp id="nfl-depth-outcome" label="Depth-specific completions above expectation" detailTarget="nfl-definition-depth" detailLabel="Depth bins, formula and limits">The difference between completions and the model’s expected completions on included throws at that air distance. These residual outcomes also reflect receivers, coverage, decisions and model calibration; they do not isolate accuracy.</DefinitionHelp> uses <DefinitionHelp id="nfl-depth-pp" label="percentage points" detailTarget="nfl-definition-percentage-points" detailLabel="Units and formula">One percentage point means one more completion per 100 included throws than the model expected. Zero matches model expectation, not zero ability.</DefinitionHelp>. Their radar points show standing among same-year annual peers. The three depth outcomes are correlated; they are not independent skill votes and are never added together.</p></div>
    <div class="depth-readout" data-depth-summary aria-label="Depth-specific selected outcome values"></div>
    <p class="evidence-gaps" data-radar-gaps></p>
-   <details class="radar-detail"><summary>Recorded values, counts and raw ranges</summary>
+   <details class="radar-detail"><summary>Expert sources, recorded values, counts and raw ranges</summary>
     <p>EPA/O means expected points added per included quarterback play. D means recorded dropbacks; O includes those dropbacks and non-scramble quarterback runs. A raw conditional range describes game-sampling variation in the original units under study assumptions. It is not a percentile interval, every source of uncertainty or a test of the difference between players.</p>
     <div class="radar-values table-scroll" role="region" aria-label="Clockwise evidence map and selected values in original units" tabindex="0">
      <table class="radar-table"><caption>Clockwise evidence map · original units</caption><thead><tr><th scope="col">Position / evidence</th><th scope="col" data-radar-a>Quarterback A</th><th scope="col" data-radar-b>Quarterback B</th></tr></thead><tbody data-radar-values></tbody></table>
@@ -92,7 +99,7 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
     <p class="radar-limits">The pocket-presence and mobility traits are not directly measured. Sack avoidance also reflects protection and receivers; scramble contribution combines usage with shared play value and omits other runs and athletic movement.</p>
    </details>
    <details class="selected-depth"><summary>Selected depth records: values, counts and raw ranges</summary><p>Four bins per available player-season. Negative air yards are diagnostic only and do not appear on the radar. Raw E-game ranges include games with no throws in that bin. They are not percentile intervals.</p><div class="table-scroll" role="region" aria-label="Selected depth records" tabindex="0"><table><thead><tr><th scope="col">Side / player / year / bin</th><th scope="col">CPOE (pp)</th><th scope="col">Throws / games</th><th scope="col">Raw conditional range / status</th></tr></thead><tbody data-selected-depth></tbody></table></div></details>
-   <p class="radar-scale"><DefinitionHelp id="nfl-radar-radius" label="How the radius works" detailTarget="nfl-radar-scaling" detailLabel="Percentile formula, peers and limits">Count same-year peers below the exact recorded value, add half the exact ties including this player, then divide by the number of finite peers and multiply by 100. The radius uses that full-precision percentile divided by 100. Values round to a whole number for reading only; missing evidence stays unavailable.</DefinitionHelp> · <a href="#nfl-radar-scaling">Percentile formula, peer groups and limitations</a></p>
+   <p class="radar-scale"><DefinitionHelp id="nfl-radar-radius" label="How the radius works" detailTarget="nfl-radar-scaling" detailLabel="Two drawing scales, sources and limits">Expert ranks use (11 − rank) / 10 as an ordinal drawing index. The other five spokes use their accepted outcome percentile divided by 100. Equal distances across these scales do not mean equal skill. Missing ranks and outcomes stay unavailable; neither scale gives an overall grade.</DefinitionHelp> · <a href="#nfl-radar-scaling">Two scales, sources and limitations</a></p>
   </section>
   <details class="comparison-evidence" data-comparison-evidence>
    <summary>Inspect EPA, completion and sack comparisons in their original units</summary>
@@ -171,7 +178,7 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
  .season-control{align-self:end;}
  .fan-controls :is(select,input[type="search"]){min-width:0;width:100%;min-height:var(--control-height,3rem);box-sizing:border-box;padding:var(--space-2xs) var(--space-s);font-family:var(--font-body);font-size:1rem;color:var(--green);background:var(--cream);border:var(--rule) solid var(--green);border-radius:0;}
  select:disabled,input[type="search"]:disabled{cursor:wait;opacity:.65;}
- [data-retry]{min-width:0;width:auto;min-height:44px;padding:var(--space-2xs);font:inherit;color:var(--green);background:var(--cream);border:var(--rule) solid var(--green);border-radius:0;cursor:pointer;}
+ [data-retry],[data-complete-example]{min-width:0;width:auto;min-height:44px;padding:var(--space-2xs);font:inherit;color:var(--green);background:var(--cream);border:var(--rule) solid var(--green);border-radius:0;cursor:pointer;}
  .player-combobox{min-width:0;display:grid;gap:var(--space-2xs);}
  .combobox-shell{position:relative;min-width:0;}
  .suggestion-menu{position:absolute;z-index:10;inset-block-start:100%;inset-inline:0;max-height:var(--suggestion-max-height);overflow-y:auto;box-sizing:border-box;border:var(--rule) solid var(--green);border-top:0;background:var(--cream);}
@@ -196,8 +203,11 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
  .radar-prototype{margin-top:var(--space-m);}
  .radar-prototype > h2{font-size:var(--type-h3);margin:0;}
  .prototype-subtitle{font-family:var(--font-numeric);font-size:var(--type-small);margin-block:var(--space-2xs);}
- .radar-intro,.radar-key,.radar-counts,.radar-limits,.radar-scale{font-size:var(--type-small);line-height:1.5;max-width:75ch;margin-block:var(--space-2xs);}
+ .profile-window,.expert-key,.radar-intro,.radar-key,.radar-counts,.radar-limits,.radar-scale{font-size:var(--type-small);line-height:1.5;max-width:75ch;margin-block:var(--space-2xs);}
  .radar-key{font-weight:600;}
+ .profile-window{margin-top:0;}
+ [data-complete-example]{margin-block:var(--space-2xs);font-size:var(--type-small);}
+ [data-complete-example]:disabled{cursor:wait;opacity:.65;}
  .radar-layout{display:grid;gap:var(--space-s);align-items:start;}
  .radar-readout{min-width:0;}
  .selection-availability{font-size:var(--type-small);line-height:1.5;}
@@ -241,6 +251,9 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
  #nfl-radar{background:var(--cream);}
  #nfl-radar :global(.radar-ring){fill:none;stroke:var(--sand);stroke-width:1;}
  #nfl-radar :global(.radar-spoke){stroke:var(--green);stroke-width:1;stroke-dasharray:2 4;}
+ #nfl-radar :global(.expert-spoke){stroke-dasharray:none;stroke-width:1.5;}
+ #nfl-radar :global(.expert-mark){fill:var(--cream);stroke-width:2.5;}
+ #nfl-radar :global(.expert-mark.mark-a){stroke:var(--green);}
  #nfl-radar :global(.radar-label){font-weight:600;font-size:16px;}
  #nfl-radar :global(.radar-status){font-size:14px;}
  #nfl-radar :global(.radar-segment){fill:none;stroke-width:2.5;}
@@ -281,7 +294,7 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
  .table-scroll :global(th),.table-scroll :global(td){text-align:left;vertical-align:top;padding:var(--space-xs);border-bottom:var(--rule-thin) solid var(--green);min-width:8rem;max-width:23rem;overflow-wrap:anywhere;}
  .table-scroll :global(small){font-size:inherit;}
  .complete-table .table-scroll :global(td){min-width:14rem;}
- :is(select,input,summary,[data-retry],.table-scroll):focus-visible{outline:var(--rule-thick) solid var(--accent);outline-offset:var(--space-3xs);}
+ :is(select,input,summary,[data-retry],[data-complete-example],.table-scroll):focus-visible{outline:var(--rule-thick) solid var(--accent);outline-offset:var(--space-3xs);}
  @media(min-width:48rem){.radar-layout{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);}.fan-controls{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-s);}.primary-comparisons{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-m);}}
  @media(prefers-reduced-motion:reduce){svg{scroll-behavior:auto;}}
 </style>
