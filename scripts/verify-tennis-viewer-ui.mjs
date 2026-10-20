@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import { endingWinRate, createProfileRenderer, matchLabel } from '../src/lib/tennis-profile-renderer.mjs';
-import { validateCatalog, validatePacket, createPacketLoader } from '../src/lib/tennis-viewer.mjs';
+import { validateCatalog, validatePacket, createPacketLoader, findTennisPlayers, normalizePlayerSearch } from '../src/lib/tennis-viewer.mjs';
 
 let checks = 0;
 const equal = (actual, expected) => { assert.deepEqual(actual, expected); checks++; };
@@ -65,6 +65,29 @@ const component = fs.readFileSync('src/components/TennisPointPhases.astro','utf8
 assert.ok(component.includes("endingwin:") && component.includes('tennis-controls > div:nth-child(3)') && component.includes('white-space: nowrap')); checks++;
 assert.ok(component.includes('Serve +1 is part of rally play') && component.includes('none is an untouched test')); checks++;
 
+// Compare matching/order directly with the unchanged NBA implementation, using tennis identities.
+const nba = fs.readFileSync('src/components/SpatialShotSelection.astro','utf8');
+const normalization = nba.slice(nba.indexOf('const normalizeSearch ='), nba.indexOf('class SpatialShotExplorer'))
+  .replaceAll('(value: string)', '(value)');
+const matchingStart = nba.indexOf('this.matches = this.players',nba.indexOf('private updateSuggestions()'));
+const matching = nba.slice(matchingStart,nba.indexOf('this.activeSuggestionIndex = -1;',matchingStart));
+const reference = vm.runInNewContext(`(function(players,text){${normalization}const query=normalizeSearch(text),compactQuery=compactSearch(text);${matching}return this.matches.map(p=>p.player_id);})`);
+let searchComparisons=0;
+for (const category of ['ATP','WTA']) {
+  const eligible=catalog.players.filter(entry=>entry.category===category&&!entry.hidden);
+  const adapted=eligible.map(entry=>({player_name:entry.player,player_id:entry.file}));
+  const queries=['','noPLAYERzzz','mAr','zvérev','AugerAliassime',...eligible.flatMap(entry=>[entry.player.slice(0,4),entry.player.toUpperCase(),entry.player.replace(/[\s-]/g,'')])];
+  for(const query of queries){
+    equal(findTennisPlayers(catalog.players,category,query).map(entry=>entry.file),JSON.parse(JSON.stringify(reference.call({players:adapted},adapted,query))));searchComparisons++;
+  }
+}
+equal(normalizePlayerSearch('  ÉLODIE—O’Connor  '),'elodie o connor');
+equal(findTennisPlayers(catalog.players,'ATP','Koepfer').length,0);
+equal(findTennisPlayers(catalog.players,'ATP','Tomljanovic').length,0);
+equal(findTennisPlayers(catalog.players,'WTA','Mannarino').length,0);
+equal(findTennisPlayers(catalog.players,'WTA','').length,222);
+assert.ok(component.includes('role="combobox"') && component.includes('role="listbox"') && !component.includes('id="tennis-player"'));checks++;
+
 // Real request coordinator: stale responses cannot replace a later selection; cache/retry remain intact.
 const pending=[];
 const loader=createPacketLoader((file,options)=>new Promise((resolve,reject)=>pending.push({file,options,resolve,reject})));
@@ -77,4 +100,4 @@ const failed=loader.load(catalog.players[2]);pending[2].resolve({ok:false});awai
 const retry=loader.load(catalog.players[2]);pending[3].resolve({ok:true,json:async()=>packets[2]});equal((await retry).current,true);
 const empty=loader.load(catalog.players[3]);loader.invalidate();pending[4].resolve({ok:true,json:async()=>packets[3]});equal((await empty).current,false);
 
-console.log(JSON.stringify({checks,views,endingRows,originalMeasuresAndMarkup:'UNCHANGED_EXCEPT_ADDED_PERCENTAGE_AND_MATCH_LABEL',result:'PASS'}));
+console.log(JSON.stringify({checks,views,endingRows,searchComparisons,originalMeasuresAndMarkup:'UNCHANGED_EXCEPT_ADDED_PERCENTAGE_AND_MATCH_LABEL',result:'PASS'}));

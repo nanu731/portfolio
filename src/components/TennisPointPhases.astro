@@ -31,13 +31,19 @@ const methodology = approved.methodology.slice(0, approved.methodology.indexOf('
 		<div class="figure">
 			<div class="tennis-controls" aria-label="Choose recorded points">
 				<div><label for="tennis-category">Category</label><select id="tennis-category" data-tennis-control="category"><option value="ATP">Men’s</option><option value="WTA">Women’s</option></select></div>
-				<div><label for="tennis-search">Find a player</label><input id="tennis-search" data-tennis-control="search" type="search" placeholder="Type a player name" autocomplete="off" /></div>
-				<div><label for="tennis-player">Player</label><select id="tennis-player" data-tennis-control="player" disabled><option>Loading player names…</option></select></div>
+				<div class="tennis-player-combobox">
+					<label class="label" for="tennis-search">Search player</label>
+					<p class="search-help" id="tennis-search-help">Open the list or type a name. Accents and punctuation are optional.</p>
+					<div class="combobox-shell" data-tennis-combobox>
+						<input id="tennis-search" data-tennis-control="search" type="search" placeholder="Search players in Men’s" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="tennis-player-suggestions" aria-describedby="tennis-search-help tennis-search-status" disabled />
+						<div id="tennis-player-suggestions" class="suggestion-menu" data-tennis-control="suggestions" role="listbox" aria-label="Players in Men’s" hidden></div>
+					</div>
+				</div>
 				<div><label for="tennis-subset">Point selection</label><select id="tennis-subset" data-tennis-control="subset"><option value="ALL_INCLUDED">All included points</option><option value="BREAK_POINTS">Break points</option></select></div>
 				<div><label for="tennis-match">Match view</label><select id="tennis-match" data-tennis-control="match" disabled><option>Choose a player first</option></select></div>
 			</div>
 			<p class="tennis-selector-note"><DefinitionHelp id="tennis-break-control" label="Break points explained" detailTarget="tennis-definition-break" detailLabel="See definitions">{approved.definitions.break.copy}</DefinitionHelp></p>
-			<p class="tennis-selector-note" data-tennis-control="search-status" role="status"></p>
+			<p id="tennis-search-status" class="tennis-selector-note" aria-live="polite" data-tennis-control="search-status" role="status"></p>
 			<section id="tennis-view" data-tennis-control="view" aria-label="Selected player profile" aria-live="polite"><p>Loading recorded points…</p></section>
 			<noscript><p>JavaScript is needed to load the charts. Definitions, methodology and source notices are readable below.</p></noscript>
 		</div>
@@ -93,9 +99,56 @@ const methodology = approved.methodology.slice(0, approved.methodology.indexOf('
 	.tennis-explorer { --tennis-bar-label: calc(3.5 * var(--type-small)); --tennis-bar-value: calc(11 * var(--type-small)); }
 	.tennis-explorer .tennis-guide { margin-top: var(--space-l); }
 	.tennis-explorer .tennis-guide h2 { font-size: var(--type-h3); }
-	.tennis-explorer .tennis-controls { display: grid; grid-template-columns: minmax(0, .7fr) repeat(2, minmax(0, 1fr)) minmax(0, .9fr) minmax(0, 1.2fr); gap: var(--space-s); padding-block: var(--space-s); border-block: var(--rule-thick) solid var(--green); }
+	.tennis-explorer .tennis-controls { display: grid; grid-template-columns: minmax(0, .7fr) minmax(0, 1.8fr) minmax(0, .9fr) minmax(0, 1.2fr); align-items: end; gap: var(--space-s); padding-block: var(--space-s); border-block: var(--rule-thick) solid var(--green); }
 	.tennis-explorer .tennis-controls > div { min-width: 0; }
-	.tennis-explorer label { display: block; font-size: var(--type-small); font-weight: 600; margin-bottom: var(--space-3xs); }
+	.tennis-explorer .tennis-player-combobox { width: 100%; max-width: 36rem; display: grid; gap: var(--space-2xs); }
+	.tennis-explorer .combobox-shell { position: relative; min-width: 0; }
+	.tennis-explorer .search-help { margin: 0; font-size: var(--type-small); }
+	.tennis-explorer #tennis-search { min-height: 3rem; padding: var(--space-2xs) var(--space-s); font-family: var(--font-body); font-size: 1rem; line-height: normal; }
+	.tennis-explorer #tennis-search:focus-visible { outline: var(--rule-thick) solid var(--accent); outline-offset: 3px; }
+	.tennis-explorer #tennis-search:disabled { cursor: wait; opacity: .65; }
+	.tennis-explorer .suggestion-menu {
+		position: absolute;
+		z-index: 10;
+		inset-block-start: 100%;
+		inset-inline: 0;
+		max-height: 18rem;
+		overflow-y: auto;
+		box-sizing: border-box;
+		border: var(--rule) solid var(--green);
+		border-top: 0;
+		background: var(--cream);
+	}
+	.tennis-explorer .suggestion-menu[hidden] {
+		display: none;
+	}
+	.tennis-explorer .suggestion-menu .suggestion-option,
+	.tennis-explorer .suggestion-menu .no-results {
+		margin: 0;
+		padding: var(--space-xs) var(--space-s);
+	}
+	.tennis-explorer .suggestion-menu .suggestion-option {
+		min-height: 44px;
+		box-sizing: border-box;
+		border-top: var(--rule-thin) solid var(--sand);
+		cursor: pointer;
+		touch-action: manipulation;
+	}
+	.tennis-explorer .suggestion-menu .suggestion-option:first-child {
+		border-top: 0;
+	}
+	.tennis-explorer .suggestion-menu .suggestion-option:hover {
+		background: var(--sand);
+	}
+	.tennis-explorer .suggestion-menu .suggestion-option[aria-selected='true'] {
+		background: var(--green);
+		color: var(--cream);
+	}
+	.tennis-explorer .suggestion-menu .no-results {
+		font-style: italic;
+	}
+
+	.tennis-explorer label:not(.label) { display: block; font-size: var(--type-small); font-weight: 600; margin-bottom: var(--space-3xs); }
 	.tennis-explorer select, .tennis-explorer input { font: inherit; width: 100%; min-width: 0; min-height: calc(var(--space-l) + var(--space-3xs)); padding: var(--space-2xs); border: var(--rule) solid var(--green); border-radius: 0; color: var(--green); background: var(--cream); }
 	.tennis-explorer input:focus-visible, .tennis-explorer select:focus-visible, .tennis-explorer summary:focus-visible, .tennis-explorer button:focus-visible { outline: var(--rule-thick) solid var(--green); outline-offset: var(--space-3xs); }
 	.tennis-explorer .tennis-selector-note { margin-block: var(--space-2xs); font-size: var(--type-small); }
@@ -138,12 +191,12 @@ const methodology = approved.methodology.slice(0, approved.methodology.indexOf('
 	.tennis-explorer .tennis-licenses h2 { font-size: var(--type-h3); }
 	@media (max-width: 48rem) {
 		.tennis-explorer .tennis-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-		.tennis-explorer .tennis-controls > div:last-child { grid-column: 1 / -1; }
+		.tennis-explorer .tennis-controls > div:last-child, .tennis-explorer .tennis-player-combobox { grid-column: 1 / -1; }
 		.tennis-explorer .roles { grid-template-columns: 1fr; }
 	}
 	@media (max-width: 30rem) {
 		.tennis-explorer .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-		.tennis-explorer .tennis-controls > div:nth-child(3), .tennis-explorer .tennis-controls > div:nth-child(4) { grid-column: 1 / -1; }
+		.tennis-explorer .tennis-player-combobox, .tennis-explorer .tennis-controls > div:nth-child(3) { grid-column: 1 / -1; }
 		.tennis-explorer { --tennis-bar-label: calc(5 * var(--type-small)); --tennis-bar-value: calc(8 * var(--type-small)); }
 		.tennis-explorer .bar-line > span:first-child { white-space: nowrap; }
 		.tennis-explorer .bar-value { font-size: var(--type-label); }
