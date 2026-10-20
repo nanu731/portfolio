@@ -142,6 +142,7 @@ if (existsSync(builtPage)) {
   const metrics = ['sack_avoidance_pct', 'scramble_contribution', 'short_cpoe_pp', 'medium_cpoe_pp', 'deep_cpoe_pp'];
   assert.equal(rows.length, metrics.length);
   rows.forEach(([row], i) => {
+    if (i === 1) return; // Active annual Mobility has its own verifier; preserve legacy20 references above.
     const cells = [...row.matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)];
     assert.equal(cells.length, 2);
     cells.forEach(([, text], j) => {
@@ -150,7 +151,7 @@ if (existsSync(builtPage)) {
       const expected = Math.floor(expectedRank(value, raw.map(r => r.value)) + 0.5);
       assert.ok(text.startsWith(`${expected} percentile`));
       assert.ok(text.includes(`N=${raw.length}`));
-      assert.ok(text.includes(i === 1 ? 'original 20-QB cohort' : 'annual eligible peers'));
+      assert.ok(text.includes('annual finite eligible peers'));
       assert.ok(text.includes('Recorded value:'));
       assert.ok(text.includes('raw range'));
       assert.ok(text.includes('not percentile intervals'));

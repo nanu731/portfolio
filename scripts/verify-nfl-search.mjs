@@ -21,9 +21,9 @@ for(const year of annual.season_catalog.map(s=>s.season)){
   comparisons++;
  }
 }
-function method(name,next){
+function method(name,next,globals={}){
  const text=nfl.slice(nfl.indexOf(`  ${name}(`),nfl.indexOf(`  ${next}(`));
- return runInNewContext(stripTypeScriptTypes('({'+text+'})'))[name];
+ return runInNewContext(stripTypeScriptTypes('({'+text+'})'),globals)[name];
 }
 const close=method('closeSuggestions','showSuggestions');
 const field={value:'Unfinished query',attrs:{'aria-expanded':'true','aria-activedescendant':'old'},setAttribute(k,v){this.attrs[k]=v;},removeAttribute(k){delete this.attrs[k];}};
@@ -42,4 +42,10 @@ assert.match(nfl,/No players found\. Try another name or season\./);
 assert.equal((source.match(/Open the list or type a name\. Accents and punctuation are optional\./g)||[]).length,2);
 assert.match(source,/padding:var\(--space-2xs\) var\(--space-s\)/);
 assert.match(source,/--control-height:3rem/);
-console.log(JSON.stringify({sourceChecks:'passed',nbaFilterComparisons:comparisons,seasons:annual.season_catalog.length,additional:'close preserves text, selection retains name, season scoping, focus/outside-pointer wiring and UI contract',browserChecks:'not performed by this script'}));
+const menuFeedback={};const feedback=method('renderSuggestions','choosePlayer',{document:{createElement(){return {attrs:{},setAttribute(k,v){this.attrs[k]=v;}};}}});
+for(const [year,view]of [['2023','stats'],['','stats'],['2023','profile']]){
+ feedback.call({suggestionState:{a:{matches:[],active:-1}},view,control:()=>({value:year}),suggestions:()=>({replaceChildren(node){menuFeedback[view+year]=node;}})},'a');
+}
+assert.match(menuFeedback.stats2023.textContent,/2023/);assert.match(menuFeedback.stats2023.textContent,/Choose season/);assert.match(menuFeedback.stats2023.textContent,/across years/);
+assert.match(menuFeedback.stats.textContent,/across eligible seasons/);assert.match(menuFeedback.stats.textContent,/another name/);assert.equal(menuFeedback.stats2023.attrs['aria-disabled'],'true');
+console.log(JSON.stringify({sourceChecks:'passed',nbaFilterComparisons:comparisons,noResultsFeedbackCases:3,seasons:annual.season_catalog.length,additional:'close preserves text, selection retains name, season scoping, focus/outside-pointer wiring and UI contract',browserChecks:'not performed by this script'}));

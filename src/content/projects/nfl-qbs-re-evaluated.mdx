@@ -1,10 +1,10 @@
 ---
-title: NFL QBs Re-evaluated
-heading: NFL QBs Re-evaluated
-description: Compare two sourced expert assessments and five quarterback season outcomes, with visible coverage and optional methods.
+title: NFL QBs Visualized
+heading: NFL QBs Visualized
+description: Compare quarterback attribute profiles and season stats with explicit source coverage and optional methods.
 question: Can public NFL data help describe repeatable quarterback execution with less dependence on supporting circumstances?
 questionInBody: true
-dataset: nflverse regular-season play-by-play, 560 qualifying player-seasons
+dataset: nflverse regular-season play-by-play, 560 qualifying player-seasons; 84 attributed ESPN rank facts
 method: Attributed expert ranks, same-year outcome percentiles and native conditional game-based ranges
 seasons: 2006–2025, with 2011 source-blocked
 repo: https://github.com/nanu731/nfl-qb-eval
@@ -14,6 +14,7 @@ metadataInBody: true
 
 import Band from '../../components/Band.astro';
 import NFLComparison from '../../components/NFLComparison.astro';
+import {EXPERT_SOURCES} from '../../lib/nfl-experts';
 
 <Band offset="edge">
 
@@ -26,13 +27,13 @@ import NFLComparison from '../../components/NFLComparison.astro';
 
 The seven clockwise positions address arm strength, a processing proxy, pocket presence, mobility, short accuracy, medium accuracy and deep accuracy. The default Mahomes–Allen comparison combines two expert assessments published before the 2023 season with five outcomes from the 2023 regular season. These are different evidence types and observation windows. Other player-years retain their available outcomes and explicit expert gaps; no rank carries into another year.
 
-**Dropbacks without a sack (%)** occupies the desired pocket-presence position. **Scramble contribution** occupies the desired mobility position only when the selected ID and season match one of the original 40 audited records from 2023/2024. Other selections show **No audited scramble-value record**. Sack avoidance reflects protection, receiver availability and decisions with other costs. Scramble contribution combines usage with whole-play shared value. Neither isolates the desired trait.
+**Dropbacks without a sack (%)** occupies the desired pocket-presence position. **Scramble contribution** occupies the desired mobility position using the separate annual Mobility export: 559 finite accepted points among 560 qualifying player-seasons. Kyle Boller 2007 is withheld pending recorded-role review; 2011 remains source blocked. Sack avoidance reflects protection, receiver availability and decisions with other costs. Scramble contribution combines usage with whole-play shared value. Neither isolates the desired trait.
 
 The short, medium and deep positions show **completions above expectation** on throws in each depth bin, in percentage points. These depth-specific completion residuals describe recorded outcomes relative to the supplied model; they do not isolate throwing accuracy or ball placement. [Read the depth bins and formula](#nfl-definition-depth).
 
 Each percentile describes where a recorded outcome sits among its fixed same-year peers. For dropbacks without a sack and each of the three depth outcomes, peers are that year's qualifying passers with a finite value for that outcome. Annual qualification requires at least 200 included throws across at least 10 included-throw games; depth bins add no minimum throw-count rule. Peer membership comes from the validated source records and cannot change with the selected opponent or search text. Each available outcome shows its year and peer count, `N`.
 
-**Scramble percentiles use a different pool: the original 20-QB cohort in each of 2023 and 2024.** They do not use all qualifying passers in those years. Other years or IDs have no audited scramble-value record. Compare the displayed peer counts before comparing spokes.
+**Annual Mobility percentiles use finite accepted scramble contributions from the qualifying player-seasons in that year.** The 2007 pool has 26 values because the Boller point is withheld; 2023 has 29 and 2024 has 32. These are separate from the preserved original 20-QB pools and repeatability study. The other four outcome pools remain unchanged. Compare each stat’s displayed year and finite peer count.
 
 The midpoint-percentile formula is `P = 100 × (B + 0.5 × T) / N`. Here `B` counts peer values below the selected value, `T` counts exact ties including the selected record, and `N` counts all finite peer values including that record. Ties use unrounded native values. Higher recorded outcomes receive higher percentiles on all five measured spokes. A constant finite cohort gives every record 50; fewer than two peers or an unavailable native value gives no percentile. Missing evidence never becomes zero or 50, and another season never supplies a replacement.
 
@@ -44,9 +45,11 @@ Optional full evidence retains raw values, counts and native-unit conditional ga
 
 <h3 id="nfl-unmeasured-traits" tabIndex={-1} data-reference-target>Expert assessments: source, coverage and measurement limits</h3>
 
-[ESPN's Quarterback Council](https://africa.espn.com/nfl/story/_/id/38151402/nfl-quarterback-council-2023-ranking-top-10-traits), published 14 August 2023, combined nine analysts' top-ten ballots using points. Individual ballots, exact weights and the full candidate denominator are undisclosed. This page uses four factual ranks: arm strength Mahomes #2 and Allen #1; field vision Mahomes #1 and Allen #4. Only those two players in 2023 have verified expert coverage here. An unavailable rank does not mean unranked, last or low ability.
+The adopted snapshot contains 84 published ESPN rank facts for same-year annual-eligible quarterbacks in the 2021–2025 preseason editions: 41 arm-strength ranks, 26 field-vision ranks and 17 decision-making ranks. Missing or unlisted entries remain unavailable; they do not mean last, low ability or an inferred rank. The source rank label, tie and marker are retained. The existing 2023 Mahomes–Allen ranks remain unchanged.
 
-Field vision addresses part of the requested processing trait. It remains a preseason editorial assessment, not a measured decision-speed or decision-quality grade. The two expert axes use solid spokes and outlined marks. They show published ranks, not outcome percentiles; equal rank steps do not establish equal skill gaps. Source rank uncertainty is unquantified, not zero.
+Processing uses **field vision in 2021–2023** and **decision-making with the football in 2024–2025**. Each is a different partial editorial assessment, not measured thinking speed or a complete decision-quality grade. The selected values show the actual category, preseason edition, source date and panel or individual author. Different editions, categories and authorship do not form a comparable skill time series. A rank difference does not measure improvement. The expert axes use ordinal drawing indices, not outcome percentiles; equal rank steps do not establish equal skill gaps. Source uncertainty remains unquantified.
+
+<ul>{Object.entries(EXPERT_SOURCES).map(([year,source])=><li><a href={source.url}>ESPN {year} preseason edition · {source.published}</a>: {source.byline}; {source.authorship}. {source.method}</li>)}</ul>
 
 Comparable isolated arm strength would need calibrated ball-speed observations and throw geometry. Processing would need validated observations of available options and choices. Those measurements remain unavailable. The sourced judgments supply a distinct kind of evidence; they do not establish those missing measurements. No expert confidence interval or composite score is invented.
 
@@ -122,13 +125,13 @@ The annual comparison contains **560 qualifying player-seasons across 19 exporte
 
 The catalog retains all 20 years. **2011 is source-blocked** because unresolved duplicate recorded events and conflicting air yards prevent an accepted input. It contributes no annual or depth rows. Years outside 2006–2025 have no accepted data in this comparison. A selected player-year without an eligible record stays unavailable; the display does not substitute a nearby year, another player or zero.
 
-The original repeatability evidence uses a separate, fixed group of 20 surviving passer IDs with at least 200 included throws and ten included-throw games in **both** 2023 and 2024. Its 40 annual records and ten study records remain labeled as the original cohort. The new annual selection does not extend those repeatability findings to 560 player-seasons. Only the original 40 records supply audited scramble values.
+The original repeatability evidence uses a separate, fixed group of 20 surviving passer IDs with at least 200 included throws and ten included-throw games in **both** 2023 and 2024. Its 40 annual records and ten study records remain labeled as the original cohort. The new annual selection does not extend those repeatability findings to 560 player-seasons. The profile’s annual Mobility values are a separate descriptive export; the original 40 records and their study results remain unchanged.
 
 - **Included throws (E):** the accepted recorded pass-outcome population, with finite supplied completion probability and CPOE, completion probability between zero and one, air yards at least −15 and below 70, observed pass location and the accepted receiver-name or receiver-ID condition. Frozen eligibility checks the CPOE identity. CPOE and completion share these exact rows; there is no FTN filter or missing-as-zero rule. The public audit code specifies the full pass-outcome/key rules.
 - **Recorded dropbacks (D):** recorded dropbacks on pass/run play types, with spike, kneel and two-point flags zero. Passes/sacks use the raw passer ID; scramble-runs use the raw rusher ID. Played penalties remain. Other play types and no-play records lie outside this population. It has no completion, completion-probability or included-throw-game filter, and may differ from another site's dropback rule.
 - **Scrambles (S):** the recorded scramble-run subset of dropbacks. These counts describe opportunities, not pressures escaped.
-- **Other recorded runs (R), original 2023/2024 cohort only:** recorded non-scramble runs by a known member of that fixed group, excluding kneels and conversions. They include aborted plays and laterals. Non-scramble does not establish designed-run intent or athletic mobility.
-- **Included QB plays (O), original 2023/2024 cohort only:** the disjoint union of recorded dropbacks and other recorded runs. Scrambles already belong to dropbacks. This is a selected recorded-opportunity population, not every snap or offensive play.
+- **Other recorded runs (R):** recorded non-scramble runs by an eligible actor ID, excluding kneels and conversions. The annual Mobility export applies this definition independently by year; the original study uses its separate fixed group. They include aborted plays and laterals. Non-scramble does not establish designed-run intent or athletic mobility.
+- **Included recorded QB plays (O):** the disjoint union of recorded dropbacks and other recorded runs. Scrambles already belong to dropbacks. This is a selected recorded-opportunity population, not every snap or offensive play.
 
 Games count distinct player games containing the named type of record. Role games contain at least one event of that run type. Summed player-game counts are not distinct NFL games. [Full audit and reproduction code](https://github.com/nanu731/nfl-qb-eval).
 
@@ -154,9 +157,19 @@ A collapsed range means no observed deletion variation, not certainty. Whole-sea
 
 The calculation assumes approximately independent game shocks, stable opportunity sampling and a useful normal approximation, conditional on fixed qualification and observed support. It omits uncertainty from selection, serial injuries, receivers, protection, coverage, scheme, source labels and the supplied models' training/calibration. Unknown model vintage and era changes preclude talent-confidence, causal, era-neutral or forecasting interpretations.
 
-<h2 id="nfl-definition-runs" tabIndex={-1} data-reference-target>Running values in the complete table</h2>
+<h2 id="nfl-definition-annual-mobility" tabIndex={-1} data-reference-target>Annual scramble contribution</h2>
 
-These running summaries cover only the original 40 audited 2023/2024 records. Outside that lookup, the comparison shows no audited scramble-value record; it does not substitute scramble rate, annual dropbacks or an uncalculated contribution.
+The annual Mobility export uses the frozen 560 qualifying player-seasons, without requiring an adjacent-season appearance. It does not add a performance, positive-EPA, completion-probability or included-throw-game filter to the running plays. Recorded dropbacks follow AD-1.1; other runs follow the accepted recorded-run definition. The disjoint denominator is `N_O = N_D + N_R`; scrambles already belong to dropbacks. R-only games and games with no scrambles remain included.
+
+Signed scramble contribution is `C_S = sum(raw supplied EPA on recorded scrambles) / N_O`, in expected points per included recorded quarterback play. It combines scramble usage with shared whole-play value. It does not measure speed, all rushing ability or isolated mobility. A fully observed zero-scramble role with positive O gives a genuine zero contribution. There are four such rows; zero does not mean zero mobility talent. Positive and negative EPA can also cancel.
+
+Kyle Boller 2007 has retained counts but a null point and range pending review of a contradictory recorded role with missing EPA. The export does not repair the source, drop that event or assign zero. There are 559 finite accepted points. The 2007 finite reference N is 26; 2011 has no invented rows. Each profile percentile uses the same OP-1.0 midpoint rule on its fixed same-year finite annual Mobility pool, including the focal record and exact raw-value ties. Search, opponent and checkbox choices cannot change that pool.
+
+Approximate marginal ranges use all-O-game deletion sensitivity, including zero-scramble and R-only games, under the working assumptions. A collapsed zero range means no observed deletion variation, not certainty. These conditional ranges omit other uncertainty sources, do not predict ability or performance, and do not test differences between the selected players or years. The original 40-record running study and its original 20-QB percentile pools remain separate evidence.
+
+<h2 id="nfl-definition-runs" tabIndex={-1} data-reference-target>Running values in the original study table</h2>
+
+These archival running summaries cover only the original 40 audited 2023/2024 records. The profile uses the separately validated annual Mobility export described above. Neither source substitutes scramble rate or dropbacks for an uncalculated contribution, and the new annual coverage does not extend the original repeatability findings.
 
 Value from scrambles is scramble EPA spread over all included dropbacks and other recorded player runs. Other recorded run value spreads non-scramble-run EPA over those same included plays. These contributions combine usage with shared value; more usage is not universally better.
 
@@ -206,15 +219,15 @@ Each entry explains what the label means and what this page actually shows. Seas
 
 Throwing power, including deep passes and throws into tight windows. Here, the value is an expert arm-strength rank, not a measurement of ball speed. A lower rank number is better.
 
-Source: [ESPN Quarterback Council, 14 August 2023](https://africa.espn.com/nfl/story/_/id/38151402/nfl-quarterback-council-2023-ranking-top-10-traits). Nine analysts supplied preseason rankings. This page has verified ranks only for Patrick Mahomes and Josh Allen in 2023; an unavailable rank does not mean low ability.
+Source: 41 adopted ESPN arm-strength rank facts from the 2021–2025 preseason editions, restricted to same-year annual-eligible quarterbacks. The selected value shows its actual edition, publication date and panel or individual author. An unavailable rank does not mean low ability. [Sources and methods](#nfl-unmeasured-traits).
 
 <a className="return-to-radar" href="#nfl-radar-link-arm-strength">Back to chart</a>
 
 <h3 id="nfl-attribute-processing" tabIndex={-1} data-reference-target>Processing</h3>
 
-Reading the defense and finding passing options. Here, ESPN’s field-vision rank describes one part of processing. It is an expert opinion, not measured thinking speed or overall decision quality. A lower rank number is better.
+Reading the defense and finding passing options. Here, Processing uses ESPN field vision in 2021–2023 or decision-making with the football in 2024–2025. Each describes a different part of processing. These expert opinions do not measure thinking speed or complete decision quality. A lower rank number is better within the named list.
 
-Source: [ESPN Quarterback Council, 14 August 2023](https://africa.espn.com/nfl/story/_/id/38151402/nfl-quarterback-council-2023-ranking-top-10-traits). These nine-analyst preseason opinions are verified here only for Mahomes and Allen in 2023. Other player-years have no expert rank on this page.
+Source: 26 adopted field-vision ranks and 17 decision-making ranks for same-year annual-eligible quarterbacks. Selected values show the actual category, edition, publication date and panel or individual author. Missing entries stay unavailable. Editions and categories do not form a comparable skill time series; rank differences do not establish improvement. [Sources and methods](#nfl-unmeasured-traits).
 
 <a className="return-to-radar" href="#nfl-radar-link-processing">Back to chart</a>
 
@@ -230,7 +243,7 @@ Source: nflverse regular-season play-by-play. The annual data cover 560 qualifyi
 
 Escaping defenders and creating plays. Here, the season stat is how scramble plays changed the offense’s expected scoring outlook, spread over all included quarterback plays, not just scrambles. It combines scramble usage with shared play value. It does not measure speed or all rushing ability.
 
-Source: nflverse regular-season play-by-play for the original 20-player cohort in each of 2023 and 2024. Other players or years have no scramble-contribution value here. The chart shows standing within that fixed same-year group. [Included plays and formula](#nfl-definition-runs).
+Source: nflverse regular-season play-by-play, summarized for the frozen 560 annual-eligible player-seasons across 19 seasons within 2006–2025. The export has 559 finite points; Kyle Boller 2007 is unavailable pending recorded-role review and 2011 is blocked. The chart shows standing within that year’s finite annual Mobility group. Four observed zero-scramble rows retain genuine zero contributions. [Included plays, formula and limits](#nfl-definition-annual-mobility).
 
 <a className="return-to-radar" href="#nfl-radar-link-mobility">Back to chart</a>
 
