@@ -13,16 +13,21 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
 <nfl-comparison data-state="loading">
  <section aria-label="Compare two quarterbacks">
   <div class="fan-controls">
-   <label for="nfl-player-a">Quarterback A<select id="nfl-player-a" name="nfl-player-a" data-a disabled>{players.map(r=><option value={r.player_key}>{nameOf(r)}</option>)}</select></label>
-   <label for="nfl-player-b">Quarterback B<select id="nfl-player-b" name="nfl-player-b" data-b disabled>{players.map((r,i)=><option value={r.player_key} selected={i===1}>{nameOf(r)}</option>)}</select></label>
-   <label for="nfl-season">Season<select id="nfl-season" name="nfl-season" data-season disabled><option value="2024" selected>2024</option><option value="2023">2023</option></select></label>
+   <div class="player-season" role="group" aria-label="Quarterback A and season">
+    <label for="nfl-player-a">Quarterback A<select id="nfl-player-a" name="nfl-player-a" data-a disabled>{players.map(r=><option value={r.player_key}>{nameOf(r)}</option>)}</select></label>
+    <label for="nfl-season-a">Season A<select id="nfl-season-a" name="nfl-season-a" data-season-a disabled><option value="2024" selected>2024</option><option value="2023">2023</option></select></label>
+   </div>
+   <div class="player-season" role="group" aria-label="Quarterback B and season">
+    <label for="nfl-player-b">Quarterback B<select id="nfl-player-b" name="nfl-player-b" data-b disabled>{players.map((r,i)=><option value={r.player_key} selected={i===1}>{nameOf(r)}</option>)}</select></label>
+    <label for="nfl-season-b">Season B<select id="nfl-season-b" name="nfl-season-b" data-season-b disabled><option value="2024" selected>2024</option><option value="2023">2023</option></select></label>
+   </div>
   </div>
   <p class="coverage">20 selected passers. A missing player has no comparison here, not a poor rating. <a href="#nfl-definition-populations">Who is included?</a></p>
-  <p class="limit">These values also reflect teammates, opponents and circumstances. The two stats can disagree; neither names an overall winner.</p>
+  <p class="limit">Teammates, opponents and model versions can differ across seasons. These observed summaries do not measure isolated skill or improvement. The two stats can disagree; neither names an overall winner.</p>
   <p class="availability" role="status" aria-live="polite">Checking comparison data…</p><button type="button" data-retry hidden>Retry comparison data</button>
   <div class="primary-comparisons">
    <figure class="fan-comparison" aria-labelledby="nfl-value-heading">
-    <h2 id="nfl-value-heading"><DefinitionHelp id="nfl-value" label="Value per dropback" detailTarget="nfl-definition-epa-dropback" detailLabel="Formula and limits">How much the offense’s scoring outlook improved, on average, on this quarterback’s passes, sacks and scrambles.</DefinitionHelp><span class="chart-season" data-chart-season></span></h2>
+    <h2 id="nfl-value-heading"><DefinitionHelp id="nfl-value" label="Value per dropback" detailTarget="nfl-definition-epa-dropback" detailLabel="Formula and limits">How much the offense’s scoring outlook improved, on average, on this quarterback’s passes, sacks and scrambles.</DefinitionHelp></h2>
     <p class="explanation">How much the offense’s scoring outlook improved, on average, on this quarterback’s passes, sacks and scrambles.</p>
     <p class="unit"><DefinitionHelp id="nfl-expected-points" label="Expected points" detailTarget="nfl-definition-ep" detailLabel="Model and limits">The model's value of a game situation, based on chances of the next scoring event in the half.</DefinitionHelp> per <DefinitionHelp id="nfl-dropback" label="recorded dropback" detailTarget="nfl-definition-populations" detailLabel="Definition and limits">Recorded passes, sacks and scrambles.</DefinitionHelp> (<DefinitionHelp id="nfl-epa" label="EPA" detailTarget="nfl-definition-epa" detailLabel="Formula and limits">How much a play improved or worsened the offense's expected points.</DefinitionHelp> per dropback). Higher means more recorded scoring value.</p>
     <div data-chart-host><svg id="nfl-epa-plot" data-field="epa_per_dropback" hidden role="img" aria-labelledby="nfl-epa-plot-title nfl-epa-plot-description"></svg></div>
@@ -31,7 +36,7 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
     <details class="pair-evidence" data-evidence="epa_per_dropback"><summary>Values, counts and ranges</summary><div class="table-scroll" role="region" aria-label="Selected value per dropback records" tabindex="0"><table><caption>Expected points per recorded dropback. Source counts and marginal conditional ranges.</caption><thead><tr><th scope="col">Quarterback</th><th scope="col">Value</th><th scope="col">Included dropbacks</th><th scope="col">Range / status</th></tr></thead><tbody data-selected-values></tbody></table></div></details>
    </figure>
    <figure class="fan-comparison" aria-labelledby="nfl-completion-heading">
-    <h2 id="nfl-completion-heading"><DefinitionHelp id="nfl-completions" label="Completions above expectation" detailTarget="nfl-definition-cpoe" detailLabel="Formula and limits">How many more or fewer passes were completed per 100 included throws than the model expected.</DefinitionHelp><span class="chart-season" data-chart-season></span></h2>
+    <h2 id="nfl-completion-heading"><DefinitionHelp id="nfl-completions" label="Completions above expectation" detailTarget="nfl-definition-cpoe" detailLabel="Formula and limits">How many more or fewer passes were completed per 100 included throws than the model expected.</DefinitionHelp></h2>
     <p class="explanation">How many more or fewer passes were completed per 100 included throws than the model expected.</p>
     <p class="unit"><DefinitionHelp id="nfl-percentage-points" label="Percentage points" detailTarget="nfl-definition-percentage-points" detailLabel="Definition and formula">Percentage points are differences between percentages, not percent improvement or a percentile.</DefinitionHelp> (<DefinitionHelp id="nfl-cpoe" label="CPOE" detailTarget="nfl-definition-cpoe" detailLabel="Formula and limits">How far the player's completion rate finished above or below the model's expectation for the included throws.</DefinitionHelp>). Higher means more completions above expectation.</p>
     <div data-chart-host><svg id="nfl-cpoe-plot" data-field="cpoe_pp" hidden role="img" aria-labelledby="nfl-cpoe-plot-title nfl-cpoe-plot-description"></svg></div>
@@ -40,9 +45,9 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
     <details class="pair-evidence" data-evidence="cpoe_pp"><summary>Values and included throws</summary><div class="table-scroll" role="region" aria-label="Selected completions above expectation records" tabindex="0"><table><caption>Percentage points on the same included throws used for completion rate.</caption><thead><tr><th scope="col">Quarterback</th><th scope="col">CPOE (pp)</th><th scope="col">Included throws</th></tr></thead><tbody data-selected-values></tbody></table></div></details>
    </figure>
   </div>
-  <p class="scale-note">Filled circle: A. Open diamond: B. Each stat keeps its own scale across both seasons and all 20 passers. Zero means matching the model's completion expectation for CPOE, or no modeled net gain for EPA.</p>
+  <p class="scale-note"><span data-pair-legend></span> Each stat keeps its own scale across both seasons and all 20 passers. Zero means matching the model's completion expectation for CPOE, or no modeled net gain for EPA.</p>
   <details class="optional-sacks" data-sack-section><summary>How often did they avoid sacks?</summary>
-   <figure class="fan-comparison" aria-labelledby="nfl-sack-heading"><h2 id="nfl-sack-heading"><DefinitionHelp id="nfl-sack-avoidance" label="Dropbacks without a sack" detailTarget="nfl-definition-sack-avoidance" detailLabel="Formula and limits">The percentage of recorded dropbacks that did not end in a recorded sack.</DefinitionHelp><span class="chart-season" data-chart-season></span></h2>
+   <figure class="fan-comparison" aria-labelledby="nfl-sack-heading"><h2 id="nfl-sack-heading"><DefinitionHelp id="nfl-sack-avoidance" label="Dropbacks without a sack" detailTarget="nfl-definition-sack-avoidance" detailLabel="Formula and limits">The percentage of recorded dropbacks that did not end in a recorded sack.</DefinitionHelp></h2>
     <p>The percentage of recorded dropbacks that did not end in a recorded sack. Protection and receiver availability matter.</p><p class="unit">Percent of recorded dropbacks</p>
     <div data-chart-host><svg id="nfl-sack-plot" data-field="sack_avoidance_pct" hidden role="img" aria-labelledby="nfl-sack-plot-title nfl-sack-plot-description"></svg></div><figcaption>Individual uncertainty not estimated. Interceptions, incompletions and low-value escapes can count as avoiding a sack.</figcaption>
     <details class="pair-evidence" data-evidence="sack_avoidance_pct"><summary>Values, sacks and dropbacks</summary><div class="table-scroll" role="region" aria-label="Selected sack avoidance records" tabindex="0"><table><caption>Percent. The denominator is recorded dropbacks, not pressures or included throws.</caption><thead><tr><th scope="col">Quarterback</th><th scope="col">Without a sack (%)</th><th scope="col">Sacks / dropbacks</th></tr></thead><tbody data-selected-values></tbody></table></div></details>
@@ -80,7 +85,7 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
  nfl-comparison{display:block;min-width:0;margin-block:0 var(--space-m);}
  .fan-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-xs);}
  label{display:grid;gap:var(--space-3xs);min-width:0;font-size:var(--type-small);}
- label:last-child{grid-column:1/-1;max-width:10rem;}
+ .player-season{display:grid;gap:var(--space-2xs);min-width:0;}
  select,[data-retry]{min-width:0;width:100%;min-height:44px;padding:var(--space-2xs);font:inherit;color:var(--green);background:var(--cream);border:var(--rule) solid var(--green);border-radius:0;}
  select:disabled{opacity:1;border-style:dashed;}
  [data-retry]{width:auto;cursor:pointer;}
@@ -92,7 +97,6 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
  .primary-comparisons{display:grid;gap:var(--space-m);margin-top:var(--space-s);}
  .fan-comparison{margin:0;min-width:0;}
  .fan-comparison h2{font-size:var(--type-body);line-height:1.25;margin:0;}
- .chart-season{display:inline-block;font-family:var(--font-numeric);font-size:var(--type-small);margin-left:var(--space-xs);}
  .explanation{margin-block:var(--space-3xs);min-height:3em;}
  .unit{margin-block:var(--space-3xs);}
  .counts{margin-block:var(--space-2xs);}
@@ -119,6 +123,6 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
  .table-scroll :global(small){font-size:inherit;}
  .complete-table .table-scroll :global(td){min-width:14rem;}
  :is(select,summary,[data-retry],.table-scroll):focus-visible{outline:var(--rule-thick) solid var(--accent);outline-offset:var(--space-3xs);}
- @media(min-width:48rem){.fan-controls{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(6rem,.4fr);}label:last-child{grid-column:auto;max-width:none;}.primary-comparisons{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-m);}}
+ @media(min-width:48rem){.player-season{grid-template-columns:minmax(0,1fr) 6rem;}.primary-comparisons{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-m);}}
  @media(prefers-reduced-motion:reduce){svg{scroll-behavior:auto;}}
 </style>
