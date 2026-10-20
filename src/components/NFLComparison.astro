@@ -85,11 +85,12 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
     {(['arm_strength','field_vision'] as const).map(trait=><tr><th scope="row">{trait==='arm_strength'?'Arm strength':'Processing proxy · field vision'}</th>{defaults.map(d=><td data-static-expert={trait}>{expertLabel(expertFor(trait,2023,d.annual.player_key)!)} expert rank<br/>{expertFor(trait,2023,d.annual.player_key)!.category} · 2023 preseason<br/><a href={EXPERT_SOURCE.url}>ESPN · {EXPERT_SOURCE.published}</a><br/>{EXPERT_SOURCE.shortAuthors}. Preseason editorial assessment; drawing index only.</td>)}</tr>)}
     {staticOutcomes.map((label,i)=><tr><th scope="row">{label}</th>{[0,1].map(j=><td>{displayPercentile(staticRank(i,j).percentile)} percentile<br/>2023 · annual finite eligible peers · N={staticRank(i,j).n}<br/>Recorded value: {fmt(staticValue(i,j),i===0?1:3)}<br/>{staticEvidence(i,j)} Raw ranges are not percentile intervals.</td>)}</tr>)}</tbody></table></div></noscript>
    <div class="radar-layout">
-    <figure class="radar-figure">
+    <figure class="radar-figure" data-expandable-chart="profile">
+     <button class="chart-expand" type="button" data-expand-chart="profile" aria-haspopup="dialog" aria-controls="nfl-chart-lightbox" disabled>Enlarge chart</button>
      <div class="radar-series-key" data-radar-legend><span><svg viewBox="0 0 44 20" aria-hidden="true"><line x1="0" y1="10" x2="44" y2="10" class="series-a"/><circle cx="22" cy="10" r="4.5" class="mark-a"/></svg><span data-radar-legend-name="a">A · Patrick Mahomes · 2023</span></span><span><svg viewBox="0 0 44 20" aria-hidden="true"><line x1="0" y1="10" x2="44" y2="10" class="series-b"/><path d="M22 4.5 L27.5 10 L22 15.5 L16.5 10 Z" class="mark-b"/></svg><span data-radar-legend-name="b">B · Josh Allen · 2023</span></span></div>
 
      <p class="radar-direction">Farther out means a lower expert rank number or a higher season-stat percentile.</p>
-     <div data-chart-host><svg id="nfl-radar" data-radar hidden role="group" aria-labelledby="nfl-radar-title nfl-radar-description"></svg></div>
+     <div data-chart-host><svg id="nfl-radar" class="radar-chart" data-radar hidden role="group" aria-labelledby="nfl-radar-title nfl-radar-description"></svg></div>
      <figcaption>Read one attribute at a time; shape size is not an overall rating.</figcaption>
     </figure>
     <div class="profile-readout">
@@ -120,7 +121,7 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
    <fieldset class="stat-choices"><legend class="visually-hidden">Compare a season stat</legend>{STATS.map((metric,i)=><label><input type="radio" name="nfl-stat-metric" value={metric.field} data-stat-metric checked={i===0} disabled/>{metric.label}</label>)}</fieldset>
    <p class="stat-meaning" data-stat-meaning>{STATS[0].meaning}</p>
    <div class="stat-players">{['a','b'].map(side=><section class="stat-player" data-stat-side={side} aria-label={`Quarterback ${side.toUpperCase()} statistic`}><h3 data-stat-player>Quarterback {side.toUpperCase()}</h3><dl><dt><a data-stat-label href={"#"+STATS[0].target}>{STATS[0].label}</a></dt><dd><strong data-stat-value>Unavailable</strong><span data-stat-units>{STATS[0].unit}</span></dd></dl><p data-stat-counts></p></section>)}</div>
-   <figure class="stat-plot"><div data-chart-host><svg id="nfl-stat-plot" data-stat-plot hidden role="img" aria-labelledby="nfl-stat-plot-title nfl-stat-plot-description"></svg></div><figcaption>Higher values sit farther right.<span class="visually-hidden" data-stat-unit>{STATS[0].unit}</span></figcaption></figure>
+   <figure class="stat-plot" data-expandable-chart="stats"><button class="chart-expand" type="button" data-expand-chart="stats" aria-haspopup="dialog" aria-controls="nfl-chart-lightbox" disabled>Enlarge chart</button><div data-chart-host><svg id="nfl-stat-plot" data-stat-plot hidden role="img" aria-labelledby="nfl-stat-plot-title nfl-stat-plot-description"></svg></div><figcaption>Higher values sit farther right.<span class="visually-hidden" data-stat-unit>{STATS[0].unit}</span></figcaption></figure>
    <details class="stat-evidence"><summary>About these numbers</summary><p>These results also reflect teammates, opponents and play choices. Comparing seasons does not isolate skill. Sack avoidance and EPA share some of the same information.</p><p data-stat-range="a"></p><p data-stat-range="b"></p><p>EPA ranges describe conditional game-sampling variation under the study assumptions. They are not probabilities of winning, intervals for the difference between these selections, or all sources of uncertainty. <a href="#nfl-method-uncertainty">Range assumptions and limits</a>.</p><p>Completion percentage is available as context in the full annual table below. It is not another skill score.</p></details>
    <noscript><p>Without JavaScript, the fixed comparison is Patrick Mahomes 2023 (A) and Josh Allen 2023 (B).</p><div class="table-scroll" role="region" aria-label="Static default season statistics" tabindex="0"><table data-static-stats><thead><tr><th scope="col">Season stat</th><th scope="col">A · Patrick Mahomes · 2023</th><th scope="col">B · Josh Allen · 2023</th></tr></thead><tbody>{STATS.map(metric=><tr><th scope="row"><a href={"#"+metric.target}>{metric.label}</a></th>{defaults.map(d=><td>{formatStatValue(metric.field,d.annual[metric.field])} {metric.unit}<br/>{metric.field==='cpoe_pp'?`${d.annual.eligible_throws} included throws across ${d.annual.eligible_games} games`:`${d.annual.dropbacks} recorded dropbacks across ${d.annual.dropback_games} games`}</td>)}</tr>)}</tbody></table></div></noscript>
   </section>
@@ -193,6 +194,11 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
   <p class="download"><a href={MOBILITY_URL} download>Annual Mobility data</a> · <a href={MOBILITY_MANIFEST_URL}>Mobility manifest</a><br/><a href={ANNUAL_URL} download>Annual data</a> · <a href={ANNUAL_MANIFEST_URL}>Annual manifest</a> · <a href={DEPTH_URL} download>Depth data</a> · <a href={DEPTH_MANIFEST_URL}>Depth manifest</a><br/><a href={DATA_URL} download>Original 2023/2024 cohort data</a> · <a href={MANIFEST_URL}>Original manifest</a></p>
   </details>
  </section>
+ <dialog id="nfl-chart-lightbox" class="chart-lightbox" aria-labelledby="nfl-chart-lightbox-title" data-chart-lightbox>
+  <header class="chart-lightbox-header"><div><h2 id="nfl-chart-lightbox-title" data-chart-lightbox-title>Attribute profile</h2><p data-chart-lightbox-unit hidden></p></div><button type="button" class="chart-close" data-chart-close autofocus>Close</button></header>
+  <p class="chart-pan-hint">Scroll sideways to see the full chart.</p>
+  <div class="chart-lightbox-content" data-enlarged-content></div>
+ </dialog>
 </nfl-comparison>
 <script>import {registerNFL} from '../lib/nfl-charts';registerNFL();</script>
 <style>
@@ -305,9 +311,9 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
  .expert-method-note{font-size:var(--type-small);line-height:1.5;max-width:70ch;}
  .profile-readout :global(small){display:block;font:400 14px/1.3 var(--font-body);}
  .profile-readout :global(.unavailable){font:400 14px/1.4 var(--font-body);overflow-wrap:anywhere;}
- #nfl-radar :global(.radar-attribute-link){cursor:pointer;}
- #nfl-radar :global(.radar-attribute-link text){text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;}
- #nfl-radar :global(.radar-attribute-link:focus-visible){outline:var(--rule-thick) solid var(--accent);outline-offset:2px;}
+ .radar-chart :global(.radar-attribute-link){cursor:pointer;}
+ .radar-chart :global(.radar-attribute-link text){text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;}
+ .radar-chart :global(.radar-attribute-link:focus-visible){outline:var(--rule-thick) solid var(--accent);outline-offset:2px;}
  :global(.nfl-attribute-guide){max-width:70ch;margin-top:var(--space-l);padding-top:var(--space-m);border-top:var(--rule) solid var(--green);}
  :global(.nfl-attribute-guide h3){margin-top:var(--space-m);scroll-margin-top:var(--space-s);}
  :global(.nfl-attribute-guide .return-to-radar){display:inline-block;min-height:24px;padding-block:var(--space-3xs);}
@@ -322,19 +328,19 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
  .radar-series-key .mark-b{fill:var(--cream);stroke-width:2.25;}
  .radar-uncertainty{font-size:14px;line-height:1.5;margin-block:var(--space-2xs);}
  .radar-detail > p{font-size:var(--type-small);}
- #nfl-radar :global(.mark-b){fill:var(--cream);stroke-width:2.25;}
- #nfl-radar :global(.mark-a){fill:var(--cream);stroke:var(--green);stroke-width:2.25;}
+ .radar-chart :global(.mark-b){fill:var(--cream);stroke-width:2.25;}
+ .radar-chart :global(.mark-a){fill:var(--cream);stroke:var(--green);stroke-width:2.25;}
  .radar-figure{margin:0;min-width:0;}
- #nfl-radar{background:var(--cream);}
- #nfl-radar :global(.radar-ring){fill:none;stroke:var(--sand);stroke-width:1;}
- #nfl-radar :global(.radar-spoke){stroke:var(--green);stroke-width:1;stroke-dasharray:none;opacity:.18;}
- #nfl-radar :global(.expert-spoke){stroke-dasharray:none;stroke-width:1.5;}
- #nfl-radar :global(.expert-mark){fill:var(--cream);stroke-width:2.5;}
- #nfl-radar :global(.expert-mark.mark-a){stroke:var(--green);}
- #nfl-radar :global(.radar-label){font-weight:600;font-size:16px;}
- #nfl-radar :global(.radar-status){font-size:14px;}
- #nfl-radar :global(.radar-segment){fill:none;stroke-width:2.75;stroke-linecap:round;stroke-linejoin:round;}
- #nfl-radar :global(.series-b.radar-segment){stroke-dasharray:7 5;}
+ .radar-chart{background:var(--cream);}
+ .radar-chart :global(.radar-ring){fill:none;stroke:var(--sand);stroke-width:1;}
+ .radar-chart :global(.radar-spoke){stroke:var(--green);stroke-width:1;stroke-dasharray:none;opacity:.18;}
+ .radar-chart :global(.expert-spoke){stroke-dasharray:none;stroke-width:1.5;}
+ .radar-chart :global(.expert-mark){fill:var(--cream);stroke-width:2.5;}
+ .radar-chart :global(.expert-mark.mark-a){stroke:var(--green);}
+ .radar-chart :global(.radar-label){font-weight:600;font-size:16px;}
+ .radar-chart :global(.radar-status){font-size:14px;}
+ .radar-chart :global(.radar-segment){fill:none;stroke-width:2.75;stroke-linecap:round;stroke-linejoin:round;}
+ .radar-chart :global(.series-b.radar-segment){stroke-dasharray:7 5;}
  .radar-values :global(table){table-layout:fixed;}
  .radar-values.table-scroll :global(th),.radar-values.table-scroll :global(td){min-width:0;max-width:none;padding:var(--space-2xs);overflow-wrap:anywhere;line-height:1.4;}
  .radar-values.table-scroll :global(tbody th){font:600 16px var(--font-body);text-transform:none;letter-spacing:normal;}
@@ -364,6 +370,32 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
  svg :global(.mark-b){fill:var(--sand);stroke:var(--accent);stroke-width:2.5;}
  details{margin-top:var(--space-s);border-top:var(--rule-thin) solid var(--green);padding-top:var(--space-2xs);}
  summary{cursor:pointer;min-height:44px;}
+ .research-data[open] > summary{margin-bottom:var(--space-2xs);}
+ .research-data > details{margin:0 0 0 var(--space-s);padding:0;border:0;}
+ .research-data > details + details{border-top:var(--rule-thin) solid var(--sand);}
+ .research-data > details > summary{padding-block:var(--space-2xs);line-height:1.4;}
+ .research-data > details > :not(summary){margin-inline-start:var(--space-xs);}
+ .research-data > .download{margin:var(--space-s) 0 var(--space-xs) var(--space-s);line-height:1.65;}
+ .chart-expand,.chart-close{font:inherit;color:var(--green);background:var(--cream);border:var(--rule) solid var(--green);min-height:44px;padding:var(--space-2xs) var(--space-xs);cursor:pointer;}
+ .chart-expand{display:block;width:fit-content;margin:0 0 var(--space-2xs) auto;font-size:var(--type-small);}
+ .chart-expand:hover,.chart-close:hover{background:var(--green);color:var(--cream);}
+ .chart-expand:disabled{opacity:.6;cursor:wait;}
+ .chart-expand:focus-visible,.chart-close:focus-visible{outline:var(--rule-thick) solid var(--accent);outline-offset:3px;}
+ [data-expandable-chart] svg:not([hidden]){cursor:zoom-in;}
+ .chart-lightbox{width:min(70rem,calc(100vw - 2 * var(--space-s)));max-width:none;max-height:calc(100dvh - 2 * var(--space-s));padding:0;margin:auto;border:0;background:var(--cream);color:var(--green);overflow:hidden;}
+ .chart-lightbox[open]{display:flex;flex-direction:column;}
+ .chart-lightbox::backdrop{background:rgb(0 24 12 / .78);}
+ .chart-lightbox-header{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--space-s);padding:var(--space-s);flex:none;}
+ .chart-lightbox-header h2{font-size:var(--type-h3);line-height:1.2;margin:0;}
+ .chart-lightbox-header p{font-size:var(--type-small);margin:var(--space-3xs) 0 0;}
+ .chart-close{flex:none;}
+ .chart-lightbox-content{min-height:0;overflow:auto;padding:0 var(--space-s) var(--space-s);scrollbar-color:var(--green) var(--cream);overscroll-behavior:contain;}
+ .chart-lightbox-content :global(figure){margin:0;}
+ .chart-lightbox-content :global(.radar-figure){max-width:min(100%,calc((100dvh - 15rem) * 1.23));margin-inline:auto;}
+ .chart-lightbox-content :global(svg){cursor:default;}
+ .chart-pan-hint{display:none;font-size:var(--type-small);margin:0;padding:0 var(--space-s) var(--space-xs);}
+ :global(html:has(.chart-lightbox[open])){overflow:hidden;}
+ @media(max-width:47.99rem){.chart-lightbox{width:calc(100vw - var(--space-s));max-height:calc(100dvh - var(--space-s));}.chart-lightbox-header{padding:var(--space-xs);}.chart-lightbox-content{padding-inline:var(--space-xs);}.chart-lightbox-content :global(figure){min-width:38rem;max-width:none;}.chart-pan-hint{display:block;padding-inline:var(--space-xs);}}
  .pair-evidence{margin-top:var(--space-2xs);}
  .table-scroll{overflow-x:auto;max-width:100%;scrollbar-color:var(--green) var(--cream);}
  .table-scroll :global(table){width:100%;border-collapse:collapse;font-size:var(--type-small);font-variant-numeric:tabular-nums;}

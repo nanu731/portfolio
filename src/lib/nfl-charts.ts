@@ -221,6 +221,31 @@ export function registerNFL(){
     const state=this.suggestionState[side];if(!this.suggestions(side).hidden&&state.active>=0){e.preventDefault();this.choosePlayer(side,state.matches[state.active]);}
    }
   }
+  openChart(view:'profile'|'stats'){
+   if(this.dataset.state!=='ready')return;
+   const dialog=this.querySelector<HTMLDialogElement>('[data-chart-lightbox]')!;
+   if(dialog.open)return;
+   const source=this.querySelector<HTMLElement>(`[data-expandable-chart="${view}"]`)!,svg=source.querySelector('svg[data-radar],svg[data-stat-plot]');
+   if(!svg||svg.hasAttribute('hidden'))return;
+   // Copy the current vector drawing, keeping the selections and plotted values exact.
+   const snapshot=source.cloneNode(true) as HTMLElement;
+   snapshot.querySelector('[data-expand-chart]')?.remove();
+   const ids=new Map<string,string>();
+   for(const node of [snapshot,...snapshot.querySelectorAll<HTMLElement|SVGElement>('*')]){
+    if(node.id){ids.set(node.id,`nfl-enlarged-${node.id}`);node.id=`nfl-enlarged-${node.id}`;}
+    for(const attr of [...node.attributes])if((attr.name.startsWith('data-')&&!attr.name.startsWith('data-astro-'))||attr.name==='tabindex')node.removeAttribute(attr.name);
+   }
+   snapshot.querySelectorAll('[aria-labelledby],[aria-describedby]').forEach(node=>{for(const attr of ['aria-labelledby','aria-describedby'])if(node.hasAttribute(attr))node.setAttribute(attr,node.getAttribute(attr)!.split(' ').map(id=>ids.get(id)??id).join(' '));});
+   // The enlarged chart is a static image; definition links remain on the original.
+   snapshot.querySelectorAll('svg a').forEach(link=>{const group=document.createElementNS('http://www.w3.org/2000/svg','g');group.append(...link.childNodes);link.replaceWith(group);});
+   snapshot.querySelector('svg:not([aria-hidden])')?.setAttribute('role','img');
+   const metric=STATS.find(item=>item.field===this.statMetric)!;
+   this.querySelector('[data-chart-lightbox-title]')!.textContent=view==='profile'?'Attribute profile':metric.label;
+   const unit=this.querySelector<HTMLElement>('[data-chart-lightbox-unit]')!;unit.hidden=view==='profile';unit.textContent=view==='stats'?metric.unit:'';
+   const content=this.querySelector<HTMLElement>('[data-enlarged-content]')!;content.replaceChildren(snapshot);
+   this.querySelector<HTMLButtonElement>(`[data-expand-chart="${view}"]`)!.focus({preventScroll:true});
+   dialog.showModal();content.scrollLeft=Math.max(0,(content.scrollWidth-content.clientWidth)/2);
+  }
   connectedCallback(){
    if(this.dataset.initialized)return;this.dataset.initialized='true';this.players=[...this.control('a').options].filter(o=>o.value).map(o=>({id:o.value,name:o.textContent!}));
    for(const side of ['a','b']){
@@ -230,6 +255,14 @@ export function registerNFL(){
     const shell=this.querySelector<HTMLElement>(`[data-combobox-${side}]`)!;
     shell.addEventListener('focusout',e=>{if(!(e.relatedTarget instanceof Node)||!shell.contains(e.relatedTarget))this.closeSuggestions(side);});
    }
+   const dialog=this.querySelector<HTMLDialogElement>('[data-chart-lightbox]')!;
+   this.querySelectorAll<HTMLElement>('[data-expandable-chart]').forEach(figure=>figure.addEventListener('click',event=>{
+    const target=event.target as Element;if(target.closest('a'))return;
+    if(target.closest('[data-expand-chart],svg[data-radar],svg[data-stat-plot]'))this.openChart(figure.dataset.expandableChart as 'profile'|'stats');
+   }));
+   this.querySelector('[data-chart-close]')!.addEventListener('click',()=>dialog.close());
+   dialog.addEventListener('click',event=>{if(event.target!==dialog)return;const box=dialog.getBoundingClientRect();if(event.clientX<box.left||event.clientX>box.right||event.clientY<box.top||event.clientY>box.bottom)dialog.close();});
+   dialog.addEventListener('close',()=>this.querySelector('[data-enlarged-content]')!.replaceChildren());
    const tabs=[...this.querySelectorAll<HTMLButtonElement>('[data-project-view]')];
    tabs.forEach((tab,index)=>{
     tab.addEventListener('click',()=>this.setView(tab.dataset.projectView as 'profile'|'stats',true));
@@ -246,8 +279,9 @@ export function registerNFL(){
    this.querySelectorAll('[data-sack-section],[data-comparison-evidence]').forEach(e=>e.addEventListener('toggle',()=>{if(this.annual)this.render(false);}));
    this.observer=new ResizeObserver(()=>{if(this.annual)this.render(false);});this.querySelectorAll('[data-chart-host]').forEach(e=>this.observer!.observe(e));this.load();
   }
-  disconnectedCallback(){this.observer?.disconnect();document.removeEventListener('pointerdown',this.handleOutsidePointer);this.removeEventListener('click',this.handleAttributeClick);window.removeEventListener('popstate',this.handleAttributeBack);window.removeEventListener('hashchange',this.handleAttributeReturn);window.removeEventListener('popstate',this.handleViewHistory);window.removeEventListener('hashchange',this.handleViewHistory);this.request++;}
+  disconnectedCallback(){this.observer?.disconnect();document.removeEventListener('pointerdown',this.handleOutsidePointer);this.removeEventListener('click',this.handleAttributeClick);window.removeEventListener('popstate',this.handleAttributeBack);window.removeEventListener('hashchange',this.handleAttributeReturn);window.removeEventListener('popstate',this.handleViewHistory);window.removeEventListener('hashchange',this.handleViewHistory);this.querySelector<HTMLDialogElement>('[data-chart-lightbox]')?.close();this.request++;}
   clear(){
+   const dialog=this.querySelector<HTMLDialogElement>('[data-chart-lightbox]');if(dialog?.open)dialog.close();
    this.querySelectorAll('svg[data-field],svg[data-radar],svg[data-stat-plot]').forEach(s=>{s.replaceChildren();s.setAttribute('hidden','');});
    this.querySelectorAll('[data-selected-values],[data-radar-values],[data-selected-depth]').forEach(e=>e.replaceChildren());
    this.querySelectorAll<HTMLElement>('[data-profile-values] td').forEach(td=>{td.textContent='Unavailable';td.className='unavailable';td.removeAttribute('data-rank');td.removeAttribute('data-percentile');});
@@ -257,7 +291,7 @@ export function registerNFL(){
    const methodNote=this.querySelector<HTMLElement>('[data-expert-method-note]')!;methodNote.textContent='';methodNote.hidden=true;
    this.querySelector('[data-radar-a]')!.textContent='Quarterback A';this.querySelector('[data-radar-b]')!.textContent='Quarterback B';
    for(const side of ['a','b'])this.closeSuggestions(side);
-   this.querySelectorAll<HTMLSelectElement|HTMLInputElement|HTMLButtonElement>('select,input[type=search],[data-complete-example],[data-require-attribute],[data-clear-requirements],[data-stat-metric]').forEach(e=>e.disabled=true);
+   this.querySelectorAll<HTMLSelectElement|HTMLInputElement|HTMLButtonElement>('select,input[type=search],[data-complete-example],[data-require-attribute],[data-clear-requirements],[data-stat-metric],[data-expand-chart]').forEach(e=>e.disabled=true);
   }
   async load(){
    const restore=this.querySelector('[data-retry]')===document.activeElement,token=++this.request;
@@ -267,7 +301,7 @@ export function registerNFL(){
     if(responses.some(r=>!r.ok))throw Error('Data unavailable');const bytes=await Promise.all(responses.map(async r=>new Uint8Array(await r.arrayBuffer())));
     const [{annual,depth},legacy]=await Promise.all([validateAnnualDepth(bytes[0],bytes[1],bytes[2],bytes[3]),validatePair(bytes[4],bytes[5])]);const mobility=await validateAnnualMobility(bytes[6],bytes[7],annual,legacy);validateExpertRanks(EXPERT_RANKS);const [references,mobilityReferences]=await Promise.all([buildPercentileReferences(annual,depth,legacy),buildMobilityReferences(mobility)]);await document.fonts.ready;
     if(token!==this.request||!this.isConnected)return;this.annual=annual;this.depth=depth;this.legacy=legacy;this.mobility=mobility;this.references=references;this.mobilityReferences=mobilityReferences;this.dataset.state='ready';
-    this.querySelectorAll<HTMLSelectElement|HTMLInputElement|HTMLButtonElement>('select,input[type=search],[data-complete-example],[data-require-attribute],[data-clear-requirements],[data-stat-metric]').forEach(e=>e.disabled=false);for(const side of ['a','b'])this.reconcileSelection(side);this.render();if(restore)this.search('a').focus();
+    this.querySelectorAll<HTMLSelectElement|HTMLInputElement|HTMLButtonElement>('select,input[type=search],[data-complete-example],[data-require-attribute],[data-clear-requirements],[data-stat-metric],[data-expand-chart]').forEach(e=>e.disabled=false);for(const side of ['a','b'])this.reconcileSelection(side);this.render();if(restore)this.search('a').focus();
    }catch{if(token!==this.request)return;this.clear();this.dataset.state='error';this.querySelector('[data-comparison-status]')!.textContent='The comparison data could not be verified. Retry, or open Data and research details below for tables and downloads.';this.querySelector<HTMLButtonElement>('[data-retry]')!.hidden=false;}
   }
   render(announce=true){
