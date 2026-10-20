@@ -5,6 +5,16 @@ const NS='http://www.w3.org/2000/svg';
 const normalizeSearch=(value:string)=>value.normalize('NFD').replace(/\p{M}/gu,'').toLocaleLowerCase().replace(/[\p{P}\p{S}]+/gu,' ').replace(/\s+/g,' ').trim();
 const compactSearch=(value:string)=>normalizeSearch(value).replace(/\s/g,'');
 type PlayerChoice={id:string;name:string};
+// Same filter and prefix-first order as SpatialShotSelection.updateSuggestions.
+function matchingPlayers(players:PlayerChoice[],value:string){
+ const query=normalizeSearch(value),compactQuery=compactSearch(value);
+ return players.filter(player=>normalizeSearch(player.name).includes(query)||compactSearch(player.name).includes(compactQuery)).sort((a,b)=>{
+  const aStarts=normalizeSearch(a.name).startsWith(query)||compactSearch(a.name).startsWith(compactQuery);
+  const bStarts=normalizeSearch(b.name).startsWith(query)||compactSearch(b.name).startsWith(compactQuery);
+  if(aStarts!==bStarts)return aStarts?-1:1;
+  return a.name.localeCompare(b.name,undefined,{sensitivity:'base'})||a.id.localeCompare(b.id);
+ });
+}
 
 function element(tag:string,attrs:Record<string,string|number>={},text?:string){const e=document.createElementNS(NS,tag);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,String(v));if(text!==undefined)e.textContent=text;return e;}
 function cell(tag:string,text:string){const e=document.createElement(tag);e.textContent=text;if(tag==='th')e.setAttribute('scope','row');return e;}
@@ -41,42 +51,50 @@ export function registerNFL(){
    return {value:s.row.sack_avoidance_pct,lower:null,upper:null,status:'individual_range_not_estimated',counts:`${s.row.sacks} sacks / ${s.row.dropbacks} recorded dropbacks · ${s.row.dropback_games} games`,reason:''};
   }
   domain(a:Axis):Domain{return a.bin?this.depth!.domains.depth_cpoe_pp:a.field==='scramble_contribution'?this.legacy!.domains.scramble_contribution:this.annual!.domains.sack_avoidance_pct;}
+  readonly handleOutsidePointer=(event:PointerEvent)=>{
+   for(const side of ['a','b'])if(event.target instanceof Node&&!this.querySelector(`[data-combobox-${side}]`)!.contains(event.target))this.closeSuggestions(side);
+  };
+  seasonPlayers(side:string){
+   const ids=new Set(this.annual?.rows.filter(r=>r.season===Number(this.control(`season-${side}`).value)).map(r=>r.player_key));
+   return this.players.filter(p=>ids.has(p.id));
+  }
+  refreshSearchSeason(side:string){
+   this.closeSuggestions(side);this.search(side).value=this.selectedName(side);
+   const year=this.control(`season-${side}`).value;this.search(side).placeholder=`Search players in ${year}`;this.suggestions(side).setAttribute('aria-label',`Players in ${year}`);
+   this.searchStatus(side,`${this.selectedName(side)}, ${year}.`);
+  }
   suggestions(side:string){return this.querySelector<HTMLElement>(`[data-suggestions-${side}]`)!;}
   searchStatus(side:string,text:string){this.querySelector(`[data-search-status-${side}]`)!.textContent=text;}
   selectedName(side:string){return this.players.find(p=>p.id===this.control(side).value)!.name;}
-  closeSuggestions(side:string,restore=false){
+  closeSuggestions(side:string){
    this.suggestions(side).hidden=true;this.search(side).setAttribute('aria-expanded','false');this.search(side).removeAttribute('aria-activedescendant');
    this.suggestionState[side]={matches:[],active:-1};
-   if(restore){this.search(side).value='';this.searchStatus(side,`Selected: ${this.selectedName(side)}.`);}
   }
-  showSuggestions(side:string){
+  showSuggestions(side:string,all=false){
    if(this.search(side).disabled)return;
-   this.closeSuggestions(side==='a'?'b':'a',true);
-   const query=normalizeSearch(this.search(side).value),compact=compactSearch(this.search(side).value);
-   if(!compact){this.closeSuggestions(side);this.searchStatus(side,`Selected: ${this.selectedName(side)}.`);return;}
-   const matches=this.players.filter(p=>normalizeSearch(p.name).includes(query)||compactSearch(p.name).includes(compact)).sort((a,b)=>{
-    const starts=(p:PlayerChoice)=>normalizeSearch(p.name).startsWith(query)||compactSearch(p.name).startsWith(compact);
-    return Number(starts(b))-Number(starts(a))||a.name.localeCompare(b.name,undefined,{sensitivity:'base'})||a.id.localeCompare(b.id);
-   });
+   const players=this.seasonPlayers(side);if(all&&!players.length)return;
+   this.closeSuggestions(side==='a'?'b':'a');
+   const matches=all?[...players]:matchingPlayers(players,this.search(side).value);
    this.suggestionState[side]={matches,active:-1};this.search(side).removeAttribute('aria-activedescendant');this.renderSuggestions(side);this.suggestions(side).hidden=false;this.search(side).setAttribute('aria-expanded','true');
-   this.searchStatus(side,matches.length?`${matches.length} quarterback${matches.length===1?'':'s'}${matches.length===1?' matches':' match'}. Choose a name below.`:`No quarterbacks found. Try another name. ${this.selectedName(side)} remains selected.`);
+   const year=this.control(`season-${side}`).value;
+   this.searchStatus(side,all?`${players.length} players in ${year}. Type to narrow the list.`:`${matches.length} ${matches.length===1?'player matches':'players match'} in ${year}.`);
   }
   renderSuggestions(side:string){
    const {matches,active}=this.suggestionState[side];
-   if(!matches.length){const empty=document.createElement('p');empty.className='no-results';empty.setAttribute('role','option');empty.setAttribute('aria-disabled','true');empty.setAttribute('aria-selected','false');empty.textContent='No quarterbacks found. Try another name.';this.suggestions(side).replaceChildren(empty);return;}
+   if(!matches.length){const empty=document.createElement('p');empty.className='no-results';empty.setAttribute('role','option');empty.setAttribute('aria-disabled','true');empty.setAttribute('aria-selected','false');empty.textContent='No players found. Try another name or season.';this.suggestions(side).replaceChildren(empty);return;}
    this.suggestions(side).replaceChildren(...matches.map((p,i)=>{
     const option=document.createElement('div');option.id=`nfl-option-${side}-${p.id}`;option.className='suggestion-option';option.setAttribute('role','option');option.setAttribute('aria-selected',String(i===active));option.textContent=p.name;
     option.addEventListener('mousedown',e=>e.preventDefault());option.addEventListener('click',()=>this.choosePlayer(side,p));return option;
    }));
   }
   choosePlayer(side:string,p:PlayerChoice){
-   this.control(side).value=p.id;this.search(side).value='';this.closeSuggestions(side);this.searchStatus(side,`Selected: ${p.name}.`);this.render();
+   this.control(side).value=p.id;this.search(side).value=p.name;this.closeSuggestions(side);this.searchStatus(side,`${p.name}, ${this.control(`season-${side}`).value}.`);this.render();
   }
   searchKeydown(side:string,e:KeyboardEvent){
    if(e.isComposing)return;
-   if(e.key==='Escape'||e.key==='Tab'){if(e.key==='Escape'&&!this.suggestions(side).hidden)e.preventDefault();this.closeSuggestions(side,true);return;}
+   if(e.key==='Escape'||e.key==='Tab'){if(e.key==='Escape'&&!this.suggestions(side).hidden)e.preventDefault();this.closeSuggestions(side);return;}
    if(e.key==='ArrowDown'||e.key==='ArrowUp'){
-    e.preventDefault();if(this.suggestions(side).hidden)this.showSuggestions(side);
+    e.preventDefault();if(this.suggestions(side).hidden)this.showSuggestions(side,true);
     const state=this.suggestionState[side];if(!state.matches.length)return;
     const step=e.key==='ArrowDown'?1:-1;state.active=state.active===-1?(step===1?0:state.matches.length-1):(state.active+step+state.matches.length)%state.matches.length;
     this.renderSuggestions(side);const option=this.suggestions(side).children[state.active] as HTMLElement;this.search(side).setAttribute('aria-activedescendant',option.id);option.scrollIntoView({block:'nearest'});return;
@@ -89,23 +107,24 @@ export function registerNFL(){
    if(this.dataset.initialized)return;this.dataset.initialized='true';this.players=[...this.control('a').options].map(o=>({id:o.value,name:o.textContent!}));
    for(const side of ['a','b']){
     this.search(side).addEventListener('input',()=>this.showSuggestions(side));
-    this.search(side).addEventListener('focus',()=>this.closeSuggestions(side==='a'?'b':'a',true));
+    this.search(side).addEventListener('focus',()=>this.showSuggestions(side,true));
     this.search(side).addEventListener('keydown',e=>this.searchKeydown(side,e));
     const shell=this.querySelector<HTMLElement>(`[data-combobox-${side}]`)!;
-    shell.addEventListener('focusout',e=>{if(!(e.relatedTarget instanceof Node)||!shell.contains(e.relatedTarget))this.closeSuggestions(side,true);});
+    shell.addEventListener('focusout',e=>{if(!(e.relatedTarget instanceof Node)||!shell.contains(e.relatedTarget))this.closeSuggestions(side);});
    }
-   this.querySelectorAll('select').forEach(e=>e.addEventListener('change',()=>{for(const side of ['a','b'])this.closeSuggestions(side,true);this.render();}));
+   document.addEventListener('pointerdown',this.handleOutsidePointer);
+   for(const side of ['a','b'])this.control(`season-${side}`).addEventListener('change',()=>{this.refreshSearchSeason(side);this.render();});
    this.querySelector('[data-retry]')!.addEventListener('click',()=>this.load());
    this.querySelectorAll('[data-sack-section],[data-comparison-evidence]').forEach(e=>e.addEventListener('toggle',()=>{if(this.annual)this.render(false);}));
    this.observer=new ResizeObserver(()=>{if(this.annual)this.render(false);});this.querySelectorAll('[data-chart-host]').forEach(e=>this.observer!.observe(e));this.load();
   }
-  disconnectedCallback(){this.observer?.disconnect();this.request++;}
+  disconnectedCallback(){this.observer?.disconnect();document.removeEventListener('pointerdown',this.handleOutsidePointer);this.request++;}
   clear(){
    this.querySelectorAll('svg[data-field],svg[data-radar]').forEach(s=>{s.replaceChildren();s.setAttribute('hidden','');});
    this.querySelectorAll('[data-selected-values],[data-radar-values],[data-radar-summary],[data-depth-summary],[data-selected-depth]').forEach(e=>e.replaceChildren());
    this.querySelectorAll('[data-counts],[data-pair-legend],[data-radar-legend],[data-radar-counts],[data-radar-gaps],[data-availability-a],[data-availability-b]').forEach(e=>e.textContent='');
    this.querySelector('[data-radar-a]')!.textContent='Quarterback A';this.querySelector('[data-radar-b]')!.textContent='Quarterback B';
-   for(const side of ['a','b'])this.closeSuggestions(side,true);
+   for(const side of ['a','b'])this.closeSuggestions(side);
    this.querySelectorAll<HTMLSelectElement|HTMLInputElement>('select,input[type=search]').forEach(e=>e.disabled=true);
   }
   async load(){
@@ -116,7 +135,7 @@ export function registerNFL(){
     if(responses.some(r=>!r.ok))throw Error('Data unavailable');const bytes=await Promise.all(responses.map(async r=>new Uint8Array(await r.arrayBuffer())));
     const [{annual,depth},legacy]=await Promise.all([validateAnnualDepth(bytes[0],bytes[1],bytes[2],bytes[3]),validatePair(bytes[4],bytes[5])]);await document.fonts.ready;
     if(token!==this.request||!this.isConnected)return;this.annual=annual;this.depth=depth;this.legacy=legacy;this.dataset.state='ready';
-    this.querySelectorAll<HTMLSelectElement|HTMLInputElement>('select,input[type=search]').forEach(e=>e.disabled=false);this.render();if(restore)this.search('a').focus();
+    this.querySelectorAll<HTMLSelectElement|HTMLInputElement>('select,input[type=search]').forEach(e=>e.disabled=false);for(const side of ['a','b'])this.refreshSearchSeason(side);this.render();if(restore)this.search('a').focus();
    }catch{if(token!==this.request)return;this.clear();this.dataset.state='error';this.querySelector('[data-comparison-status]')!.textContent='The comparison data could not be verified. Retry, or open the complete annual and original-cohort tables below.';this.querySelector<HTMLButtonElement>('[data-retry]')!.hidden=false;}
   }
   render(announce=true){
