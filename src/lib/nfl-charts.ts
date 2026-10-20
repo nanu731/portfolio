@@ -20,17 +20,17 @@ function matchingPlayers(players:PlayerChoice[],value:string){
 
 function element(tag:string,attrs:Record<string,string|number>={},text?:string){const e=document.createElementNS(NS,tag);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,String(v));if(text!==undefined)e.textContent=text;return e;}
 function cell(tag:string,text:string){const e=document.createElement(tag);e.textContent=text;if(tag==='th')e.setAttribute('scope','row');return e;}
-type Axis={trait:string;title:string;label:string[];field?:string;bin?:string;target?:string;unit?:string;expert?:ExpertTrait};
+type Axis={trait:string;title:string;label:string[];field?:string;bin?:string;target?:string;unit?:string;expert?:ExpertTrait;guide:string};
 type Selected={side:'a'|'b';id:string;name:string;year:number;row?:AnnualRow;legacy?:Row;depth:DepthRow[]};
 type Outcome={value:number|null;lower:number|null;upper:number|null;status:string;counts:string;reason:string};
 const AXES:Axis[]=[
- {trait:'Arm strength',title:'Arm strength',label:['Arm strength','Expert rank'],expert:'arm_strength',target:'nfl-unmeasured-traits'},
- {trait:'Processing',title:'Field vision (processing proxy)',label:['Field vision','Expert rank'],expert:'field_vision',target:'nfl-unmeasured-traits'},
- {trait:'Pocket presence',title:'Dropbacks without a sack',label:['Dropbacks without','a sack','Pocket presence proxy'],field:'sack_avoidance_pct',target:'nfl-definition-sack-avoidance',unit:'%'},
- {trait:'Mobility',title:'Scramble contribution',label:['Scramble contribution','Mobility proxy','original 20-QB cohort'],field:'scramble_contribution',target:'nfl-definition-runs',unit:'expected points per included QB play'},
- {trait:'Short accuracy',title:'Short completions above expectation',label:['Short completions','above expectation','Short accuracy proxy'],field:'short_cpoe_pp',bin:'short',target:'nfl-definition-depth',unit:'pp'},
- {trait:'Medium accuracy',title:'Medium completions above expectation',label:['Medium completions','above expectation','Medium accuracy proxy'],field:'medium_cpoe_pp',bin:'medium',target:'nfl-definition-depth',unit:'pp'},
- {trait:'Deep accuracy',title:'Deep completions above expectation',label:['Deep completions','above expectation','Deep accuracy proxy'],field:'deep_cpoe_pp',bin:'deep',target:'nfl-definition-depth',unit:'pp'},
+ {trait:'Arm strength',guide:'nfl-attribute-arm-strength',title:'Arm strength',label:['Arm strength','Expert rank'],expert:'arm_strength',target:'nfl-unmeasured-traits'},
+ {trait:'Processing',guide:'nfl-attribute-processing',title:'Field vision (processing proxy)',label:['Field vision','Expert rank'],expert:'field_vision',target:'nfl-unmeasured-traits'},
+ {trait:'Pocket presence',guide:'nfl-attribute-pocket-presence',title:'Dropbacks without a sack',label:['Dropbacks without','a sack','Pocket presence proxy'],field:'sack_avoidance_pct',target:'nfl-definition-sack-avoidance',unit:'%'},
+ {trait:'Mobility',guide:'nfl-attribute-mobility',title:'Scramble contribution',label:['Scramble contribution','Mobility proxy','original 20-QB cohort'],field:'scramble_contribution',target:'nfl-definition-runs',unit:'expected points per included QB play'},
+ {trait:'Short accuracy',guide:'nfl-attribute-short-accuracy',title:'Short completions above expectation',label:['Short completions','above expectation','Short accuracy proxy'],field:'short_cpoe_pp',bin:'short',target:'nfl-definition-depth',unit:'pp'},
+ {trait:'Medium accuracy',guide:'nfl-attribute-medium-accuracy',title:'Medium completions above expectation',label:['Medium completions','above expectation','Medium accuracy proxy'],field:'medium_cpoe_pp',bin:'medium',target:'nfl-definition-depth',unit:'pp'},
+ {trait:'Deep accuracy',guide:'nfl-attribute-deep-accuracy',title:'Deep completions above expectation',label:['Deep completions','above expectation','Deep accuracy proxy'],field:'deep_cpoe_pp',bin:'deep',target:'nfl-definition-depth',unit:'pp'},
 ];
 export function registerNFL(){
  if(customElements.get('nfl-comparison'))return;
@@ -67,6 +67,28 @@ export function registerNFL(){
   }
   readonly handleOutsidePointer=(event:PointerEvent)=>{
    for(const side of ['a','b'])if(event.target instanceof Node&&!this.querySelector(`[data-combobox-${side}]`)!.contains(event.target))this.closeSuggestions(side);
+  };
+  // Preserve native fragment navigation; Back also returns keyboard focus to its chart link.
+  readonly handleAttributeClick=(event:MouseEvent)=>{
+   if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+   const link=event.target instanceof Element?event.target.closest('.radar-attribute-link'):null;
+   if(!link||!this.contains(link))return;
+   history.replaceState({...history.state,nflAttributeOrigin:link.id,nflAttributeFragment:location.hash},'');
+  };
+  readonly handleAttributeBack=()=>{
+   const state=history.state;
+   if(state?.nflAttributeFragment!==location.hash||typeof state?.nflAttributeOrigin!=='string')return;
+   const link=document.getElementById(state.nflAttributeOrigin);
+   if(link instanceof SVGElement&&this.contains(link))this.frameAttributeReturn(link);
+  };
+  frameAttributeReturn(link:SVGElement){
+   // Run after the shared fragment handler so focus and the visible comparison stay together.
+   requestAnimationFrame(()=>{if(!link.isConnected)return;link.focus({preventScroll:true});this.querySelector('[data-radar-legend]')!.scrollIntoView({block:'start',behavior:'instant'});});
+  }
+  readonly handleAttributeReturn=()=>{
+   if(history.state?.nflAttributeFragment===location.hash&&history.state?.nflAttributeOrigin){this.handleAttributeBack();return;}
+   const link=document.getElementById(location.hash.slice(1));
+   if(link instanceof SVGElement&&link.matches('.radar-attribute-link')&&this.contains(link))this.frameAttributeReturn(link);
   };
   seasonPlayers(side:string){
    const ids=new Set(this.annual?.rows.filter(r=>r.season===Number(this.control(`season-${side}`).value)).map(r=>r.player_key));
@@ -126,17 +148,17 @@ export function registerNFL(){
     const shell=this.querySelector<HTMLElement>(`[data-combobox-${side}]`)!;
     shell.addEventListener('focusout',e=>{if(!(e.relatedTarget instanceof Node)||!shell.contains(e.relatedTarget))this.closeSuggestions(side);});
    }
-   document.addEventListener('pointerdown',this.handleOutsidePointer);
+   document.addEventListener('pointerdown',this.handleOutsidePointer);this.addEventListener('click',this.handleAttributeClick);window.addEventListener('popstate',this.handleAttributeBack);window.addEventListener('hashchange',this.handleAttributeReturn);
    for(const side of ['a','b'])this.control(`season-${side}`).addEventListener('change',()=>{this.refreshSearchSeason(side);this.render();});
    this.querySelector('[data-retry]')!.addEventListener('click',()=>this.load());
    this.querySelector('[data-complete-example]')!.addEventListener('click',()=>this.loadExample());
    this.querySelectorAll('[data-sack-section],[data-comparison-evidence]').forEach(e=>e.addEventListener('toggle',()=>{if(this.annual)this.render(false);}));
    this.observer=new ResizeObserver(()=>{if(this.annual)this.render(false);});this.querySelectorAll('[data-chart-host]').forEach(e=>this.observer!.observe(e));this.load();
   }
-  disconnectedCallback(){this.observer?.disconnect();document.removeEventListener('pointerdown',this.handleOutsidePointer);this.request++;}
+  disconnectedCallback(){this.observer?.disconnect();document.removeEventListener('pointerdown',this.handleOutsidePointer);this.removeEventListener('click',this.handleAttributeClick);window.removeEventListener('popstate',this.handleAttributeBack);window.removeEventListener('hashchange',this.handleAttributeReturn);this.request++;}
   clear(){
    this.querySelectorAll('svg[data-field],svg[data-radar]').forEach(s=>{s.replaceChildren();s.setAttribute('hidden','');});
-   this.querySelectorAll('[data-selected-values],[data-radar-values],[data-radar-summary],[data-depth-summary],[data-selected-depth]').forEach(e=>e.replaceChildren());
+   this.querySelectorAll('[data-selected-values],[data-radar-values],[data-profile-values],[data-selected-depth]').forEach(e=>e.replaceChildren());
    this.querySelectorAll('[data-counts],[data-pair-legend],[data-radar-legend],[data-radar-counts],[data-radar-gaps],[data-availability-a],[data-availability-b]').forEach(e=>e.textContent='');
    this.querySelector('[data-radar-a]')!.textContent='Quarterback A';this.querySelector('[data-radar-b]')!.textContent='Quarterback B';
    for(const side of ['a','b'])this.closeSuggestions(side);
@@ -168,7 +190,7 @@ export function registerNFL(){
   }
   drawRadar(pair:Selected[]){
    const svg=this.querySelector<SVGSVGElement>('[data-radar]')!,width=Math.round(svg.parentElement!.getBoundingClientRect().width);if(width<=0)return;
-   const small=width<440,cx=width/2,cy=small?220:258,R=small?Math.min(94,(width-155)/2):Math.min(155,(width-190)/2),height=small?480:510;
+   const small=width<440,cx=width/2,cy=small?190:240,R=small?Math.min(94,(width-155)/2):Math.min(155,(width-190)/2),height=small?380:455;
    svg.replaceChildren();svg.removeAttribute('hidden');svg.setAttribute('viewBox',`0 0 ${width} ${height}`);
    const point=(i:number,r:number)=>{const angle=-Math.PI/2+i*2*Math.PI/7;return {x:cx+Math.cos(angle)*r,y:cy+Math.sin(angle)*r,angle};};
    const radius=(fraction:number)=>fraction*R;
@@ -176,14 +198,19 @@ export function registerNFL(){
    svg.append(element('title',{id:'nfl-radar-title'},`Quarterback attribute profile: ${pair.map(s=>`${s.side.toUpperCase()} · ${this.label(s)}`).join(' versus ')}`));
    svg.append(element('desc',{id:'nfl-radar-description'},'Two expert assessments and five season outcomes use different drawing scales. Expert rank 1 is outer and rank 10 is inner; the ordinal index is not an NFL percentile or skill grade. Higher outcome percentiles are farther out. Only verified player-year ranks appear; no carry-forward. '+pair.map(s=>`${s.side.toUpperCase()} · ${this.label(s)}: `+AXES.map(a=>{const p=this.profilePoint(s,a);return `${a.title}${a.expert==='field_vision'?' (field vision)':''}: ${p.radius===null?p.reason:p.display+(a.expert?' expert rank, ESPN 2023 preseason':' percentile; '+this.referenceLabel(s,a))}`;}).join('; ')).join('. ')+'. Adjacent available positions connect. The final edge appears only when all seven positions are available. No fill or overall score.'));
    for(const f of [.25,.5,.75,1])svg.append(element('circle',{cx,cy,r:R*f,class:'radar-ring'}));
-   const positions=[{x:cx,y:small?28:45,anchor:'middle'},{x:width*.8,y:small?90:112,anchor:'middle'},
-    {x:width-8,y:small?338:365,anchor:'end'},{x:width*.73,y:small?415:460,anchor:'middle'},
-    {x:width*.23,y:small?415:460,anchor:'middle'},{x:8,y:small?338:365,anchor:'start'},{x:width*.2,y:small?90:112,anchor:'middle'}];
+   const positions=[{x:cx,y:small?34:30,anchor:'middle'},{x:width*.8,y:small?95:92,anchor:'middle'},
+    {x:width-8,y:small?300:360,anchor:'end'},{x:width*.73,y:small?348:425,anchor:'middle'},
+    {x:width*.23,y:small?348:425,anchor:'middle'},{x:8,y:small?300:360,anchor:'start'},{x:width*.2,y:small?95:92,anchor:'middle'}];
    AXES.forEach((a,i)=>{
     line({x:cx,y:cy},point(i,R),{class:`radar-spoke${a.expert?' expert-spoke':''}`,'data-position':i,'data-trait':a.trait});
-    const g=element('g',{'data-axis-label':i,'data-trait':a.trait,'data-kind':a.expert?'expert':'outcome'}),pos=positions[i];
-    const labels=a.expert?[...a.label,pair.map(s=>`${s.side.toUpperCase()} ${this.profilePoint(s,a).display==='Unavailable'?'no rank':this.profilePoint(s,a).display}`).join(' · ')]:a.label;
-    labels.forEach((t,j)=>g.append(element('text',{x:small&&i===1?width-8:pos.x,y:pos.y+j*19,'text-anchor':small&&i===1?'end':pos.anchor,class:j===0||(!a.expert&&j===1)?'radar-label':'radar-status'},t)));svg.append(g);
+    const pos=positions[i],linkId='nfl-radar-link-'+a.guide.replace('nfl-attribute-','');
+    const link=element('a',{id:linkId,href:'#'+a.guide,class:'radar-attribute-link',role:'link','data-axis-label':i,'data-trait':a.trait,'data-reference-target':'',tabindex:0});
+    const label=element('text',{x:pos.x,y:pos.y,'text-anchor':pos.anchor,class:'radar-label'},a.trait);
+    link.append(label);svg.append(link);
+    const fallbackWidth=a.trait.length*8,anchor=pos.anchor==='middle'?fallbackWidth/2:pos.anchor==='end'?fallbackWidth:0;
+    const box=typeof label.getBBox==='function'?label.getBBox():{x:pos.x-anchor,y:pos.y-14,width:fallbackWidth,height:18};
+    const hit=element('rect',{x:box.x-6,y:box.y-6,width:box.width+12,height:Math.max(28,box.height+12),fill:'transparent','aria-hidden':'true'});
+    link.append(hit);
    });
    pair.forEach(s=>{const points=AXES.map(a=>this.profilePoint(s,a)),series=`series-${s.side}`;
     for(let i=0;i<AXES.length-1;i++){const a=points[i].radius,b=points[i+1].radius;if(a!==null&&b!==null)line(point(i,radius(a)),point(i+1,radius(b)),{class:`radar-segment ${series}`,'data-side':s.side,'data-from':i,'data-to':i+1});}
@@ -203,15 +230,20 @@ export function registerNFL(){
     if(a.expert){pair.forEach(s=>{const td=cell('td',''),p=this.profilePoint(s,a);td.dataset.player=`${s.side.toUpperCase()} · ${this.label(s)}`;td.append(cell('strong',`${p.display}${p.rank===null?'':' expert rank'}`));const source=document.createElement('a');source.href=EXPERT_SOURCE.url;source.textContent='ESPN Quarterback Council · 14 Aug 2023';td.append(source,cell('small',p.rank===null?p.reason:'Preseason editorial rank. Ordinal drawing index, not a percentile or calibrated skill grade.'));tr.append(td);});body.append(tr);return;}
     pair.forEach(s=>{const td=cell('td',''),o=this.outcome(s,a),p=this.standing(s,a);td.dataset.player=`${s.side.toUpperCase()} · ${this.label(s)}`;const value=document.createElement('strong');value.textContent=o.value===null?o.reason:`Recorded value: ${fmt(o.value,a.field==='sack_avoidance_pct'?1:3)} ${a.unit}`;td.append(value);if(o.value!==null){td.dataset.value=String(o.value);const count=document.createElement('small'),range=document.createElement('small'),rank=document.createElement('small');count.textContent=o.counts;range.textContent=o.lower!==null?`Raw range: ${fmt(o.lower)} to ${fmt(o.upper)} ${a.unit}; ${o.status.replaceAll('_',' ')}. Not a percentile interval.`:`Raw range: ${o.status.replaceAll('_',' ')}`;rank.textContent=`${displayPercentile(p.percentile)} percentile · ${this.referenceLabel(s,a)} · OP-1.0`;td.append(count,range,rank);}tr.append(td);});body.append(tr);
    });
-   const top=this.querySelector('[data-radar-summary]')!,depth=this.querySelector('[data-depth-summary]')!;top.replaceChildren();depth.replaceChildren();
-   for(const a of AXES.filter(a=>a.field)){
-    const section=document.createElement('section');section.className='outcome';section.dataset.outcome=a.field;
-    const heading=document.createElement('h3'),unit=document.createElement('p'),list=document.createElement('dl');heading.textContent=a.title;unit.className='outcome-unit';unit.textContent=a.bin?`${a.bin==='short'?'0 to under 10':a.bin==='medium'?'10 to under 20':'20 to under 70'} air yards · outcome percentile` : a.field==='sack_avoidance_pct'?'Outcome percentile · pocket presence is not directly measured.':'Outcome percentile · original 20-QB cohort only. Mobility is not directly measured.';
-    pair.forEach(s=>{const o=this.outcome(s,a),p=this.standing(s,a),row=document.createElement('div'),name=document.createElement('dt'),value=document.createElement('dd'),detail=document.createElement('p');row.className='outcome-player';name.textContent=`${s.side.toUpperCase()} · ${this.label(s)}`;value.dataset.side=s.side;detail.className='outcome-detail';if(p.percentile===null){value.textContent='Unavailable';value.className='unavailable';detail.textContent=o.reason||p.reason;}else{value.dataset.value=String(o.value);value.dataset.percentile=String(p.percentile);value.dataset.n=String(p.n);value.textContent=displayPercentile(p.percentile);value.setAttribute('aria-label',`${displayPercentile(p.percentile)} percentile`);detail.textContent=this.referenceLabel(s,a);}row.append(name,value,detail);list.append(row);});
-    section.append(heading,unit,list);(a.bin?depth:top).append(section);
+   const values=this.querySelector('[data-profile-values]')!;values.replaceChildren();
+   for(const a of AXES){
+    const tr=document.createElement('tr');tr.dataset.attribute=a.trait;tr.append(cell('th',a.trait));
+    pair.forEach(s=>{const point=this.profilePoint(s,a),td=cell('td','');td.dataset.side=s.side;
+     if(point.radius===null){td.textContent='Unavailable';td.className='unavailable';}
+     else if(a.expert){td.textContent=point.display+' rank';td.dataset.rank=String(point.rank);}
+     else{const p=this.standing(s,a);td.dataset.percentile=String(p.percentile);td.append(cell('strong',point.display),cell('small','percentile'));}
+     tr.append(td);
+    });values.append(tr);
    }
-   this.querySelector('[data-radar-gaps]')!.textContent=pair.map(s=>{const available=AXES.filter(a=>this.profilePoint(s,a).radius!==null).length;return `${s.side.toUpperCase()} · ${this.label(s)}: ${available} of 7 positions available.`;}).join(' ')+' Expert coverage here is limited to Mahomes and Allen in 2023. Other player-years retain their outcomes and show expert gaps.';
-   this.querySelector('[data-profile-window]')!.textContent=pair.every(s=>s.year===2023)?'2023 preseason rankings + 2023 season outcomes':'2023 preseason rankings + selected-season outcomes. Ranks are unavailable outside verified 2023 player-years.';
+   this.querySelector('[data-profile-a]')!.textContent='A';this.querySelector('[data-profile-b]')!.textContent='B';
+   const incomplete=pair.some(s=>AXES.some(a=>this.profilePoint(s,a).radius===null)),gaps=this.querySelector<HTMLElement>('[data-radar-gaps]')!;
+   gaps.hidden=!incomplete;gaps.textContent=incomplete?'Some attributes are unavailable for this selection. Expert opinions are available here only for Mahomes and Allen in 2023.':'';
+   this.querySelector('[data-profile-window]')!.textContent=pair.every(s=>s.year===2023)?'Expert opinions: Mahomes and Allen, preseason 2023 only. Stats: 2023 regular season.':'Expert opinions: Mahomes and Allen, preseason 2023 only. Stats: selected regular seasons; no ranks carry forward.';
    this.querySelector('[data-radar-a]')!.textContent=`A · ${this.label(pair[0])}`;this.querySelector('[data-radar-b]')!.textContent=`B · ${this.label(pair[1])}`;this.querySelector('[data-radar-legend]')!.textContent=pair.map(s=>`${s.side.toUpperCase()} · ${this.label(s)}`).join(' / ');this.querySelector('[data-radar-counts]')!.textContent='Four outcomes use fixed same-year annual eligible peers. Scramble contribution uses the original 20-QB cohort separately in 2023 and 2024. Raw ranges are not percentile intervals.';
    const selected=this.querySelector('[data-selected-depth]')!;selected.replaceChildren();pair.forEach(s=>{if(!s.row){const tr=document.createElement('tr');tr.append(cell('th',`${s.side.toUpperCase()} · ${this.label(s)}`),cell('td','Unavailable'),cell('td',this.missing(s)),cell('td','Unavailable'));selected.append(tr);return;}s.depth.forEach(r=>{const tr=document.createElement('tr');tr.dataset.side=s.side;tr.dataset.bin=r.bin;tr.append(cell('th',`${s.side.toUpperCase()} · ${this.label(s)} · ${r.bin} [${r.air_yards_lower}, ${r.air_yards_upper})`),cell('td',fmt(r.cpoe_pp)),cell('td',`${r.bin_throws} throws; ${r.positive_bin_games} positive-bin games / ${r.eligible_games} all E games`),cell('td',`${fmt(r.lower)} to ${fmt(r.upper)} pp; ${r.interval_status.replaceAll('_',' ')}`));selected.append(tr);});});
   }

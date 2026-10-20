@@ -73,5 +73,21 @@ const table=html.match(/<table data-static-default[\s\S]*?<\/table>/)[0];
 const expertCells=[...table.matchAll(/<td\b[^>]*data-static-expert[^>]*>([\s\S]*?)<\/td>/g)];
 assert.equal(expertCells.length,4);
 [2,1,1,4].forEach((rank,i)=>{assert.ok(expertCells[i][1].startsWith(`#${rank} expert rank`));assert.ok(expertCells[i][1].includes(EXPERT_SOURCE.url));});
-assert.ok(html.includes('Load complete 2023 example'));assert.ok(html.includes('Two expert assessments + five season outcomes'));
-console.log(JSON.stringify({status:'passed',expertFacts:4,expertLookups:lookups,invalidRecordCases:12,defaultPoints:14,defaultSegments:14,rendererScenarios:5,staticExpertCells:4,sourceDate:EXPERT_SOURCE.published,nativeBrowserChecks:'separate'},null,2));
+assert.ok(/<button\b[^>]*data-complete-example/.test(html));
+const labels=['Arm strength','Processing','Pocket presence','Mobility','Short accuracy','Medium accuracy','Deep accuracy'];
+const keys=['arm-strength','processing','pocket-presence','mobility','short-accuracy','medium-accuracy','deep-accuracy'];
+host.drawRadar([a,b]);
+const links=nodes('radar-attribute-link');assert.equal(links.length,7);
+links.forEach((link,i)=>{
+ assert.equal(link.tag,'a');assert.equal(link.attrs.href,'#nfl-attribute-'+keys[i]);assert.equal(link.attrs.id,'nfl-radar-link-'+keys[i]);assert.equal(link.attrs.tabindex,'0');assert.equal(link.attrs.role,'link');
+ assert.equal(link.children.find(n=>n.tag==='text').textContent,labels[i]);
+ const hit=link.children.find(n=>n.tag==='rect');assert.ok(Number(hit.attrs.width)>=24&&Number(hit.attrs.height)>=24);
+});
+assert.ok(/<svg\b[^>]*data-radar[^>]*role="group"/.test(html),'Interactive chart exposes child links rather than flattening them into one image');
+const guide=html.match(/<section\b[^>]*class="nfl-attribute-guide"[^>]*>([\s\S]*?)<\/section>/)?.[1];assert.ok(guide,'Always-open static guide is present');
+assert.equal((guide.match(/<h3\b/g)??[]).length,7);
+for(const key of keys){
+ assert.ok(new RegExp('<h3\\b[^>]*id="nfl-attribute-'+key+'"[^>]*tabindex="-1"','i').test(guide));
+ assert.ok(guide.includes('href="#nfl-radar-link-'+key+'"'));
+}
+console.log(JSON.stringify({status:'passed',expertFacts:4,expertLookups:lookups,invalidRecordCases:12,defaultPoints:14,defaultSegments:14,rendererScenarios:5,staticExpertCells:4,sourceDate:EXPERT_SOURCE.published,attributeLinks:7,staticGuideEntries:7,nativeBrowserChecks:'separate'},null,2));

@@ -63,15 +63,14 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
     <p class="search-status" id="nfl-search-status-b" data-search-status-b role="status" aria-live="polite"></p>
    </div>
   </div>
-  <p class="coverage">2006–2025 regular seasons · 560 qualifying player-seasons. 2011 is source blocked: unresolved duplicate events and air-yard records. <a href="#nfl-definition-annual">Who qualifies each year?</a></p>
+  <p class="coverage">2006–2025 regular seasons · 560 qualifying player-seasons. 2011 data is blocked. <a href="#nfl-definition-annual">Who qualifies each year?</a></p>
   <div class="selection-availability" aria-label="Selected player-season availability"><p data-availability-a role="status" aria-live="polite"></p><p data-availability-b role="status" aria-live="polite"></p></div>
-  <p class="limit">Teammates, opponents and model versions can differ across seasons. These observed summaries do not measure isolated skill or improvement. Model versions and calibration are unknown across eras. The outcomes do not name an overall winner.</p>
+  <p class="limit" hidden>Season comparisons also reflect teammates, opponents and model differences; they do not isolate improvement.</p>
   <p class="availability" data-comparison-status role="status" aria-live="polite">Checking comparison data…</p><button type="button" data-retry hidden>Retry comparison data</button>
   <section class="radar-prototype" aria-labelledby="nfl-radar-heading">
    <h2 id="nfl-radar-heading">Quarterback attribute profile</h2>
-   <p class="prototype-subtitle">Two expert assessments + five season outcomes</p>
-   <p class="profile-window" data-profile-window>2023 preseason rankings + 2023 season outcomes</p>
-   <p class="radar-intro">Two scales: expert #1 outer / #10 inner; outcome percentiles rise outward. Distances are not comparable. No overall score.</p>
+   <p class="profile-window" data-profile-window>Expert opinions: Mahomes and Allen, preseason 2023 only. Stats: 2023 regular season.</p>
+   <p class="radar-intro">Two expert opinions and five season-stat indicators, not seven measured abilities. Processing uses ESPN’s field-vision opinion.</p>
    <button type="button" data-complete-example disabled>Load complete 2023 example</button>
    <p class="radar-key" data-radar-legend></p>
    <noscript><p>The radar requires JavaScript. All seven default positions appear below: Patrick Mahomes · 2023 (A) and Josh Allen · 2023 (B). Expert assessments predate the season; outcome values describe the regular season.</p><div class="table-scroll" role="region" aria-label="Static default seven-attribute comparison" tabindex="0"><table data-static-default><thead><tr><th scope="col">Position / evidence</th><th scope="col">A · Patrick Mahomes · 2023</th><th scope="col">B · Josh Allen · 2023</th></tr></thead><tbody>
@@ -80,26 +79,26 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
    <div class="radar-layout">
     <figure class="radar-figure">
      <p class="radar-series-key"><span><svg viewBox="0 0 44 20" aria-hidden="true"><line x1="0" y1="10" x2="44" y2="10" class="series-a"/><circle cx="22" cy="10" r="4.5" class="mark-a"/></svg>A · circle, solid line</span><span><svg viewBox="0 0 44 20" aria-hidden="true"><line x1="0" y1="10" x2="44" y2="10" class="series-b"/><path d="M22 2 L30 10 L22 18 L14 10 Z" class="mark-b"/></svg>B · open diamond, dashed line</span></p>
-     <p class="expert-key">Solid spokes + outlined marks: expert ranks. <a href={EXPERT_SOURCE.url}>ESPN · 14 Aug 2023</a></p>
-     <div data-chart-host><svg id="nfl-radar" data-radar hidden role="img" aria-labelledby="nfl-radar-title nfl-radar-description"></svg></div>
-     <figcaption>Field vision assesses part of processing. Lines close only when all seven values exist; missing evidence stays open. No fill or overall score. Overlapping marks share a position.</figcaption>
-     <p class="radar-uncertainty">Four outcomes use annual eligible peers; scramble uses the original 20-QB cohort in 2023 or 2024. Equal percentile gaps need not mean equal outcome or ability gaps. Raw game-based ranges are in the evidence below, not on the profile.</p>
+
+     <div data-chart-host><svg id="nfl-radar" data-radar hidden role="group" aria-labelledby="nfl-radar-title nfl-radar-description"></svg></div>
+     <figcaption>A lower expert rank (#) is better. A higher percentile means higher standing for that season stat. Compare one attribute at a time; a bigger shape is not better overall. Mobility uses the original 20-player group. Select an underlined attribute for its guide.</figcaption>
     </figure>
-    <div class="radar-readout" data-radar-summary aria-label="Selected outcome values and evidence gaps"></div>
+    <div class="profile-readout"><table aria-label="Selected attribute values"><thead><tr><th scope="col">Attribute</th><th scope="col" data-profile-a>A</th><th scope="col" data-profile-b>B</th></tr></thead><tbody data-profile-values></tbody></table></div>
    </div>
-   <div class="depth-guide"><p><DefinitionHelp id="nfl-depth-outcome" label="Depth-specific completions above expectation" detailTarget="nfl-definition-depth" detailLabel="Depth bins, formula and limits">The difference between completions and the model’s expected completions on included throws at that air distance. These residual outcomes also reflect receivers, coverage, decisions and model calibration; they do not isolate accuracy.</DefinitionHelp> uses <DefinitionHelp id="nfl-depth-pp" label="percentage points" detailTarget="nfl-definition-percentage-points" detailLabel="Units and formula">One percentage point means one more completion per 100 included throws than the model expected. Zero matches model expectation, not zero ability.</DefinitionHelp>. Their radar points show standing among same-year annual peers. The three depth outcomes are correlated; they are not independent skill votes and are never added together.</p></div>
-   <div class="depth-readout" data-depth-summary aria-label="Depth-specific selected outcome values"></div>
-   <p class="evidence-gaps" data-radar-gaps></p>
+   <p class="evidence-gaps" data-radar-gaps hidden></p>
    <details class="radar-detail"><summary>Expert sources, recorded values, counts and raw ranges</summary>
     <p>EPA/O means expected points added per included quarterback play. D means recorded dropbacks; O includes those dropbacks and non-scramble quarterback runs. A raw conditional range describes game-sampling variation in the original units under study assumptions. It is not a percentile interval, every source of uncertainty or a test of the difference between players.</p>
     <div class="radar-values table-scroll" role="region" aria-label="Clockwise evidence map and selected values in original units" tabindex="0">
      <table class="radar-table"><caption>Clockwise evidence map · original units</caption><thead><tr><th scope="col">Position / evidence</th><th scope="col" data-radar-a>Quarterback A</th><th scope="col" data-radar-b>Quarterback B</th></tr></thead><tbody data-radar-values></tbody></table>
     </div>
     <p class="radar-counts" data-radar-counts></p>
+    <p>Four outcomes use annual eligible peers; scramble uses the original 20-QB cohort in 2023 or 2024. Equal percentile gaps need not mean equal outcome or ability gaps. The three depth outcomes share context and correlated evidence, so they are not independent skill votes. Raw game-based ranges are not percentile intervals.</p>
+    <p>Teammates, opponents and model versions can differ across seasons. These observed summaries do not measure isolated skill or improvement. Model versions and calibration are unknown across eras.</p>
     <p class="radar-limits">The pocket-presence and mobility traits are not directly measured. Sack avoidance also reflects protection and receivers; scramble contribution combines usage with shared play value and omits other runs and athletic movement.</p>
+   <p class="radar-scale"><DefinitionHelp id="nfl-radar-radius" label="How the radius works" detailTarget="nfl-radar-scaling" detailLabel="Two drawing scales, sources and limits">Expert ranks use (11 − rank) / 10 as an ordinal drawing index. The other five spokes use their accepted outcome percentile divided by 100. Equal distances across these scales do not mean equal skill. Missing ranks and outcomes stay unavailable; neither scale gives an overall grade.</DefinitionHelp> · <a href="#nfl-radar-scaling">Two scales, sources and limitations</a></p>
    </details>
    <details class="selected-depth"><summary>Selected depth records: values, counts and raw ranges</summary><p>Four bins per available player-season. Negative air yards are diagnostic only and do not appear on the radar. Raw E-game ranges include games with no throws in that bin. They are not percentile intervals.</p><div class="table-scroll" role="region" aria-label="Selected depth records" tabindex="0"><table><thead><tr><th scope="col">Side / player / year / bin</th><th scope="col">CPOE (pp)</th><th scope="col">Throws / games</th><th scope="col">Raw conditional range / status</th></tr></thead><tbody data-selected-depth></tbody></table></div></details>
-   <p class="radar-scale"><DefinitionHelp id="nfl-radar-radius" label="How the radius works" detailTarget="nfl-radar-scaling" detailLabel="Two drawing scales, sources and limits">Expert ranks use (11 − rank) / 10 as an ordinal drawing index. The other five spokes use their accepted outcome percentile divided by 100. Equal distances across these scales do not mean equal skill. Missing ranks and outcomes stay unavailable; neither scale gives an overall grade.</DefinitionHelp> · <a href="#nfl-radar-scaling">Two scales, sources and limitations</a></p>
+
   </section>
   <details class="comparison-evidence" data-comparison-evidence>
    <summary>Inspect EPA, completion and sack comparisons in their original units</summary>
@@ -238,6 +237,22 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
  .radar-readout :global(.outcome-bounds){margin-top:var(--space-xs);font-family:var(--font-numeric);font-size:13px;}
  .radar-readout :global(.evidence-gaps){border-top:var(--rule) solid var(--green);padding-top:var(--space-xs);}
  .radar-readout :global(.evidence-gaps p){font-size:16px;line-height:1.5;margin-block:var(--space-2xs);overflow-wrap:normal;word-break:normal;}
+ .profile-readout{min-width:0;align-self:center;}
+ .profile-readout table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;}
+ .profile-readout :global(th),.profile-readout :global(td){text-align:left;border-bottom:var(--rule-thin) solid var(--sand);padding:var(--space-xs) var(--space-2xs);vertical-align:middle;}
+ .profile-readout thead{font-family:var(--font-numeric);font-size:var(--type-small);}
+ .profile-readout :global(tbody th){font:600 16px/1.4 var(--font-body);text-transform:none;letter-spacing:normal;}
+ .profile-readout :global(tbody tr){background:transparent;}
+ .profile-readout :global(td){font:500 18px/1.3 var(--font-numeric);}
+ .profile-readout :global(strong){font-weight:500;}
+ .profile-readout :global(small){display:block;font:400 14px/1.3 var(--font-body);}
+ .profile-readout :global(.unavailable){font:400 14px/1.4 var(--font-body);overflow-wrap:anywhere;}
+ #nfl-radar :global(.radar-attribute-link){cursor:pointer;}
+ #nfl-radar :global(.radar-attribute-link text){text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;}
+ #nfl-radar :global(.radar-attribute-link:focus-visible){outline:var(--rule-thick) solid var(--accent);outline-offset:2px;}
+ :global(.nfl-attribute-guide){max-width:70ch;margin-top:var(--space-l);padding-top:var(--space-m);border-top:var(--rule) solid var(--green);}
+ :global(.nfl-attribute-guide h3){margin-top:var(--space-m);scroll-margin-top:var(--space-s);}
+ :global(.nfl-attribute-guide .return-to-radar){display:inline-block;min-height:24px;padding-block:var(--space-3xs);}
  .radar-series-key{display:flex;flex-wrap:wrap;gap:var(--space-2xs) var(--space-xs);font-size:14px;line-height:1.5;margin:0;}
  .radar-series-key span{display:flex;align-items:center;gap:var(--space-2xs);}
  .radar-series-key svg{width:44px;height:20px;background:none;flex:none;}
