@@ -90,4 +90,40 @@ for(const key of keys){
  assert.ok(new RegExp('<h3\\b[^>]*id="nfl-attribute-'+key+'"[^>]*tabindex="-1"','i').test(guide));
  assert.ok(guide.includes('href="#nfl-radar-link-'+key+'"'));
 }
-console.log(JSON.stringify({status:'passed',expertFacts:4,expertLookups:lookups,invalidRecordCases:12,defaultPoints:14,defaultSegments:14,rendererScenarios:5,staticExpertCells:4,sourceDate:EXPERT_SOURCE.published,attributeLinks:7,staticGuideEntries:7,nativeBrowserChecks:'separate'},null,2));
+// Compare every requirement subset with the marks emitted by the real renderer.
+const referencesBefore=JSON.stringify(host.references),sourcesBefore=JSON.stringify([annual,depth,legacy]);
+let availabilityComparisons=0;const complete=[],mobility=[];
+for(const row of annual.rows){
+ const choice=selected('a',row.player_key,row.season);host.drawRadar([choice,{...choice,side:'b'}]);
+ const available=nodes('radar-mark').filter(n=>n.attrs['data-side']==='a').reduce((mask,n)=>mask|(1<<Number(n.attrs['data-position'])),0);
+ for(let mask=0;mask<128;mask++){
+  assert.equal(host.requirementsMatch(row.player_key,row.season,mask),(available&mask)===mask,`${row.player_key}/${row.season} subset ${mask}`);availabilityComparisons++;
+ }
+ if(host.requirementsMatch(row.player_key,row.season,127))complete.push([row.player_key,row.season]);
+ if(host.requirementsMatch(row.player_key,row.season,8))mobility.push([row.player_key,row.season]);
+}
+assert.deepEqual(complete.sort(),[['00-0033873',2023],['00-0034857',2023]]);
+assert.equal(mobility.length,40);assert.ok(mobility.every(([,year])=>year===2023||year===2024));
+const orton=annual.rows.find(r=>r.observed_name==='K.Orton'&&r.season===2008)??annual.rows.find(r=>r.display_name==='Kyle Orton'&&r.season===2008);
+assert.ok(orton);assert.equal(host.requirementsMatch(orton.player_key,2008,8),false);
+assert.equal(host.requirementsMatch(a.id,2011,8),false);assert.equal(host.requirementsMatch(a.id,2024,1),false);
+const originalPoint=host.profilePoint;
+for(const [radius,expected]of [[0,true],[null,false],[NaN,false],[Infinity,false]]){host.profilePoint=()=>({radius});assert.equal(host.requirementsMatch(a.id,2023,1),expected,'Finite zero remains available');}
+host.profilePoint=originalPoint;
+host.players=[...new Map(annual.rows.map(r=>[r.player_key,{id:r.player_key,name:r.display_name}])).values()];
+const controls={a:{value:orton.player_key},b:{value:b.id},'season-a':{value:'2008'},'season-b':{value:'2023'}};
+host.control=key=>controls[key];host.requiredMask=8;
+assert.ok(!host.seasonPlayers('a').some(p=>p.id===orton.player_key));
+assert.deepEqual(host.seasonChoices('a'),[]);
+controls.a.value='';controls['season-a'].value='';
+assert.deepEqual(host.seasonChoices('a').map(y=>y.season),[2024,2023]);
+assert.ok(host.seasonPlayers('a').length>0,'Cleared year can search eligible players across matching years');
+host.requiredMask=127;
+assert.deepEqual(host.seasonPlayers('a').map(p=>p.id).sort(),[a.id,b.id].sort());
+controls.a.value=a.id;assert.deepEqual(host.seasonChoices('a').map(y=>y.season),[2023]);
+host.requiredMask=0;assert.equal(host.seasonChoices('a').length,20);assert.ok(host.seasonChoices('a').some(y=>y.season===2011));
+assert.equal(JSON.stringify(host.references),referencesBefore,'Requirements never alter reference pools');
+assert.equal(JSON.stringify([annual,depth,legacy]),sourcesBefore,'Requirements never alter input records');
+assert.equal((html.match(/type="checkbox"[^>]*data-require-attribute=/g)??[]).length,7);
+assert.ok(/<button\b[^>]*data-clear-requirements/.test(html));
+console.log(JSON.stringify({status:'passed',expertFacts:4,expertLookups:lookups,invalidRecordCases:12,defaultPoints:14,defaultSegments:14,rendererScenarios:5,staticExpertCells:4,sourceDate:EXPERT_SOURCE.published,attributeLinks:7,staticGuideEntries:7,availabilityComparisons,requirementSubsets:128,completePlayerSeasons:complete,mobilityPlayerSeasons:mobility.length,finiteZeroAndNonfinite:'passed',fixedReferences:'unchanged',nativeBrowserChecks:'separate'},null,2));

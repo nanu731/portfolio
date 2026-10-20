@@ -35,15 +35,15 @@ const AXES:Axis[]=[
 export function registerNFL(){
  if(customElements.get('nfl-comparison'))return;
  class NFLComparison extends HTMLElement{
-  annual?:AnnualPayload;depth?:DepthPayload;legacy?:Payload;references?:PercentileReferences;observer?:ResizeObserver;request=0;players:PlayerChoice[]=[];suggestionState:Record<string,{matches:PlayerChoice[];active:number}>={a:{matches:[],active:-1},b:{matches:[],active:-1}};
+  annual?:AnnualPayload;depth?:DepthPayload;legacy?:Payload;references?:PercentileReferences;observer?:ResizeObserver;request=0;requiredMask=0;players:PlayerChoice[]=[];selectionNotice:Record<string,string>={a:"",b:""};suggestionState:Record<string,{matches:PlayerChoice[];active:number}>={a:{matches:[],active:-1},b:{matches:[],active:-1}};
   control(key:string){return this.querySelector<HTMLSelectElement>(`[data-${key}]`)!;}
   search(side:string){return this.querySelector<HTMLInputElement>(`[data-search-${side}]`)!;}
-  label(s:Selected){return `${s.name} · ${s.year}`;}
-  selected(side:'a'|'b'):Selected{
-   const id=this.control(side).value,year=Number(this.control(`season-${side}`).value),name=this.players.find(p=>p.id===id)!.name;
-   return {side,id,year,name,row:this.annual!.rows.find(r=>r.player_key===id&&r.season===year),legacy:this.legacy!.rows.find(r=>r.player_key===id&&r.season===year),depth:this.depth!.rows.filter(r=>r.player_key===id&&r.season===year)};
+  label(s:Selected){return s.id?`${s.name} · ${s.year||"choose season"}`:`Choose quarterback${s.year?" · "+s.year:""}`;}
+  playerSeason(side:'a'|'b',id:string,year:number):Selected{
+   return {side,id,year,name:this.players.find(p=>p.id===id)?.name??'',row:this.annual!.rows.find(r=>r.player_key===id&&r.season===year),legacy:this.legacy!.rows.find(r=>r.player_key===id&&r.season===year),depth:this.depth!.rows.filter(r=>r.player_key===id&&r.season===year)};
   }
-  missing(s:Selected){return s.year===2011?'2011 source blocked: unresolved duplicate events and air-yard records.':'No eligible player-season record: this year requires at least 200 included throws in ten games.';}
+  selected(side:'a'|'b'):Selected{return this.playerSeason(side,this.control(side).value,Number(this.control(`season-${side}`).value));}
+  missing(s:Selected){return !s.id||!s.year?(this.selectionNotice[s.side]||'Choose a quarterback and season to compare.') : s.year===2011?'2011 source blocked: unresolved duplicate events and air-yard records.':'No eligible player-season record: this year requires at least 200 included throws in ten games.';}
   outcome(s:Selected,a:Axis):Outcome{
    const empty=(reason:string):Outcome=>({value:null,lower:null,upper:null,status:'unavailable',counts:'',reason});
    if(!a.field)return empty('Expert assessment uses its separately attributed rank.');
@@ -62,7 +62,7 @@ export function registerNFL(){
    const p=this.standing(s,a);return {radius:p.percentile===null?null:p.percentile/100,display:displayPercentile(p.percentile),kind:'outcome',rank:null,reason:this.outcome(s,a).reason||p.reason};
   }
   loadExample(){
-   for(const [side,id]of [['a','00-0033873'],['b','00-0034857']]){this.control(side).value=id;this.control(`season-${side}`).value='2023';this.refreshSearchSeason(side);}
+   for(const [side,id]of [['a','00-0033873'],['b','00-0034857']]){this.control(side).value=id;this.updateSeasons(side,'2023');this.selectionNotice[side]='';this.refreshSearchSeason(side);}
    this.render();
   }
   readonly handleOutsidePointer=(event:PointerEvent)=>{
@@ -90,29 +90,61 @@ export function registerNFL(){
    const link=document.getElementById(location.hash.slice(1));
    if(link instanceof SVGElement&&link.matches('.radar-attribute-link')&&this.contains(link))this.frameAttributeReturn(link);
   };
+  // Availability is the same finite radius used by the renderer, including zero.
+  requirementsMatch(id:string,year:number,mask=this.requiredMask){
+   const selected=this.playerSeason('a',id,year);
+   return AXES.every((axis,i)=>!(mask&(1<<i))||Number.isFinite(this.profilePoint(selected,axis).radius));
+  }
+  seasonChoices(side:string){
+   const id=this.control(side).value;
+   return [...this.annual!.season_catalog].sort((a,b)=>b.season-a.season).filter(y=>!this.requiredMask||this.annual!.rows.some(r=>r.season===y.season&&(!id||r.player_key===id)&&this.requirementsMatch(r.player_key,r.season)));
+  }
+  updateSeasons(side:string,current=this.control(`season-${side}`).value){
+   const select=this.control(`season-${side}`),choices=this.seasonChoices(side);
+   select.replaceChildren(...choices.map(y=>{const option=document.createElement('option');option.value=String(y.season);option.textContent=String(y.season)+(y.status==='source_blocked'?' · source blocked':'');return option;}));
+   if(!current||!choices.some(y=>String(y.season)===current)){
+    const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent=choices.length?'Choose season':'No matching seasons';select.prepend(placeholder);select.value='';
+   }else select.value=current;
+  }
+  reconcileSelection(side:string){
+   const id=this.control(side).value,year=Number(this.control(`season-${side}`).value);
+   if(this.requiredMask&&id&&!(year?this.requirementsMatch(id,year):this.annual!.rows.some(r=>r.player_key===id&&this.requirementsMatch(id,r.season)))){
+    this.control(side).value='';this.selectionNotice[side]='Selection cleared: choose a quarterback and season with every checked attribute available.';
+   }
+   this.updateSeasons(side);this.refreshSearchSeason(side);
+  }
+  changeRequirements(clear=false){
+   const boxes=[...this.querySelectorAll<HTMLInputElement>('[data-require-attribute]')];
+   if(clear)boxes.forEach(box=>box.checked=false);
+   this.requiredMask=boxes.reduce((mask,box)=>mask|(box.checked?1<<Number(box.dataset.requireAttribute):0),0);
+   if(!this.requiredMask)this.selectionNotice={a:'',b:''};
+   for(const side of ['a','b'])this.reconcileSelection(side);
+   this.render();
+  }
   seasonPlayers(side:string){
-   const ids=new Set(this.annual?.rows.filter(r=>r.season===Number(this.control(`season-${side}`).value)).map(r=>r.player_key));
+   const year=Number(this.control(`season-${side}`).value);
+   const ids=new Set(this.annual?.rows.filter(r=>(!year||r.season===year)&&(!this.requiredMask||this.requirementsMatch(r.player_key,r.season))).map(r=>r.player_key));
    return this.players.filter(p=>ids.has(p.id));
   }
   refreshSearchSeason(side:string){
    this.closeSuggestions(side);this.search(side).value=this.selectedName(side);
-   const year=this.control(`season-${side}`).value;this.search(side).placeholder=`Search players in ${year}`;this.suggestions(side).setAttribute('aria-label',`Players in ${year}`);
-   this.searchStatus(side,`${this.selectedName(side)}, ${year}.`);
+   const year=this.control(`season-${side}`).value;this.search(side).placeholder=year?`Search players in ${year}`:'Search eligible quarterbacks';this.suggestions(side).setAttribute('aria-label',year?`Players in ${year}`:'Players with an eligible season');
+   this.searchStatus(side,this.selectedName(side)?`${this.selectedName(side)}, ${year||'choose a season'}.`:(this.selectionNotice[side]||`Choose a quarterback${year?' in '+year:' and season'}.`));
   }
   suggestions(side:string){return this.querySelector<HTMLElement>(`[data-suggestions-${side}]`)!;}
   searchStatus(side:string,text:string){this.querySelector(`[data-search-status-${side}]`)!.textContent=text;}
-  selectedName(side:string){return this.players.find(p=>p.id===this.control(side).value)!.name;}
+  selectedName(side:string){return this.players.find(p=>p.id===this.control(side).value)?.name??'';}
   closeSuggestions(side:string){
    this.suggestions(side).hidden=true;this.search(side).setAttribute('aria-expanded','false');this.search(side).removeAttribute('aria-activedescendant');
    this.suggestionState[side]={matches:[],active:-1};
   }
   showSuggestions(side:string,all=false){
    if(this.search(side).disabled)return;
-   const players=this.seasonPlayers(side);if(all&&!players.length)return;
+   const players=this.seasonPlayers(side);
    this.closeSuggestions(side==='a'?'b':'a');
    const matches=all?[...players]:matchingPlayers(players,this.search(side).value);
    this.suggestionState[side]={matches,active:-1};this.search(side).removeAttribute('aria-activedescendant');this.renderSuggestions(side);this.suggestions(side).hidden=false;this.search(side).setAttribute('aria-expanded','true');
-   const year=this.control(`season-${side}`).value;
+   const year=this.control(`season-${side}`).value||'eligible seasons';
    this.searchStatus(side,all?`${players.length} players in ${year}. Type to narrow the list.`:`${matches.length} ${matches.length===1?'player matches':'players match'} in ${year}.`);
   }
   renderSuggestions(side:string){
@@ -124,7 +156,8 @@ export function registerNFL(){
    }));
   }
   choosePlayer(side:string,p:PlayerChoice){
-   this.control(side).value=p.id;this.search(side).value=p.name;this.closeSuggestions(side);this.searchStatus(side,`${p.name}, ${this.control(`season-${side}`).value}.`);this.render();
+   if(this.requiredMask&&!this.seasonPlayers(side).some(choice=>choice.id===p.id))return;
+   this.control(side).value=p.id;this.selectionNotice[side]='';this.updateSeasons(side);this.refreshSearchSeason(side);this.render();
   }
   searchKeydown(side:string,e:KeyboardEvent){
    if(e.isComposing)return;
@@ -140,7 +173,7 @@ export function registerNFL(){
    }
   }
   connectedCallback(){
-   if(this.dataset.initialized)return;this.dataset.initialized='true';this.players=[...this.control('a').options].map(o=>({id:o.value,name:o.textContent!}));
+   if(this.dataset.initialized)return;this.dataset.initialized='true';this.players=[...this.control('a').options].filter(o=>o.value).map(o=>({id:o.value,name:o.textContent!}));
    for(const side of ['a','b']){
     this.search(side).addEventListener('input',()=>this.showSuggestions(side));
     this.search(side).addEventListener('focus',()=>this.showSuggestions(side,true));
@@ -149,20 +182,23 @@ export function registerNFL(){
     shell.addEventListener('focusout',e=>{if(!(e.relatedTarget instanceof Node)||!shell.contains(e.relatedTarget))this.closeSuggestions(side);});
    }
    document.addEventListener('pointerdown',this.handleOutsidePointer);this.addEventListener('click',this.handleAttributeClick);window.addEventListener('popstate',this.handleAttributeBack);window.addEventListener('hashchange',this.handleAttributeReturn);
-   for(const side of ['a','b'])this.control(`season-${side}`).addEventListener('change',()=>{this.refreshSearchSeason(side);this.render();});
+   for(const side of ['a','b'])this.control(`season-${side}`).addEventListener('change',()=>{this.selectionNotice[side]='';this.reconcileSelection(side);this.render();});
    this.querySelector('[data-retry]')!.addEventListener('click',()=>this.load());
    this.querySelector('[data-complete-example]')!.addEventListener('click',()=>this.loadExample());
+   this.querySelectorAll('[data-require-attribute]').forEach(box=>box.addEventListener('change',()=>this.changeRequirements()));
+   this.querySelector('[data-clear-requirements]')!.addEventListener('click',()=>this.changeRequirements(true));
    this.querySelectorAll('[data-sack-section],[data-comparison-evidence]').forEach(e=>e.addEventListener('toggle',()=>{if(this.annual)this.render(false);}));
    this.observer=new ResizeObserver(()=>{if(this.annual)this.render(false);});this.querySelectorAll('[data-chart-host]').forEach(e=>this.observer!.observe(e));this.load();
   }
   disconnectedCallback(){this.observer?.disconnect();document.removeEventListener('pointerdown',this.handleOutsidePointer);this.removeEventListener('click',this.handleAttributeClick);window.removeEventListener('popstate',this.handleAttributeBack);window.removeEventListener('hashchange',this.handleAttributeReturn);this.request++;}
   clear(){
    this.querySelectorAll('svg[data-field],svg[data-radar]').forEach(s=>{s.replaceChildren();s.setAttribute('hidden','');});
-   this.querySelectorAll('[data-selected-values],[data-radar-values],[data-profile-values],[data-selected-depth]').forEach(e=>e.replaceChildren());
+   this.querySelectorAll('[data-selected-values],[data-radar-values],[data-selected-depth]').forEach(e=>e.replaceChildren());
+   this.querySelectorAll<HTMLElement>('[data-profile-values] td').forEach(td=>{td.textContent='Unavailable';td.className='unavailable';td.removeAttribute('data-rank');td.removeAttribute('data-percentile');});
    this.querySelectorAll('[data-counts],[data-pair-legend],[data-radar-legend],[data-radar-counts],[data-radar-gaps],[data-availability-a],[data-availability-b]').forEach(e=>e.textContent='');
    this.querySelector('[data-radar-a]')!.textContent='Quarterback A';this.querySelector('[data-radar-b]')!.textContent='Quarterback B';
    for(const side of ['a','b'])this.closeSuggestions(side);
-   this.querySelectorAll<HTMLSelectElement|HTMLInputElement|HTMLButtonElement>('select,input[type=search],[data-complete-example]').forEach(e=>e.disabled=true);
+   this.querySelectorAll<HTMLSelectElement|HTMLInputElement|HTMLButtonElement>('select,input[type=search],[data-complete-example],[data-require-attribute],[data-clear-requirements]').forEach(e=>e.disabled=true);
   }
   async load(){
    const restore=this.querySelector('[data-retry]')===document.activeElement,token=++this.request;
@@ -172,12 +208,12 @@ export function registerNFL(){
     if(responses.some(r=>!r.ok))throw Error('Data unavailable');const bytes=await Promise.all(responses.map(async r=>new Uint8Array(await r.arrayBuffer())));
     const [{annual,depth},legacy]=await Promise.all([validateAnnualDepth(bytes[0],bytes[1],bytes[2],bytes[3]),validatePair(bytes[4],bytes[5])]);validateExpertRanks(EXPERT_RANKS);const references=await buildPercentileReferences(annual,depth,legacy);await document.fonts.ready;
     if(token!==this.request||!this.isConnected)return;this.annual=annual;this.depth=depth;this.legacy=legacy;this.references=references;this.dataset.state='ready';
-    this.querySelectorAll<HTMLSelectElement|HTMLInputElement|HTMLButtonElement>('select,input[type=search],[data-complete-example]').forEach(e=>e.disabled=false);for(const side of ['a','b'])this.refreshSearchSeason(side);this.render();if(restore)this.search('a').focus();
+    this.querySelectorAll<HTMLSelectElement|HTMLInputElement|HTMLButtonElement>('select,input[type=search],[data-complete-example],[data-require-attribute],[data-clear-requirements]').forEach(e=>e.disabled=false);for(const side of ['a','b'])this.reconcileSelection(side);this.render();if(restore)this.search('a').focus();
    }catch{if(token!==this.request)return;this.clear();this.dataset.state='error';this.querySelector('[data-comparison-status]')!.textContent='The comparison data could not be verified. Retry, or open the complete annual and original-cohort tables below.';this.querySelector<HTMLButtonElement>('[data-retry]')!.hidden=false;}
   }
   render(announce=true){
    if(!this.annual||!this.depth||!this.legacy)return;const pair=[this.selected('a'),this.selected('b')];
-   pair.forEach(s=>{this.querySelector(`[data-availability-${s.side}]`)!.textContent=s.row?'':`${s.side.toUpperCase()} · ${this.label(s)}: ${this.missing(s)} The selection is retained.`;});
+   pair.forEach(s=>{this.querySelector(`[data-availability-${s.side}]`)!.textContent=s.row?'':`${s.side.toUpperCase()} · ${this.label(s)}: ${this.missing(s)}${s.id&&s.year?' The selection is retained.':''}`;});
    this.drawRadar(pair);this.renderEvidence(pair);
    this.querySelectorAll<SVGSVGElement>('svg[data-field]').forEach(svg=>{const main=svg.closest<HTMLDetailsElement>('[data-comparison-evidence]'),sack=svg.closest<HTMLDetailsElement>('[data-sack-section]');if(!main?.open||(sack&&!sack.open)){svg.replaceChildren();svg.setAttribute('hidden','');return;}const width=Math.round(svg.parentElement!.getBoundingClientRect().width);if(width>0)this.draw(svg,pair,svg.dataset.field!,width);});
    for(const field of ['epa_per_dropback','cpoe_pp','sack_avoidance_pct']){
@@ -230,16 +266,13 @@ export function registerNFL(){
     if(a.expert){pair.forEach(s=>{const td=cell('td',''),p=this.profilePoint(s,a);td.dataset.player=`${s.side.toUpperCase()} · ${this.label(s)}`;td.append(cell('strong',`${p.display}${p.rank===null?'':' expert rank'}`));const source=document.createElement('a');source.href=EXPERT_SOURCE.url;source.textContent='ESPN Quarterback Council · 14 Aug 2023';td.append(source,cell('small',p.rank===null?p.reason:'Preseason editorial rank. Ordinal drawing index, not a percentile or calibrated skill grade.'));tr.append(td);});body.append(tr);return;}
     pair.forEach(s=>{const td=cell('td',''),o=this.outcome(s,a),p=this.standing(s,a);td.dataset.player=`${s.side.toUpperCase()} · ${this.label(s)}`;const value=document.createElement('strong');value.textContent=o.value===null?o.reason:`Recorded value: ${fmt(o.value,a.field==='sack_avoidance_pct'?1:3)} ${a.unit}`;td.append(value);if(o.value!==null){td.dataset.value=String(o.value);const count=document.createElement('small'),range=document.createElement('small'),rank=document.createElement('small');count.textContent=o.counts;range.textContent=o.lower!==null?`Raw range: ${fmt(o.lower)} to ${fmt(o.upper)} ${a.unit}; ${o.status.replaceAll('_',' ')}. Not a percentile interval.`:`Raw range: ${o.status.replaceAll('_',' ')}`;rank.textContent=`${displayPercentile(p.percentile)} percentile · ${this.referenceLabel(s,a)} · OP-1.0`;td.append(count,range,rank);}tr.append(td);});body.append(tr);
    });
-   const values=this.querySelector('[data-profile-values]')!;values.replaceChildren();
-   for(const a of AXES){
-    const tr=document.createElement('tr');tr.dataset.attribute=a.trait;tr.append(cell('th',a.trait));
-    pair.forEach(s=>{const point=this.profilePoint(s,a),td=cell('td','');td.dataset.side=s.side;
-     if(point.radius===null){td.textContent='Unavailable';td.className='unavailable';}
-     else if(a.expert){td.textContent=point.display+' rank';td.dataset.rank=String(point.rank);}
-     else{const p=this.standing(s,a);td.dataset.percentile=String(p.percentile);td.append(cell('strong',point.display),cell('small','percentile'));}
-     tr.append(td);
-    });values.append(tr);
-   }
+   AXES.forEach((axis,i)=>pair.forEach(selected=>{
+    const td=this.querySelector<HTMLElement>(`[data-profile-values] tr[data-attribute-index="${i}"] [data-side="${selected.side}"]`)!,point=this.profilePoint(selected,axis);
+    td.replaceChildren();td.className='';td.removeAttribute('data-rank');td.removeAttribute('data-percentile');
+    if(point.radius===null){td.textContent='Unavailable';td.className='unavailable';}
+    else if(axis.expert){td.textContent=point.display+' rank';td.dataset.rank=String(point.rank);}
+    else{const p=this.standing(selected,axis);td.dataset.percentile=String(p.percentile);td.append(cell('strong',point.display),cell('small','percentile'));}
+   }));
    this.querySelector('[data-profile-a]')!.textContent='A';this.querySelector('[data-profile-b]')!.textContent='B';
    const incomplete=pair.some(s=>AXES.some(a=>this.profilePoint(s,a).radius===null)),gaps=this.querySelector<HTMLElement>('[data-radar-gaps]')!;
    gaps.hidden=!incomplete;gaps.textContent=incomplete?'Some attributes are unavailable for this selection. Expert opinions are available here only for Mahomes and Allen in 2023.':'';

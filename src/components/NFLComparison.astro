@@ -14,6 +14,7 @@ const staticRank=(i:number,j:number)=>percentileFor(references,staticMetrics[i],
 const players=[...new Map(annual.rows.map(r=>[r.player_key,r])).values()].sort((a,b)=>a.display_name.localeCompare(b.display_name));
 const seasons=[...annual.season_catalog].sort((a,b)=>b.season-a.season);
 const defaults=['00-0033873','00-0034857'].map(id=>({annual:annual.rows.find(r=>r.player_key===id&&r.season===2023)!,legacy:data.rows.find(r=>r.player_key===id&&r.season===2023)!,depth:depth.rows.filter(r=>r.player_key===id&&r.season===2023)}));
+const profileAttributes=['Arm strength','Processing','Pocket presence','Mobility','Short accuracy','Medium accuracy','Deep accuracy'];
 const staticOutcomes=['Dropbacks without a sack (%)','Scramble expected points per included QB play','Short completions above expectation (pp)','Medium completions above expectation (pp)','Deep completions above expectation (pp)'];
 const staticValue=(i:number,j:number)=>i===0?defaults[j].annual.sack_avoidance_pct:i===1?defaults[j].legacy.scramble_contribution:defaults[j].depth.find(r=>r.bin===['short','medium','deep'][i-2])!.cpoe_pp;
 const staticEvidence=(i:number,j:number)=>{
@@ -41,7 +42,7 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
        <input id="nfl-search-a" type="search" data-search-a value={players.find(r=>r.player_key==='00-0033873')!.display_name} placeholder="Search players in 2023" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="nfl-suggestions-a" aria-describedby="nfl-search-help-a nfl-search-status-a" autocomplete="off" disabled />
        <div id="nfl-suggestions-a" class="suggestion-menu" role="listbox" aria-label="Quarterbacks for A" data-suggestions-a hidden></div>
       </div>
-      <select id="nfl-player-a" name="nfl-player-a" data-a aria-label="Selected quarterback A" hidden disabled>{players.map(r=><option value={r.player_key} selected={r.player_key==='00-0033873'}>{r.display_name}</option>)}</select>
+      <select id="nfl-player-a" name="nfl-player-a" data-a aria-label="Selected quarterback A" hidden disabled><option value="">Choose quarterback</option>{players.map(r=><option value={r.player_key} selected={r.player_key==='00-0033873'}>{r.display_name}</option>)}</select>
      </div>
      <label class="label season-control" for="nfl-season-a">Season A<select id="nfl-season-a" name="nfl-season-a" data-season-a disabled>{seasons.map(y=><option value={y.season} selected={y.season===2023}>{y.season}{y.status==='source_blocked'?' · source blocked':''}</option>)}</select></label>
     </div>
@@ -56,7 +57,7 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
        <input id="nfl-search-b" type="search" data-search-b value={players.find(r=>r.player_key==='00-0034857')!.display_name} placeholder="Search players in 2023" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="nfl-suggestions-b" aria-describedby="nfl-search-help-b nfl-search-status-b" autocomplete="off" disabled />
        <div id="nfl-suggestions-b" class="suggestion-menu" role="listbox" aria-label="Quarterbacks for B" data-suggestions-b hidden></div>
       </div>
-      <select id="nfl-player-b" name="nfl-player-b" data-b aria-label="Selected quarterback B" hidden disabled>{players.map(r=><option value={r.player_key} selected={r.player_key==='00-0034857'}>{r.display_name}</option>)}</select>
+      <select id="nfl-player-b" name="nfl-player-b" data-b aria-label="Selected quarterback B" hidden disabled><option value="">Choose quarterback</option>{players.map(r=><option value={r.player_key} selected={r.player_key==='00-0034857'}>{r.display_name}</option>)}</select>
      </div>
      <label class="label season-control" for="nfl-season-b">Season B<select id="nfl-season-b" name="nfl-season-b" data-season-b disabled>{seasons.map(y=><option value={y.season} selected={y.season===2023}>{y.season}{y.status==='source_blocked'?' · source blocked':''}</option>)}</select></label>
     </div>
@@ -83,7 +84,11 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
      <div data-chart-host><svg id="nfl-radar" data-radar hidden role="group" aria-labelledby="nfl-radar-title nfl-radar-description"></svg></div>
      <figcaption>A lower expert rank (#) is better. A higher percentile means higher standing for that season stat. Compare one attribute at a time; a bigger shape is not better overall. Mobility uses the original 20-player group. Select an underlined attribute for its guide.</figcaption>
     </figure>
-    <div class="profile-readout"><table aria-label="Selected attribute values"><thead><tr><th scope="col">Attribute</th><th scope="col" data-profile-a>A</th><th scope="col" data-profile-b>B</th></tr></thead><tbody data-profile-values></tbody></table></div>
+    <div class="profile-readout">
+     <p class="requirement-help" id="nfl-requirement-help">Only show quarterback seasons with every checked attribute available.</p>
+     <button type="button" data-clear-requirements disabled>Clear attribute filters</button>
+     <table aria-label="Selected attribute values"><thead><tr><th scope="col">Attribute</th><th scope="col" data-profile-a>A</th><th scope="col" data-profile-b>B</th></tr></thead><tbody data-profile-values>{profileAttributes.map((name,i)=><tr data-attribute-index={i}><th scope="row"><label class="attribute-requirement"><input type="checkbox" data-require-attribute={i} aria-describedby="nfl-requirement-help" disabled/>{name}</label></th><td data-side="a">Unavailable</td><td data-side="b">Unavailable</td></tr>)}</tbody></table>
+    </div>
    </div>
    <p class="evidence-gaps" data-radar-gaps hidden></p>
    <details class="radar-detail"><summary>Expert sources, recorded values, counts and raw ranges</summary>
@@ -177,7 +182,7 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
  .season-control{align-self:end;}
  .fan-controls :is(select,input[type="search"]){min-width:0;width:100%;min-height:var(--control-height,3rem);box-sizing:border-box;padding:var(--space-2xs) var(--space-s);font-family:var(--font-body);font-size:1rem;color:var(--green);background:var(--cream);border:var(--rule) solid var(--green);border-radius:0;}
  select:disabled,input[type="search"]:disabled{cursor:wait;opacity:.65;}
- [data-retry],[data-complete-example]{min-width:0;width:auto;min-height:44px;padding:var(--space-2xs);font:inherit;color:var(--green);background:var(--cream);border:var(--rule) solid var(--green);border-radius:0;cursor:pointer;}
+ [data-retry],[data-complete-example],[data-clear-requirements]{min-width:0;width:auto;min-height:44px;padding:var(--space-2xs);font:inherit;color:var(--green);background:var(--cream);border:var(--rule) solid var(--green);border-radius:0;cursor:pointer;}
  .player-combobox{min-width:0;display:grid;gap:var(--space-2xs);}
  .combobox-shell{position:relative;min-width:0;}
  .suggestion-menu{position:absolute;z-index:10;inset-block-start:100%;inset-inline:0;max-height:var(--suggestion-max-height);overflow-y:auto;box-sizing:border-box;border:var(--rule) solid var(--green);border-top:0;background:var(--cream);}
@@ -237,6 +242,12 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
  .radar-readout :global(.outcome-bounds){margin-top:var(--space-xs);font-family:var(--font-numeric);font-size:13px;}
  .radar-readout :global(.evidence-gaps){border-top:var(--rule) solid var(--green);padding-top:var(--space-xs);}
  .radar-readout :global(.evidence-gaps p){font-size:16px;line-height:1.5;margin-block:var(--space-2xs);overflow-wrap:normal;word-break:normal;}
+ .requirement-help{font-size:var(--type-small);line-height:1.5;margin-block:0 var(--space-2xs);}
+ [data-clear-requirements]{font-size:var(--type-small);margin-bottom:var(--space-xs);}
+ .attribute-requirement{display:flex;align-items:center;gap:var(--space-2xs);min-height:44px;cursor:pointer;}
+ .attribute-requirement input{flex:none;width:24px;height:24px;margin:0;accent-color:var(--green);}
+ .attribute-requirement input:focus-visible,[data-clear-requirements]:focus-visible{outline:var(--rule-thick) solid var(--accent);outline-offset:3px;}
+ .attribute-requirement input:disabled,[data-clear-requirements]:disabled{cursor:wait;opacity:.65;}
  .profile-readout{min-width:0;align-self:center;}
  .profile-readout table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;}
  .profile-readout :global(th),.profile-readout :global(td){text-align:left;border-bottom:var(--rule-thin) solid var(--sand);padding:var(--space-xs) var(--space-2xs);vertical-align:middle;}

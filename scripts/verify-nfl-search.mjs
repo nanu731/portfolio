@@ -31,7 +31,7 @@ const menu={hidden:false};const state={a:{matches:[1],active:0}};
 close.call({suggestions:()=>menu,search:()=>field,suggestionState:state},'a');
 assert.equal(menu.hidden,true);assert.equal(field.value,'Unfinished query');assert.equal(field.attrs['aria-expanded'],'false');assert.equal(field.attrs['aria-activedescendant'],undefined);assert.equal(state.a.active,-1);
 let renders=0,closed=false;const selected={value:'old'},input={value:'query'},season={value:'2024'};
-method('choosePlayer','searchKeydown').call({control:k=>k==='a'?selected:season,search:()=>input,closeSuggestions:()=>{closed=true;},searchStatus(){},render(){renders++;}},'a',{id:'new',name:'Ben Roethlisberger'});
+method('choosePlayer','searchKeydown').call({control:k=>k==='a'?selected:season,selectionNotice:{a:''},updateSeasons(){},refreshSearchSeason(){input.value='Ben Roethlisberger';closed=true;},render(){renders++;}},'a',{id:'new',name:'Ben Roethlisberger'});
 assert.equal(selected.value,'new');assert.equal(input.value,'Ben Roethlisberger');assert.equal(closed,true);assert.equal(renders,1);
 const subset=method('seasonPlayers','refreshSearchSeason').call({annual,control:()=>({value:'2024'}),players:[...new Map(annual.rows.map(r=>[r.player_key,{id:r.player_key,name:r.display_name}])).values()]},'a');
 assert.equal(subset.length,annual.rows.filter(r=>r.season===2024).length);
