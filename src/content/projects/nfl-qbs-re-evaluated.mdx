@@ -1,12 +1,12 @@
 ---
 title: NFL QBs Re-evaluated
 heading: NFL QBs Re-evaluated
-description: Compare two quarterbacks' play value and completions above expectation, with clear definitions and optional research detail.
+description: Compare recorded quarterback outcomes by season and throw depth, with visible evidence gaps and optional methods.
 question: Can public NFL data help describe repeatable quarterback execution with less dependence on supporting circumstances?
 questionInBody: true
-dataset: nflverse regular-season play-by-play
-method: Recorded play-value and completion summaries, with conditional repeatability studies
-seasons: 2023 and 2024
+dataset: nflverse regular-season play-by-play, 560 qualifying player-seasons
+method: Annual and depth-specific outcome summaries, conditional game-based ranges, and original fixed-cohort repeatability studies
+seasons: 2006–2025, with 2011 source-blocked
 repo: https://github.com/nanu731/nfl-qb-eval
 compact: true
 metadataInBody: true
@@ -24,15 +24,19 @@ import NFLComparison from '../../components/NFLComparison.astro';
 
 <h2 id="nfl-radar-scaling" tabIndex={-1} data-reference-target>Research radar: geometry and evidence limits</h2>
 
-The seven fixed clockwise positions are arm strength, processing, pocket presence, mobility, short accuracy, medium accuracy and deep accuracy. Arm strength and processing are **not measured**. The three depth-specific accuracy estimates are **not yet estimated**. Their gaps represent missing evidence, not low ratings.
+The seven fixed clockwise positions correspond to arm strength, processing, pocket presence, mobility, short accuracy, medium accuracy and deep accuracy. **Arm strength and processing remain not measured.** The other positions show named recorded outcomes where evidence exists. A gap means unavailable evidence, not a low rating. The number of plotted outcomes can differ between the selected player-seasons.
 
-Only two admitted outcomes have plotted points: **dropbacks without a sack (%)** at the desired pocket-presence position, and **scramble contribution (EPA/O)** at the desired mobility position. These outcomes do not measure isolated pocket presence or athletic mobility. Sack avoidance also reflects protection, receiver availability and decisions with other costs. Scramble contribution combines usage with whole-play shared value; it omits non-scramble runs and direct movement measurements.
+**Dropbacks without a sack (%)** occupies the desired pocket-presence position. **Scramble contribution** occupies the desired mobility position only when the selected ID and season match one of the original 40 audited records from 2023/2024. Other selections show **No audited scramble-value record**. Sack avoidance reflects protection, receiver availability and decisions with other costs. Scramble contribution combines usage with whole-play shared value. Neither isolates the desired trait.
 
-The display maps each native value to radius using `(value − L) / (U − L)`. Each field keeps its exact accepted full-v2 bounds for all selected players and years. The unsigned sack percentage uses 89.98384491114702% at the center and 97.4025974025974% at the rim. The signed scramble scale uses -0.02742400920700434 at the center and 0.10729766327305992 at the rim, in expected points per included quarterback play. The scramble domain already includes its accepted marginal endpoints. The bounds stay fixed while selections change. Rounded values and scale endpoints appear beside the radar; the optional full-evidence table retains exact bounds and units. Sack percentages use one decimal place in the main comparison; scramble values and endpoints use three. The marks retain source precision. The center is the lower domain bound, not a common zero. The signed scramble spoke marks zero inside its displayed range. Zero percent is outside the unsigned sack-percentage display and has no plotted zero marker.
+The short, medium and deep positions show **completions above expectation** on throws in each depth bin, in percentage points. These depth-specific completion residuals describe recorded outcomes relative to the supplied model; they do not isolate throwing accuracy or ball placement. [Read the depth bins and formula](#nfl-definition-depth).
 
-Radius is display geometry, not a common ability unit, percentile or area score. A larger radius only means a higher value on that field's native scale. Neither distance between spokes nor the open segment supplies an overall rating. No line crosses an unavailable position, and no polygon closes or fills.
+The display maps each native value to radius using `(value − L) / (U − L)`. Each field keeps fixed bounds for every pair and year. The annual sack scale runs from 85.84615384615384% at the center to 98.29721362229103% at the rim. All three depth spokes share one scale from −42.30049395546098 to 45.719149158694584 percentage points, covering their full 560-player-season values, marginal range endpoints and zero. The legacy scramble scale remains −0.02742400920700434 to 0.10729766327305992 expected points per included quarterback play, including its range endpoints. The negative-depth diagnostic does not set the radar scale or occupy a spoke.
 
-Scramble whiskers retain the accepted marginal conditional game-based range around that outcome summary. They are not a joint confidence region, performance spread, prediction or test of a player/year difference. Individual sack-avoidance uncertainty was not estimated. [Read the range assumptions](#nfl-method-uncertainty), [the play populations](#nfl-definition-populations), [the sack formula](#nfl-definition-sack-avoidance), and [the scramble contribution formula](#nfl-definition-runs).
+The main comparison shows rounded values and endpoints; optional full evidence retains exact bounds and units. The marks retain source precision. The center is each scale's lower bound. Signed depth and scramble spokes mark zero within their ranges; zero percent lies outside the displayed sack scale.
+
+Farther out means a higher recorded result on that spoke's scale. Compare one spoke at a time; the shape is not an overall rating. Radius supplies display geometry, not a common ability unit, percentile or area score. Lines join adjacent available positions only. No line bridges a gap, and no polygon closes or fills.
+
+Depth and scramble whiskers retain their marginal conditional game-based ranges. They do not form a joint confidence region, predict performance or test a player/year difference. Individual sack-avoidance uncertainty was not estimated. [Read the range assumptions](#nfl-method-uncertainty), [the play populations](#nfl-definition-populations), [the sack formula](#nfl-definition-sack-avoidance), and [the scramble formula](#nfl-definition-runs).
 
 <h2 id="nfl-definition-epa-dropback" tabIndex={-1} data-reference-target>Value per dropback</h2>
 
@@ -53,6 +57,14 @@ How far the player's completion rate finished above or below the model's expecta
 Unit: percentage points. The supplied play value is `100 × (recorded completion − supplied completion probability)`. The project averages those supplied values across the same included throws used for completion rate. In symbols: `mean_E(cpoe_t) = 100 × sum_E(y_t − p_t) / N_E`, where `y_t` is one for a completion and zero otherwise, and `p_t` is the supplied probability between zero and one. The expected completion rate explains CPOE; it is not an additional player metric.
 
 Zero means matching that model expectation on the included throws, not zero accuracy. Receiver/defender actions, target choices and unmeasured circumstances remain. This does not measure ball placement or all-around accuracy. [Model explanation](#nfl-method-models) · [Included throws](#nfl-definition-populations) · [Limitations](#nfl-limitations).
+
+<h2 id="nfl-definition-depth" tabIndex={-1} data-reference-target>Completions above expectation by throw depth</h2>
+
+Air yards measure the recorded target depth relative to the line of scrimmage. The short bin includes throws from 0 up to, but not including, 10 air yards: `[0,10)`. Medium uses `[10,20)` and deep uses `[20,70)`. The separate negative-air-yard bin uses `[−15,0)` and remains an optional diagnostic, outside the radar. Boundaries belong to the bin starting at that value; a throw at 10 air yards is medium. These bins do not identify read order, target openness, arm strength or processing.
+
+For a bin `b`, let `E_b` contain that player's included throws in that season and bin, with `N_b` throws. Its completion residual is `theta_b = mean_E_b(cpoe_t) = 100 × sum_E_b(y_t − p_t) / N_b`. Here `y_t` is one for a recorded completion and zero otherwise, and `p_t` is the supplied completion probability. This is a pooled throw-level mean, not an average of game percentages. A value of +3 percentage points means the observed completion rate exceeded the model's expectation by three points on those bin throws.
+
+The annual eligibility threshold applies before depth splitting; the analysis adds no minimum bin-volume rule. Evidence shows the bin's throw count, games containing bin throws, and all included-throw games. An empty bin has no estimate. A failed game-deletion denominator leaves its range unavailable; no failed deletion disappears from the calculation and no unavailable value becomes zero. [Read the game-based calculation](#nfl-method-uncertainty).
 
 <h3 id="nfl-definition-percentage-points" tabIndex={-1} data-reference-target>Percentage points</h3>
 
@@ -92,33 +104,47 @@ The denominator is recorded dropbacks, not pressures or included throws. Interce
 
 The denominator is the count you divide by; it determines which plays the statistic describes.
 
-The player group contains the same 20 regular-use passer IDs in 2023 and 2024, with at least 200 included throws and ten included-throw games **each year**, across team changes. Selection depends on completion-probability availability, exposure and survival across years. This is not every NFL quarterback or a position-certified roster. A missing player has no comparison here; absence is not a performance rating. The postseason is excluded.
+<h3 id="nfl-definition-annual" tabIndex={-1} data-reference-target>Annual eligibility and source coverage</h3>
+
+The annual comparison contains **560 qualifying player-seasons across 19 exported seasons from 2006 through 2025**. Each player qualifies within that season with at least 200 frozen included throws and ten included-throw games. Team changes pool under the same recorded GSIS player ID. No adjacent-season appearance is required. These are recorded passers, not a position-certified roster or every NFL quarterback; completion-model availability and exposure affect who qualifies. The postseason is excluded.
+
+The catalog retains all 20 years. **2011 is source-blocked** because unresolved duplicate recorded events and conflicting air yards prevent an accepted input. It contributes no annual or depth rows. Years outside 2006–2025 have no accepted data in this comparison. A selected player-year without an eligible record stays unavailable; the display does not substitute a nearby year, another player or zero.
+
+The original repeatability evidence uses a separate, fixed group of 20 surviving passer IDs with at least 200 included throws and ten included-throw games in **both** 2023 and 2024. Its 40 annual records and ten study records remain labeled as the original cohort. The new annual selection does not extend those repeatability findings to 560 player-seasons. Only the original 40 records supply audited scramble values.
 
 - **Included throws (E):** the accepted recorded pass-outcome population, with finite supplied completion probability and CPOE, completion probability between zero and one, air yards at least −15 and below 70, observed pass location and the accepted receiver-name or receiver-ID condition. Frozen eligibility checks the CPOE identity. CPOE and completion share these exact rows; there is no FTN filter or missing-as-zero rule. The public audit code specifies the full pass-outcome/key rules.
 - **Recorded dropbacks (D):** recorded dropbacks on pass/run play types, with spike, kneel and two-point flags zero. Passes/sacks use the raw passer ID; scramble-runs use the raw rusher ID. Played penalties remain. Other play types and no-play records lie outside this population. It has no completion, completion-probability or included-throw-game filter, and may differ from another site's dropback rule.
 - **Scrambles (S):** the recorded scramble-run subset of dropbacks. These counts describe opportunities, not pressures escaped.
-- **Other recorded runs (R):** recorded non-scramble runs by a known member of the selected group, excluding kneels and conversions. They include aborted plays and laterals. Non-scramble does not establish designed-run intent or athletic mobility.
-- **Included QB plays (O):** the disjoint union of recorded dropbacks and other recorded runs. Scrambles already belong to dropbacks. This is a selected recorded-opportunity population, not every snap or offensive play.
+- **Other recorded runs (R), original 2023/2024 cohort only:** recorded non-scramble runs by a known member of that fixed group, excluding kneels and conversions. They include aborted plays and laterals. Non-scramble does not establish designed-run intent or athletic mobility.
+- **Included QB plays (O), original 2023/2024 cohort only:** the disjoint union of recorded dropbacks and other recorded runs. Scrambles already belong to dropbacks. This is a selected recorded-opportunity population, not every snap or offensive play.
 
 Games count distinct player games containing the named type of record. Role games contain at least one event of that run type. Summed player-game counts are not distinct NFL games. [Full audit and reproduction code](https://github.com/nanu731/nfl-qb-eval).
 
 <h2 id="nfl-method-models" tabIndex={-1} data-reference-target>How the models work</h2>
 
-The data provider supplies completion chances and expected-points values. This project summarizes recorded outcomes using those values, then checks how the summaries vary across games and seasons.
+The data provider supplies completion chances and expected-points values. This project summarizes recorded outcomes using those values. The original fixed-cohort studies examine associations across game groups and seasons; the wider annual and depth data provide descriptive comparisons.
 
-The supplied completion model uses recorded throw/context information. The inspected upstream implementation includes depth/location, down/distance and a QB-hit field; these are not all independent of QB decisions. The project neither fits nor retrains this model. The releases do not establish a particular training period, out-of-sample design, calibration or snapshot-generating model version. [Completion model implementation](https://raw.githubusercontent.com/nflverse/nflfastR/master/R/helper_add_cp_cpoe.R).
+The supplied completion model uses recorded throw/context information. The inspected upstream implementation includes depth/location, down/distance and a QB-hit field; these are not all independent of QB decisions. The project neither fits nor retrains this model. The inspected releases do not establish which model/training vintage generated these supplied values, their out-of-sample status or their calibration in each era. An asset update date does not identify the generating model. [Completion model implementation](https://raw.githubusercontent.com/nflverse/nflfastR/master/R/helper_add_cp_cpoe.R).
 
-The upstream expected-points model uses game-state inputs such as field position, down/distance and time left. It estimates scoring-event probabilities and converts them to expected points. EPA then values the resulting play. The project uses supplied raw EPA, not receiver-fumble-adjusted QB EPA, and fits no expected-points model. Modeled game-state adjustment does not isolate protection, receivers or coaching. [Official expected-points explanation](https://nflfastr.com/reference/calculate_expected_points.html) · [Versioned EPA implementation](https://raw.githubusercontent.com/nflverse/nflfastR/v5.2.0/R/helper_add_ep_wp.R).
+The upstream expected-points model uses game-state inputs such as field position, down/distance and time left. It estimates scoring-event probabilities and converts them to expected points. EPA then values the resulting play. The project uses supplied raw EPA, not receiver-fumble-adjusted QB EPA, and fits no expected-points model. The generating expected-points model and training vintage remain unknown for these snapshots. Modeled game-state adjustment does not isolate protection, receivers or coaching. Comparing seasons with different football conditions and unknown model calibration does not produce an era-neutral ability comparison. [Official expected-points explanation](https://nflfastr.com/reference/calculate_expected_points.html) · [Versioned EPA implementation](https://raw.githubusercontent.com/nflverse/nflfastR/v5.2.0/R/helper_add_ep_wp.R).
 
 <h2 id="nfl-method-uncertainty" tabIndex={-1} data-reference-target>What the game-based ranges mean</h2>
 
 An approximate range based on game-to-game variation, under the study's assumptions. Here, the bars describe approximate uncertainty around each summary, not the spread of game performances. These conditional ranges are not probabilities for true talent, predictions for next season or bounds on every source of uncertainty.
 
-Only EPA per dropback and run contributions have existing player ranges. The analysis removes one contributing player game at a time and recalculates that player's pooled ratio. Zero-role games remain in run-contribution uncertainty. For `G` games and deletion mean `m`, the variance is `V = (G−1)/G × sum_g((theta[-g]−m)^2)`; the displayed interval is `theta ± 1.96 × sqrt(V)`. It is not the minimum-to-maximum deletion range.
+The annual EPA range removes one complete player dropback game at a time and recalculates the pooled EPA/dropback ratio, holding qualification fixed. It uses all games containing that player's recorded dropbacks. The original run-contribution ranges use all combined-opportunity games, including games with zero events of the named run role.
 
-A collapsed interval means no observed deletion variation, not certainty. Individual CPOE, completion and sack-avoidance uncertainty was not estimated. Marginal ranges do not test player differences, season changes or rank certainty. Neither overlap nor non-overlap supplies the missing paired comparison. The ranges omit major uncertainties from selection, serial injuries, persistent support, model error/vintage and context changes; NFL coverage is not established.
+**Depth ranges use all of the player's included-throw games in that season**, including games with zero throws in the named depth bin. Let `G` be that full game count, `n_bg` the bin throws in game `g`, and `s_bg` their sum of supplied CPOE values. The full estimate is `theta_b = sum_g(s_bg) / sum_g(n_bg)`. The leave-one-game-out estimate is `theta_b[-g] = (sum_h(s_bh) − s_bg) / (N_b − n_bg)`. A zero-bin game remains a deletion with no removed bin throws; the positive-bin-game count does not replace `G`.
+
+Every deletion must retain a positive denominator and finite estimate. The analysis neither drops failed replicates nor requalifies the player after deletion. An empty bin leaves the estimate unavailable; an invalid deletion leaves the range unavailable, with an explicit status. For valid deletions, `m = sum_g(theta[-g]) / G`, `V = (G−1)/G × sum_g((theta[-g]−m)^2)`, and the displayed range is `theta ± 1.96 × sqrt(V)`. This is an approximate marginal 95% conditional game-deletion sensitivity, not the minimum-to-maximum deletion range.
+
+A collapsed range means no observed deletion variation, not certainty. Whole-season CPOE, completion rate and individual sack avoidance have no supplied individual range here. The three depth ranges do **not** provide simultaneous 95% coverage. Marginal ranges neither test differences between depth bins, players or years nor establish rank certainty; overlap and non-overlap do not supply those missing tests.
+
+The calculation assumes approximately independent game shocks, stable opportunity sampling and a useful normal approximation, conditional on fixed qualification and observed support. It omits uncertainty from selection, serial injuries, receivers, protection, coverage, scheme, source labels and the supplied models' training/calibration. Unknown model vintage and era changes preclude talent-confidence, causal, era-neutral or forecasting interpretations.
 
 <h2 id="nfl-definition-runs" tabIndex={-1} data-reference-target>Running values in the complete table</h2>
+
+These running summaries cover only the original 40 audited 2023/2024 records. Outside that lookup, the comparison shows no audited scramble-value record; it does not substitute scramble rate, annual dropbacks or an uncalculated contribution.
 
 Value from scrambles is scramble EPA spread over all included dropbacks and other recorded player runs. Other recorded run value spreads non-scramble-run EPA over those same included plays. These contributions combine usage with shared value; more usage is not universally better.
 
@@ -135,7 +161,9 @@ Can public NFL data help describe repeatable quarterback execution with less dep
 
 <h2 id="nfl-method-repeatability" tabIndex={-1} data-reference-target>What repeatability measures</h2>
 
-Whether players with higher values in one group also tended to have higher values in the other. Across-passer association does not measure a selected player's personal consistency, absolute agreement, retained-skill percentage or forecast accuracy.
+The findings below belong to the original fixed 20-passer 2023/2024 cohort and its ten study records. The new 560-player-season annual data and depth summaries supply no new repeatability test.
+
+Repeatability asks whether players with higher values in one group also tended to have higher values in the other. Across-passer association does not measure a selected player's personal consistency, absolute agreement, retained-skill percentage or forecast accuracy.
 
 Correlation is `r = sum_i[(x_i−mean(x)) × (y_i−mean(y))] / sqrt(sum_i(x_i−mean(x))² × sum_i(y_i−mean(y))²)` across equally weighted passers. Their pooled summaries supply x/y. Near +1 means strong positive linear alignment, not identical values. Zero means no linear association, not zero talent. Constant values make correlation undefined.
 
@@ -153,11 +181,11 @@ Study ranges remove a whole contributing NFL game across both teams and selected
 
 Receiver/defender actions, target choices and unmeasured circumstances remain. Protection, receivers and coaching are not isolated. These summaries do not establish precise placement, pocket awareness, designed rushing, athletic mobility, overall QB quality or forecasts. Arm strength, processing and a support-adjusted overall score remain unavailable.
 
-The historical expansion remains blocked by unresolved source conflicts in 2011. Only the accepted 2023/2024 studies appear here. Eligibility, overlap, persistent support and conditional uncertainty limit interpretation. No rank, percentile, win count or blended score combines the two main comparisons.
+The annual display exports qualifying records from 19 seasons within 2006–2025; unresolved source conflicts keep 2011 visible and blocked. Eligibility selects for recorded exposure and completion-model availability, and the original studies add survival across two years. Source coverage, overlap, persistent support and conditional uncertainty limit interpretation. Unknown generating model vintages and era changes prevent era-neutral skill claims. The depth residuals share outcomes and context; they do not validate three isolated accuracy traits. No rank, percentile, win count or blended score combines the radar spokes or optional comparisons.
 
 </details>
 
-PBP data: nflverse, CC BY 4.0. Aggregated and transformed for this analysis. Retain applicable upstream notices and disclaimers; no endorsement is implied. [Schedule source notices](https://github.com/nflverse/nfldata) and original-code MIT licensing remain separate. Display names: [nflverse player list](https://github.com/nflverse/nflverse-data/releases/download/players/players.csv), verified 19 October 2026 by published GSIS ID; no team/current-status claim follows.
+PBP data: nflverse, CC BY 4.0. Aggregated and transformed for this analysis. Retain applicable upstream notices and disclaimers; no endorsement is implied. [Schedule source notices](https://github.com/nflverse/nfldata) and original-code MIT licensing remain separate. Display names: [nflverse player list](https://github.com/nflverse/nflverse-data/releases/download/players/players.csv), matched by published GSIS ID; no team/current-status claim follows.
 
 [Inspect the analysis and reproduction instructions](https://github.com/nanu731/nfl-qb-eval) · [Data license](https://github.com/nflverse/nflverse-data/blob/master/LICENSE.md).
 

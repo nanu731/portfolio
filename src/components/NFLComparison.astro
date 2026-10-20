@@ -3,7 +3,13 @@ import {readFile} from 'node:fs/promises';
 import DefinitionHelp from './DefinitionHelp.astro';
 import {validatePair,DATA_URL,MANIFEST_URL,fmt,evidence,interval,studyLabel} from '../lib/nfl-comparison';
 const data=await validatePair(await readFile('public'+DATA_URL),await readFile('public'+MANIFEST_URL));
-const players=data.rows.filter(r=>r.season===2024);
+import {validateAnnualDepth,ANNUAL_URL,ANNUAL_MANIFEST_URL,DEPTH_URL,DEPTH_MANIFEST_URL} from '../lib/nfl-annual';
+const {annual,depth}=await validateAnnualDepth(...await Promise.all([ANNUAL_URL,ANNUAL_MANIFEST_URL,DEPTH_URL,DEPTH_MANIFEST_URL].map(url=>readFile('public'+url))) as [Uint8Array,Uint8Array,Uint8Array,Uint8Array]);
+const players=[...new Map(annual.rows.map(r=>[r.player_key,r])).values()].sort((a,b)=>a.display_name.localeCompare(b.display_name));
+const seasons=[...annual.season_catalog].sort((a,b)=>b.season-a.season);
+const defaults=['00-0026498','00-0029263'].map(id=>({annual:annual.rows.find(r=>r.player_key===id&&r.season===2024)!,legacy:data.rows.find(r=>r.player_key===id&&r.season===2024)!,depth:depth.rows.filter(r=>r.player_key===id&&r.season===2024)}));
+const staticOutcomes=['Dropbacks without a sack (%)','Scramble expected points per included QB play','Short completions above expectation (pp)','Medium completions above expectation (pp)','Deep completions above expectation (pp)'];
+const staticValue=(i:number,j:number)=>i===0?defaults[j].annual.sack_avoidance_pct:i===1?defaults[j].legacy.scramble_contribution:defaults[j].depth.find(r=>r.bin===['short','medium','deep'][i-2])!.cpoe_pp;
 // Display names: nflverse players.csv, GSIS-keyed; verified2026-10-19.
 // https://github.com/nflverse/nflverse-data/releases/download/players/players.csv
 const displayNames:Record<string,string> = {"00-0026498": "Matthew Stafford", "00-0029263": "Russell Wilson", "00-0030565": "Geno Smith", "00-0031280": "Derek Carr", "00-0033106": "Jared Goff", "00-0033873": "Patrick Mahomes", "00-0034796": "Lamar Jackson", "00-0034855": "Baker Mayfield", "00-0034857": "Josh Allen", "00-0035289": "Gardner Minshew", "00-0036212": "Tua Tagovailoa", "00-0036264": "Jordan Love", "00-0036355": "Justin Herbert", "00-0036389": "Jalen Hurts", "00-0036442": "Joe Burrow", "00-0036971": "Trevor Lawrence", "00-0036972": "Mac Jones", "00-0037834": "Brock Purdy", "00-0039150": "Bryce Young", "00-0039163": "C.J. Stroud"};
@@ -19,8 +25,8 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
      <button type="button" data-clear-search="a" aria-label="Clear search for Quarterback A" disabled>Clear</button>
     </div>
     <div class="player-season">
-     <label for="nfl-player-a">Quarterback A<select id="nfl-player-a" name="nfl-player-a" data-a aria-describedby="nfl-search-status-a" disabled>{players.map(r=><option value={r.player_key}>{nameOf(r)}</option>)}</select></label>
-     <label for="nfl-season-a">Season A<select id="nfl-season-a" name="nfl-season-a" data-season-a disabled><option value="2024" selected>2024</option><option value="2023">2023</option></select></label>
+     <label for="nfl-player-a">Quarterback A<select id="nfl-player-a" name="nfl-player-a" data-a aria-describedby="nfl-search-status-a" disabled>{players.map(r=><option value={r.player_key} selected={r.player_key==='00-0026498'}>{r.display_name}</option>)}</select></label>
+     <label for="nfl-season-a">Season A<select id="nfl-season-a" name="nfl-season-a" data-season-a disabled>{seasons.map(y=><option value={y.season} selected={y.season===2024}>{y.season}{y.status==='source_blocked'?' · source blocked':''}</option>)}</select></label>
     </div>
     <p class="search-status" id="nfl-search-status-a" data-search-status-a role="status" aria-live="polite">Search by name, then choose from the dropdown.</p>
    </div>
@@ -30,29 +36,34 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
      <button type="button" data-clear-search="b" aria-label="Clear search for Quarterback B" disabled>Clear</button>
     </div>
     <div class="player-season">
-     <label for="nfl-player-b">Quarterback B<select id="nfl-player-b" name="nfl-player-b" data-b aria-describedby="nfl-search-status-b" disabled>{players.map((r,i)=><option value={r.player_key} selected={i===1}>{nameOf(r)}</option>)}</select></label>
-     <label for="nfl-season-b">Season B<select id="nfl-season-b" name="nfl-season-b" data-season-b disabled><option value="2024" selected>2024</option><option value="2023">2023</option></select></label>
+     <label for="nfl-player-b">Quarterback B<select id="nfl-player-b" name="nfl-player-b" data-b aria-describedby="nfl-search-status-b" disabled>{players.map((r,i)=><option value={r.player_key} selected={r.player_key==='00-0029263'}>{r.display_name}</option>)}</select></label>
+     <label for="nfl-season-b">Season B<select id="nfl-season-b" name="nfl-season-b" data-season-b disabled>{seasons.map(y=><option value={y.season} selected={y.season===2024}>{y.season}{y.status==='source_blocked'?' · source blocked':''}</option>)}</select></label>
     </div>
     <p class="search-status" id="nfl-search-status-b" data-search-status-b role="status" aria-live="polite">Search by name, then choose from the dropdown.</p>
    </div>
   </div>
-  <p class="coverage">2023 and 2024 regular seasons · 20 selected passers. A missing player has no comparison here, not a poor rating. <a href="#nfl-definition-populations">Who is included?</a></p>
-  <p class="limit">Teammates, opponents and model versions can differ across seasons. These observed summaries do not measure isolated skill or improvement. The two stats can disagree; neither names an overall winner.</p>
+  <p class="coverage">2006–2025 regular seasons · 560 qualifying player-seasons. 2011 is source blocked: unresolved duplicate events and air-yard records. <a href="#nfl-definition-annual">Who qualifies each year?</a></p>
+  <div class="selection-availability" aria-label="Selected player-season availability"><p data-availability-a role="status" aria-live="polite"></p><p data-availability-b role="status" aria-live="polite"></p></div>
+  <p class="limit">Teammates, opponents and model versions can differ across seasons. These observed summaries do not measure isolated skill or improvement. Model versions and calibration are unknown across eras. The outcomes do not name an overall winner.</p>
   <p class="availability" data-comparison-status role="status" aria-live="polite">Checking comparison data…</p><button type="button" data-retry hidden>Retry comparison data</button>
   <section class="radar-prototype" aria-labelledby="nfl-radar-heading">
    <h2 id="nfl-radar-heading">Quarterback evidence radar</h2>
    <p class="prototype-subtitle">Research prototype · outcome proxies, not isolated skills</p>
    <p class="radar-intro">Farther out means a higher recorded result on that spoke’s scale. Compare one spoke at a time; the shape is not an overall rating. Each spoke uses its own fixed display scale.</p>
    <p class="radar-key" data-radar-legend></p>
+   <noscript><p>The radar requires JavaScript. Static default comparison: Matthew Stafford · 2024 (A) and Russell Wilson · 2024 (B). Arm strength and processing remain not measured. All annual records and downloads are available below.</p><div class="table-scroll" role="region" aria-label="Static default outcome comparison" tabindex="0"><table data-static-default><thead><tr><th scope="col">Recorded outcome</th><th scope="col">A · Matthew Stafford · 2024</th><th scope="col">B · Russell Wilson · 2024</th></tr></thead><tbody>{staticOutcomes.map((label,i)=><tr><th scope="row">{label}</th>{[0,1].map(j=><td>{fmt(staticValue(i,j),i===0?1:3)}</td>)}</tr>)}</tbody></table></div></noscript>
    <div class="radar-layout">
     <figure class="radar-figure">
      <p class="radar-series-key"><span><svg viewBox="0 0 44 20" aria-hidden="true"><line x1="0" y1="10" x2="44" y2="10" class="series-a"/><circle cx="22" cy="10" r="4.5" class="mark-a"/></svg>A · filled circle, solid line</span><span><svg viewBox="0 0 44 20" aria-hidden="true"><line x1="0" y1="10" x2="44" y2="10" class="series-b"/><path d="M22 2 L30 10 L22 18 L14 10 Z" class="mark-b"/></svg>B · open diamond, dashed line</span></p>
      <div data-chart-host><svg id="nfl-radar" data-radar hidden role="img" aria-labelledby="nfl-radar-title nfl-radar-description"></svg></div>
-     <figcaption>Only adjacent measured positions connect; the five gaps stay open. Overlapping marks share the same recorded position.</figcaption>
-     <p class="radar-uncertainty">Scramble whiskers show a game-based uncertainty range under study assumptions. No individual range was estimated for sack avoidance.</p>
+     <figcaption>Only adjacent available positions connect; missing evidence stays open. Overlapping marks share the same recorded position.</figcaption>
+     <p class="radar-uncertainty">Whiskers show separate game-based uncertainty ranges under study assumptions. They do not jointly cover all axes or test differences. Sack avoidance has no individual range.</p>
     </figure>
     <div class="radar-readout" data-radar-summary aria-label="Selected outcome values and evidence gaps"></div>
    </div>
+   <div class="depth-guide"><p><DefinitionHelp id="nfl-depth-outcome" label="Depth-specific completions above expectation" detailTarget="nfl-definition-depth" detailLabel="Depth bins, formula and limits">The difference between completions and the model’s expected completions on included throws at that air distance. These residual outcomes also reflect receivers, coverage, decisions and model calibration; they do not isolate accuracy.</DefinitionHelp> uses <DefinitionHelp id="nfl-depth-pp" label="percentage points" detailTarget="nfl-definition-percentage-points" detailLabel="Units and formula">One percentage point means one more completion per 100 included throws than the model expected. Zero matches model expectation, not zero ability.</DefinitionHelp>. Short, medium and deep share the same fixed scale.</p></div>
+   <div class="depth-readout" data-depth-summary aria-label="Depth-specific selected outcome values"></div>
+   <p class="evidence-gaps" data-radar-gaps></p>
    <details class="radar-detail"><summary>Full evidence: counts, ranges and exact scale bounds</summary>
     <p>EPA/O means expected points added per included quarterback play. D means recorded dropbacks; O includes those dropbacks and non-scramble quarterback runs. A conditional range describes game-sampling variation under the study assumptions, not every source of uncertainty or a test of the difference between players.</p>
     <div class="radar-values table-scroll" role="region" aria-label="Clockwise evidence map and selected values in original units" tabindex="0">
@@ -61,7 +72,8 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
     <p class="radar-counts" data-radar-counts></p>
     <p class="radar-limits">The pocket-presence and mobility traits are not directly measured. Sack avoidance also reflects protection and receivers; scramble contribution combines usage with shared play value and omits other runs and athletic movement.</p>
    </details>
-   <p class="radar-scale"><DefinitionHelp id="nfl-radar-radius" label="How the radius works" detailTarget="nfl-radar-scaling" detailLabel="Formula, domains and limits">Each outcome uses its exact frozen range across all 40 accepted records. Center and rim bounds differ by spoke. Radius is display geometry, not a shared ability unit, percentile or area score.</DefinitionHelp> · <a href="#nfl-radar-scaling">Scale bounds, zero references and limitations</a></p>
+   <details class="selected-depth"><summary>Selected depth records: values, counts and ranges</summary><p>Four bins per available player-season. Negative air yards are diagnostic only and do not appear on the radar. E-game ranges include games with no throws in that bin.</p><div class="table-scroll" role="region" aria-label="Selected depth records" tabindex="0"><table><thead><tr><th scope="col">Side / player / year / bin</th><th scope="col">CPOE (pp)</th><th scope="col">Throws / games</th><th scope="col">Conditional range / status</th></tr></thead><tbody data-selected-depth></tbody></table></div></details>
+   <p class="radar-scale"><DefinitionHelp id="nfl-radar-radius" label="How the radius works" detailTarget="nfl-radar-scaling" detailLabel="Formula, domains and limits">The three depth outcomes share one exact fixed scale across all 560 annual records and their ranges. Sack avoidance uses its annual scale; scramble value retains its original 40-record scale. Center and rim bounds differ by spoke. Radius is display geometry, not a shared ability unit, percentile or area score.</DefinitionHelp> · <a href="#nfl-radar-scaling">Scale bounds, zero references and limitations</a></p>
   </section>
   <details class="comparison-evidence" data-comparison-evidence>
    <summary>Inspect EPA, completion and sack comparisons in their original units</summary>
@@ -89,7 +101,7 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
     <details class="pair-evidence" data-evidence="cpoe_pp"><summary>Values and included throws</summary><div class="table-scroll" role="region" aria-label="Selected completions above expectation records" tabindex="0"><table><caption>Percentage points on the same included throws used for completion rate.</caption><thead><tr><th scope="col">Quarterback</th><th scope="col">CPOE (pp)</th><th scope="col">Included throws</th></tr></thead><tbody data-selected-values></tbody></table></div></details>
    </figure>
   </div>
-  <p class="scale-note"><span data-pair-legend></span> Each stat keeps its own scale across both seasons and all 20 passers. Zero means matching the model's completion expectation for CPOE, or no modeled net gain for EPA.</p>
+  <p class="scale-note"><span data-pair-legend></span> Each stat keeps its own fixed scale across all 560 qualifying annual records. Zero means matching the model's completion expectation for CPOE, or no modeled net gain for EPA.</p>
   <details class="optional-sacks" data-sack-section><summary>How often did they avoid sacks?</summary>
    <figure class="fan-comparison" aria-labelledby="nfl-sack-heading"><h2 id="nfl-sack-heading"><DefinitionHelp id="nfl-sack-avoidance" label="Dropbacks without a sack" detailTarget="nfl-definition-sack-avoidance" detailLabel="Formula and limits">The percentage of recorded dropbacks that did not end in a recorded sack.</DefinitionHelp></h2>
     <p>The percentage of recorded dropbacks that did not end in a recorded sack. Protection and receiver availability matter.</p><p class="unit">Percent of recorded dropbacks</p>
@@ -100,11 +112,15 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
 
   </details>
 
-  <details class="research-depth"><summary>Complete data and study results</summary>
+  <details class="annual-records"><summary>All 560 annual records · works without JavaScript</summary>
+   <p>Each year qualifies independently with at least 200 included throws in ten games. These are recorded passers, not a position-certified list. No eligible record means unavailable, not zero. 2011 is source blocked. Individual completion and sack ranges were not estimated.</p>
+   <div class="table-scroll" role="region" aria-label="All 560 annual player-season records" tabindex="0"><table data-all-annual><caption>2006–2025 regular seasons excluding source-blocked 2011. Values use display rounding; downloads retain source precision.</caption><thead><tr><th scope="col">Player / season</th><th scope="col">Included throws / games</th><th scope="col">Whole CPOE (pp)</th><th scope="col">Completion (%)</th><th scope="col">Sacks / dropbacks</th><th scope="col">Without a sack (%)</th><th scope="col">EPA / dropback</th><th scope="col">EPA range / status</th></tr></thead><tbody>{annual.rows.map(r=><tr><th scope="row">{r.display_name}<br/>{r.season}</th><td>{r.eligible_throws} throws / {r.eligible_games} games</td><td>{fmt(r.cpoe_pp)}</td><td>{fmt(r.completion_pct)}</td><td>{r.sacks} sacks / {r.dropbacks} dropbacks in {r.dropback_games} games</td><td>{fmt(r.sack_avoidance_pct,1)}</td><td>{fmt(r.epa_per_dropback)}</td><td>{fmt(r.epa_lower)} to {fmt(r.epa_upper)}; {r.epa_interval_status.replaceAll('_',' ')}</td></tr>)}</tbody></table></div>
+  </details>
+  <details class="research-depth"><summary>Original 2023/2024 fixed-cohort evidence and study results</summary>
     <details class="complete-table"><summary>All 40 player-season records · works without JavaScript</summary>
       <p>CPOE uses percentage points (pp); completion and sack avoidance use percent. D means recorded dropbacks; O combines D with recorded non-scramble runs. EPA means expected points added. Intervals are marginal conditional sensitivities, not tests of differences. Values below use display rounding; the downloadable data retain source precision.</p>
       <div class="table-scroll" role="region" aria-label="All 40 player-season records" tabindex="0">
-        <table data-all-players><caption>Fixed 20-ID cohort, both seasons. Each metric cell names its denominator and uncertainty status.</caption>
+        <table data-all-players><caption>Original fixed 20-ID cohort, 2023 and 2024; separate from the new 560 annual records. Each metric cell names its denominator and uncertainty status.</caption>
           <thead><tr><th scope="col">Passer / season</th><th scope="col">CPOE (pp)</th><th scope="col">Completion (%)</th><th scope="col">EPA / D</th><th scope="col">Sack avoidance (%)</th><th scope="col">Scramble EPA / O</th><th scope="col">Non-scramble EPA / O</th><th scope="col">Scramble usage / diagnostic</th><th scope="col">Non-scramble usage / diagnostic</th></tr></thead>
           <tbody>{data.rows.map(r=><tr><th scope="row">{nameOf(r)}<br/>{r.season}<br/><small>{r.player_key}</small></th>
             {['cpoe_pp','completion_pct','epa_per_dropback','sack_avoidance_pct','scramble_contribution','nonscramble_contribution'].map(f=><td><strong>{fmt(r[f])}</strong><br/>{evidence(r,f)}<br/><small>{interval(r,f)}</small></td>)}
@@ -122,8 +138,8 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
     </details>
 
   </details>
-  <noscript><p>Interactive player selection requires JavaScript. The complete 40-record and ten-study tables above remain available; open their headings to read them.</p></noscript>
-  <p class="download"><a href={DATA_URL} download>Download the reviewed data</a> · <a href={MANIFEST_URL}>Data manifest</a></p>
+  <noscript><p>Interactive player selection and selected depth values require JavaScript. All 560 annual records, the original 40-record cohort and ten study results remain available above. Depth values are also available in the data download; no unavailable player-year is replaced.</p></noscript>
+  <p class="download"><a href={ANNUAL_URL} download>Annual data</a> · <a href={ANNUAL_MANIFEST_URL}>Annual manifest</a> · <a href={DEPTH_URL} download>Depth data</a> · <a href={DEPTH_MANIFEST_URL}>Depth manifest</a><br/><a href={DATA_URL} download>Original 2023/2024 cohort data</a> · <a href={MANIFEST_URL}>Original manifest</a></p>
  </section>
 </nfl-comparison>
 <script>import {registerNFL} from '../lib/nfl-charts';registerNFL();</script>
@@ -154,6 +170,23 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
  .radar-key{font-weight:600;}
  .radar-layout{display:grid;gap:var(--space-s);align-items:start;}
  .radar-readout{min-width:0;}
+ .selection-availability{font-size:var(--type-small);line-height:1.5;}
+ .selection-availability p{margin-block:var(--space-2xs);}
+ .selection-availability p:empty{display:none;}
+ .depth-guide{margin-top:var(--space-s);font-size:var(--type-small);line-height:1.5;}
+ .depth-readout{display:grid;gap:var(--space-s);}
+ .depth-readout :global(.outcome){min-width:0;border-top:var(--rule) solid var(--green);padding-block:var(--space-xs);}
+ .depth-readout :global(h3){font-size:var(--type-body);line-height:1.3;margin:0 0 var(--space-xs);}
+ .depth-readout :global(dl){margin:0;}
+ :is(.radar-readout,.depth-readout) :global(.outcome-player){display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--space-3xs) var(--space-2xs);align-items:baseline;padding-block:var(--space-2xs);border-bottom:var(--rule-thin) solid var(--sand);}
+ :is(.radar-readout,.depth-readout) :global(dt){font-size:16px;line-height:1.4;}
+ :is(.radar-readout,.depth-readout) :global(dd){font:500 24px/1.2 var(--font-numeric);font-variant-numeric:tabular-nums;margin:0;white-space:nowrap;}
+ :is(.radar-readout,.depth-readout) :global(.outcome-detail){grid-column:1/-1;font-size:14px;line-height:1.5;margin:0;}
+ :is(.radar-readout,.depth-readout) :global(.unavailable){font:400 16px/1.5 var(--font-body);white-space:normal;}
+ .depth-readout :global(.outcome-unit),.depth-readout :global(.outcome-bounds){font-size:14px;line-height:1.5;margin-block:var(--space-2xs);}
+ .depth-readout :global(.outcome-bounds){font-family:var(--font-numeric);font-size:13px;}
+ [data-radar-gaps]{font-size:16px;line-height:1.5;max-width:75ch;}
+ @media(min-width:64rem){.depth-readout{grid-template-columns:repeat(3,minmax(0,1fr));}}
  .radar-readout :global(.outcome){padding-block:var(--space-xs) var(--space-s);border-top:var(--rule) solid var(--green);}
  .radar-readout :global(h3){font-size:var(--type-body);line-height:1.3;margin:0;}
  .radar-readout :global(.outcome-unit),.radar-readout :global(.outcome-trait),.radar-readout :global(.outcome-bounds){font-size:var(--type-small);line-height:1.4;margin-block:var(--space-3xs);}
