@@ -1,5 +1,6 @@
-import {DATA_URL,MANIFEST_URL,validatePair,METRICS,fmt,type Payload,type Row,type Domain} from './nfl-comparison';
+import {DATA_URL,MANIFEST_URL,validatePair,METRICS,fmt,type Payload,type Row} from './nfl-comparison';
 import {ANNUAL_URL,ANNUAL_MANIFEST_URL,DEPTH_URL,DEPTH_MANIFEST_URL,validateAnnualDepth,type AnnualPayload,type DepthPayload,type AnnualRow,type DepthRow} from './nfl-annual';
+import {buildPercentileReferences,percentileFor,displayPercentile,type PercentileReferences} from './nfl-percentiles';
 const NS='http://www.w3.org/2000/svg';
 // Match the NBA explorer's accent-, punctuation- and whitespace-tolerant search.
 const normalizeSearch=(value:string)=>value.normalize('NFD').replace(/\p{M}/gu,'').toLocaleLowerCase().replace(/[\p{P}\p{S}]+/gu,' ').replace(/\s+/g,' ').trim();
@@ -24,16 +25,16 @@ type Outcome={value:number|null;lower:number|null;upper:number|null;status:strin
 const AXES:Axis[]=[
  {trait:'Arm strength',title:'Arm strength',label:['Arm strength','Not measured']},
  {trait:'Processing',title:'Processing',label:['Processing','Not measured']},
- {trait:'Pocket presence',title:'Dropbacks without a sack',label:['Dropbacks without','a sack (%)','Outcome proxy'],field:'sack_avoidance_pct',target:'nfl-definition-sack-avoidance',unit:'%'},
- {trait:'Mobility',title:'Scramble contribution',label:['Scramble contribution','Expected points','per included QB play'],field:'scramble_contribution',target:'nfl-definition-runs',unit:'expected points per included QB play'},
- {trait:'Short accuracy',title:'Short completions above expectation',label:['Short completions','above expectation','(percentage points)'],field:'short_cpoe_pp',bin:'short',target:'nfl-definition-depth',unit:'pp'},
- {trait:'Medium accuracy',title:'Medium completions above expectation',label:['Medium completions','above expectation','(percentage points)'],field:'medium_cpoe_pp',bin:'medium',target:'nfl-definition-depth',unit:'pp'},
- {trait:'Deep accuracy',title:'Deep completions above expectation',label:['Deep completions','above expectation','(percentage points)'],field:'deep_cpoe_pp',bin:'deep',target:'nfl-definition-depth',unit:'pp'},
+ {trait:'Pocket presence',title:'Dropbacks without a sack',label:['Dropbacks without','a sack','Percentile'],field:'sack_avoidance_pct',target:'nfl-definition-sack-avoidance',unit:'%'},
+ {trait:'Mobility',title:'Scramble contribution',label:['Scramble contribution','Percentile','original 20-QB cohort'],field:'scramble_contribution',target:'nfl-definition-runs',unit:'expected points per included QB play'},
+ {trait:'Short accuracy',title:'Short completions above expectation',label:['Short completions','above expectation','Percentile'],field:'short_cpoe_pp',bin:'short',target:'nfl-definition-depth',unit:'pp'},
+ {trait:'Medium accuracy',title:'Medium completions above expectation',label:['Medium completions','above expectation','Percentile'],field:'medium_cpoe_pp',bin:'medium',target:'nfl-definition-depth',unit:'pp'},
+ {trait:'Deep accuracy',title:'Deep completions above expectation',label:['Deep completions','above expectation','Percentile'],field:'deep_cpoe_pp',bin:'deep',target:'nfl-definition-depth',unit:'pp'},
 ];
 export function registerNFL(){
  if(customElements.get('nfl-comparison'))return;
  class NFLComparison extends HTMLElement{
-  annual?:AnnualPayload;depth?:DepthPayload;legacy?:Payload;observer?:ResizeObserver;request=0;players:PlayerChoice[]=[];suggestionState:Record<string,{matches:PlayerChoice[];active:number}>={a:{matches:[],active:-1},b:{matches:[],active:-1}};
+  annual?:AnnualPayload;depth?:DepthPayload;legacy?:Payload;references?:PercentileReferences;observer?:ResizeObserver;request=0;players:PlayerChoice[]=[];suggestionState:Record<string,{matches:PlayerChoice[];active:number}>={a:{matches:[],active:-1},b:{matches:[],active:-1}};
   control(key:string){return this.querySelector<HTMLSelectElement>(`[data-${key}]`)!;}
   search(side:string){return this.querySelector<HTMLInputElement>(`[data-search-${side}]`)!;}
   label(s:Selected){return `${s.name} · ${s.year}`;}
@@ -47,10 +48,14 @@ export function registerNFL(){
    if(!a.field)return empty(a.trait==='Arm strength'?'Not measured: no accepted throw-velocity measure.':'Not measured: no accepted decision-quality measure.');
    if(!s.row)return empty(this.missing(s));
    if(a.bin){const d=s.depth.find(r=>r.bin===a.bin);if(!d)return empty('No audited depth record.');return {value:d.cpoe_pp,lower:d.lower,upper:d.upper,status:d.interval_status,counts:`${d.bin_throws} throws · ${d.positive_bin_games} games with bin throws / ${d.eligible_games} included-throw games`,reason:d.cpoe_pp===null?'No defined depth outcome.':''};}
-   if(a.field==='scramble_contribution'){const r=s.legacy;if(!r)return empty('No audited scramble-value record');return {value:Number(r.scramble_contribution),lower:r.scramble_contribution_lower as number|null,upper:r.scramble_contribution_upper as number|null,status:String(r.scramble_interval_status),counts:`${r.scramble_runs} scrambles / ${r.combined_opportunities} included QB plays · ${r.combined_games} games`,reason:''};}
+   if(a.field==='scramble_contribution'){const r=s.legacy;if(!r)return empty('No audited scramble-value record');if(typeof r.scramble_contribution!=='number'||!Number.isFinite(r.scramble_contribution))return empty('No finite audited scramble-value record');return {value:r.scramble_contribution,lower:r.scramble_contribution_lower as number|null,upper:r.scramble_contribution_upper as number|null,status:String(r.scramble_interval_status),counts:`${r.scramble_runs} scrambles / ${r.combined_opportunities} included QB plays · ${r.combined_games} games`,reason:''};}
    return {value:s.row.sack_avoidance_pct,lower:null,upper:null,status:'individual_range_not_estimated',counts:`${s.row.sacks} sacks / ${s.row.dropbacks} recorded dropbacks · ${s.row.dropback_games} games`,reason:''};
   }
-  domain(a:Axis):Domain{return a.bin?this.depth!.domains.depth_cpoe_pp:a.field==='scramble_contribution'?this.legacy!.domains.scramble_contribution:this.annual!.domains.sack_avoidance_pct;}
+  standing(s:Selected,a:Axis){
+   const result=percentileFor(this.references!,a.field??'',s.year,s.id);
+   return Number.isFinite(this.outcome(s,a).value)?result:{...result,percentile:null};
+  }
+  referenceLabel(s:Selected,a:Axis){const p=this.standing(s,a);return `${s.year} · ${a.field==='scramble_contribution'?'original 20-QB cohort':'annual eligible peers'} · N=${p.n}`;}
   readonly handleOutsidePointer=(event:PointerEvent)=>{
    for(const side of ['a','b'])if(event.target instanceof Node&&!this.querySelector(`[data-combobox-${side}]`)!.contains(event.target))this.closeSuggestions(side);
   };
@@ -129,12 +134,12 @@ export function registerNFL(){
   }
   async load(){
    const restore=this.querySelector('[data-retry]')===document.activeElement,token=++this.request;
-   this.annual=undefined;this.depth=undefined;this.legacy=undefined;this.clear();this.dataset.state='loading';this.querySelector<HTMLButtonElement>('[data-retry]')!.hidden=true;this.querySelector('[data-comparison-status]')!.textContent='Checking comparison data…';
+   this.annual=undefined;this.depth=undefined;this.legacy=undefined;this.references=undefined;this.clear();this.dataset.state='loading';this.querySelector<HTMLButtonElement>('[data-retry]')!.hidden=true;this.querySelector('[data-comparison-status]')!.textContent='Checking comparison data…';
    try{
     const responses=await Promise.all([ANNUAL_URL,ANNUAL_MANIFEST_URL,DEPTH_URL,DEPTH_MANIFEST_URL,DATA_URL,MANIFEST_URL].map(url=>fetch(url,{cache:'no-store',headers:{Accept:'application/json'}})));
     if(responses.some(r=>!r.ok))throw Error('Data unavailable');const bytes=await Promise.all(responses.map(async r=>new Uint8Array(await r.arrayBuffer())));
-    const [{annual,depth},legacy]=await Promise.all([validateAnnualDepth(bytes[0],bytes[1],bytes[2],bytes[3]),validatePair(bytes[4],bytes[5])]);await document.fonts.ready;
-    if(token!==this.request||!this.isConnected)return;this.annual=annual;this.depth=depth;this.legacy=legacy;this.dataset.state='ready';
+    const [{annual,depth},legacy]=await Promise.all([validateAnnualDepth(bytes[0],bytes[1],bytes[2],bytes[3]),validatePair(bytes[4],bytes[5])]);const references=await buildPercentileReferences(annual,depth,legacy);await document.fonts.ready;
+    if(token!==this.request||!this.isConnected)return;this.annual=annual;this.depth=depth;this.legacy=legacy;this.references=references;this.dataset.state='ready';
     this.querySelectorAll<HTMLSelectElement|HTMLInputElement>('select,input[type=search]').forEach(e=>e.disabled=false);for(const side of ['a','b'])this.refreshSearchSeason(side);this.render();if(restore)this.search('a').focus();
    }catch{if(token!==this.request)return;this.clear();this.dataset.state='error';this.querySelector('[data-comparison-status]')!.textContent='The comparison data could not be verified. Retry, or open the complete annual and original-cohort tables below.';this.querySelector<HTMLButtonElement>('[data-retry]')!.hidden=false;}
   }
@@ -156,41 +161,42 @@ export function registerNFL(){
    const small=width<440,cx=width/2,cy=small?220:258,R=small?Math.min(94,(width-155)/2):Math.min(155,(width-190)/2),height=small?455:510;
    svg.replaceChildren();svg.removeAttribute('hidden');svg.setAttribute('viewBox',`0 0 ${width} ${height}`);
    const point=(i:number,r:number)=>{const angle=-Math.PI/2+i*2*Math.PI/7;return {x:cx+Math.cos(angle)*r,y:cy+Math.sin(angle)*r,angle};};
-   const radius=(a:Axis,v:number)=>{const d=this.domain(a);return (v-d.min!)/(d.max!-d.min!)*R;};
+   const radius=(p:number)=>p/100*R;
    const line=(a:{x:number;y:number},b:{x:number;y:number},attrs:Record<string,string|number>)=>svg.append(element('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,...attrs}));
-   svg.append(element('title',{id:'nfl-radar-title'},`Research outcome-proxy radar: ${pair.map(s=>`${s.side.toUpperCase()} · ${this.label(s)}`).join(' versus ')}`));
-   svg.append(element('desc',{id:'nfl-radar-description'},'Seven fixed positions. Arm strength and processing are not measured. Actual recorded sack, scramble and short/medium/deep completion-residual outcomes are proxies, not isolated traits. Each available side plots independently; unavailable points are absent. Only adjacent available positions connect. '+pair.map(s=>`${s.side.toUpperCase()} · ${this.label(s)}: `+AXES.filter(a=>a.field).map(a=>{const o=this.outcome(s,a);return `${a.title}: ${o.value===null?o.reason:fmt(o.value)+' '+a.unit}`;}).join('; ')).join('. ')+'. Counts, marginal ranges and limits follow in the evidence.'));
+   svg.append(element('title',{id:'nfl-radar-title'},`Quarterback outcome percentiles: ${pair.map(s=>`${s.side.toUpperCase()} · ${this.label(s)}`).join(' versus ')}`));
+   svg.append(element('desc',{id:'nfl-radar-description'},'Seven fixed positions on a shared 0 to 100 percentile radius; 50 means middle standing among the named same-year peers, not native zero or ability. Arm strength and processing are not measured. Only adjacent available positions connect. '+pair.map(s=>`${s.side.toUpperCase()} · ${this.label(s)}: `+AXES.filter(a=>a.field).map(a=>{const o=this.outcome(s,a),p=this.standing(s,a);return `${a.title}: ${p.percentile===null?o.reason:displayPercentile(p.percentile)+' percentile; '+this.referenceLabel(s,a)}`;}).join('; ')).join('. ')+'. Equal percentile gaps need not mean equal outcome or ability gaps. Raw values, counts and raw ranges follow in the evidence.'));
    for(const f of [.25,.5,.75,1])svg.append(element('circle',{cx,cy,r:R*f,class:'radar-ring'}));
+   for(const p of [0,50,100])svg.append(element('text',{x:cx+6,y:cy-radius(p)-5,class:'tick'},String(p)));
    const positions=[{x:cx,y:small?28:45,anchor:'middle'},{x:width*.8,y:small?90:112,anchor:'middle'},
     {x:width-8,y:small?296:335,anchor:'end'},{x:width*.73,y:small?390:460,anchor:'middle'},
     {x:width*.23,y:small?390:460,anchor:'middle'},{x:8,y:small?296:335,anchor:'start'},{x:width*.2,y:small?90:112,anchor:'middle'}];
    AXES.forEach((a,i)=>{
     line({x:cx,y:cy},point(i,R),{class:'radar-spoke','data-position':i,'data-trait':a.trait});const g=element('g',{'data-axis-label':i,'data-trait':a.trait});a.label.forEach((t,j)=>g.append(element('text',{x:positions[i].x,y:positions[i].y+j*19,'text-anchor':positions[i].anchor,class:(a.field?j<2:j===0)?'radar-label':'radar-status'},t)));svg.append(g);
-    if(a.field&&this.domain(a).min!<=0&&this.domain(a).max!>=0){const z=point(i,radius(a,0)),angle=z.angle;line({x:z.x-Math.sin(angle)*4,y:z.y+Math.cos(angle)*4},{x:z.x+Math.sin(angle)*4,y:z.y-Math.cos(angle)*4},{class:'radar-zero','data-zero-field':a.field});svg.append(element('text',{x:z.x+7,y:z.y+12,class:'radar-zero-label'},'0'));}
    });
-   pair.forEach(s=>{const outcomes=AXES.map(a=>this.outcome(s,a)),series=`series-${s.side}`;
-    for(let i=0;i<AXES.length-1;i++){const a=outcomes[i],b=outcomes[i+1];if(a.value!==null&&b.value!==null)line(point(i,radius(AXES[i],a.value)),point(i+1,radius(AXES[i+1],b.value)),{class:`radar-segment ${series}`,'data-side':s.side,'data-from':i,'data-to':i+1});}
-    AXES.forEach((a,i)=>{const o=outcomes[i];if(o.value===null)return;const p=point(i,radius(a,o.value));if(o.lower!==null&&o.upper!==null)line(point(i,radius(a,o.lower)),point(i,radius(a,o.upper)),{class:`radar-range ${series}`,'data-side':s.side,'data-field':a.field!});
+   pair.forEach(s=>{const points=AXES.map(a=>this.standing(s,a)),series=`series-${s.side}`;
+    for(let i=0;i<AXES.length-1;i++){const a=points[i].percentile,b=points[i+1].percentile;if(a!==null&&b!==null)line(point(i,radius(a)),point(i+1,radius(b)),{class:`radar-segment ${series}`,'data-side':s.side,'data-from':i,'data-to':i+1});}
+    AXES.forEach((a,i)=>{const o=this.outcome(s,a),rank=points[i];if(rank.percentile===null)return;const p=point(i,radius(rank.percentile));
      const mark=s.side==='b'?element('path',{d:`M ${p.x} ${p.y-8} l 8 8 l -8 8 l -8 -8 Z`,class:'mark-b radar-mark'}):element('circle',{cx:p.x,cy:p.y,r:4.5,class:'mark-a radar-mark'});
-     for(const[k,v]of Object.entries({'data-side':s.side,'data-field':a.field!,'data-value':o.value,'data-radius':radius(a,o.value)}))mark.setAttribute(k,String(v));mark.append(element('title',{},`${s.side.toUpperCase()} · ${this.label(s)} · ${a.title}: ${fmt(o.value)} ${a.unit}`));svg.append(mark);
+     for(const[k,v]of Object.entries({'data-side':s.side,'data-field':a.field!,'data-value':o.value,'data-percentile':rank.percentile,'data-radius':radius(rank.percentile),'data-radius-max':R,'data-n':rank.n,'data-year':rank.year,'data-key-hash':rank.keyHash,'data-cohort':rank.cohort}))mark.setAttribute(k,String(v));mark.append(element('title',{},`${s.side.toUpperCase()} · ${this.label(s)} · ${a.title}: ${displayPercentile(rank.percentile)} percentile; ${this.referenceLabel(s,a)}. Recorded value ${fmt(o.value)} ${a.unit}.`));svg.append(mark);
     });
    });
-   svg.dataset.domains=JSON.stringify(Object.fromEntries(AXES.filter(a=>a.field).map(a=>[a.field,{min:this.domain(a).min,max:this.domain(a).max}])));
+   svg.dataset.scale='0,100';svg.dataset.formulaVersion='OP-1.0';
   }
   renderEvidence(pair:Selected[]){
    const body=this.querySelector('[data-radar-values]')!;body.replaceChildren();
    AXES.forEach((a,i)=>{const tr=document.createElement('tr'),th=cell('th',''),title=document.createElement(a.target?'a':'strong');tr.dataset.position=String(i);tr.dataset.trait=a.trait;title.textContent=a.title;if(a.target)title.setAttribute('href','#'+a.target);th.append(title);if(a.field){const mapping=document.createElement('small');mapping.textContent=`Desired trait: ${a.trait.toLowerCase()}, not directly measured. Shown: ${a.bin?'depth residual':'recorded outcome'} proxy.`;th.append(mapping);}tr.append(th);
-    pair.forEach(s=>{const td=cell('td',''),o=this.outcome(s,a);td.dataset.player=`${s.side.toUpperCase()} · ${this.label(s)}`;const value=document.createElement('strong');value.textContent=o.value===null?o.reason:`${fmt(o.value,a.field==='sack_avoidance_pct'?1:3)} ${a.unit}`;td.append(value);if(o.value!==null){td.dataset.value=String(o.value);const count=document.createElement('small'),range=document.createElement('small'),bounds=document.createElement('small'),d=this.domain(a);count.textContent=o.counts;range.textContent=o.lower!==null?`${fmt(o.lower)} to ${fmt(o.upper)} ${a.unit}; ${o.status.replaceAll('_',' ')}`:`Range: ${o.status.replaceAll('_',' ')}`;bounds.textContent=`Exact display bounds: ${d.min} to ${d.max} ${a.unit}.`;td.dataset.domain=`${d.min},${d.max}`;td.append(count,range,bounds);}tr.append(td);});body.append(tr);
+    pair.forEach(s=>{const td=cell('td',''),o=this.outcome(s,a),p=this.standing(s,a);td.dataset.player=`${s.side.toUpperCase()} · ${this.label(s)}`;const value=document.createElement('strong');value.textContent=o.value===null?o.reason:`Recorded value: ${fmt(o.value,a.field==='sack_avoidance_pct'?1:3)} ${a.unit}`;td.append(value);if(o.value!==null){td.dataset.value=String(o.value);const count=document.createElement('small'),range=document.createElement('small'),rank=document.createElement('small');count.textContent=o.counts;range.textContent=o.lower!==null?`Raw range: ${fmt(o.lower)} to ${fmt(o.upper)} ${a.unit}; ${o.status.replaceAll('_',' ')}. Not a percentile interval.`:`Raw range: ${o.status.replaceAll('_',' ')}`;rank.textContent=`${displayPercentile(p.percentile)} percentile · ${this.referenceLabel(s,a)} · OP-1.0`;td.append(count,range,rank);}tr.append(td);});body.append(tr);
    });
    const top=this.querySelector('[data-radar-summary]')!,depth=this.querySelector('[data-depth-summary]')!;top.replaceChildren();depth.replaceChildren();
    for(const a of AXES.filter(a=>a.field)){
     const section=document.createElement('section');section.className='outcome';section.dataset.outcome=a.field;
-    const heading=document.createElement('h3'),unit=document.createElement('p'),list=document.createElement('dl'),bounds=document.createElement('p');heading.textContent=a.title;unit.className='outcome-unit';unit.textContent=a.bin?`${a.bin==='short'?'0 to under 10':a.bin==='medium'?'10 to under 20':'20 to under 70'} air yards · percentage points. Residual outcome proxy, not isolated accuracy.`:a.field==='sack_avoidance_pct'?'Percent of recorded dropbacks. Outcome proxy; pocket presence is not directly measured.':'Shared expected points from scrambles per included QB play. Outcome proxy; mobility is not directly measured.';
-    pair.forEach(s=>{const o=this.outcome(s,a),row=document.createElement('div'),name=document.createElement('dt'),value=document.createElement('dd'),detail=document.createElement('p');row.className='outcome-player';name.textContent=`${s.side.toUpperCase()} · ${this.label(s)}`;value.dataset.side=s.side;detail.className='outcome-detail';if(o.value===null){value.textContent='Unavailable';value.className='unavailable';detail.textContent=o.reason;}else{value.dataset.value=String(o.value);value.textContent=fmt(o.value,a.field==='sack_avoidance_pct'?1:3)+(a.field==='sack_avoidance_pct'?'%':a.bin?' pp':'');detail.textContent=o.counts+(o.lower!==null?` · range ${fmt(o.lower,2)} to ${fmt(o.upper,2)}`:' · range not estimated');}row.append(name,value,detail);list.append(row);});
-    const d=this.domain(a),sack=a.field==='sack_avoidance_pct';bounds.className='outcome-bounds';bounds.textContent=`Center ${fmt(d.min,sack?1:3)}${sack?'%':''} · rim ${fmt(d.max,sack?1:3)}${sack?'%':' · zero 0'}`;section.append(heading,unit,list,bounds);(a.bin?depth:top).append(section);
+    const heading=document.createElement('h3'),unit=document.createElement('p'),list=document.createElement('dl');heading.textContent=a.title;unit.className='outcome-unit';unit.textContent=a.bin?`${a.bin==='short'?'0 to under 10':a.bin==='medium'?'10 to under 20':'20 to under 70'} air yards · outcome percentile` : a.field==='sack_avoidance_pct'?'Outcome percentile · pocket presence is not directly measured.':'Outcome percentile · original 20-QB cohort only. Mobility is not directly measured.';
+    pair.forEach(s=>{const o=this.outcome(s,a),p=this.standing(s,a),row=document.createElement('div'),name=document.createElement('dt'),value=document.createElement('dd'),detail=document.createElement('p');row.className='outcome-player';name.textContent=`${s.side.toUpperCase()} · ${this.label(s)}`;value.dataset.side=s.side;detail.className='outcome-detail';if(p.percentile===null){value.textContent='Unavailable';value.className='unavailable';detail.textContent=o.reason||p.reason;}else{value.dataset.value=String(o.value);value.dataset.percentile=String(p.percentile);value.dataset.n=String(p.n);value.textContent=displayPercentile(p.percentile);value.setAttribute('aria-label',`${displayPercentile(p.percentile)} percentile`);detail.textContent=this.referenceLabel(s,a);}row.append(name,value,detail);list.append(row);});
+    section.append(heading,unit,list);(a.bin?depth:top).append(section);
    }
-   this.querySelector('[data-radar-gaps]')!.textContent='Arm strength and processing: not measured for either selection. '+pair.map(s=>{const available=AXES.filter(a=>this.outcome(s,a).value!==null).length;return `${s.side.toUpperCase()} · ${this.label(s)}: ${available} recorded outcomes, ${7-available} gaps.`;}).join(' ')+' A gap means unavailable evidence, not a low rating.';
-   this.querySelector('[data-radar-a]')!.textContent=`A · ${this.label(pair[0])}`;this.querySelector('[data-radar-b]')!.textContent=`B · ${this.label(pair[1])}`;this.querySelector('[data-radar-legend]')!.textContent=pair.map(s=>`${s.side.toUpperCase()} · ${this.label(s)}`).join(' / ');this.querySelector('[data-radar-counts]')!.textContent='Depth outcomes use one shared percentage-point scale. Scramble values exist only for the original audited 20-ID, two-season cohort.';
+   this.querySelector('[data-radar-gaps]')!.textContent='Arm strength and processing: not measured for either selection. '+pair.map(s=>{const available=AXES.filter(a=>this.standing(s,a).percentile!==null).length;return `${s.side.toUpperCase()} · ${this.label(s)}: ${available} recorded outcomes, ${7-available} gaps.`;}).join(' ')+' A gap means unavailable evidence, not a low rating. '+ 'Why these traits remain unmeasured: ';
+   const gapLink=document.createElement('a');gapLink.href='#nfl-unmeasured-traits';gapLink.textContent='arm strength and processing measurement limits';this.querySelector('[data-radar-gaps]')!.append(gapLink);
+   this.querySelector('[data-radar-a]')!.textContent=`A · ${this.label(pair[0])}`;this.querySelector('[data-radar-b]')!.textContent=`B · ${this.label(pair[1])}`;this.querySelector('[data-radar-legend]')!.textContent=pair.map(s=>`${s.side.toUpperCase()} · ${this.label(s)}`).join(' / ');this.querySelector('[data-radar-counts]')!.textContent='Four outcomes use fixed same-year annual eligible peers. Scramble contribution uses the original 20-QB cohort separately in 2023 and 2024. Raw ranges are not percentile intervals.';
    const selected=this.querySelector('[data-selected-depth]')!;selected.replaceChildren();pair.forEach(s=>{if(!s.row){const tr=document.createElement('tr');tr.append(cell('th',`${s.side.toUpperCase()} · ${this.label(s)}`),cell('td','Unavailable'),cell('td',this.missing(s)),cell('td','Unavailable'));selected.append(tr);return;}s.depth.forEach(r=>{const tr=document.createElement('tr');tr.dataset.side=s.side;tr.dataset.bin=r.bin;tr.append(cell('th',`${s.side.toUpperCase()} · ${this.label(s)} · ${r.bin} [${r.air_yards_lower}, ${r.air_yards_upper})`),cell('td',fmt(r.cpoe_pp)),cell('td',`${r.bin_throws} throws; ${r.positive_bin_games} positive-bin games / ${r.eligible_games} all E games`),cell('td',`${fmt(r.lower)} to ${fmt(r.upper)} pp; ${r.interval_status.replaceAll('_',' ')}`));selected.append(tr);});});
   }
   draw(svg:SVGSVGElement,pair:Selected[],field:string,width:number){

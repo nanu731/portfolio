@@ -5,7 +5,7 @@ description: Compare recorded quarterback outcomes by season and throw depth, wi
 question: Can public NFL data help describe repeatable quarterback execution with less dependence on supporting circumstances?
 questionInBody: true
 dataset: nflverse regular-season play-by-play, 560 qualifying player-seasons
-method: Annual and depth-specific outcome summaries, conditional game-based ranges, and original fixed-cohort repeatability studies
+method: Same-year outcome percentiles, native conditional game-based ranges, and original fixed-cohort repeatability studies
 seasons: 2006–2025, with 2011 source-blocked
 repo: https://github.com/nanu731/nfl-qb-eval
 compact: true
@@ -22,7 +22,7 @@ import NFLComparison from '../../components/NFLComparison.astro';
 <details class="nfl-reference">
 <summary>Definitions, formulas and how the models work</summary>
 
-<h2 id="nfl-radar-scaling" tabIndex={-1} data-reference-target>Research radar: geometry and evidence limits</h2>
+<h2 id="nfl-radar-scaling" tabIndex={-1} data-reference-target>Outcome percentiles: peers, formula and limits</h2>
 
 The seven fixed clockwise positions correspond to arm strength, processing, pocket presence, mobility, short accuracy, medium accuracy and deep accuracy. **Arm strength and processing remain not measured.** The other positions show named recorded outcomes where evidence exists. A gap means unavailable evidence, not a low rating. The number of plotted outcomes can differ between the selected player-seasons.
 
@@ -30,13 +30,23 @@ The seven fixed clockwise positions correspond to arm strength, processing, pock
 
 The short, medium and deep positions show **completions above expectation** on throws in each depth bin, in percentage points. These depth-specific completion residuals describe recorded outcomes relative to the supplied model; they do not isolate throwing accuracy or ball placement. [Read the depth bins and formula](#nfl-definition-depth).
 
-The display maps each native value to radius using `(value − L) / (U − L)`. Each field keeps fixed bounds for every pair and year. The annual sack scale runs from 85.84615384615384% at the center to 98.29721362229103% at the rim. All three depth spokes share one scale from −42.30049395546098 to 45.719149158694584 percentage points, covering their full 560-player-season values, marginal range endpoints and zero. The legacy scramble scale remains −0.02742400920700434 to 0.10729766327305992 expected points per included quarterback play, including its range endpoints. The negative-depth diagnostic does not set the radar scale or occupy a spoke.
+Each percentile describes where a recorded outcome sits among its fixed same-year peers. For dropbacks without a sack and each of the three depth outcomes, peers are that year's qualifying passers with a finite value for that outcome. Annual qualification requires at least 200 included throws across at least 10 included-throw games; depth bins add no minimum throw-count rule. Peer membership comes from the validated source records and cannot change with the selected opponent or search text. Each available outcome shows its year and peer count, `N`.
 
-The main comparison shows rounded values and endpoints; optional full evidence retains exact bounds and units. The marks retain source precision. The center is each scale's lower bound. Signed depth and scramble spokes mark zero within their ranges; zero percent lies outside the displayed sack scale.
+**Scramble percentiles use a different pool: the original 20-QB cohort in each of 2023 and 2024.** They do not use all qualifying passers in those years. Other years or IDs have no audited scramble-value record. Compare the displayed peer counts before comparing spokes.
 
-Farther out means a higher recorded result on that spoke's scale. Compare one spoke at a time; the shape is not an overall rating. Radius supplies display geometry, not a common ability unit, percentile or area score. Lines join adjacent available positions only. No line bridges a gap, and no polygon closes or fills.
+The midpoint-percentile formula is `P = 100 × (B + 0.5 × T) / N`. Here `B` counts peer values below the selected value, `T` counts exact ties including the selected record, and `N` counts all finite peer values including that record. Ties use unrounded native values. Higher recorded outcomes receive higher percentiles on all five measured spokes. A constant finite cohort gives every record 50; fewer than two peers or an unavailable native value gives no percentile. Missing evidence never becomes zero or 50, and another season never supplies a replacement.
 
-Depth and scramble whiskers retain their marginal conditional game-based ranges. They do not form a joint confidence region, predict performance or test a player/year difference. Individual sack-avoidance uncertainty was not estimated. [Read the range assumptions](#nfl-method-uncertainty), [the play populations](#nfl-definition-populations), [the sack formula](#nfl-definition-sack-avoidance), and [the scramble formula](#nfl-definition-runs).
+The radar uses one 0–100 scale: radius is `P / 100`. Its center is 0 and its rim is 100; 50 describes midpoint standing, not a zero native outcome or average ability. Whole-number labels round half up using `floor(P + 0.5)`; geometry retains the full percentile. Endpoints are not stretched to force a 1 or 100. With 20 untied peers, percentiles run from 2.5 to 97.5 in five-point steps. Whole-number labels do not imply one-point skill resolution.
+
+Farther out means higher same-year standing on that outcome. Cross-year comparisons use different reference cohorts; they do not establish absolute ability or trait improvement. Equal percentile gaps need not mean equal differences in native outcomes or ability. The three depth outcomes share context and correlated evidence, so they do not count as three independent skill votes. Compare one spoke at a time: no area, aggregate score or winner combines them. Lines join adjacent available positions only. No line bridges a gap, and no polygon closes or fills.
+
+Optional full evidence retains raw values, counts and native-unit conditional game-based ranges. **Those raw ranges are not percentile confidence intervals.** They do not form a joint confidence region, predict performance or test a player/year difference. Individual sack-avoidance uncertainty was not estimated. The negative-depth diagnostic remains outside the radar. [Read the range assumptions](#nfl-method-uncertainty), [the play populations](#nfl-definition-populations), [the sack formula](#nfl-definition-sack-avoidance), and [the scramble formula](#nfl-definition-runs).
+
+<h3 id="nfl-unmeasured-traits" tabIndex={-1} data-reference-target>Why arm strength and processing have no points</h3>
+
+Arm strength needs comparable, calibrated ball-speed measurements with release and arrival geometry, throw timing, and repeated attempts. Spin, spiral stability and delivery from an unbalanced posture require their own observations. A route name, completion or throw from outside the pocket does not establish those measurements.
+
+Processing needs validated observations of available reads and outlets, route-break and release timing, defensive changes, and pressure onset, together with a defensible assessment of the choice. Throw time or the recorded target alone cannot show what the quarterback recognized or which alternatives were available. Current inputs do not support comparable annual measurements of either trait. Both positions remain **Not measured**; existing outcome percentiles do not fill those gaps.
 
 <h2 id="nfl-definition-epa-dropback" tabIndex={-1} data-reference-target>Value per dropback</h2>
 
@@ -181,7 +191,7 @@ Study ranges remove a whole contributing NFL game across both teams and selected
 
 Receiver/defender actions, target choices and unmeasured circumstances remain. Protection, receivers and coaching are not isolated. These summaries do not establish precise placement, pocket awareness, designed rushing, athletic mobility, overall QB quality or forecasts. Arm strength, processing and a support-adjusted overall score remain unavailable.
 
-The annual display exports qualifying records from 19 seasons within 2006–2025; unresolved source conflicts keep 2011 visible and blocked. Eligibility selects for recorded exposure and completion-model availability, and the original studies add survival across two years. Source coverage, overlap, persistent support and conditional uncertainty limit interpretation. Unknown generating model vintages and era changes prevent era-neutral skill claims. The depth residuals share outcomes and context; they do not validate three isolated accuracy traits. No rank, percentile, win count or blended score combines the radar spokes or optional comparisons.
+The annual display exports qualifying records from 19 seasons within 2006–2025; unresolved source conflicts keep 2011 visible and blocked. Eligibility selects for recorded exposure and completion-model availability, and the original studies add survival across two years. Source coverage, overlap, persistent support and conditional uncertainty limit interpretation. Unknown generating model vintages and era changes prevent era-neutral skill claims. The depth residuals share outcomes and context; they do not validate three isolated accuracy traits. Percentiles describe standing within each declared outcome/year cohort. No aggregate percentile, win count or blended score combines the radar spokes or optional comparisons.
 
 </details>
 
