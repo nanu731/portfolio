@@ -24,14 +24,14 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
      <div class="player-combobox">
       <label for="nfl-search-a">Quarterback A</label>
       <div class="combobox-shell" data-combobox-a>
-       <input id="nfl-search-a" type="search" data-search-a value={players.find(r=>r.player_key==='00-0026498')!.display_name} placeholder="Search quarterbacks" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="nfl-suggestions-a" aria-describedby="nfl-search-help-a nfl-search-status-a" autocomplete="off" disabled />
+       <input id="nfl-search-a" type="search" data-search-a placeholder="Search quarterbacks" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="nfl-suggestions-a" aria-describedby="nfl-search-help-a nfl-search-status-a" autocomplete="off" disabled />
        <div id="nfl-suggestions-a" class="suggestion-menu" role="listbox" aria-label="Quarterbacks for A" data-suggestions-a hidden></div>
       </div>
       <select id="nfl-player-a" name="nfl-player-a" data-a aria-label="Selected quarterback A" hidden disabled>{players.map(r=><option value={r.player_key} selected={r.player_key==='00-0026498'}>{r.display_name}</option>)}</select>
      </div>
      <label for="nfl-season-a">Season A<select id="nfl-season-a" name="nfl-season-a" data-season-a disabled>{seasons.map(y=><option value={y.season} selected={y.season===2024}>{y.season}{y.status==='source_blocked'?' · source blocked':''}</option>)}</select></label>
     </div>
-    <p class="search-help" id="nfl-search-help-a">Open the list or type a name. Accents and punctuation are optional.</p>
+    <p class="search-help" id="nfl-search-help-a">Type a name, then select a match below.</p>
     <p class="search-status" id="nfl-search-status-a" data-search-status-a role="status" aria-live="polite"></p>
    </div>
    <div class="comparison-side" role="group" aria-label="Quarterback B and season">
@@ -39,14 +39,14 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
      <div class="player-combobox">
       <label for="nfl-search-b">Quarterback B</label>
       <div class="combobox-shell" data-combobox-b>
-       <input id="nfl-search-b" type="search" data-search-b value={players.find(r=>r.player_key==='00-0029263')!.display_name} placeholder="Search quarterbacks" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="nfl-suggestions-b" aria-describedby="nfl-search-help-b nfl-search-status-b" autocomplete="off" disabled />
+       <input id="nfl-search-b" type="search" data-search-b placeholder="Search quarterbacks" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="nfl-suggestions-b" aria-describedby="nfl-search-help-b nfl-search-status-b" autocomplete="off" disabled />
        <div id="nfl-suggestions-b" class="suggestion-menu" role="listbox" aria-label="Quarterbacks for B" data-suggestions-b hidden></div>
       </div>
       <select id="nfl-player-b" name="nfl-player-b" data-b aria-label="Selected quarterback B" hidden disabled>{players.map(r=><option value={r.player_key} selected={r.player_key==='00-0029263'}>{r.display_name}</option>)}</select>
      </div>
      <label for="nfl-season-b">Season B<select id="nfl-season-b" name="nfl-season-b" data-season-b disabled>{seasons.map(y=><option value={y.season} selected={y.season===2024}>{y.season}{y.status==='source_blocked'?' · source blocked':''}</option>)}</select></label>
     </div>
-    <p class="search-help" id="nfl-search-help-b">Open the list or type a name. Accents and punctuation are optional.</p>
+    <p class="search-help" id="nfl-search-help-b">Type a name, then select a match below.</p>
     <p class="search-status" id="nfl-search-status-b" data-search-status-b role="status" aria-live="polite"></p>
    </div>
   </div>
@@ -161,6 +161,7 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
  select:disabled{opacity:1;border-style:dashed;}
  [data-retry]{width:auto;cursor:pointer;}
  input[type="search"]{caret-color:var(--green);font-size:1rem;box-sizing:border-box;}
+ input[type="search"]::placeholder{color:var(--green);opacity:1;}
  .player-combobox{min-width:0;display:grid;gap:var(--space-3xs);}
  .combobox-shell{position:relative;min-width:0;}
  .suggestion-menu{position:absolute;z-index:10;inset-block-start:100%;inset-inline:0;max-height:18rem;overflow-y:auto;box-sizing:border-box;border:var(--rule) solid var(--green);border-top:0;background:var(--cream);scrollbar-color:var(--green) var(--cream);}

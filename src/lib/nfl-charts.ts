@@ -47,18 +47,19 @@ export function registerNFL(){
   closeSuggestions(side:string,restore=false){
    this.suggestions(side).hidden=true;this.search(side).setAttribute('aria-expanded','false');this.search(side).removeAttribute('aria-activedescendant');
    this.suggestionState[side]={matches:[],active:-1};
-   if(restore){this.search(side).value=this.selectedName(side);this.searchStatus(side,'');}
+   if(restore){this.search(side).value='';this.searchStatus(side,`Selected: ${this.selectedName(side)}.`);}
   }
-  showSuggestions(side:string,all=false){
+  showSuggestions(side:string){
    if(this.search(side).disabled)return;
    this.closeSuggestions(side==='a'?'b':'a',true);
    const query=normalizeSearch(this.search(side).value),compact=compactSearch(this.search(side).value);
-   const matches=all?[...this.players]:this.players.filter(p=>normalizeSearch(p.name).includes(query)||compactSearch(p.name).includes(compact)).sort((a,b)=>{
+   if(!compact){this.closeSuggestions(side);this.searchStatus(side,`Selected: ${this.selectedName(side)}.`);return;}
+   const matches=this.players.filter(p=>normalizeSearch(p.name).includes(query)||compactSearch(p.name).includes(compact)).sort((a,b)=>{
     const starts=(p:PlayerChoice)=>normalizeSearch(p.name).startsWith(query)||compactSearch(p.name).startsWith(compact);
     return Number(starts(b))-Number(starts(a))||a.name.localeCompare(b.name,undefined,{sensitivity:'base'})||a.id.localeCompare(b.id);
    });
    this.suggestionState[side]={matches,active:-1};this.search(side).removeAttribute('aria-activedescendant');this.renderSuggestions(side);this.suggestions(side).hidden=false;this.search(side).setAttribute('aria-expanded','true');
-   this.searchStatus(side,matches.length?`${matches.length} quarterback${matches.length===1?'':'s'}${all?' available. Type to narrow the list.':`${matches.length===1?' matches':' match'}. Choose a name to update the chart.`}`:`No quarterbacks found. Try another name. ${this.selectedName(side)} remains selected.`);
+   this.searchStatus(side,matches.length?`${matches.length} quarterback${matches.length===1?'':'s'}${matches.length===1?' matches':' match'}. Choose a name below.`:`No quarterbacks found. Try another name. ${this.selectedName(side)} remains selected.`);
   }
   renderSuggestions(side:string){
    const {matches,active}=this.suggestionState[side];
@@ -69,13 +70,13 @@ export function registerNFL(){
    }));
   }
   choosePlayer(side:string,p:PlayerChoice){
-   this.control(side).value=p.id;this.search(side).value=p.name;this.closeSuggestions(side);this.searchStatus(side,`${p.name} selected.`);this.render();
+   this.control(side).value=p.id;this.search(side).value='';this.closeSuggestions(side);this.searchStatus(side,`Selected: ${p.name}.`);this.render();
   }
   searchKeydown(side:string,e:KeyboardEvent){
    if(e.isComposing)return;
    if(e.key==='Escape'||e.key==='Tab'){if(e.key==='Escape'&&!this.suggestions(side).hidden)e.preventDefault();this.closeSuggestions(side,true);return;}
    if(e.key==='ArrowDown'||e.key==='ArrowUp'){
-    e.preventDefault();if(this.suggestions(side).hidden)this.showSuggestions(side,true);
+    e.preventDefault();if(this.suggestions(side).hidden)this.showSuggestions(side);
     const state=this.suggestionState[side];if(!state.matches.length)return;
     const step=e.key==='ArrowDown'?1:-1;state.active=state.active===-1?(step===1?0:state.matches.length-1):(state.active+step+state.matches.length)%state.matches.length;
     this.renderSuggestions(side);const option=this.suggestions(side).children[state.active] as HTMLElement;this.search(side).setAttribute('aria-activedescendant',option.id);option.scrollIntoView({block:'nearest'});return;
@@ -88,8 +89,7 @@ export function registerNFL(){
    if(this.dataset.initialized)return;this.dataset.initialized='true';this.players=[...this.control('a').options].map(o=>({id:o.value,name:o.textContent!}));
    for(const side of ['a','b']){
     this.search(side).addEventListener('input',()=>this.showSuggestions(side));
-    this.search(side).addEventListener('focus',()=>this.showSuggestions(side,true));
-    this.search(side).addEventListener('click',()=>{if(this.suggestions(side).hidden)this.showSuggestions(side,true);});
+    this.search(side).addEventListener('focus',()=>this.closeSuggestions(side==='a'?'b':'a',true));
     this.search(side).addEventListener('keydown',e=>this.searchKeydown(side,e));
     const shell=this.querySelector<HTMLElement>(`[data-combobox-${side}]`)!;
     shell.addEventListener('focusout',e=>{if(!(e.relatedTarget instanceof Node)||!shell.contains(e.relatedTarget))this.closeSuggestions(side,true);});
