@@ -20,26 +20,34 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
  <section aria-label="Compare two quarterbacks">
   <div class="fan-controls">
    <div class="comparison-side" role="group" aria-label="Quarterback A and season">
-    <div class="search-row">
-     <label for="nfl-search-a">Search QBs for A<input id="nfl-search-a" type="search" data-search-a aria-controls="nfl-player-a" aria-describedby="nfl-search-status-a" autocomplete="off" disabled /></label>
-     <button type="button" data-clear-search="a" aria-label="Clear search for Quarterback A" disabled>Clear</button>
-    </div>
     <div class="player-season">
-     <label for="nfl-player-a">Quarterback A<select id="nfl-player-a" name="nfl-player-a" data-a aria-describedby="nfl-search-status-a" disabled>{players.map(r=><option value={r.player_key} selected={r.player_key==='00-0026498'}>{r.display_name}</option>)}</select></label>
+     <div class="player-combobox">
+      <label for="nfl-search-a">Quarterback A</label>
+      <div class="combobox-shell" data-combobox-a>
+       <input id="nfl-search-a" type="search" data-search-a value={players.find(r=>r.player_key==='00-0026498')!.display_name} placeholder="Search quarterbacks" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="nfl-suggestions-a" aria-describedby="nfl-search-help-a nfl-search-status-a" autocomplete="off" disabled />
+       <div id="nfl-suggestions-a" class="suggestion-menu" role="listbox" aria-label="Quarterbacks for A" data-suggestions-a hidden></div>
+      </div>
+      <select id="nfl-player-a" name="nfl-player-a" data-a aria-label="Selected quarterback A" hidden disabled>{players.map(r=><option value={r.player_key} selected={r.player_key==='00-0026498'}>{r.display_name}</option>)}</select>
+     </div>
      <label for="nfl-season-a">Season A<select id="nfl-season-a" name="nfl-season-a" data-season-a disabled>{seasons.map(y=><option value={y.season} selected={y.season===2024}>{y.season}{y.status==='source_blocked'?' · source blocked':''}</option>)}</select></label>
     </div>
-    <p class="search-status" id="nfl-search-status-a" data-search-status-a role="status" aria-live="polite">Search by name, then choose from the dropdown.</p>
+    <p class="search-help" id="nfl-search-help-a">Open the list or type a name. Accents and punctuation are optional.</p>
+    <p class="search-status" id="nfl-search-status-a" data-search-status-a role="status" aria-live="polite"></p>
    </div>
    <div class="comparison-side" role="group" aria-label="Quarterback B and season">
-    <div class="search-row">
-     <label for="nfl-search-b">Search QBs for B<input id="nfl-search-b" type="search" data-search-b aria-controls="nfl-player-b" aria-describedby="nfl-search-status-b" autocomplete="off" disabled /></label>
-     <button type="button" data-clear-search="b" aria-label="Clear search for Quarterback B" disabled>Clear</button>
-    </div>
     <div class="player-season">
-     <label for="nfl-player-b">Quarterback B<select id="nfl-player-b" name="nfl-player-b" data-b aria-describedby="nfl-search-status-b" disabled>{players.map((r,i)=><option value={r.player_key} selected={r.player_key==='00-0029263'}>{r.display_name}</option>)}</select></label>
+     <div class="player-combobox">
+      <label for="nfl-search-b">Quarterback B</label>
+      <div class="combobox-shell" data-combobox-b>
+       <input id="nfl-search-b" type="search" data-search-b value={players.find(r=>r.player_key==='00-0029263')!.display_name} placeholder="Search quarterbacks" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="nfl-suggestions-b" aria-describedby="nfl-search-help-b nfl-search-status-b" autocomplete="off" disabled />
+       <div id="nfl-suggestions-b" class="suggestion-menu" role="listbox" aria-label="Quarterbacks for B" data-suggestions-b hidden></div>
+      </div>
+      <select id="nfl-player-b" name="nfl-player-b" data-b aria-label="Selected quarterback B" hidden disabled>{players.map(r=><option value={r.player_key} selected={r.player_key==='00-0029263'}>{r.display_name}</option>)}</select>
+     </div>
      <label for="nfl-season-b">Season B<select id="nfl-season-b" name="nfl-season-b" data-season-b disabled>{seasons.map(y=><option value={y.season} selected={y.season===2024}>{y.season}{y.status==='source_blocked'?' · source blocked':''}</option>)}</select></label>
     </div>
-    <p class="search-status" id="nfl-search-status-b" data-search-status-b role="status" aria-live="polite">Search by name, then choose from the dropdown.</p>
+    <p class="search-help" id="nfl-search-help-b">Open the list or type a name. Accents and punctuation are optional.</p>
+    <p class="search-status" id="nfl-search-status-b" data-search-status-b role="status" aria-live="polite"></p>
    </div>
   </div>
   <p class="coverage">2006–2025 regular seasons · 560 qualifying player-seasons. 2011 is source blocked: unresolved duplicate events and air-yard records. <a href="#nfl-definition-annual">Who qualifies each year?</a></p>
@@ -147,13 +155,24 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
  nfl-comparison{display:block;min-width:0;margin-block:0 var(--space-m);}
  .fan-controls{display:grid;gap:var(--space-s);}
  .comparison-side{min-width:0;}
- .search-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--space-2xs);align-items:end;margin-bottom:var(--space-2xs);}
  label{display:grid;gap:var(--space-3xs);min-width:0;font-size:var(--type-small);}
  .player-season{display:grid;grid-template-columns:minmax(0,1fr) 6rem;gap:var(--space-2xs);min-width:0;}
- select,input[type="search"],[data-clear-search],[data-retry]{min-width:0;width:100%;min-height:44px;padding:var(--space-2xs);font:inherit;color:var(--green);background:var(--cream);border:var(--rule) solid var(--green);border-radius:0;}
+ select,input[type="search"],[data-retry]{min-width:0;width:100%;min-height:44px;padding:var(--space-2xs);font:inherit;color:var(--green);background:var(--cream);border:var(--rule) solid var(--green);border-radius:0;}
  select:disabled{opacity:1;border-style:dashed;}
- [data-retry],[data-clear-search]{width:auto;cursor:pointer;}
- input[type="search"]{caret-color:var(--green);}
+ [data-retry]{width:auto;cursor:pointer;}
+ input[type="search"]{caret-color:var(--green);font-size:1rem;box-sizing:border-box;}
+ .player-combobox{min-width:0;display:grid;gap:var(--space-3xs);}
+ .combobox-shell{position:relative;min-width:0;}
+ .suggestion-menu{position:absolute;z-index:10;inset-block-start:100%;inset-inline:0;max-height:18rem;overflow-y:auto;box-sizing:border-box;border:var(--rule) solid var(--green);border-top:0;background:var(--cream);scrollbar-color:var(--green) var(--cream);}
+ .suggestion-menu[hidden]{display:none;}
+ .suggestion-menu :global(.suggestion-option),.suggestion-menu :global(.no-results){margin:0;padding:var(--space-xs) var(--space-s);font-size:1rem;}
+ .suggestion-menu :global(.suggestion-option){min-height:44px;box-sizing:border-box;border-top:var(--rule-thin) solid var(--sand);cursor:pointer;touch-action:manipulation;}
+ .suggestion-menu :global(.suggestion-option:first-child){border-top:0;}
+ .suggestion-menu :global(.suggestion-option:hover){background:var(--sand);}
+ .suggestion-menu :global(.suggestion-option[aria-selected="true"]){background:var(--green);color:var(--cream);}
+ .suggestion-menu :global(.no-results){font-style:italic;}
+ .search-help{font-size:var(--type-small);line-height:1.5;margin-block:var(--space-3xs) 0;}
+ .search-status:empty{display:none;}
  .search-status{font-size:var(--type-small);line-height:1.5;margin-block:var(--space-3xs) 0;}
  .reading-guide{margin-top:var(--space-s);}
  .reading-guide h2{font-size:var(--type-body);margin-block:0 var(--space-3xs);}
@@ -254,7 +273,7 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
  .table-scroll :global(th),.table-scroll :global(td){text-align:left;vertical-align:top;padding:var(--space-xs);border-bottom:var(--rule-thin) solid var(--green);min-width:8rem;max-width:23rem;overflow-wrap:anywhere;}
  .table-scroll :global(small){font-size:inherit;}
  .complete-table .table-scroll :global(td){min-width:14rem;}
- :is(select,input,[data-clear-search],summary,[data-retry],.table-scroll):focus-visible{outline:var(--rule-thick) solid var(--accent);outline-offset:var(--space-3xs);}
+ :is(select,input,summary,[data-retry],.table-scroll):focus-visible{outline:var(--rule-thick) solid var(--accent);outline-offset:var(--space-3xs);}
  @media(min-width:48rem){.radar-layout{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);}.fan-controls{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-s);}.primary-comparisons{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-m);}}
  @media(prefers-reduced-motion:reduce){svg{scroll-behavior:auto;}}
 </style>
