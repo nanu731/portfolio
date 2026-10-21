@@ -41,6 +41,8 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
    <button id="nfl-stats-tab" type="button" role="tab" data-project-view="stats" aria-controls="nfl-stats-panel" aria-selected="false" tabindex="-1">Stats comparison</button>
   </div>
   <noscript><nav aria-label="Explore quarterback data"><a href="#nfl-profile-panel">Attribute profile</a> · <a href="#nfl-stats-panel">Stats comparison</a></nav></noscript>
+  <p class="view-intro" data-view-intro="profile">Each line shows one quarterback season across seven attributes. Farther out means a better expert rank or a higher standing in that season’s stats. Arm strength and processing use expert rankings; the rest use season results. The overall shape is not a talent rating.</p>
+  <p class="view-intro" data-view-intro="stats" hidden>Compare two quarterback seasons using CPOE (completions above expectation), EPA (scoring value per pass, sack or scramble), or sack avoidance. Each point represents one player; farther right means a higher value. Teammates, opponents and play choices also affect the results.</p>
   <p class="view-scope visually-hidden" data-view-scope>Attribute filters apply only to Attribute profile.</p>
   <div class="fan-controls">
    <div class="comparison-side" role="group" aria-label="Quarterback A and season">
@@ -53,7 +55,7 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
       </div>
       <select id="nfl-player-a" name="nfl-player-a" data-a aria-label="Selected quarterback A" hidden disabled><option value="">Choose quarterback</option>{players.map(r=><option value={r.player_key} selected={r.player_key==='00-0033873'}>{r.display_name}</option>)}</select>
      </div>
-     <label class="label season-control" for="nfl-season-a">Season<span class="visually-hidden"> A</span><select id="nfl-season-a" name="nfl-season-a" data-season-a disabled>{seasons.map(y=><option value={y.season} selected={y.season===2023}>{y.season}{y.status==='source_blocked'?' · source blocked':''}</option>)}</select></label>
+     <label class="label season-control" for="nfl-season-a">Season<span class="visually-hidden"> A</span><select id="nfl-season-a" name="nfl-season-a" data-season-a disabled>{seasons.map(y=><option value={y.season} selected={y.season===2023}>{y.season}{y.status==='source_blocked'?' · excluded':''}</option>)}</select></label>
     </div>
     <p class="search-status visually-hidden" id="nfl-search-status-a" data-search-status-a role="status" aria-live="polite"></p>
    </div>
@@ -67,19 +69,18 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
       </div>
       <select id="nfl-player-b" name="nfl-player-b" data-b aria-label="Selected quarterback B" hidden disabled><option value="">Choose quarterback</option>{players.map(r=><option value={r.player_key} selected={r.player_key==='00-0034857'}>{r.display_name}</option>)}</select>
      </div>
-     <label class="label season-control" for="nfl-season-b">Season<span class="visually-hidden"> B</span><select id="nfl-season-b" name="nfl-season-b" data-season-b disabled>{seasons.map(y=><option value={y.season} selected={y.season===2023}>{y.season}{y.status==='source_blocked'?' · source blocked':''}</option>)}</select></label>
+     <label class="label season-control" for="nfl-season-b">Season<span class="visually-hidden"> B</span><select id="nfl-season-b" name="nfl-season-b" data-season-b disabled>{seasons.map(y=><option value={y.season} selected={y.season===2023}>{y.season}{y.status==='source_blocked'?' · excluded':''}</option>)}</select></label>
     </div>
     <p class="search-status visually-hidden" id="nfl-search-status-b" data-search-status-b role="status" aria-live="polite"></p>
    </div>
   </div>
-  <p class="coverage">Regular season · 2006–2025 · <a href="#nfl-definition-annual">Data coverage</a></p>
+  <p class="coverage">Regular season · 2006–2025, excluding 2011 · <a href="#nfl-definition-annual">Data coverage</a></p>
   <div class="selection-availability" aria-label="Selected player-season availability"><p data-availability-a role="status" aria-live="polite"></p><p data-availability-b role="status" aria-live="polite"></p></div>
   <p class="limit" hidden>Season comparisons also reflect teammates, opponents and model differences; they do not isolate improvement.</p>
   <p class="availability" data-comparison-status role="status" aria-live="polite">Checking comparison data…</p><button type="button" data-retry hidden>Retry comparison data</button>
   <section id="nfl-profile-panel" class="radar-prototype" role="tabpanel" aria-labelledby="nfl-profile-tab" data-view-panel="profile">
    <h2 id="nfl-radar-heading" class="visually-hidden">Quarterback attribute profile</h2>
    <p class="profile-window visually-hidden" data-profile-window>Expert ranks describe their listed preseason. Stats describe each selected regular season.</p>
-   <p class="radar-intro">Arm strength and Processing use preseason expert rankings. The other attributes use season-stat percentiles.</p>
    <button type="button" data-complete-example hidden disabled>Try Mahomes vs Allen (2023)</button>
    <noscript><p>The radar requires JavaScript. All seven default positions appear below: Patrick Mahomes · 2023 (A) and Josh Allen · 2023 (B). Expert assessments predate the season; outcome values describe the regular season.</p><div class="table-scroll" role="region" aria-label="Static default seven-attribute comparison" tabindex="0"><table data-static-default><thead><tr><th scope="col">Position / evidence</th><th scope="col">A · Patrick Mahomes · 2023</th><th scope="col">B · Josh Allen · 2023</th></tr></thead><tbody>
     {(['arm_strength','field_vision'] as const).map(trait=><tr><th scope="row">{trait==='arm_strength'?'Arm strength':'Processing proxy · field vision'}</th>{defaults.map(d=><td data-static-expert={trait}>{expertLabel(expertFor(trait,2023,d.annual.player_key)!)} expert rank<br/>{expertFor(trait,2023,d.annual.player_key)!.category} · 2023 preseason<br/><a href={EXPERT_SOURCE.url}>ESPN · {EXPERT_SOURCE.published}</a><br/>{EXPERT_SOURCE.shortAuthors}. Preseason editorial assessment; drawing index only.</td>)}</tr>)}
@@ -164,8 +165,8 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
   </details>
 
   <details class="annual-records"><summary>Season data table</summary>
-   <p>Each year qualifies independently with at least 200 included throws in ten games. These are recorded passers, not a position-certified list. No eligible record means unavailable, not zero. 2011 is source blocked. Individual completion and sack ranges were not estimated.</p>
-   <div class="table-scroll" role="region" aria-label="All 560 annual player-season records" tabindex="0"><table data-all-annual><caption>2006–2025 regular seasons excluding source-blocked 2011. Values use display rounding; downloads retain source precision.</caption><thead><tr><th scope="col">Player / season</th><th scope="col">Included throws / games</th><th scope="col">Whole CPOE (pp)</th><th scope="col">Completion (%)</th><th scope="col">Sacks / dropbacks</th><th scope="col">Without a sack (%)</th><th scope="col">EPA / dropback</th><th scope="col">EPA range / status</th></tr></thead><tbody>{annual.rows.map(r=><tr><th scope="row">{r.display_name}<br/>{r.season}</th><td>{r.eligible_throws} throws / {r.eligible_games} games</td><td>{fmt(r.cpoe_pp)}</td><td>{fmt(r.completion_pct)}</td><td>{r.sacks} sacks / {r.dropbacks} dropbacks in {r.dropback_games} games</td><td>{fmt(r.sack_avoidance_pct,1)}</td><td>{fmt(r.epa_per_dropback)}</td><td>{fmt(r.epa_lower)} to {fmt(r.epa_upper)}; {r.epa_interval_status.replaceAll('_',' ')}</td></tr>)}</tbody></table></div>
+   <p>Each year qualifies independently with at least 200 included throws in ten games. These are recorded passers, not a position-certified list. No eligible record means unavailable, not zero. 2011 is excluded. Individual completion and sack ranges were not estimated.</p>
+   <div class="table-scroll" role="region" aria-label="All 560 annual player-season records" tabindex="0"><table data-all-annual><caption>2006–2025 regular seasons, excluding 2011. Values use display rounding; downloads retain source precision.</caption><thead><tr><th scope="col">Player / season</th><th scope="col">Included throws / games</th><th scope="col">Whole CPOE (pp)</th><th scope="col">Completion (%)</th><th scope="col">Sacks / dropbacks</th><th scope="col">Without a sack (%)</th><th scope="col">EPA / dropback</th><th scope="col">EPA range / status</th></tr></thead><tbody>{annual.rows.map(r=><tr><th scope="row">{r.display_name}<br/>{r.season}</th><td>{r.eligible_throws} throws / {r.eligible_games} games</td><td>{fmt(r.cpoe_pp)}</td><td>{fmt(r.completion_pct)}</td><td>{r.sacks} sacks / {r.dropbacks} dropbacks in {r.dropback_games} games</td><td>{fmt(r.sack_avoidance_pct,1)}</td><td>{fmt(r.epa_per_dropback)}</td><td>{fmt(r.epa_lower)} to {fmt(r.epa_upper)}; {r.epa_interval_status.replaceAll('_',' ')}</td></tr>)}</tbody></table></div>
   </details>
 
   <details class="research-depth"><summary>Original 2023–2024 study</summary>
@@ -208,6 +209,7 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
  .project-views button{min-height:44px;padding:var(--space-2xs) var(--space-s);font:inherit;border:var(--rule) solid var(--green);background:var(--cream);color:var(--green);cursor:pointer;}
  .project-views button[aria-selected="true"]{background:var(--green);color:var(--cream);}
  .project-views button:focus-visible{outline:var(--rule-thick) solid var(--accent);outline-offset:var(--space-3xs);}
+ .view-intro{font-size:var(--type-body);line-height:1.5;max-width:70ch;margin-block:0 var(--space-s);}
  .view-scope{font-size:var(--type-small);line-height:1.5;margin-block:0 var(--space-s);max-width:65ch;}
  .stats-comparison{margin-top:var(--space-m);}
  .stats-comparison > h2{font-size:var(--type-h3);margin:0 0 var(--space-xs);}

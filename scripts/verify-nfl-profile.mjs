@@ -79,6 +79,9 @@ for(const [name,pair,counts,closing] of [
  assert.ok(nodes('radar-segment').every(n=>Number(n.attrs['data-to'])===Number(n.attrs['data-from'])+1||(n.attrs['data-from']==='6'&&n.attrs['data-to']==='0')),'No gap-bridging segment');
 }
 const html=readFileSync(new URL('dist/projects/nfl-qbs-re-evaluated/index.html',root),'utf8');
+assert.ok(html.includes('2006–2025, excluding 2011'));
+assert.ok(!/source[- ]blocked/i.test(html),'Visitor copy describes 2011 as excluded');
+assert.equal((html.match(/data-view-intro=/g)??[]).length,2,'One introductory paragraph is available for each comparison view');
 const table=html.match(/<table data-static-default[\s\S]*?<\/table>/)[0];
 const expertCells=[...table.matchAll(/<td\b[^>]*data-static-expert[^>]*>([\s\S]*?)<\/td>/g)];
 assert.equal(expertCells.length,4);

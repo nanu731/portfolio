@@ -61,7 +61,7 @@ export function registerNFL(){
    return {side,id,year,name:this.players.find(p=>p.id===id)?.name??'',row:this.annual!.rows.find(r=>r.player_key===id&&r.season===year),legacy:this.legacy!.rows.find(r=>r.player_key===id&&r.season===year),mobility:this.mobility?.rows.find(r=>r.player_key===id&&r.season===year),depth:this.depth!.rows.filter(r=>r.player_key===id&&r.season===year)};
   }
   selected(side:'a'|'b'):Selected{return this.playerSeason(side,this.control(side).value,Number(this.control(`season-${side}`).value));}
-  missing(s:Selected){return !s.id||!s.year?(this.selectionNotice[s.side]||'Choose a quarterback and season to compare.') : s.year===2011?'2011 source blocked: unresolved duplicate events and air-yard records.':'No eligible player-season record: this year requires at least 200 included throws in ten games.';}
+  missing(s:Selected){return !s.id||!s.year?(this.selectionNotice[s.side]||'Choose a quarterback and season to compare.') : s.year===2011?'2011 is excluded from this comparison.':'No eligible player-season record: this year requires at least 200 included throws in ten games.';}
   outcome(s:Selected,a:Axis):Outcome{
    const empty=(reason:string):Outcome=>({value:null,lower:null,upper:null,status:'unavailable',counts:'',reason});
    if(!a.field)return empty('Expert assessment uses its separately attributed rank.');
@@ -97,6 +97,7 @@ export function registerNFL(){
    if(navigate&&location.hash!==`#nfl-${view}-panel`)history.pushState({...history.state,nflAttributeOrigin:null},'',`#nfl-${view}-panel`);
    this.view=view;
    this.querySelectorAll<HTMLElement>('[data-view-panel]').forEach(panel=>panel.hidden=panel.dataset.viewPanel!==view);
+   this.querySelectorAll<HTMLElement>('[data-view-intro]').forEach(intro=>intro.hidden=intro.dataset.viewIntro!==view);
    this.querySelectorAll<HTMLButtonElement>('[data-project-view]').forEach(tab=>{const active=tab.dataset.projectView===view;tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;});
    this.querySelector('[data-view-scope]')!.textContent=view==='profile'?'Attribute filters apply only to Attribute profile.':'Attribute filters are saved for Attribute profile. Stats comparison uses available season stats.';
    if(this.annual){this.selectionNotice={a:'',b:''};for(const side of ['a','b'])this.reconcileSelection(side);this.render();}
@@ -149,7 +150,7 @@ export function registerNFL(){
   }
   updateSeasons(side:string,current=this.control(`season-${side}`).value){
    const select=this.control(`season-${side}`),choices=this.seasonChoices(side);
-   select.replaceChildren(...choices.map(y=>{const option=document.createElement('option');option.value=String(y.season);option.textContent=String(y.season)+(y.status==='source_blocked'?' · source blocked':'');return option;}));
+   select.replaceChildren(...choices.map(y=>{const option=document.createElement('option');option.value=String(y.season);option.textContent=String(y.season)+(y.status==='source_blocked'?' · excluded':'');return option;}));
    const available=!!current&&choices.some(y=>String(y.season)===current);
    if(this.view==='stats'||!available){
     const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent=choices.length?'Choose season':'No matching seasons';select.prepend(placeholder);select.value=available?current:'';

@@ -6,7 +6,7 @@ question: Can public NFL data help describe repeatable quarterback execution wit
 questionInBody: true
 dataset: nflverse regular-season play-by-play, 560 qualifying player-seasons; 84 attributed ESPN rank facts
 method: Attributed expert ranks, same-year outcome percentiles and native conditional game-based ranges
-seasons: 2006–2025, with 2011 source-blocked
+seasons: 2006–2025, excluding 2011
 repo: https://github.com/nanu731/nfl-qb-eval
 compact: true
 metadataInBody: true
@@ -27,7 +27,7 @@ import {EXPERT_SOURCES} from '../../lib/nfl-experts';
 
 The seven clockwise positions address arm strength, a processing proxy, pocket presence, mobility, short accuracy, medium accuracy and deep accuracy. The default Mahomes–Allen comparison combines two expert assessments published before the 2023 season with five outcomes from the 2023 regular season. These are different evidence types and observation windows. Other player-years retain their available outcomes and explicit expert gaps; no rank carries into another year.
 
-**Dropbacks without a sack (%)** occupies the desired pocket-presence position. **Scramble contribution** occupies the desired mobility position using the separate annual Mobility export: 559 finite accepted points among 560 qualifying player-seasons. Kyle Boller 2007 is withheld pending recorded-role review; 2011 remains source blocked. Sack avoidance reflects protection, receiver availability and decisions with other costs. Scramble contribution combines usage with whole-play shared value. Neither isolates the desired trait.
+**Dropbacks without a sack (%)** occupies the desired pocket-presence position. **Scramble contribution** occupies the desired mobility position using the separate annual Mobility export: 559 finite accepted points among 560 qualifying player-seasons. Kyle Boller 2007 is withheld pending recorded-role review; 2011 is excluded. Sack avoidance reflects protection, receiver availability and decisions with other costs. Scramble contribution combines usage with whole-play shared value. Neither isolates the desired trait.
 
 The short, medium and deep positions show **completions above expectation** on throws in each depth bin, in percentage points. These depth-specific completion residuals describe recorded outcomes relative to the supplied model; they do not isolate throwing accuracy or ball placement. [Read the depth bins and formula](#nfl-definition-depth).
 
@@ -123,7 +123,7 @@ The denominator is the count you divide by; it determines which plays the statis
 
 The annual comparison contains **560 qualifying player-seasons across 19 exported seasons from 2006 through 2025**. Each player qualifies within that season with at least 200 frozen included throws and ten included-throw games. Team changes pool under the same recorded GSIS player ID. No adjacent-season appearance is required. These are recorded passers, not a position-certified roster or every NFL quarterback; completion-model availability and exposure affect who qualifies. The postseason is excluded.
 
-The catalog retains all 20 years. **2011 is source-blocked** because unresolved duplicate recorded events and conflicting air yards prevent an accepted input. It contributes no annual or depth rows. Years outside 2006–2025 have no accepted data in this comparison. A selected player-year without an eligible record stays unavailable; the display does not substitute a nearby year, another player or zero.
+The catalog retains all 20 years. **2011 is excluded** because unresolved duplicate recorded events and conflicting air yards prevent an accepted input. It contributes no annual or depth rows. Years outside 2006–2025 have no accepted data in this comparison. A selected player-year without an eligible record stays unavailable; the display does not substitute a nearby year, another player or zero.
 
 The original repeatability evidence uses a separate, fixed group of 20 surviving passer IDs with at least 200 included throws and ten included-throw games in **both** 2023 and 2024. Its 40 annual records and ten study records remain labeled as the original cohort. The new annual selection does not extend those repeatability findings to 560 player-seasons. The profile’s annual Mobility values are a separate descriptive export; the original 40 records and their study results remain unchanged.
 
@@ -206,7 +206,7 @@ Study ranges remove a whole contributing NFL game across both teams and selected
 
 Receiver/defender actions, target choices and unmeasured circumstances remain. Protection, receivers and coaching are not isolated. These summaries do not establish precise placement, pocket awareness, designed rushing, athletic mobility, overall QB quality or forecasts. Isolated arm-strength and processing measurements and a support-adjusted overall score remain unavailable; the profile separately identifies its limited preseason expert assessments.
 
-The annual display exports qualifying records from 19 seasons within 2006–2025; unresolved source conflicts keep 2011 visible and blocked. Eligibility selects for recorded exposure and completion-model availability, and the original studies add survival across two years. Source coverage, overlap, persistent support and conditional uncertainty limit interpretation. Unknown generating model vintages and era changes prevent era-neutral skill claims. The depth residuals share outcomes and context; they do not validate three isolated accuracy traits. Percentiles describe standing within each declared outcome/year cohort. No aggregate percentile, win count or blended score combines the radar spokes or optional comparisons.
+The annual display exports qualifying records from 2006–2025, excluding 2011 because of unresolved source conflicts. Eligibility selects for recorded exposure and completion-model availability, and the original studies add survival across two years. Source coverage, overlap, persistent support and conditional uncertainty limit interpretation. Unknown generating model vintages and era changes prevent era-neutral skill claims. The depth residuals share outcomes and context; they do not validate three isolated accuracy traits. Percentiles describe standing within each declared outcome/year cohort. No aggregate percentile, win count or blended score combines the radar spokes or optional comparisons.
 
 </details>
 
@@ -243,7 +243,7 @@ Source: nflverse play-by-play. [Exact definition and formula](#nfl-definition-sa
 
 Escaping defenders and creating plays. Here, the season stat is how scramble plays changed the offense’s expected scoring outlook, spread over all included quarterback plays, not just scrambles. It combines scramble usage with shared play value. It does not measure speed or all rushing ability.
 
-Source: nflverse play-by-play. An unresolved record keeps Kyle Boller’s 2007 value unavailable; 2011 data is also unavailable. [Included plays, formula and limits](#nfl-definition-annual-mobility).
+Source: nflverse play-by-play. An unresolved record keeps Kyle Boller’s 2007 value unavailable; 2011 is excluded. [Included plays, formula and limits](#nfl-definition-annual-mobility).
 
 <a className="return-to-radar" href="#nfl-radar-link-mobility">Back to chart</a>
 
