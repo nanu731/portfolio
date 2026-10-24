@@ -9,3 +9,8 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+
+[[redirects]]
+  from = "/projects/moneyball-basketball-edition"
+  to = "/projects/nba-economics/"
+  status = 301

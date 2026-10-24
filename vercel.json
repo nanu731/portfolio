@@ -1,5 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/projects/moneyball-basketball-edition",
+      "destination": "/projects/nba-economics/",
+      "permanent": true
+    },
+    {
+      "source": "/projects/moneyball-basketball-edition/",
+      "destination": "/projects/nba-economics/",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
