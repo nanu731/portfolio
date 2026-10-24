@@ -1,8 +1,9 @@
 # NSL Analytics
 
-Narayan Lekhi's sports analytics portfolio. Each project starts with a sports
-question and gives readers the data, method, interactive results, and analysis
-code needed to examine it.
+## Overview
+
+Narayan Lekhi's sports analytics portfolio presents the data, methods, interactive
+results and analysis code behind each project's sports question.
 
 **[Visit the website](https://www.nslanalytics.com/)** ·
 **[Explore NBA shot selection](https://www.nslanalytics.com/projects/nba-shot-selection-analytics/)** ·
@@ -12,9 +13,11 @@ This repository contains the website and its public presentation data. The R
 models, source-data audits, and research live in
 [nba-shot-analytics](https://github.com/nanu731/nba-shot-analytics).
 
-## Available now
+## Project details
 
-### Tennis point stages
+### Available now
+
+#### Tennis point stages
 
 [When do tennis players win and lose their points?](https://www.nslanalytics.com/projects/tennis-point-phases/)
 
@@ -31,7 +34,7 @@ The adapted tennis display material is shared under
 This notice does not relicense unrelated website material or fonts.
 
 
-### NBA Shot Selection: Location Edition
+#### NBA Shot Selection: Location Edition
 
 How could a player's expected scoring change if some attempts moved toward
 stronger supported areas of the court?
@@ -59,7 +62,7 @@ Results include estimated extra points over the season, extra points per 100
 attempts, a shot-selection score, and 90% model ranges. Contextual help links to
 the Definitions, How the model works, and Formulas sections.
 
-### Two-player comparison
+#### Two-player comparison
 
 The [comparison page](https://www.nslanalytics.com/projects/nba-player-comparison/)
 places two players side by side on desktop and stacks them on mobile. Both use
@@ -72,7 +75,7 @@ uses each player's own historical shot mix; it does not rank overall talent,
 name a winner, or calculate a head-to-head probability. Missing estimates stay
 unavailable rather than becoming zero.
 
-### Interpreting the estimates
+#### Interpreting the estimates
 
 The Location Edition uses a Bayesian spatial model that shares information
 between neighboring court areas. Receiving areas need at least 10 attempts and
@@ -90,7 +93,7 @@ fatigue, and opponents' reactions. The estimates do not establish causal gains,
 forecast real games, or supply coaching or betting advice. The project page
 provides the full limitations and formulas.
 
-## Data and repository boundaries
+### Data and repository boundaries
 
 The website consumes the deterministic **v4** Location export under
 `public/data/spatial-shot-selection/v4/`. It contains 1,507 analyzed
@@ -107,7 +110,7 @@ renders its verified exports instead of fitting models. Historical files are
 versioned snapshots, not a live NBA feed. Preserve unavailable values and export
 contracts when integrating a new verified release.
 
-## Direction and planned expansion
+### Direction and planned expansion
 
 The Location Edition will remain available as its own project. **Context
 Edition** will have a separate question, model, results, and website presentation:
@@ -138,7 +141,46 @@ The research reserves 2026–27 for prospective confirmation. Planned work has n
 promised release date. The [analytics repository](https://github.com/nanu731/nba-shot-analytics)
 holds the research code and public methodological reports.
 
-## Run locally
+### Stack and project guide
+
+- **Astro 7**, static output, MDX project pages, Markdown blog posts, sitemap,
+  and blog RSS.
+- **Plain CSS** and browser JavaScript/TypeScript for interaction; SVG courts
+  and versioned JSON power the NBA tools.
+- **Fraunces, Source Serif 4, and IBM Plex Mono**, served from the site, with
+  cream/green/rust/cyan chart and interface colors.
+- **Vercel** at `www.nslanalytics.com`; the apex redirects to www. The site also
+  serves through [Netlify](https://nlekhi.netlify.app/).
+
+| Location | Purpose |
+| --- | --- |
+| `src/content/projects/` | Project write-ups and frontmatter. |
+| `src/content/blog/` | Dated writing; the collection currently has no published posts. |
+| `src/pages/` | Site routes, including the comparison page. |
+| `src/components/`, `src/lib/` | Shared interface components and browser helpers. |
+| `src/styles/global.css` | Shared color, spacing, and typography tokens. |
+| `public/data/`, `public/plots/` | Public exports and static plot assets. |
+| `scripts/` | Data-contract and browser verification helpers. |
+
+The shared CSS tokens define the visual system. The
+[UI verification record](docs/ui-refinement-verification.md) documents the
+released refinements and remaining checks. The unlinked `/styleguide/` is a
+design reference, excluded from the sitemap; it is not access-controlled.
+
+Project frontmatter must follow `src/content.config.ts`. Set `draft: true` for
+work that should appear in development but stay out of production. Publish
+verified findings and explicit limitations; use TODO markers for missing author
+content instead of inventing results or biography.
+
+### Working-record exposure
+
+Local contributor instructions and internal working records are excluded from
+the current public snapshot. Earlier public commits remain available by design;
+ignore rules and current-file removal do not erase that earlier exposure.
+
+## Usage
+
+### Run locally
 
 Use **Node.js 22.12.0 or newer** and npm. From the repository root:
 
@@ -174,38 +216,7 @@ replace browser checks or the analytics repository's statistical validation.
 Saved browser checks and their review evidence are documented in
 [UI refinement verification](docs/ui-refinement-verification.md).
 
-## Stack and project guide
-
-- **Astro 7**, static output, MDX project pages, Markdown blog posts, sitemap,
-  and blog RSS.
-- **Plain CSS** and browser JavaScript/TypeScript for interaction; SVG courts
-  and versioned JSON power the NBA tools.
-- **Fraunces, Source Serif 4, and IBM Plex Mono**, served from the site, with
-  cream/green/rust/cyan chart and interface colors.
-- **Vercel** at `www.nslanalytics.com`; the apex redirects to www. The site also
-  serves through [Netlify](https://nlekhi.netlify.app/).
-
-| Location | Purpose |
-| --- | --- |
-| `src/content/projects/` | Project write-ups and frontmatter. |
-| `src/content/blog/` | Dated writing; the collection currently has no published posts. |
-| `src/pages/` | Site routes, including the comparison page. |
-| `src/components/`, `src/lib/` | Shared interface components and browser helpers. |
-| `src/styles/global.css` | Shared color, spacing, and typography tokens. |
-| `public/data/`, `public/plots/` | Public exports and static plot assets. |
-| `scripts/` | Data-contract and browser verification helpers. |
-
-The shared CSS tokens define the visual system. The
-[UI verification record](docs/ui-refinement-verification.md) documents the
-released refinements and remaining checks. The unlinked `/styleguide/` is a
-design reference, excluded from the sitemap; it is not access-controlled.
-
-Project frontmatter must follow `src/content.config.ts`. Set `draft: true` for
-work that should appear in development but stay out of production. Publish
-verified findings and explicit limitations; use TODO markers for missing author
-content instead of inventing results or biography.
-
-## Hosting and maintenance
+### Hosting and maintenance
 
 The existing hosting connections deploy `main` using `npm run build` and
 `dist/`. Review feature branches before release; a push to production can
@@ -220,14 +231,10 @@ distinguishes released browser protections from account settings that still need
 review. Keep credentials, environment files, private analytics artifacts, and
 local tooling state out of Git and published output.
 
-## Licence and credits
+## License
+
+### Licence and credits
 
 Site content and writing are © Narayan Lekhi. Fraunces uses the SIL Open Font
 License; see [OFL.txt](src/assets/fonts/OFL.txt). This repository does not declare
 a blanket open-source licence for the website or its analytical data.
-
-## Working-record exposure
-
-Local contributor instructions and internal working records are excluded from
-the current public snapshot. Earlier public commits remain available by design;
-ignore rules and current-file removal do not erase that earlier exposure.
