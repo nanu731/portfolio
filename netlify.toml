@@ -1,3 +1,7 @@
+# Vercel is the production host; skip this unused Netlify build pipeline.
+[build]
+  ignore = "exit 0"
+
 # Astro supplies script/style hashes in each built page's CSP meta element.
 # Do not add default-src or script-src here: a second policy would block those
 # inline modules unless it also contained their build-specific hashes.
