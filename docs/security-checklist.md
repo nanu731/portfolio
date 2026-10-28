@@ -1,5 +1,29 @@
 # Portfolio security checklist
 
+## Analytics follow-up: 28 October 2026
+
+Vercel's dashboard confirms the Hobby plan. Free page-view analytics is deployed
+and the dashboard recorded the two browser setup visits. The current allowance
+is 50,000 events per month; Hobby cannot purchase event overages. No Pro trial,
+paid analytics add-on or custom event tracking was enabled. Collection is limited
+to Vercel production; the Netlify/local build omits tracker elements.
+[Vercel analytics pricing](https://vercel.com/docs/analytics/limits-and-pricing).
+
+The clean installation and both production build variants passed. The audit
+reports zero vulnerabilities after compatible Undici and Zod updates. All ten
+live pages passed header and generated script-hash checks; the nine public pages
+contain one tracker each and the internal style reference contains none. The
+live analytics script returned HTTP 200. Home-page browser inspection found no
+application error or CSP violation, and the dashboard counted home and About.
+No security directive was weakened, and no API secret was added.
+
+This follow-up verifies the Vercel plan and analytics cost boundary. Other account
+controls below, including MFA, membership, environment scopes, alerts and Netlify
+billing settings, remain outside this check. The 10 October release evidence
+below is historical and does not describe the current page count or output hashes.
+
+## Original security release: 10 October 2026
+
 Checked 10 October 2026. The portfolio publishes static pages and public basketball data. It has no visitor accounts, database, uploads, or paid API calls. The reviewed security changes now serve on both public hosts: dependency patches, matching browser security headers, generated page policies, and the corrected canonical address. Production release and live verification are complete. Account settings still require sign-in, so the security audit remains open.
 
 I reviewed the application source, configuration, existing production output, and 69 commits reachable from local Git refs. I scanned 2,506 Git blobs for common provider keys, private keys, and credential assignments without printing potential values. I checked the home page, both NBA pages, the data manifest, HTTPS redirects, and sensitive development paths on both live hosts. This review does not certify the site against every attack or cover hosting dashboards, remote-only Git history, deleted unreachable objects, or arbitrary secret formats.
