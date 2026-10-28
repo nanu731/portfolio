@@ -1,7 +1,11 @@
 ---
 import { SITE_TITLE } from '../consts';
+import Analytics from '@vercel/analytics/astro';
 
 const today = new Date();
+// Only the live Vercel site has analytics endpoints. Keep previews, local builds
+// and the Netlify mirror out of the traffic totals.
+const enableAnalytics = process.env.VERCEL_ENV === 'production';
 ---
 
 <!-- The one green band guaranteed on every page. It terminates the page, so the
@@ -11,6 +15,7 @@ const today = new Date();
 		<p class="label">&copy; {today.getFullYear()} {SITE_TITLE}</p>
 	</div>
 </footer>
+{enableAnalytics && <Analytics mode="production" />}
 <style>
 	footer {
 		margin-top: var(--space-2xl);
