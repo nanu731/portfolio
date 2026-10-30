@@ -17,10 +17,14 @@ and the empty blog warning remain. Matched desktop and mobile browser inspection
 used actual 1440 x 900 and 375 x 812 viewports, with loaded artwork and no horizontal
 overflow. Keyboard tab order reaches Home after the brand link with a visible
 2-pixel rust outline. The logo has no animation or transition. Browser console
-inspection found no errors or CSP violations on the checked home page. Every built
-HTML page includes the new header logo and versioned favicon references. The SVG
+inspection found no errors or CSP violations on the checked home page. All nine pages with a shared header include the new logo; all ten built HTML
+pages include versioned favicon references. The unindexed style guide has no header. The SVG
 contains no scripts, event attributes, external resources or raster images.
 
 The isolated release starts from production main at 379e5d7 and includes only
 logo/header/favicon changes and this record. Dependencies, factual copy, analytics,
 data and host security policies are unchanged. Publication verification is pending.
+
+Production push was blocked by automatic approval review pending specific approval
+to push this isolated release to main and trigger hosting deployments. No push
+or deployment occurred.
