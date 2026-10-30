@@ -5,7 +5,7 @@ import HeaderLink from './HeaderLink.astro';
 
 <header>
 	<nav>
-		<h2><a href="/">{SITE_TITLE}</a></h2>
+		<h2><a href="/"><img class="site-logo" src="/nsl-logo.svg" width="344" height="156" alt="" /><span>{SITE_TITLE}</span></a></h2>
 		<div class="internal-links">
 			<HeaderLink href="/">Home</HeaderLink>
 			<HeaderLink href="/projects">Projects</HeaderLink>
@@ -43,6 +43,16 @@ import HeaderLink from './HeaderLink.astro';
 		font-variation-settings: 'opsz' 18, 'SOFT' 0, 'WONK' 0;
 	}
 
+	.site-logo {
+		width: var(--space-2xl);
+		height: auto;
+		flex: none;
+	}
+	h2 a {
+		display: flex;
+		align-items: center;
+		gap: var(--space-xs);
+	}
 	h2 a,
 	h2 a.active {
 		text-decoration: none;
@@ -81,10 +91,15 @@ import HeaderLink from './HeaderLink.astro';
 			display: none;
 		}
 	}
-	/* Relative to header text size: normal 320px layouts keep their geometry,
-	   while enlarged text can put the same navigation on its own row. */
+	@media (max-width: 47.999rem) {
+		nav { flex-wrap: wrap; gap: 0 var(--space-s); }
+		h2 { flex-basis: 100%; }
+		.site-logo { width: var(--space-xl); }
+		.internal-links { display: flex; flex-wrap: wrap; }
+	}
+	/* Retain enlarged-text reflow on wider viewports. */
 	@container (width < 15em) {
-		nav { flex-wrap: wrap; gap: 0 var(--space-m); }
+		nav { flex-wrap: wrap; gap: 0 var(--space-s); }
 		.internal-links { min-width: 0; width: 100%; }
 	}
 </style>
