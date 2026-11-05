@@ -1,35 +1,7 @@
 ---
-import BaseHead from '../../components/BaseHead.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
-import PlayerComparison from '../../components/PlayerComparison.astro';
+import PreparedProject from '../../layouts/PreparedProject.astro';
+import { getPreparedProject } from '../../lib/prepared-projects';
+const page = getPreparedProject('nba-player-comparison');
+if (!page) throw new Error('The reviewed shot-comparison page is missing.');
 ---
-<!doctype html>
-<html lang="en">
-  <head><BaseHead title="Compare NBA shot mixes | Narayan Lekhi" description="Compare two players’ own historical shot mixes and supported relocation scenarios." /></head>
-  <body>
-    <Header />
-    <main class="band">
-      <div class="band-inner band-inner--wide at-edge comparison-inner">
-        <p><a href="/projects/nba-shot-selection-analytics/">Return to the single-player explorer</a></p>
-        <h1>Compare two shot mixes</h1>
-        <p>These estimates compare each player with their own historical shot mix. They do not rank overall talent or prove that one player is a better shooter.</p>
-        <p>Choose two players in one season. A shared slider and court view keep the scenario aligned. Changing either player or the season resets relocation to 0%.</p>
-        <PlayerComparison />
-      </div>
-    </main>
-    <Footer />
-  </body>
-</html>
-
-<style>
-  @media (min-width: 64rem) {
-    .comparison-inner {
-      --comparison-max-width: 80rem;
-      --comparison-copy-width: calc(68rem - 2 * var(--space-l));
-      max-width: var(--comparison-max-width);
-    }
-    /* Preserve the existing introductory prose measure as the courts widen. */
-    .comparison-inner > p { max-width: var(--comparison-copy-width); }
-  }
-</style>
+<PreparedProject page={page} />

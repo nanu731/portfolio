@@ -1,0 +1,17 @@
+---
+import Analytics from '@vercel/analytics/astro';
+import type { PreparedProject } from '../lib/prepared-projects';
+interface Props { page: PreparedProject }
+const { page } = Astro.props;
+for (const hash of page.scriptHashes) Astro.csp?.insertScriptHash(hash);
+for (const hash of page.styleHashes) Astro.csp?.insertStyleHash(hash);
+const enableAnalytics = process.env.VERCEL_ENV === 'production';
+---
+<!doctype html>
+<html lang="en">
+  <head><Fragment set:html={page.head} /></head>
+  <body class={page.bodyClass} data-project={page.kind}>
+    <Fragment set:html={page.body} />
+    {enableAnalytics && <Analytics mode="production" />}
+  </body>
+</html>

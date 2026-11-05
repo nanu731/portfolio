@@ -1,21 +1,16 @@
 ---
-import { type CollectionEntry, getCollection, render } from 'astro:content';
-import Project from '../../layouts/Project.astro';
+import { type CollectionEntry, getCollection } from 'astro:content';
+import PreparedProject from '../../layouts/PreparedProject.astro';
+import { getPreparedProject } from '../../lib/prepared-projects';
 import { isPublished } from '../../consts';
 
 export async function getStaticPaths() {
-	const projects = await getCollection('projects', isPublished);
-	return projects.map((project) => ({
-		params: { slug: project.id },
-		props: project,
-	}));
+  const projects = await getCollection('projects', isPublished);
+  return projects.map((project) => ({ params: { slug: project.id }, props: project }));
 }
 type Props = CollectionEntry<'projects'>;
-
 const project = Astro.props;
-const { Content } = await render(project);
+const prepared = getPreparedProject(project.id);
+if (!prepared) throw new Error(`Published project needs a reviewed standard export: ${project.id}`);
 ---
-
-<Project {...project.data}>
-	<Content />
-</Project>
+<PreparedProject page={prepared} />

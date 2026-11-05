@@ -1,0 +1,350 @@
+/* Shared interaction layer. The original non-project page layouts stay intact. */
+:root {
+  --ux-cream: #f2e9ce;
+  --ux-green: #14532d;
+  --ux-rust: #9c3d1e;
+  --ux-sand: #d0be9e;
+  --ux-fast: 120ms;
+  --ux-settle: 200ms;
+  --ux-ease: cubic-bezier(.2,.8,.2,1);
+}
+body.std-experience :is(a, button, summary, select, [role='button'], label:has(input[type='radio'], input[type='checkbox'])) {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+body.std-experience :is(a, button, summary, select, label:has(input[type='radio'], input[type='checkbox'])) {
+  transition: background-color var(--ux-fast) ease, color var(--ux-fast) ease,
+    border-color var(--ux-fast) ease, text-underline-offset var(--ux-settle) var(--ux-ease);
+}
+@media (hover:hover) and (pointer:fine) {
+  body.std-experience a:hover { text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 1.5px; }
+  body.std-experience :is(button, summary, select, label:has(input[type='radio'], input[type='checkbox'])):not(:disabled):hover {
+    outline: 1px solid currentColor;
+    outline-offset: 2px;
+  }
+}
+body.std-experience :is(a, button, summary, select, [role='button']):focus-visible {
+  outline: 3px solid var(--ux-rust);
+  outline-offset: 4px;
+}
+body.standard-page .std-method :focus-visible,
+body.standard-page .std-method:focus-visible { outline-color: var(--ux-cream); }
+body.std-experience [data-std-pressed] { outline: 2px solid currentColor; outline-offset: 2px; }
+body.std-experience svg [data-std-pressed] { opacity: .75; }
+body.std-experience input::placeholder { color: var(--ux-green); opacity: 1; }
+body.std-experience :is(table, output, .numeric, .score, .std-selected-meta, #std-picker-status) {
+  font-variant-numeric: tabular-nums;
+}
+body.std-experience main :is(h1,h2) { text-wrap: balance; }
+
+/* Legible primary page navigation, with a project menu at the same position. */
+body.standard-page > .std-site-header .std-mast > nav {
+  align-items: center;
+  gap: 16px !important;
+  overflow: visible;
+}
+body.standard-page > .std-site-header .std-mast > nav :is(a,summary) {
+  min-height: 44px;
+  padding: 10px 6px !important;
+  border: 0;
+  color: var(--ux-green);
+  font: 400 1.125rem/1.35 Source, Georgia, serif !important;
+  letter-spacing: 0 !important;
+  text-transform: none;
+  text-decoration-thickness: 1.5px;
+}
+body.standard-page .std-project-menu,
+body.standard-page .std-section-menu {
+  position: relative;
+  flex: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ux-green);
+}
+body.standard-page :is(.std-project-menu,.std-section-menu)>summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+  list-style: none;
+}
+body.standard-page :is(.std-project-menu,.std-section-menu)>summary::-webkit-details-marker { display:none; }
+body.standard-page :is(.std-project-menu,.std-section-menu)>summary::after {
+  content:'';
+  width:7px;
+  height:7px;
+  margin-top:-4px;
+  border-right:2px solid currentColor;
+  border-bottom:2px solid currentColor;
+  transform:rotate(45deg);
+  transition:transform var(--ux-fast) var(--ux-ease);
+}
+body.standard-page :is(.std-project-menu,.std-section-menu)[open]>summary::after { transform:rotate(225deg); margin-top:4px; }
+body.standard-page .std-menu-panel {
+  position:absolute;
+  z-index:30;
+  top:calc(100% + 6px);
+  right:0;
+  display:block;
+  width:min(390px,calc(100vw - 36px));
+  max-height:65dvh;
+  margin:0;
+  padding:8px;
+  overflow:auto;
+  border:2px solid var(--ux-green);
+  border-radius:4px;
+  background:var(--ux-cream);
+  color:var(--ux-green);
+}
+body.standard-page .std-menu-panel a {
+  display:block;
+  width:100%;
+  min-height:44px;
+  margin:0;
+  padding:12px !important;
+  border:0;
+  border-bottom:1px solid var(--std-rule);
+  color:var(--ux-green);
+  font:400 1.05rem/1.4 Source,Georgia,serif !important;
+  text-decoration:none;
+  white-space:normal;
+}
+body.standard-page .std-menu-panel a:last-child { border-bottom:0; }
+body.standard-page .std-menu-panel a:hover,
+body.standard-page .std-menu-panel a[aria-current='page'] { background:var(--ux-green); color:var(--ux-cream); }
+body.standard-page .std-section-menu { width:max-content; max-width:100%; margin-top:16px; }
+body.standard-page .std-section-menu>summary {
+  padding:9px 14px;
+  border:1px solid var(--ux-green);
+  border-radius:4px;
+  font:400 1rem/1.4 Source,Georgia,serif;
+}
+body.standard-page .std-section-menu>.std-menu-panel { left:0; right:auto; }
+
+/* All reference regions are native disclosures, closed until requested. */
+body.standard-page .std-documentation { width:100%; margin:0; padding:0; }
+body.standard-page .std-documentation>.std-doc-summary {
+  display:flex;
+  align-items:center;
+  gap:18px;
+  min-height:80px;
+  margin-block:0;
+  padding-block:24px;
+  list-style:none;
+}
+body.standard-page .std-doc-summary::-webkit-details-marker { display:none; }
+body.standard-page .std-doc-summary::before {
+  content:'';
+  flex:none;
+  width:9px;
+  height:9px;
+  border-right:2px solid currentColor;
+  border-bottom:2px solid currentColor;
+  transform:rotate(-45deg);
+  transition:transform var(--ux-settle) var(--ux-ease);
+}
+body.standard-page .std-documentation[open]>.std-doc-summary::before { transform:rotate(45deg); }
+body.standard-page .std-doc-summary>h2 {
+  margin:0;
+  color:inherit;
+  font:550 clamp(1.5rem,2.2vw,1.875rem)/1.15 Fraunces,Georgia,serif;
+  font-variation-settings:'WONK' 1,'SOFT' 90;
+}
+body.standard-page .std-documentation>.std-notes {
+  display:block;
+  margin-block:0;
+  padding-block:0 32px;
+  border:0;
+}
+body.standard-page .std-documentation .std-notes-copy { max-width:75ch; }
+body.standard-page .std-documentation :is(p,ul,ol,dl) { max-width:75ch; }
+body.standard-page .std-engine>details.std-reference { border-bottom:1px solid var(--std-rule); }
+body.standard-page .std-documentation :is(code,kbd,samp,pre,.formula,.equation) {
+  background:var(--ux-sand) !important;
+  color:var(--ux-green) !important;
+  font-variant-numeric:tabular-nums;
+}
+body.standard-page .std-documentation code { padding:2px 5px; border-radius:2px; overflow-wrap:anywhere; }
+body.standard-page .std-documentation pre { padding:16px; max-width:100%; overflow:auto; }
+body.standard-page .std-documentation pre code { padding:0; }
+body.standard-page .std-documentation :is(th,td) { color:var(--ux-green); }
+body.standard-page .std-documentation table { color:var(--ux-green); background:var(--ux-sand); }
+@supports (interpolate-size:allow-keywords) and (transition-behavior:allow-discrete) {
+  body.standard-page .std-documentation { interpolate-size:allow-keywords; }
+  body.standard-page .std-documentation::details-content {
+    block-size:0;
+    overflow:clip;
+    transition:block-size var(--ux-settle) var(--ux-ease),content-visibility var(--ux-settle) allow-discrete;
+  }
+  body.standard-page .std-documentation[open]::details-content { block-size:auto; }
+}
+
+/* A reserved picker list and a chart overlay represent real data waits. */
+body.standard-page #std-picker-results { min-height:132px; }
+.std-roster-skeleton { padding:12px 4px; }
+.std-skeleton-line {
+  display:block;
+  height:12px;
+  width:80%;
+  margin:12px 0;
+  border-radius:2px;
+  background:var(--ux-green);
+  opacity:.14;
+  animation:std-skeleton-pulse 1200ms ease-in-out infinite alternate;
+}
+.std-skeleton-line:nth-child(2n) { width:55%; }
+.std-skeleton-line:nth-child(3n) { width:70%; }
+@keyframes std-skeleton-pulse { to { opacity:.27; } }
+body.standard-page .std-async-region { position:relative; }
+body.standard-page .std-async-region.std-region-busy>*:not(.std-chart-skeleton) { visibility:hidden; }
+body.standard-page .std-chart-skeleton {
+  position:absolute;
+  inset:0;
+  display:none;
+  min-height:140px;
+  padding:24px;
+  background:var(--ux-cream);
+  color:var(--ux-green);
+}
+body.standard-page .std-region-busy>.std-chart-skeleton { display:block; }
+.std-chart-skeleton p { margin:0 0 24px; font-size:1rem; }
+.std-pending-selection { font-variant-numeric:tabular-nums; }
+
+@view-transition { navigation:auto; }
+::view-transition-old(root) { animation:std-page-out 140ms ease-out both; }
+::view-transition-new(root) { animation:std-page-in 180ms var(--ux-ease) both; }
+@keyframes std-page-out { to { opacity:0; transform:translateY(-4px); } }
+@keyframes std-page-in { from { opacity:0; transform:translateY(6px); } }
+@media(max-width:760px) {
+  body.standard-page > .std-site-header .std-mast > nav { gap:8px !important; justify-content:space-between; }
+  body.standard-page > .std-site-header .std-mast > nav :is(a,summary) { font-size:1.05rem !important; padding-inline:4px !important; }
+  body.standard-page .std-project-menu>.std-menu-panel { left:0; right:auto; width:min(320px,calc(100vw - 36px)); }
+  body.standard-page .std-documentation>.std-doc-summary { min-height:76px; padding-block:22px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  body.std-experience *,body.std-experience *::before,body.std-experience *::after { animation-duration:.001ms !important; transition-duration:.001ms !important; scroll-behavior:auto !important; }
+  ::view-transition-old(root),::view-transition-new(root) { animation:none !important; }
+}
+body.standard-page .std-documentation :is(pre,code) * { color:var(--ux-green) !important; background:transparent !important; }
+/* Rust on a sand table is below text contrast; retain a visible link underline. */
+body.standard-page nfl-comparison table a { color:var(--ux-green) !important; text-decoration:underline; }
+body.standard-page .std-intro h1 { text-wrap:balance; }
+body.std-experience svg .target { transition:stroke-width var(--ux-fast) ease; }
+body.std-experience svg :is([role='button'],[tabindex='0']):hover { filter:brightness(.92); }
+body.std-experience :is(button,input,select):disabled { cursor:not-allowed !important; }
+@supports (interpolate-size:allow-keywords) and (transition-behavior:allow-discrete) {
+  body.standard-page .std-documentation details::details-content {
+    block-size:0;
+    overflow:clip;
+    transition:block-size var(--ux-settle) var(--ux-ease),content-visibility var(--ux-settle) allow-discrete;
+  }
+  body.standard-page .std-documentation details[open]::details-content { block-size:auto; }
+}
+@media(max-width:760px) {
+  body.standard-page .std-project-menu>.std-menu-panel { position:fixed; left:18px; right:18px; width:auto; top:var(--std-menu-top,90px); }
+}
+@media (hover:hover) and (pointer:fine) {
+  body.std-experience a:has(svg):hover { outline:1px solid currentColor; outline-offset:3px; }
+  body.std-experience input[type='range']:hover::-webkit-slider-thumb { transform:scale(1.1); }
+  body.std-experience input[type='range']:hover::-moz-range-thumb { transform:scale(1.1); }
+}
+body.std-experience input[type='range']::-webkit-slider-thumb { transition:transform var(--ux-fast) var(--ux-ease); }
+body.std-experience input[type='range']::-moz-range-thumb { transition:transform var(--ux-fast) var(--ux-ease); }
+body.std-experience input[type='range']:active::-webkit-slider-thumb { transform:scale(1.14); }
+body.std-experience input[type='range']:active::-moz-range-thumb { transform:scale(1.14); }
+@media (prefers-reduced-motion:reduce) {
+  body.std-experience *,body.std-experience *::before,body.std-experience *::after { animation:none !important; transition:none !important; }
+}
+@media(max-width:360px) {
+  body.standard-page > .std-site-header .std-mast > nav {
+    display:grid !important;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:0 8px !important;
+    justify-items:start;
+  }
+}
+body.standard-page .std-site-header .std-project-menu .std-menu-panel a {
+  padding:12px !important;
+  color:var(--ux-green);
+  font:400 1.05rem/1.4 Source,Georgia,serif !important;
+  white-space:normal;
+}
+body.standard-page .std-site-header .std-project-menu .std-menu-panel a:is(:hover,[aria-current='page']) {
+  background:var(--ux-green);
+  color:var(--ux-cream) !important;
+}
+body.standard-page .std-menu-panel { overscroll-behavior:contain; }
+
+/* The draft analysis uses the same outer shell; its four analysis views stay local. */
+body.standard-page[data-project='draft'] .explorer-jumps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+body.standard-page[data-project='draft'] .std-workspace > .controls { margin-block: var(--std-space-m); }
+body.standard-page[data-project='draft'] .std-workspace .pick-navigation { align-items: stretch; }
+body.standard-page[data-project='draft'] .std-workspace .pick-navigation button { min-height: 48px; }
+body.standard-page[data-project='draft'] .std-workspace :is(.basketball-hook, .cohort-context) { max-width: 75ch; }
+body.standard-page[data-project='draft'] .std-notes-copy table { display: block; max-width: 100%; overflow-x: auto; }
+body.standard-page[data-project='draft'] .std-notes-copy :is(th, td) { color: var(--std-green); }
+body.standard-page[data-project='draft'] .std-workspace .player-switch { position: static; }
+body.standard-page[data-project='draft'] .std-workspace .controls label { min-width: 0; }
+body.standard-page[data-project='draft'] .std-workspace .controls select { width: 100%; }
+body.standard-page[data-project='draft'] .std-documentation .selected-band :is(th, td) { color: var(--std-cream); background: var(--std-green); }
+body.standard-page[data-project='draft'] .std-documentation button:not(.definition-trigger) { color: var(--std-green); background: var(--std-cream); border: 1px solid var(--std-cream); min-height: 44px; padding: var(--std-space-xs) var(--std-space-s); font: inherit; cursor: pointer; }
+@media (max-width: 360px) {
+  body.standard-page[data-project='draft'] .std-workspace > .controls { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Comparison tools sit below their parent project in portfolio navigation. */
+body.standard-page .std-project-group { border-bottom: 1px solid var(--std-rule); }
+body.standard-page .std-project-parent-row { display: flex; align-items: stretch; }
+body.standard-page .std-project-menu .std-project-parent-row > .std-project-parent { flex: 1; min-width: 0; width: auto; border-bottom: 0; }
+body.standard-page .std-subproject-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 44px;
+  min-height: 44px;
+  padding: var(--std-space-xs);
+  border: 0;
+  border-radius: 0;
+  background: var(--std-cream);
+  color: var(--std-green);
+  cursor: pointer;
+}
+body.standard-page .std-subproject-toggle::after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform var(--ux-fast) var(--ux-ease);
+}
+body.standard-page .std-subproject-toggle[aria-expanded='true']::after { transform: rotate(225deg); }
+body.standard-page .std-site-header .std-project-menu .std-project-children > a { padding-left: 34px !important; border-bottom: 0; }
+
+/* Soft menu hover cues; keyboard focus stays explicit and green. */
+body.std-experience { --ux-menu-hover: color-mix(in srgb, var(--ux-green) 7%, var(--ux-cream)); }
+body.standard-page :is(.std-site-header,.std-section-menu) :is(a,summary,button):focus-visible {
+  outline: 2px solid var(--ux-green);
+  outline-offset: 3px;
+}
+@media (hover:hover) and (pointer:fine) {
+  body.standard-page :is(.std-site-header,.std-section-menu) :is(a,summary,button):hover:not(:focus-visible):not([aria-current='page']) {
+    outline: none;
+    background: var(--ux-menu-hover);
+    color: var(--ux-green);
+    text-decoration-thickness: 1px;
+  }
+  body.standard-page .std-site-header .std-project-menu .std-menu-panel a:hover:not([aria-current='page']),
+  body.standard-page .std-section-menu .std-menu-panel a:hover:not([aria-current='page']) {
+    background: var(--ux-menu-hover);
+    color: var(--ux-green) !important;
+    text-decoration: none;
+  }
+}
+
+/* Keep the figure heading readable under the host site heading rules. */
+body.standard-page .std-workspace .map h2 { color: var(--std-cream); }
