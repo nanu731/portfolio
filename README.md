@@ -70,6 +70,9 @@ npm run astro -- dev status
 npm run astro -- dev stop
 ```
 
+For isolated experiments, follow the [site testing workflow](docs/site-testing.md).
+Use the [project page blueprint](docs/project-page-blueprint.md) for project pages.
+
 To build and preview the production site:
 
 ```sh

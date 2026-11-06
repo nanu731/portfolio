@@ -26,6 +26,12 @@ for (const [path, expected] of Object.entries(manifest.assets)) {
 }
 const home = await readFile(join(root,'dist/index.html'),'utf8');
 const projects = await readFile(join(root,'dist/projects/index.html'),'utf8');
-if (!home.includes('/projects/nba-statistical-twins/') || !projects.includes('/projects/nba-statistical-twins/')) throw Error('Twins is missing from Home or Projects.');
-if (home.includes('/projects/nba-draft-success/') || projects.includes('/projects/nba-draft-success/')) throw Error('NBA Draft Success must remain local.');
-console.log(`Verified ${manifest.projects.length} project pages, inline CSP hashes, ${Object.keys(manifest.assets).length} built assets and both Twins listings.`);
+const primary = manifest.projects.filter(p => p.slug !== 'nba-player-comparison');
+for (const {slug} of primary) {
+  const href = `/projects/${slug}/`;
+  if (![home, projects].every(html => html.includes(`href="${href}"`))) throw Error(`Missing Home or Projects listing: ${slug}`);
+}
+for (const html of [home, projects]) {
+  if (!/<a\b(?=[^>]*href="https:\/\/nbapredictions\.happybuddha1008\.workers\.dev\/")(?=[^>]*target="_blank")(?=[^>]*rel="noopener noreferrer")[^>]*>/.test(html)) throw Error('NBA Game Predictor new-tab link missing.');
+}
+console.log(`Verified ${manifest.projects.length} project pages, inline CSP hashes, ${Object.keys(manifest.assets).length} built assets and both project listings.`);

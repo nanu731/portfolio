@@ -1,45 +1,51 @@
 {
-  "sourceSnapshot": "20261105T151537Z-ba683e",
-  "sourceLabel": "Reader-focused copy · softer menus",
+  "sourceSnapshot": "20261105T172239Z-e1770d",
+  "sourceLabel": "Project blueprint · NBA Game Predictor link",
   "projects": [
     {
       "slug": "nba-statistical-twins",
       "sourceSha256": "a8778f892a8706d0876aa2cfbba2d469b4d4de03bbf9163912ff7ab866fbacee",
-      "pageSha256": "41df98431d7305592489fcd17886c34eef9be4e1f208297926b19bbb6c0ec8e1"
+      "pageSha256": "6327d6f1102e09e634c9de7c3b23a85247d694dbc64f3f67f93ca47670112c0f"
     },
     {
       "slug": "nba-economics",
       "sourceSha256": "cb1c3f7807f6591fb10cc86ea9a1677f3fef4e2b624d897b60c05ba870c9812f",
-      "pageSha256": "fe24fe60a75454d279e3b004a94e2ad3441019007fd9c52cb998832f8eafceaa"
+      "pageSha256": "5af1c2052fdb6a2c8404451a848459a6aff4f17db1587b18ac05713e5a7f4cda"
     },
     {
       "slug": "nba-shot-selection-analytics",
       "sourceSha256": "073070b8e1fadd5803f2783926fa8c4d57e348709592c082228ac7ec7e36c2ea",
-      "pageSha256": "19100e9838551bcd615085f0fc968e37b99b1131405f605522950a63d1b1313a"
+      "pageSha256": "c1e9fd0b51e21fd6e4e00d42f96794ec49faeefdd93e16784740f7a7f3c56424"
     },
     {
       "slug": "nfl-qbs-re-evaluated",
       "sourceSha256": "3f197a5d2da79b18c054f71a68fe4f9cd21e90db3041c1c302df0d2602db7fd0",
-      "pageSha256": "32396931ab87ca678a8b2605953f5b5c050b1660ef05bdc5c6cb52ebc31c2593"
+      "pageSha256": "e8f7a7f6ca1e49f19e2e75d80e312da425151398fefaa36800d63c1bde86ed2b"
     },
     {
       "slug": "tennis-point-phases",
       "sourceSha256": "145e372ae61cd7251f2366997723c0f170d2d09df103e9c80078b292f9dfae8a",
-      "pageSha256": "a0392a1522ca242aef242771d5e003d8c836c216d6b4ec92eb9755296e21ab60"
+      "pageSha256": "f4844d0d1bb6c610d2e53ad3c7094e2f89cbc56ee10dbab0dc062e9dea5b5f63"
     },
     {
       "slug": "nba-player-comparison",
       "sourceSha256": "e2a05e052417fa5d52c414671dd5addad61bc709223a9d7903029ee084b2f4e2",
-      "pageSha256": "6c1f0dfa5c1f4df843c8d8548b8e86d5c29d225231f7f3d81ff396e4cc4ec0da"
+      "pageSha256": "873797b9ccfe74e20d33665b40cdd7ce29f9538e5671451bc2d819ed9d9f84fd"
+    },
+    {
+      "slug": "nba-draft-success",
+      "sourceSha256": "585c7fbd2a579f4cbcac3281993dafaa9053d1040fe90f94db34acb1b5eb4a5d",
+      "pageSha256": "2e5648cde52dda72a2855f5a04c29fd045b59a052f09e86709a0cc454eaf74ff"
     }
   ],
   "assets": {
     "/twins-source/assets/nsl.svg": "6eb9cd42f66947d879f343be720386daace8218daf225bb9bedfd96a3d9ad3f9",
     "/twins-source/assets/style.css": "8a3bd6c8d042fa9a4091940de7ecd1949e86943e7fb197501b24f3e51c4422e3",
     "/std-assets/project-standard.css": "e84cab5f660e36586ad70ac4d6715752064c8ec6b18cddebb5196c5542da221b",
-    "/std-assets/project-standard-experience.css": "aa12bceff33b0ed59e63ee4ab7dcd95ecb2e36cc22dec27d2ffb76e8a6add04e",
-    "/std-assets/project-standard-controls.js": "94820a9bbd470ba023e756350f0f9317e72d9f6a51a305f7db3ad7910fd06c3b",
+    "/std-assets/project-standard-experience.css": "e19798dd0660fffd1f3623fdf4ceef6ca0ce00e22094bf8f33a8acaa72e87a61",
+    "/std-assets/project-standard-controls.js": "f30230b3084591f19d7f6019a98e3c3aae655f10ed3ed349d80a53fe082376c0",
     "/std-assets/project-standard-experience.js": "36f8073bbe1e0c3d71daf16132de302e920e39a9cf4d76e11331c3a01c63c493",
+    "/twins-source/research/stocks-model.md": "d8c54f304cc6ac57a094f2a8ebbf3a1ce5b218633d616d831ab4966f2b32e418",
     "/twins-source/data/data.js": "d6d0d8fc05e6b77e14bd3b3c29c1b9ee74b30141582cc4f75b8f47372116cc7f",
     "/twins-source/assets/model.js": "f02a99b762e114469c6c6aab32d869285e3f99bf2a4d9154936c5da6e287fde9",
     "/twins-source/assets/app.js": "27313c4bcbe7975cdf9cee01a8455aff735e1fc9f23d44bc54a81cb057823eef",
@@ -79,6 +85,10 @@
     "/ibm-plex-license.txt": "7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da",
     "/_astro/TennisPointPhases.astro_astro_type_script_index_0_lang.DXSy1315.js": "9c6a01eec47488ca6a15b26b4ee47c549e1e3fc0cfea9e8ac7d0e994e1c21574",
     "/_astro/nba-player-comparison.B1Wp1m4a.css": "2214f910146b0ee5af1ad1fc573bae6f0d7db4dc36c265690849ee060421c5d6",
+    "/external-project-link.css": "6cd0c1aac3827b31fcbd692870ed6680390c68caba674dda08259461e8044eae",
+    "/_astro/_..Dwt6p5U7.css": "68fdbedc4c7fc5f60e33e3d6ee50d6705f277c60441ab7efb6c97c1ab39ee759",
+    "/_astro/nba-draft-success.BucBD6w0.css": "1ac2184ccad8bc520df68e3490771f1564f3f4f42cab1d9ed8f6a283a9b6b564",
+    "/_astro/DraftExplorer.astro_astro_type_script_index_0_lang.CdOoIR8P.js": "666988d638757a85e29df127fc87f98d9bedca260a76a823002478016bcd5e56",
     "/twins-source/assets/fraunces.woff2": "94bb7e04bb1a32237a67935c72526e42a3e52ee4aebd50299802b18a93114251",
     "/twins-source/assets/source-serif.woff2": "fafca76cdf167b2a88dd2984ca9745f0b9a0475ee82fd2ab6c36476001d0da0b",
     "/twins-source/assets/plex-mono.woff2": "c36f509c0a8f9f85f29cb44bc8701d8a9e0b14c499e77a884f789ead7093a7ac",
@@ -2093,14 +2103,13 @@
     "/data/moneyball/v1/views/2010-1.json": "ccc9e1b1d8b34b5937dd4aeb2043df42c5982f7af210e0216028d4c1ec14108a",
     "/twins-source/LICENSE": "4d86cfe44cf70c29d2c976a2c274bfa26cb951adbe2bf496ad203c35dbf03319",
     "/twins-source/assets/OFL.txt": "1938ad335da1622da1a7689cfc961af01877e5e367c08432b2fe8ff9e419ba93",
-    "/twins-source/research/source-data-license.txt": "a578b8bc9409b00f105eea72c4bbd0c0c75d0c3f93d5d2ee8ae11f4abeab61b7",
-    "/twins-source/research/stocks-model.md": "d8c54f304cc6ac57a094f2a8ebbf3a1ce5b218633d616d831ab4966f2b32e418"
+    "/twins-source/research/source-data-license.txt": "a578b8bc9409b00f105eea72c4bbd0c0c75d0c3f93d5d2ee8ae11f4abeab61b7"
   },
   "integrationChanges": [
     {
       "path": "/std-assets/project-standard-experience.css",
       "reason": "Explicit cream figure heading under host styles",
-      "sourceSha256": "a834edd8dcf8d1431c6ce9b979b477b21de9168271deb0620a49b8a64c14d153"
+      "sourceSha256": "e19798dd0660fffd1f3623fdf4ceef6ca0ce00e22094bf8f33a8acaa72e87a61"
     },
     {
       "path": "/projects/nba-statistical-twins/",

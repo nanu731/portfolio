@@ -42,6 +42,7 @@
   const nfl = one('nfl-comparison');
   const moneyball = one('[data-moneyball]');
   const tennis = one('[data-tennis-explorer]');
+  const draftRecordChoices = [];
   let frame = 0;
   const scheduleSync = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; sync(); }); };
 
@@ -194,6 +195,47 @@
     area.append(row);
     return { adapter, name, context, button };
   });
+  if (kind === 'draft') {
+    // Actual draftees are scoped to a pick. Fitted-outcome reference examples
+    // remain separate context controls owned by the analysis engine.
+    document.querySelectorAll('draft-explorer :is([data-player-select],[data-historical-player])').forEach(select => {
+      const original = select.closest('label');
+      if (!original) return;
+      const scope = select.closest('[data-player-picker-pick],[data-pick-detail]');
+      const pick = scope.dataset.playerPickerPick || scope.dataset.pickDetail;
+      const choice = document.createElement('div');
+      choice.className = 'std-record-choice';
+      const label = document.createElement('span');
+      label.className = 'kicker';
+      label.textContent = `Actual player at pick ${pick}`;
+      const name = document.createElement('strong');
+      name.className = 'std-record-name';
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'solid std-change-player';
+      button.innerHTML = icon;
+      button.append(document.createTextNode('Change player'));
+      const entry = option => ({
+        id: option.value,
+        name: option.dataset.playerName || option.textContent.replace(/\s+\(\d{4}\).*$/, '').trim(),
+        context: `${option.value} draft · pick ${pick}${option.hasAttribute('data-unavailable') ? ' · measurement unavailable' : ''}`,
+      });
+      const adapter = {
+        pickerTitle: `Actual players at pick ${pick}`,
+        roster: async () => [...select.options].filter(option => option.value && !option.disabled).map(entry),
+        commit: player => {
+          if (![...select.options].some(option => option.value === player.id && !option.disabled)) throw Error('That player is no longer available at this pick.');
+          select.value = player.id;
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+        },
+      };
+      button.addEventListener('click', () => openPicker(adapter, button));
+      choice.append(label, name, button);
+      original.before(choice);
+      hide(original);
+      draftRecordChoices.push({ select, choice, name, button, entry });
+    });
+  }
   if (kind === 'twins') {
     one('#recenter')?.addEventListener('click', () => {
       requestAnimationFrame(() => rows[0].button.focus({ preventScroll: true }));
@@ -232,6 +274,13 @@
         const disabled = !row.adapter.ready();
         if (row.button.disabled !== disabled) row.button.disabled = disabled;
       } catch { if (!row.button.disabled) row.button.disabled = true; }
+    }
+    for (const row of draftRecordChoices) {
+      const hidden = Boolean(row.select.closest('[hidden]'));
+      if (row.choice.hidden !== hidden) row.choice.hidden = hidden;
+      const selected = row.select.selectedOptions[0];
+      text(row.name, selected?.value ? row.entry(selected).name : 'Choose an actual player');
+      if (row.button.disabled !== row.select.disabled) row.button.disabled = row.select.disabled;
     }
     if (kind !== 'twins') {
       document.querySelectorAll('[data-definition-trigger]').forEach(trigger => {

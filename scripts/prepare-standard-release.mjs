@@ -19,7 +19,9 @@ const snapshot = JSON.parse(await readFile(snapshotPath, 'utf8'));
 const blobs = resolve(dirname(snapshotPath), '../blobs');
 const twins = resolve(root, '../nba-similar-player');
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
-const projects = snapshot.source.projects.filter(p => p.kind !== 'draft');
+const includeDraft = args.includes('--include-draft-success');
+const projects = snapshot.source.projects.filter(p => p.kind !== 'draft' || (includeDraft && p.slug === 'nba-draft-success'));
+if (includeDraft && !projects.some(p => p.kind === 'draft' && p.slug === 'nba-draft-success')) throw Error('The approved snapshot must include NBA Draft Success.');
 const require = createRequire(import.meta.url);
 const { chromium } = require(join(homedir(), '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright'));
 const cache = join(homedir(), 'Library/Caches/ms-playwright');
@@ -38,11 +40,10 @@ const savedBytes = async path => {
 try {
   for (const project of projects) {
     const html = (await savedBytes(project.url)).toString('utf8');
-    const page = await parser.evaluate(({ html, project }) => {
+    const page = await parser.evaluate(({ html, project, includeDraft }) => {
       const doc = new DOMParser().parseFromString(html, 'text/html');
       doc.querySelectorAll('meta[http-equiv],meta[name="robots"]').forEach(e => e.remove());
-      // NBA Draft Success remains local at the owner's request.
-      doc.querySelectorAll('a[href="/projects/nba-draft-success/"]').forEach(e => e.remove());
+      if (!includeDraft) doc.querySelectorAll('a[href="/projects/nba-draft-success/"]').forEach(e => e.remove());
       doc.title = `${project.title}${project.italic} | Narayan Lekhi`;
       const description = doc.querySelector('meta[name="description"]')?.content || doc.querySelector('.std-intro>p')?.textContent.trim();
       const canonical = 'https://www.nslanalytics.com' + project.url;
@@ -74,7 +75,7 @@ try {
       const bodyText = doc.querySelector('main').textContent;
       if (/TODO_[A-Z_]+/.test(bodyText)) throw Error(`Unresolved content marker in ${project.kind}`);
       return { kind: project.kind, slug: project.slug, title: project.title + project.italic, description, head: doc.head.innerHTML, body: doc.body.innerHTML, bodyClass: doc.body.className, inlineScripts: [...doc.querySelectorAll('script:not([src])')].map(e => e.textContent), inlineStyles: [...doc.querySelectorAll('style')].map(e => e.textContent) };
-    }, { html, project });
+    }, { html, project, includeDraft });
     page.scriptHashes = page.inlineScripts.map(s => `sha256-${createHash('sha256').update(s).digest('base64')}`);
     page.styleHashes = page.inlineStyles.map(s => `sha256-${createHash('sha256').update(s).digest('base64')}`);
     delete page.inlineScripts; delete page.inlineStyles;
@@ -90,12 +91,12 @@ const references = (bytes, type, path) => {
   const add = value => {
     if (typeof value !== 'string' || value.includes('${') || /^(?:https?:|data:|#|mailto:)/.test(value)) return;
     if (/javascript/.test(type) && !/^(?:\/|\.\.?\/)/.test(value)) return;
-    if (!/\.(?:css|m?js|json|woff2?|svg|png|jpe?g|ico|txt)(?:[?#].*)?$/i.test(value)) return;
+    if (!/\.(?:css|m?js|json|woff2?|svg|png|jpe?g|ico|txt|md|csv)(?:[?#].*)?$/i.test(value)) return;
     try { const u = new URL(value, 'http://saved.local' + path); if (u.origin === 'http://saved.local') refs.add(u.pathname + u.search); } catch {}
   };
   if (/json/.test(type)) { const visit = v => { if (typeof v === 'string') add(v); else if (v && typeof v === 'object') Object.values(v).forEach(visit); }; visit(JSON.parse(text)); }
   else {
-    for (const m of text.matchAll(/["'`]([^"'`\s<>]+\.(?:css|m?js|json|woff2?|svg|png|jpe?g|ico|txt)(?:\?[^"'`\s<>]*)?)["'`]/g)) add(m[1]);
+    for (const m of text.matchAll(/["'`]([^"'`\s<>]+\.(?:css|m?js|json|woff2?|svg|png|jpe?g|ico|txt|md|csv)(?:\?[^"'`\s<>]*)?)["'`]/g)) add(m[1]);
     for (const m of text.matchAll(/url\(\s*["']?([^\s)"']+)/g)) add(m[1]);
     for (const m of text.matchAll(/(?:data-base-path=["']|["'`])(\/data\/[^"'`\s<>]+)(?:["'`])/g)) if (!extname(m[1])) { add(m[1] + '/manifest.json'); add(m[1] + '/players.json'); }
   }
@@ -136,7 +137,7 @@ manifest.assets['/twins-source/research/stocks-model.md'] = sha(methodology);
 const contrastPath = '/std-assets/project-standard-experience.css';
 const contrastFile = join(target, 'public', contrastPath);
 const contrastBase = await readFile(contrastFile, 'utf8');
-const contrastFix = '\n/* Keep the figure heading readable under the host site heading rules. */\nbody.standard-page .std-workspace .map h2 { color: var(--std-cream); }\n';
+const contrastFix = contrastBase.includes('.std-workspace .map h2 { color: var(--std-cream); }') ? '' : '\n/* Keep the figure heading readable under the host site heading rules. */\nbody.standard-page .std-workspace .map h2 { color: var(--std-cream); }\n';
 await writeFile(contrastFile, contrastBase + contrastFix);
 manifest.integrationChanges = [{ path: contrastPath, reason: 'Explicit cream figure heading under host styles', sourceSha256: manifest.assets[contrastPath] }, { path: '/projects/nba-statistical-twins/', reason: 'Move the sourced nearest-neighbor paragraph into the Method disclosure' }];
 manifest.assets[contrastPath] = sha(contrastBase + contrastFix);

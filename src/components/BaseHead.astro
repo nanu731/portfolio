@@ -30,6 +30,7 @@ const { title, description, image = '/og.png' } = Astro.props;
 	href={new URL('rss.xml', Astro.site)}
 />
 <meta name="generator" content={Astro.generator} />
+<link rel="stylesheet" href="/external-project-link.css" />
 
 <!-- Display and body are preloaded because they render above the fold. Plex Mono
      carries labels and numerals, so it can arrive a beat later. -->

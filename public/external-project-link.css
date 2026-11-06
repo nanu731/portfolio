@@ -1,0 +1,38 @@
+.external-project-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xs, 16px);
+  min-height: 48px;
+  max-width: 100%;
+  margin-top: var(--space-m, 26px);
+  padding: var(--space-xs, 16px) var(--space-s, 24px);
+  border: 1px solid var(--green, #14532d);
+  border-radius: 4px;
+  background: var(--green, #14532d);
+  color: var(--cream, #f2e9ce);
+  font: inherit;
+  line-height: 1.4;
+  text-decoration: none;
+  text-underline-offset: 4px;
+  transition: background-color 120ms ease, text-underline-offset 200ms ease, transform 120ms ease;
+}
+.external-project-link svg { flex: none; }
+@media (hover: hover) and (pointer: fine) {
+  .external-project-link:hover {
+    background: color-mix(in srgb, var(--green, #14532d) 90%, var(--cream, #f2e9ce));
+    color: var(--cream, #f2e9ce);
+    text-decoration: underline;
+    text-underline-offset: 6px;
+  }
+}
+.external-project-link:focus-visible {
+  outline: 3px solid var(--green, #14532d);
+  outline-offset: 4px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .external-project-link:active { transform: scale(.975); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .external-project-link { transition: none; }
+}

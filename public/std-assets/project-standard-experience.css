@@ -348,3 +348,35 @@ body.standard-page :is(.std-site-header,.std-section-menu) :is(a,summary,button)
 
 /* Keep the figure heading readable under the host site heading rules. */
 body.standard-page .std-workspace .map h2 { color: var(--std-cream); }
+
+/* Scoped record inspection reuses the common player dialog and action. */
+body.standard-page .std-record-choice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--std-space-xs) var(--std-space-s);
+  margin-block: var(--std-space-s);
+  min-width: 0;
+}
+body.standard-page .std-record-choice > .kicker {
+  flex-basis: 100%;
+  font: .75rem/1.4 Plex, monospace;
+}
+body.standard-page .std-record-name {
+  flex: 1 1 180px;
+  overflow-wrap: anywhere;
+  font: 600 1.1rem/1.4 Source, Georgia, serif;
+}
+/* Keep four-column paired-change headers whole at phone widths. */
+body.standard-page[data-project='draft'] .paired-table th {
+  letter-spacing: 0;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+@media (prefers-reduced-motion: reduce) {
+  body.standard-page .std-documentation::details-content,
+  body.standard-page .std-documentation details::details-content {
+    animation: none !important;
+    transition: none !important;
+  }
+}
