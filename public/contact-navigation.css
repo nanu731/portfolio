@@ -1,0 +1,4 @@
+body.standard-page > .std-site-header .std-mast > nav {
+  /* Override the preserved project's important nowrap rule. */
+  flex-wrap: wrap !important;
+}
