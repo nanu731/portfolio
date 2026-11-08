@@ -1,0 +1,80 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title="Contact — Narayan Lekhi" description="Contact Narayan Lekhi with project questions and inquiries." />
+		<meta name="robots" content="noindex,nofollow" />
+	</head>
+	<body>
+		<Header />
+		<main class="band">
+			<div class="band-inner band-inner--wide at-edge contact-layout">
+				<div class="contact-intro">
+					<h1>Contact</h1>
+					<p>Have a question about a project?<br />Send me a message.</p>
+					<p class="message-guide">Your message should include the project name, your questions, and any comments or concerns.</p>
+				</div>
+				<form method="post" action="/api/contact" aria-label="Contact Narayan Lekhi" aria-describedby="contact-status" data-contact-form>
+					<p class="form-note">All fields are required.</p>
+					<div class="contact-details">
+						<div class="field">
+							<label for="contact-name">Name</label>
+							<input id="contact-name" name="name" autocomplete="name" maxlength="100" required />
+						</div>
+						<div class="field">
+							<label for="contact-email">Email</label>
+							<input id="contact-email" name="email" type="email" autocomplete="email" maxlength="254" required />
+						</div>
+					</div>
+					<div class="field">
+						<label for="contact-message">Message</label>
+						<textarea id="contact-message" name="message" rows="7" maxlength="5000" required></textarea>
+					</div>
+					<div hidden><label for="contact-website">Website</label><input id="contact-website" name="website" tabindex="-1" autocomplete="off" /></div>
+					<div class="contact-action">
+						<button type="submit" disabled><span data-contact-submit-label>Send message</span> <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.5" /></svg></button>
+						<p id="contact-status" class="form-note" role="status" tabindex="-1">Checking message delivery…</p>
+						<noscript><p class="form-note">Enable JavaScript to send a message. No message has been sent.</p></noscript>
+					</div>
+				</form>
+			</div>
+		</main>
+		<Footer />
+		<script is:inline defer src="/contact-form.js"></script>
+	</body>
+</html>
+<style>
+	body { min-height: 100svh; display: flex; flex-direction: column; }
+	main { flex: 1; padding-block: var(--space-xl); }
+	.contact-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-xl); }
+	h1 { margin-bottom: var(--space-m); font-size: clamp(2.4rem, 9vw, 5.625rem); }
+	p { margin: 0; }
+	.contact-intro > p { max-width: 28ch; }
+	.contact-intro .message-guide { margin-top: var(--space-l); font-size: var(--type-small); max-width: 33ch; }
+	form { min-width: 0; padding-top: var(--space-s); border-top: var(--rule) solid var(--green); }
+	.form-note { font-size: var(--type-small); }
+	.contact-details { display: grid; gap: var(--space-m); margin-top: var(--space-m); }
+	.field { display: grid; gap: var(--space-2xs); margin-bottom: var(--space-m); }
+	label { font-weight: 400; }
+	input, textarea {
+		width: 100%; min-width: 0; padding: var(--space-xs); border: var(--rule-thin) solid var(--green);
+		border-radius: 0; background: var(--cream); color: var(--green); font: inherit; caret-color: var(--accent);
+	}
+	input { min-height: var(--space-l); }
+	textarea { resize: vertical; }
+	input:focus-visible, textarea:focus-visible { outline: var(--rule) solid var(--accent); outline-offset: var(--space-3xs); }
+	.contact-action { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: start; gap: var(--space-s); }
+	.contact-action svg { flex: none; }
+	button { display: inline-flex; max-width: 100%; align-items: center; gap: var(--space-xs); padding: var(--space-s); border: var(--rule) solid var(--green); background: var(--green); color: var(--cream); font: inherit; }
+	button:disabled { opacity: 0.6; cursor: not-allowed; }
+	@media (min-width: 48rem) {
+		main { padding-block: var(--space-2xl); }
+		.contact-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); }
+		.contact-details { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	}
+</style>

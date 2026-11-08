@@ -1,4 +1,7 @@
 # build output
+# Internal UI reviewer/session records stay local; research references stay public.
+docs/contact-page-design.md
+docs/shot-court-viewport-review.md
 dist/
 # generated types
 .astro/

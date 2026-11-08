@@ -73,6 +73,38 @@ npm run astro -- dev stop
 For isolated experiments, follow the [site testing workflow](docs/site-testing.md).
 Use the [project page blueprint](docs/project-page-blueprint.md) for project pages.
 
+### Contact delivery (review branch)
+
+The proposed Contact page calls one server-only Vercel function at `/api/contact`.
+The adapter forwards the three approved fields to the owner's Formspree form
+through native `fetch`; no new package is required. This branch has not been
+published. Formspree controls the private recipient; no recipient address, sender
+DNS setup or email-service API key is embedded in this repository.
+
+The owner-supplied public form ID is the default. `CONTACT_FORM_ID` optionally
+overrides it; `CONTACT_ENABLED=true` explicitly enables sending (disabled by default). `.env.example` lists
+the server settings. The recipient is selected and verified in
+Formspree, never supplied by the visitor. A status request returns readiness only.
+
+The handler checks origin, content type, size and fields; uses a fixed recipient
+and forwards fields as JSON without composing visitor HTML. Its bounded
+three-attempt/ten-minute limiter is per warm function instance, **not a global
+quota**. Before enabling production, configure a Vercel firewall rate rule for
+POST `/api/contact`, check provider quotas, and verify one controlled email in the
+intended inbox on an authorized preview. Formspree acceptance is not proof of
+inbox delivery. The UI prevents simultaneous submissions and preserves text on
+failure; an ambiguous network failure followed by a retry can create a duplicate.
+
+The local review server's explicit `CONTACT_REVIEW_MODE=simulation` mode replaces
+the email transport with a fake receipt and labels the form as a non-emailing
+preview. The deployed function never imports that review server. With JavaScript
+disabled or readiness unavailable, sending remains disabled. Existing form-action
+security policies remain unchanged; enabled submissions use same-origin fetch.
+
+Checks: `node --test scripts/verify-contact-delivery.mjs` and the existing-tooling
+browser harness `scripts/verify-contact-ui.mjs`. The latter requires the local
+simulation and never sends a real email.
+
 To build and preview the production site:
 
 ```sh

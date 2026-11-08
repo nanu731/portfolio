@@ -15,7 +15,7 @@
     {
       "slug": "nba-shot-selection-analytics",
       "sourceSha256": "073070b8e1fadd5803f2783926fa8c4d57e348709592c082228ac7ec7e36c2ea",
-      "pageSha256": "c1e9fd0b51e21fd6e4e00d42f96794ec49faeefdd93e16784740f7a7f3c56424"
+      "pageSha256": "a0fd01af96171b32382b7d345d587cc46bbf11535ff5ca68946a90902f0d6817"
     },
     {
       "slug": "nfl-qbs-re-evaluated",
@@ -42,7 +42,8 @@
     "/twins-source/assets/nsl.svg": "6eb9cd42f66947d879f343be720386daace8218daf225bb9bedfd96a3d9ad3f9",
     "/twins-source/assets/style.css": "8a3bd6c8d042fa9a4091940de7ecd1949e86943e7fb197501b24f3e51c4422e3",
     "/std-assets/project-standard.css": "e84cab5f660e36586ad70ac4d6715752064c8ec6b18cddebb5196c5542da221b",
-    "/std-assets/project-standard-experience.css": "e19798dd0660fffd1f3623fdf4ceef6ca0ce00e22094bf8f33a8acaa72e87a61",
+    "/std-assets/project-standard-experience.css": "51a99009096c625488e38808f4d2f93953f49105037da272f363c8bd95f700d0",
+    "/shot-court-viewport.css": "b0739a63015568f411b7ec7782da6373047a3be239f8b73bba17501d61aa69d2",
     "/std-assets/project-standard-controls.js": "f30230b3084591f19d7f6019a98e3c3aae655f10ed3ed349d80a53fe082376c0",
     "/std-assets/project-standard-experience.js": "36f8073bbe1e0c3d71daf16132de302e920e39a9cf4d76e11331c3a01c63c493",
     "/twins-source/research/stocks-model.md": "d8c54f304cc6ac57a094f2a8ebbf3a1ce5b218633d616d831ab4966f2b32e418",
@@ -2114,6 +2115,11 @@
     {
       "path": "/projects/nba-statistical-twins/",
       "reason": "Move the sourced nearest-neighbor paragraph into the Method disclosure"
+    },
+    {
+      "path": "/projects/nba-shot-selection-analytics/",
+      "reason": "Move the existing comparison link into the opening as a prominent button; preserve scientific content and engine scripts",
+      "sourceSha256": "c1e9fd0b51e21fd6e4e00d42f96794ec49faeefdd93e16784740f7a7f3c56424"
     }
   ]
 }

@@ -3,15 +3,21 @@ import Analytics from '@vercel/analytics/astro';
 import type { PreparedProject } from '../lib/prepared-projects';
 interface Props { page: PreparedProject }
 const { page } = Astro.props;
+// Keep navigation current without rewriting the immutable analysis exports.
+const body = page.body.replace('<a href="/about/">About</a>', '<a href="/about/">About</a><a href="/contact/">Contact</a>');
 for (const hash of page.scriptHashes) Astro.csp?.insertScriptHash(hash);
 for (const hash of page.styleHashes) Astro.csp?.insertStyleHash(hash);
 const enableAnalytics = process.env.VERCEL_ENV === 'production';
 ---
 <!doctype html>
 <html lang="en">
-  <head><Fragment set:html={page.head} /></head>
+  <head>
+    <Fragment set:html={page.head} />
+    <link rel="stylesheet" href="/contact-navigation.css" />
+    {['shots', 'comparison'].includes(page.kind) && <link rel="stylesheet" href="/shot-court-viewport.css" />}
+  </head>
   <body class={page.bodyClass} data-project={page.kind}>
-    <Fragment set:html={page.body} />
+    <Fragment set:html={body} />
     {enableAnalytics && <Analytics mode="production" />}
   </body>
 </html>
