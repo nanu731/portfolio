@@ -513,6 +513,14 @@ They are not permission to change common menus, search, docs or interaction stat
   that scenario to 0%. Modeled Ability preserves its chosen slider setting.
 - Keep the fixed probability bins, evidence warnings, relocation marker shapes,
   original payload validators and source loading boundaries.
+- Size the complete court by both available width and viewport height. The NBA
+  court height is capped at 60svh (60vh fallback), preserving its viewBox and
+  proportions. This leaves room to see the court and its key together on laptop
+  windows, including MacBook Air-sized windows. Surrounding controls, results and
+  documentation remain readable, normally scrolling content. Apply the same cap
+  to the comparison and movement courts; do not crop plots or shrink page text.
+  At desktop widths the single-player controls sit beside the court, retaining
+  their document/focus order; narrow screens keep the existing stacked controls.
 - Method contains spatial estimation/relocation rules and formulas; Limits
   contains interpretation/evidence restrictions; Terms retain native units.
 - The child comparison link belongs to this project family, including in menus.

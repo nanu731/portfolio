@@ -349,6 +349,58 @@ body.standard-page :is(.std-site-header,.std-section-menu) :is(a,summary,button)
 /* Keep the figure heading readable under the host site heading rules. */
 body.standard-page .std-workspace .map h2 { color: var(--std-cream); }
 
+/* Fit an entire NBA court in the visible window, not just the page width.
+   svh stays stable when mobile browser bars appear. The vh value is a fallback.
+   Native viewBoxes, labels, hit testing and plot data remain unchanged. */
+body.standard-page:is([data-project='shots'], [data-project='comparison']) {
+  --std-court-height: 60vh;
+  --std-court-height: 60svh;
+}
+body.standard-page:is([data-project='shots'], [data-project='comparison']) .std-workspace svg[data-court] {
+  width: min(100%, calc(var(--std-court-height) * 10 / 9));
+  height: auto;
+}
+body.standard-page:is([data-project='shots'], [data-project='comparison']) .std-workspace svg[data-flow-court] {
+  width: min(100%, calc(var(--std-court-height) * 54 / 49));
+  height: auto;
+}
+/* On laptops the existing controls use the space beside the bounded court.
+   Keep their document/focus order and the stacked layout on narrow screens. */
+@media (min-width: 64rem) {
+  body.standard-page[data-project='shots'] .std-workspace .spatial-explorer {
+    display: grid;
+    grid-template-columns: minmax(15rem, .85fr) minmax(0, 1.6fr);
+    align-items: start;
+    column-gap: var(--std-space-m);
+  }
+  body.standard-page[data-project='shots'] .spatial-explorer > * {
+    grid-column: 1 / -1;
+  }
+  body.standard-page[data-project='shots'] .spatial-explorer > .std-reading {
+    grid-column: 2;
+    grid-row: 3;
+    margin-top: 0;
+  }
+  body.standard-page[data-project='shots'] .spatial-explorer > .explorer-plot {
+    grid-column: 2;
+    grid-row: 4;
+  }
+  body.standard-page[data-project='shots'] .std-workspace .std-context-controls {
+    grid-column: 1;
+    grid-row: 3 / 5;
+    display: block;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  body.standard-page[data-project='shots'] .std-context-controls .view-options {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  body.standard-page[data-project='shots'] .std-context-controls > .guide-step {
+    margin-block: var(--std-space-m) var(--std-space-s);
+  }
+}
+
 /* Scoped record inspection reuses the common player dialog and action. */
 body.standard-page .std-record-choice {
   display: flex;
