@@ -85,6 +85,8 @@ The owner-supplied public form ID is the default. `CONTACT_FORM_ID` optionally
 overrides it; `CONTACT_ENABLED=true` explicitly enables sending (disabled by default). `.env.example` lists
 the server settings. The recipient is selected and verified in
 Formspree, never supplied by the visitor. A status request returns readiness only.
+Each notification subject includes the sender's name and a server-generated
+unique reference so separate submissions do not share an identical subject.
 
 The handler checks origin, content type, size and fields; uses a fixed recipient
 and forwards fields as JSON without composing visitor HTML. Its bounded

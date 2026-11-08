@@ -1,5 +1,5 @@
 /** Server-only contact delivery. Never import this module into browser code. */
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 
 const MAX_BODY = 16_384;
 const WINDOW = 3 * 1000;
@@ -66,7 +66,7 @@ export function createContactHandler({ env = process.env, fetchImpl = globalThis
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json', Origin: request.headers.get('origin') },
         signal: AbortSignal.timeout(8000),
-        body: JSON.stringify({ name: body.name.trim(), email: body.email, message: body.message.trim(), _subject: 'NSL Analytics website inquiry' }),
+        body: JSON.stringify({ name: body.name.trim(), email: body.email, message: body.message.trim(), _subject: `NSL Analytics inquiry — ${body.name.trim()} [${randomUUID()}]` }),
       });
       if (!result.ok) throw Error('Provider did not accept the request');
       const receipt = await result.json();

@@ -56,7 +56,7 @@ test('provider gets only approved fields at the fixed Formspree destination', as
   assert.equal(response.status, 201); assert.deepEqual(await response.json(), { accepted: true });
   assert.equal(calls.length, 1); assert.equal(calls[0].url, 'https://formspree.io/f/' + env.CONTACT_FORM_ID);
   const payload = JSON.parse(calls[0].init.body); assert.equal('to' in payload, false); assert.equal('from' in payload, false);
-  assert.equal(payload.email, valid.email); assert.equal(payload._subject, 'NSL Analytics website inquiry'); assert.equal('html' in payload, false);
+  assert.equal(payload.email, valid.email); assert.match(payload._subject, /^NSL Analytics inquiry — Review test \[[a-f0-9-]{36}\]$/); assert.equal('html' in payload, false);
   assert.ok(payload.message.includes('<script>alert(1)</script>')); assert.equal('Authorization' in calls[0].init.headers, false);
 });
 test('provider failures and timeouts never expose secrets or claim acceptance', async () => {
@@ -64,6 +64,15 @@ test('provider failures and timeouts never expose secrets or claim acceptance', 
     const { handler } = setup({ fetchImpl }); const response = await handler(request()); const text = await response.text();
     assert.equal(response.status, 502); assert.ok(!text.includes('private-provider-detail')); assert.ok(!text.includes('"accepted":true'));
   }
+});
+test('identical inquiries get distinct email subjects', async () => {
+  let time = 1000; const { handler, calls } = setup({ now: () => time });
+  assert.equal((await handler(request())).status, 201);
+  time += 3000;
+  assert.equal((await handler(request())).status, 201);
+  const subjects = calls.map(call => JSON.parse(call.init.body)._subject);
+  assert.notEqual(subjects[0], subjects[1]);
+  assert.ok(subjects.every(subject => subject.startsWith('NSL Analytics inquiry — Review test [')));
 });
 test('warm-instance throttle limits attempts and resets after three seconds', async () => {
   let time = 1000; const { handler, calls } = setup({ now: () => time });
