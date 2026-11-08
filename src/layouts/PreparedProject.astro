@@ -11,7 +11,11 @@ const enableAnalytics = process.env.VERCEL_ENV === 'production';
 ---
 <!doctype html>
 <html lang="en">
-  <head><Fragment set:html={page.head} /><link rel="stylesheet" href="/contact-navigation.css" /></head>
+  <head>
+    <Fragment set:html={page.head} />
+    <link rel="stylesheet" href="/contact-navigation.css" />
+    {page.kind === 'shots' && <link rel="stylesheet" href="/shot-court-viewport.css" />}
+  </head>
   <body class={page.bodyClass} data-project={page.kind}>
     <Fragment set:html={body} />
     {enableAnalytics && <Analytics mode="production" />}

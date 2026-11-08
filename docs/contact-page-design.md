@@ -1,6 +1,6 @@
 # Contact page design preview
 
-7 November 2026. Local visual review only. The owner has not authorized publication or push.
+7 November 2026. The owner authorized a GitHub review branch and pull request. Main merge and production publication await review.
 
 ## Design and scope
 
@@ -30,4 +30,4 @@ The source detector returned no findings before the final navigation stylesheet 
 
 ## Review state
 
-The built preview remains available at [local Contact preview](http://127.0.0.1:4471/contact/). The existing public release remains unaffected. Next: owner visual review, then a separate decision and implementation for private server-side delivery. No push or deployment occurred.
+The built preview remains available at [local Contact preview](http://127.0.0.1:4471/contact/). The existing public release remains unaffected. Next: owner review, then a separate decision and implementation for private server-side delivery. Review-branch publishing is authorized; merging to main and production deployment require owner approval.

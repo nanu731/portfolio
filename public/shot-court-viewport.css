@@ -1,0 +1,16 @@
+@media (min-width: 64rem) and (min-height: 45rem) {
+  body.standard-page[data-project='shots'] .court-panel > .court {
+    /* Reserve measured room for the title, guidance, legend and keyboard detail. */
+    height: clamp(15rem, calc(100svh - 26rem), 34rem);
+    width: auto;
+    max-width: 100%;
+    margin-inline: auto;
+  }
+
+  body.standard-page[data-project='shots'] .movement-court svg {
+    height: clamp(12rem, calc(100svh - 31rem), 30rem);
+    width: auto;
+    max-width: 100%;
+    margin-inline: auto;
+  }
+}
