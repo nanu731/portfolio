@@ -521,6 +521,9 @@ They are not permission to change common menus, search, docs or interaction stat
   to the comparison and movement courts; do not crop plots or shrink page text.
   At desktop widths the single-player controls sit beside the court, retaining
   their document/focus order; narrow screens keep the existing stacked controls.
+  The single court-sizing owner is public/shot-court-viewport.css, loaded only
+  for the single-player and comparison pages. Do not add a second viewport cap
+  to the shared experience stylesheet.
 - Method contains spatial estimation/relocation rules and formulas; Limits
   contains interpretation/evidence restrictions; Terms retain native units.
 - The child comparison link belongs to this project family, including in menus.

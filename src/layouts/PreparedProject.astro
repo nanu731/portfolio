@@ -14,7 +14,7 @@ const enableAnalytics = process.env.VERCEL_ENV === 'production';
   <head>
     <Fragment set:html={page.head} />
     <link rel="stylesheet" href="/contact-navigation.css" />
-    {page.kind === 'shots' && <link rel="stylesheet" href="/shot-court-viewport.css" />}
+    {['shots', 'comparison'].includes(page.kind) && <link rel="stylesheet" href="/shot-court-viewport.css" />}
   </head>
   <body class={page.bodyClass} data-project={page.kind}>
     <Fragment set:html={body} />

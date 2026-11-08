@@ -1,16 +1,51 @@
-@media (min-width: 64rem) and (min-height: 45rem) {
-  body.standard-page[data-project='shots'] .court-panel > .court {
-    /* Reserve measured room for the title, guidance, legend and keyboard detail. */
-    height: clamp(15rem, calc(100svh - 26rem), 34rem);
-    width: auto;
-    max-width: 100%;
-    margin-inline: auto;
+/* Fit an entire NBA court in the visible window, not just the page width.
+   svh stays stable when mobile browser bars appear. The vh value is a fallback.
+   Native viewBoxes, labels, hit testing and plot data remain unchanged. */
+body.standard-page:is([data-project='shots'], [data-project='comparison']) {
+  --std-court-height: 60vh;
+  --std-court-height: 60svh;
+}
+body.standard-page:is([data-project='shots'], [data-project='comparison']) .std-workspace svg[data-court] {
+  width: min(100%, calc(var(--std-court-height) * 10 / 9));
+  height: auto;
+}
+body.standard-page:is([data-project='shots'], [data-project='comparison']) .std-workspace svg[data-flow-court] {
+  width: min(100%, calc(var(--std-court-height) * 54 / 49));
+  height: auto;
+}
+/* On laptops the existing controls use the space beside the bounded court.
+   Keep their document/focus order and the stacked layout on narrow screens. */
+@media (min-width: 64rem) {
+  body.standard-page[data-project='shots'] .std-workspace .spatial-explorer {
+    display: grid;
+    grid-template-columns: minmax(15rem, .85fr) minmax(0, 1.6fr);
+    align-items: start;
+    column-gap: var(--std-space-m);
   }
-
-  body.standard-page[data-project='shots'] .movement-court svg {
-    height: clamp(12rem, calc(100svh - 31rem), 30rem);
-    width: auto;
-    max-width: 100%;
-    margin-inline: auto;
+  body.standard-page[data-project='shots'] .spatial-explorer > * {
+    grid-column: 1 / -1;
+  }
+  body.standard-page[data-project='shots'] .spatial-explorer > .std-reading {
+    grid-column: 2;
+    grid-row: 3;
+    margin-top: 0;
+  }
+  body.standard-page[data-project='shots'] .spatial-explorer > .explorer-plot {
+    grid-column: 2;
+    grid-row: 4;
+  }
+  body.standard-page[data-project='shots'] .std-workspace .std-context-controls {
+    grid-column: 1;
+    grid-row: 3 / 5;
+    display: block;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  body.standard-page[data-project='shots'] .std-context-controls .view-options {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  body.standard-page[data-project='shots'] .std-context-controls > .guide-step {
+    margin-block: var(--std-space-m) var(--std-space-s);
   }
 }
