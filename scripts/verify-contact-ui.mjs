@@ -64,7 +64,7 @@ try {
     await page.route('**/api/contact', route => route.request().method() === 'POST'
       ? route.fulfill({ status: 429, contentType, body }) : route.continue());
     await fill(); await page.getByRole('button', { name: 'Send message', exact: true }).click();
-    await page.getByText('Too many attempts. Please wait one minute before trying again. Your message is still here.', { exact: true }).waitFor();
+    await page.getByText('Too many attempts. Please try again shortly. Your message is still here.', { exact: true }).waitFor();
     assert.equal(await page.getByLabel('Message', { exact: true }).inputValue(), 'Local test. No real email.');
     await page.unroute('**/api/contact');
   }

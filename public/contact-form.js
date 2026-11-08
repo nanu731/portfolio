@@ -25,7 +25,12 @@
         body: JSON.stringify(values), signal: AbortSignal.timeout(12000),
       });
       // Vercel can reject requests before the API runs, using its own JSON or HTML.
-      if (response.status === 429) throw Error('Too many attempts. Please wait one minute before trying again. Your message is still here.');
+      if (response.status === 429) {
+        const seconds = Number(response.headers.get('Retry-After'));
+        throw Error(Number.isFinite(seconds) && seconds > 0
+          ? `Too many attempts. Please wait ${Math.ceil(seconds)} seconds before trying again. Your message is still here.`
+          : 'Too many attempts. Please try again shortly. Your message is still here.');
+      }
       const result = await response.json();
       if (response.status !== 201 || result.accepted !== true) throw Error(typeof result.message === 'string' ? result.message : 'We could not confirm delivery. Your message is still here. Sending it again may create a duplicate.');
       form.reset();

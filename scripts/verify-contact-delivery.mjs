@@ -64,11 +64,12 @@ test('provider failures and timeouts never expose secrets or claim acceptance', 
     assert.equal(response.status, 502); assert.ok(!text.includes('private-provider-detail')); assert.ok(!text.includes('"accepted":true'));
   }
 });
-test('warm-instance throttle limits attempts and resets after one minute', async () => {
+test('warm-instance throttle limits attempts and resets after three seconds', async () => {
   let time = 1000; const { handler, calls } = setup({ now: () => time });
   for (let i = 0; i < 3; i++) assert.equal((await handler(request())).status, 201);
   const blocked = await handler(request()); assert.equal(blocked.status, 429); assert.ok(Number(blocked.headers.get('retry-after')) > 0); assert.equal(calls.length, 3);
-  time += 60001; assert.equal((await handler(request())).status, 201);
+  time += 2999; assert.equal((await handler(request())).status, 429);
+  time += 1; assert.equal((await handler(request())).status, 201);
 });
 test('strict-origin checks do not trust a client-supplied host header', async () => {
   const { handler } = setup(); assert.equal((await handler(request(valid, { origin: 'https://attacker.example', host: 'attacker.example' }))).status, 403);
