@@ -423,3 +423,22 @@ body.standard-page :is(#std-method, #std-limits, #std-definitions) .std-notes-co
 body.standard-page :is(#std-method, #std-limits, #std-definitions) .std-notes-copy dt { font-size: 1.25rem; }
 body.standard-page #std-method .nba-variable-row { padding-block: var(--reading-row); }
 body.standard-page #std-method .nba-formula-block { padding: var(--reading-row); }
+
+body.standard-page .std-context-controls .std-compare-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--std-space-s);
+  min-height: 3.25rem;
+  margin-top: var(--std-space-m);
+  padding: var(--std-space-s);
+  border: 2px solid var(--std-rust);
+  border-radius: 3px;
+  background: var(--std-rust);
+  color: var(--std-cream);
+  font: 600 1.125rem/1.3 Source, Georgia, serif;
+  text-decoration: none;
+}
+body.standard-page .std-compare-action svg { display: block; flex-shrink: 0; }
+body.standard-page .std-context-controls .std-compare-action:hover { background: var(--std-green); border-color: var(--std-green); }
+body.standard-page .std-context-controls .std-compare-action:focus-visible { outline: 3px solid var(--std-green); outline-offset: 4px; }

@@ -15,7 +15,7 @@
     {
       "slug": "nba-shot-selection-analytics",
       "sourceSha256": "073070b8e1fadd5803f2783926fa8c4d57e348709592c082228ac7ec7e36c2ea",
-      "pageSha256": "a0cd02cbd3f2c7f02ee10800aeaeb65fc9085fb7b494cec05b18b39a24fe90e3"
+      "pageSha256": "f1af27830132241cc2c1c57f5ad28674e3bcd5c6a4ef38a03b65a1d1e9d5cb9e"
     },
     {
       "slug": "nfl-qbs-re-evaluated",
@@ -42,7 +42,7 @@
     "/twins-source/assets/nsl.svg": "6eb9cd42f66947d879f343be720386daace8218daf225bb9bedfd96a3d9ad3f9",
     "/twins-source/assets/style.css": "8a3bd6c8d042fa9a4091940de7ecd1949e86943e7fb197501b24f3e51c4422e3",
     "/std-assets/project-standard.css": "e84cab5f660e36586ad70ac4d6715752064c8ec6b18cddebb5196c5542da221b",
-    "/std-assets/project-standard-experience.css": "2ba27f74ab79fc8177a7a654109ced8ed9b6aefb81d96f83452bbae8364bfebe",
+    "/std-assets/project-standard-experience.css": "598c22598a86ed32cc62eff98c8a9094296439f6f92f1dd3899476af26ab7b69",
     "/shot-court-viewport.css": "b0739a63015568f411b7ec7782da6373047a3be239f8b73bba17501d61aa69d2",
     "/std-assets/project-standard-controls.js": "f30230b3084591f19d7f6019a98e3c3aae655f10ed3ed349d80a53fe082376c0",
     "/std-assets/project-standard-experience.js": "36f8073bbe1e0c3d71daf16132de302e920e39a9cf4d76e11331c3a01c63c493",
