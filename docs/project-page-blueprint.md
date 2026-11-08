@@ -524,6 +524,9 @@ They are not permission to change common menus, search, docs or interaction stat
 - Method contains spatial estimation/relocation rules and formulas; Limits
   contains interpretation/evidence restrictions; Terms retain native units.
 - The child comparison link belongs to this project family, including in menus.
+- Expose the existing comparison action as a green button beside Page sections
+  in the opening. Retain its exact label and native link behavior; wrap the
+  actions on narrow screens rather than hiding or shrinking the comparison.
 
 ### Compare two shot mixes
 

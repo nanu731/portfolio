@@ -349,6 +349,35 @@ body.standard-page :is(.std-site-header,.std-section-menu) :is(a,summary,button)
 /* Keep the figure heading readable under the host site heading rules. */
 body.standard-page .std-workspace .map h2 { color: var(--std-cream); }
 
+/* Make the existing comparison tool discoverable before the explorer. */
+body.standard-page[data-project='shots'] .std-intro-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--std-space-s);
+  margin-top: var(--std-space-s);
+}
+body.standard-page[data-project='shots'] .std-intro-actions > .std-section-menu { margin-top: 0; }
+body.standard-page[data-project='shots'] .std-compare-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--std-space-s);
+  min-height: 48px;
+  max-width: 100%;
+  padding: 12px var(--std-space-s);
+  border: 1px solid var(--std-green);
+  border-radius: 4px;
+  background: var(--std-green);
+  color: var(--std-cream);
+  font: 400 1rem/1.4 Plex, monospace;
+  text-align: left;
+  text-decoration: none;
+}
+body.standard-page[data-project='shots'] .std-compare-action svg { flex: none; width: 18px; height: 18px; }
+body.standard-page[data-project='shots'] .std-compare-action:hover { text-decoration: underline; text-underline-offset: 4px; }
+body.standard-page[data-project='shots'] .std-compare-action:active { background: var(--std-cream); color: var(--std-green); }
+
 /* Fit an entire NBA court in the visible window, not just the page width.
    svh stays stable when mobile browser bars appear. The vh value is a fallback.
    Native viewBoxes, labels, hit testing and plot data remain unchanged. */

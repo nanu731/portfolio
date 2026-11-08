@@ -14,16 +14,44 @@ const browser = await ({ chromium, firefox, webkit }[engine]).launch({
 const base = process.env.COURT_URL || 'http://127.0.0.1:4473';
 const captures = process.env.COURT_CAPTURES;
 if (captures) await mkdir(captures, { recursive: true });
-const errors = [], failures = [], results = [];
+const errors = [], nativeTransitionNotices = [], failures = [], results = [];
 try {
   for (const [width, height] of [[1440, 760], [1470, 820], [1280, 650], [1920, 760], [768, 700], [375, 667], [320, 568], [844, 390], [720, 380]]) {
     const page = await browser.newPage({ viewport: { width, height }, reducedMotion: 'reduce' });
-    page.on('pageerror', e => errors.push(e.message));
+    page.on('pageerror', e => {
+      // Reproduced with the original below-court link, before the button change.
+      // Report this exact native navigation abort; fail on all other errors.
+      if (e.name === 'InvalidStateError' && e.message === 'Transition was aborted because of invalid state. ViewTransition opt-in disabled') nativeTransitionNotices.push(e.message);
+      else errors.push(e.message);
+    });
     for (const slug of ['nba-shot-selection-analytics', 'nba-player-comparison']) {
       await page.goto(`${base}/projects/${slug}/`);
       await page.waitForFunction(() => [...document.querySelectorAll('[data-explorer-stage]')].every(e => e.getAttribute('aria-busy') === 'false'));
       await page.evaluate(() => document.fonts.ready);
       const comparison = slug === 'nba-player-comparison';
+      if (!comparison) {
+        const action = page.getByRole('link', { name: 'Compare two players’ shot mixes', exact: true });
+        assert.equal(await action.count(), 1, 'One comparison action, without a duplicate below the court');
+        assert.equal(await action.evaluate(e => Boolean(e.closest('.std-intro-actions'))), true, 'Comparison belongs in the opening actions');
+        const box = await action.boundingBox();
+        assert.ok(box && box.height >= 44 && box.x >= 0 && box.x + box.width <= width + 1, 'Comparison action must be a visible touch-sized button');
+        if ([1440, 375, 320].includes(width)) {
+          if (captures) await page.screenshot({ path: `${captures}/comparison-action-${width}.png` });
+          await action.focus();
+          assert.notEqual(await action.evaluate(e => getComputedStyle(e).outlineStyle), 'none', 'Comparison action needs keyboard focus');
+          if (width === 375) await action.click();
+          else await page.keyboard.press('Enter');
+          await page.waitForURL('**/projects/nba-player-comparison/');
+          // Wait for the destination's load and native transition before Back.
+          await page.waitForFunction(() => [...document.querySelectorAll('[data-explorer-stage]')].every(e => e.getAttribute('aria-busy') === 'false'));
+          await page.evaluate(async () => {
+            if (document.activeViewTransition) await document.activeViewTransition.finished;
+            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+          });
+          await page.goBack();
+          await page.waitForFunction(() => document.querySelector('[data-explorer-stage]')?.getAttribute('aria-busy') === 'false');
+        }
+      }
       if (comparison) {
         await page.getByRole('button', { name: 'Change player B', exact: true }).click();
         await page.locator('#std-picker-search').fill('Stephen Curry');
@@ -76,5 +104,5 @@ try {
   }
   assert.deepEqual(errors, [], 'Application errors');
   assert.equal(failures.length, 0, `${failures.length} court fit failures; first: ${JSON.stringify(failures[0])}`);
-  console.log(JSON.stringify({ engine, cases: results.length, errors, maxCourtHeight: Math.max(...results.map(r => r.maxHeight)) }));
+  console.log(JSON.stringify({ engine, cases: results.length, errors, nativeTransitionNotices: nativeTransitionNotices.length, maxCourtHeight: Math.max(...results.map(r => r.maxHeight)) }));
 } finally { await browser.close(); }
