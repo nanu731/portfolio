@@ -2,7 +2,7 @@
 import { createHash } from 'node:crypto';
 
 const MAX_BODY = 16_384;
-const WINDOW = 10 * 60 * 1000;
+const WINDOW = 60 * 1000;
 const email = value => typeof value === 'string' && value.length <= 254 && /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(value);
 const json = (data, status = 200, headers = {}) => Response.json(data, { status, headers: { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', ...headers } });
 
@@ -32,7 +32,7 @@ function validFields(body) {
 }
 
 export function createContactHandler({ env = process.env, fetchImpl = globalThis.fetch, now = Date.now } = {}) {
-  // This bounded, ten-minute limiter is per warm instance, not a global quota.
+  // This bounded, one-minute limiter is per warm instance, not a global quota.
   // Configure a Vercel firewall rate rule before enabling production delivery.
   const attempts = new Map();
   const origins = new Set((env.CONTACT_ALLOWED_ORIGINS || 'https://www.nslanalytics.com,https://nslanalytics.com').split(',').map(s => s.trim()).filter(Boolean));
@@ -54,7 +54,7 @@ export function createContactHandler({ env = process.env, fetchImpl = globalThis
     const address = request.headers.get('x-vercel-forwarded-for') || 'unidentified';
     const key = createHash('sha256').update(address).digest('hex');
     let entry = attempts.get(key);
-    if ((!entry && attempts.size >= 2000) || (entry && entry.count >= 3)) return json({ message: 'Too many attempts. Please wait ten minutes before trying again.' }, 429, { 'Retry-After': String(Math.ceil(((entry?.until || time + WINDOW) - time) / 1000)) });
+    if ((!entry && attempts.size >= 2000) || (entry && entry.count >= 3)) return json({ message: 'Too many attempts. Please wait one minute before trying again. Your message is still here.' }, 429, { 'Retry-After': String(Math.ceil(((entry?.until || time + WINDOW) - time) / 1000)) });
     if (!entry) { entry = { count: 0, until: time + WINDOW }; attempts.set(key, entry); }
     entry.count++;
 

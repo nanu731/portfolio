@@ -57,6 +57,17 @@ try {
   assert.deepEqual(submissions[0], submissions[1], 'A manual retry preserves the message');
   assert.deepEqual(Object.keys(submissions[0]).sort(), ['email', 'message', 'name', 'website']);
   await page.unroute('**/api/contact');
+  for (const [contentType, body] of [
+    ['application/json', '{"error":{"code":"429","message":"Too Many Requests"}}'],
+    ['text/html', '<h1>Too Many Requests</h1>'],
+  ]) {
+    await page.route('**/api/contact', route => route.request().method() === 'POST'
+      ? route.fulfill({ status: 429, contentType, body }) : route.continue());
+    await fill(); await page.getByRole('button', { name: 'Send message', exact: true }).click();
+    await page.getByText('Too many attempts. Please wait one minute before trying again. Your message is still here.', { exact: true }).waitFor();
+    assert.equal(await page.getByLabel('Message', { exact: true }).inputValue(), 'Local test. No real email.');
+    await page.unroute('**/api/contact');
+  }
   await page.route('**/api/contact', route => route.fulfill({ status: 200, contentType: 'application/json', body: '{"available":false}' }));
   await page.reload(); await page.getByText('Message delivery is unavailable. Please try again later.', { exact: true }).waitFor();
   assert.equal(await page.getByRole('button', { name: 'Send message', exact: true }).isDisabled(), true);

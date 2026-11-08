@@ -88,7 +88,7 @@ Formspree, never supplied by the visitor. A status request returns readiness onl
 
 The handler checks origin, content type, size and fields; uses a fixed recipient
 and forwards fields as JSON without composing visitor HTML. Its bounded
-three-attempt/ten-minute limiter is per warm function instance, **not a global
+three-attempt/one-minute limiter is per warm function instance, **not a global
 quota**. Before enabling production, configure a Vercel firewall rate rule for
 POST `/api/contact`, check provider quotas, and verify one controlled email in the
 intended inbox on an authorized preview. Formspree acceptance is not proof of
