@@ -73,6 +73,37 @@ npm run astro -- dev stop
 For isolated experiments, follow the [site testing workflow](docs/site-testing.md).
 Use the [project page blueprint](docs/project-page-blueprint.md) for project pages.
 
+### Contact delivery (review branch)
+
+The proposed Contact page calls one server-only Vercel function at `/api/contact`.
+The current adapter uses the [Resend email API](https://resend.com/docs/api-reference/emails/send-email)
+through native `fetch`; no new package is required. This branch has not been
+published, and real inbox delivery has not been verified.
+
+Keep `RESEND_API_KEY`, `CONTACT_FROM` (a verified sender), and `CONTACT_TO` (the
+private recipient) in Vercel's server environment, never in browser code or a
+`PUBLIC_` variable. `.env.example` lists names and placeholders only. A status
+request returns readiness, not these values. Delivery stays off unless
+`CONTACT_ENABLED=true` and all required settings pass validation.
+
+The handler checks origin, content type, size and fields; uses a fixed recipient
+and a text-only email; and retains one idempotency key for retries. Its bounded
+three-attempt/ten-minute limiter is per warm function instance, **not a global
+quota**. Before enabling production, configure a Vercel firewall rate rule for
+POST `/api/contact`, check provider quotas, and verify one controlled email in the
+intended inbox on an authorized preview. Do not interpret an API acceptance
+receipt as proof of inbox delivery.
+
+The local review server's explicit `CONTACT_REVIEW_MODE=simulation` mode replaces
+the email transport with a fake receipt and labels the form as a non-emailing
+preview. The deployed function never imports that review server. With JavaScript
+disabled or readiness unavailable, sending remains disabled. Existing form-action
+security policies remain unchanged; enabled submissions use same-origin fetch.
+
+Checks: `node --test scripts/verify-contact-delivery.mjs` and the existing-tooling
+browser harness `scripts/verify-contact-ui.mjs`. The latter requires the local
+simulation and never sends a real email.
+
 To build and preview the production site:
 
 ```sh

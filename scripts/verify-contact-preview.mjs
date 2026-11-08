@@ -13,7 +13,10 @@ for (const route of routes) {
 const contact = await readFile(join(root, 'contact/index.html'), 'utf8');
 assert.match(contact, /<h1\b[^>]*>Contact<\/h1>/);
 assert.match(contact, /<button\b[^>]*disabled/);
-assert.match(contact, /Design preview\. Messages are not sent\./);
+assert.match(contact, /Checking message delivery/);
 assert.doesNotMatch(contact, /mailto:/);
-assert.doesNotMatch(contact, /<form\b[^>]*action=/);
-console.log(`Contact preview verified across ${routes.length} routes; submission remains disabled.`);
+assert.match(contact, /<form\b[^>]*method="post"[^>]*action="\/api\/contact"/);
+assert.match(contact, /src="\/contact-form\.js"/);
+assert.match(contact, /maxlength="5000"/);
+assert.doesNotMatch(contact, /RESEND_API_KEY|CONTACT_TO|CONTACT_FROM/);
+console.log(`Contact verified across ${routes.length} routes; the button stays disabled until server readiness is confirmed.`);

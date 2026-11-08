@@ -19,30 +19,33 @@ import Header from '../components/Header.astro';
 					<p>Have a question about a project?<br />Send me a message.</p>
 					<p class="message-guide">Include the project name, your questions, and any comments or concerns.</p>
 				</div>
-				<form aria-label="Contact Narayan Lekhi" aria-describedby="contact-preview">
+				<form method="post" action="/api/contact" aria-label="Contact Narayan Lekhi" aria-describedby="contact-status" data-contact-form>
 					<p class="form-note">All fields are required.</p>
 					<div class="contact-details">
 						<div class="field">
 							<label for="contact-name">Name</label>
-							<input id="contact-name" name="name" autocomplete="name" required />
+							<input id="contact-name" name="name" autocomplete="name" maxlength="100" required />
 						</div>
 						<div class="field">
 							<label for="contact-email">Email</label>
-							<input id="contact-email" name="email" type="email" autocomplete="email" required />
+							<input id="contact-email" name="email" type="email" autocomplete="email" maxlength="254" required />
 						</div>
 					</div>
 					<div class="field">
 						<label for="contact-message">Message</label>
-						<textarea id="contact-message" name="message" rows="7" required></textarea>
+						<textarea id="contact-message" name="message" rows="7" maxlength="5000" required></textarea>
 					</div>
+					<div hidden><label for="contact-website">Website</label><input id="contact-website" name="website" tabindex="-1" autocomplete="off" /></div>
 					<div class="contact-action">
-						<button type="submit" disabled>Send message <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.5" /></svg></button>
-						<p id="contact-preview" class="form-note">Design preview. Messages are not sent.</p>
+						<button type="submit" disabled><span data-contact-submit-label>Send message</span> <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.5" /></svg></button>
+						<p id="contact-status" class="form-note" role="status" tabindex="-1">Checking message delivery…</p>
+						<noscript><p class="form-note">Enable JavaScript to send a message. No message has been sent.</p></noscript>
 					</div>
 				</form>
 			</div>
 		</main>
 		<Footer />
+		<script is:inline defer src="/contact-form.js"></script>
 	</body>
 </html>
 <style>
