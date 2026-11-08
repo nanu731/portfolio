@@ -53,7 +53,9 @@ try {
   assert.equal(await page.getByLabel('Message', { exact: true }).inputValue(), 'Local test. No real email.');
   succeed = true; await page.getByRole('button', { name: 'Send message', exact: true }).click();
   await page.getByText('Preview complete. No email was sent.', { exact: true }).waitFor();
-  assert.equal(submissions.length, 2); assert.equal(submissions[0].submissionId, submissions[1].submissionId, 'A retry must retain its idempotency identity');
+  assert.equal(submissions.length, 2, 'Only explicit submissions may send requests');
+  assert.deepEqual(submissions[0], submissions[1], 'A manual retry preserves the message');
+  assert.deepEqual(Object.keys(submissions[0]).sort(), ['email', 'message', 'name', 'website']);
   await page.unroute('**/api/contact');
   await page.route('**/api/contact', route => route.fulfill({ status: 200, contentType: 'application/json', body: '{"available":false}' }));
   await page.reload(); await page.getByText('Message delivery is unavailable. Please try again later.', { exact: true }).waitFor();
@@ -66,5 +68,5 @@ try {
       await page.screenshot({ path: `${process.env.CONTACT_CAPTURES}/contact-${width}.png`, fullPage: true });
     }
   }
-  assert.deepEqual(errors, []); console.log(JSON.stringify({ engine, layoutCases: cases.length, validation: true, keyboard: true, simulatedSuccess: true, failurePreservesText: true, retryIdentity: true, unavailable: true, errors }));
+  assert.deepEqual(errors, []); console.log(JSON.stringify({ engine, layoutCases: cases.length, validation: true, keyboard: true, simulatedSuccess: true, failurePreservesText: true, manualRetry: true, unavailable: true, errors }));
 } finally { await browser.close(); }

@@ -22,8 +22,8 @@ const projects = await Promise.all(prepared.projects.map(async p=>{const page=JS
 // Local review only. The deployed API never imports this script or its fake transport.
 const simulateContact = process.env.CONTACT_REVIEW_MODE === 'simulation';
 const contactHandler = createContactHandler(simulateContact ? {
-  env: { CONTACT_ENABLED: 'true', RESEND_API_KEY: 're_local_preview_not_real', CONTACT_FROM: 'preview@example.invalid', CONTACT_TO: 'preview@example.invalid', CONTACT_ALLOWED_ORIGINS: `http://127.0.0.1:${port}` },
-  fetchImpl: async () => Response.json({ id: 'local-preview-only' }),
+  env: { CONTACT_ENABLED: 'true', CONTACT_FORM_ID: 'mdeevbzp', CONTACT_ALLOWED_ORIGINS: `http://127.0.0.1:${port}` },
+  fetchImpl: async () => Response.json({ ok: true }),
 } : undefined);
 if (simulateContact) console.log('Contact delivery simulation: no emails will be sent.');
 http.createServer(async(req,res)=>{

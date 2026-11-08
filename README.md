@@ -76,23 +76,24 @@ Use the [project page blueprint](docs/project-page-blueprint.md) for project pag
 ### Contact delivery (review branch)
 
 The proposed Contact page calls one server-only Vercel function at `/api/contact`.
-The current adapter uses the [Resend email API](https://resend.com/docs/api-reference/emails/send-email)
+The adapter forwards the three approved fields to the owner's Formspree form
 through native `fetch`; no new package is required. This branch has not been
-published, and real inbox delivery has not been verified.
+published. Formspree controls the private recipient; no recipient address, sender
+DNS setup or email-service API key is embedded in this repository.
 
-Keep `RESEND_API_KEY`, `CONTACT_FROM` (a verified sender), and `CONTACT_TO` (the
-private recipient) in Vercel's server environment, never in browser code or a
-`PUBLIC_` variable. `.env.example` lists names and placeholders only. A status
-request returns readiness, not these values. Delivery stays off unless
-`CONTACT_ENABLED=true` and all required settings pass validation.
+The owner-supplied public form ID is the default. `CONTACT_FORM_ID` optionally
+overrides it; `CONTACT_ENABLED=true` explicitly enables sending (disabled by default). `.env.example` lists
+the server settings. The recipient is selected and verified in
+Formspree, never supplied by the visitor. A status request returns readiness only.
 
 The handler checks origin, content type, size and fields; uses a fixed recipient
-and a text-only email; and retains one idempotency key for retries. Its bounded
+and forwards fields as JSON without composing visitor HTML. Its bounded
 three-attempt/ten-minute limiter is per warm function instance, **not a global
 quota**. Before enabling production, configure a Vercel firewall rate rule for
 POST `/api/contact`, check provider quotas, and verify one controlled email in the
-intended inbox on an authorized preview. Do not interpret an API acceptance
-receipt as proof of inbox delivery.
+intended inbox on an authorized preview. Formspree acceptance is not proof of
+inbox delivery. The UI prevents simultaneous submissions and preserves text on
+failure; an ambiguous network failure followed by a retry can create a duplicate.
 
 The local review server's explicit `CONTACT_REVIEW_MODE=simulation` mode replaces
 the email transport with a fake receipt and labels the form as a non-emailing

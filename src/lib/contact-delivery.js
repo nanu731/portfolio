@@ -4,7 +4,6 @@ import { createHash } from 'node:crypto';
 const MAX_BODY = 16_384;
 const WINDOW = 10 * 60 * 1000;
 const email = value => typeof value === 'string' && value.length <= 254 && /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(value);
-const uuid = value => typeof value === 'string' && /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(value);
 const json = (data, status = 200, headers = {}) => Response.json(data, { status, headers: { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', ...headers } });
 
 async function readBody(request) {
@@ -26,10 +25,10 @@ async function readBody(request) {
 
 function validFields(body) {
   if (!body || typeof body !== 'object' || Array.isArray(body)) return false;
-  if (Object.keys(body).some(k => !['name', 'email', 'message', 'submissionId', 'website'].includes(k))) return false;
+  if (Object.keys(body).some(k => !['name', 'email', 'message', 'website'].includes(k))) return false;
   return typeof body.name === 'string' && body.name.trim().length > 0 && body.name.length <= 100 && !/[\u0000-\u001f\u007f]/.test(body.name)
     && email(body.email) && typeof body.message === 'string' && body.message.trim().length > 0 && body.message.length <= 5000 && !body.message.includes('\0')
-    && uuid(body.submissionId) && (body.website === undefined || body.website === '');
+    && (body.website === undefined || body.website === '');
 }
 
 export function createContactHandler({ env = process.env, fetchImpl = globalThis.fetch, now = Date.now } = {}) {
@@ -38,7 +37,9 @@ export function createContactHandler({ env = process.env, fetchImpl = globalThis
   const attempts = new Map();
   const origins = new Set((env.CONTACT_ALLOWED_ORIGINS || 'https://www.nslanalytics.com,https://nslanalytics.com').split(',').map(s => s.trim()).filter(Boolean));
   if (env.VERCEL_ENV === 'preview' && env.VERCEL_URL) origins.add('https://' + env.VERCEL_URL);
-  const configured = () => env.CONTACT_ENABLED === 'true' && /^re_\S+$/.test(env.RESEND_API_KEY || '') && email(env.CONTACT_FROM) && email(env.CONTACT_TO);
+  // The owner supplied this public form ID; the recipient stays inside Formspree.
+  const formId = env.CONTACT_FORM_ID === undefined ? 'mdeevbzp' : env.CONTACT_FORM_ID;
+  const configured = () => env.CONTACT_ENABLED === 'true' && /^[a-zA-Z0-9]{8,64}$/.test(formId || '');
 
   return async function contact(request) {
     if (request.method === 'GET') return json({ available: Boolean(configured()) });
@@ -61,19 +62,19 @@ export function createContactHandler({ env = process.env, fetchImpl = globalThis
     try { body = await readBody(request); } catch (status) { return json({ message: status === 413 ? 'This message is too large.' : 'Please check the message fields.' }, status === 413 ? 413 : 400); }
     if (!validFields(body)) return json({ message: 'Please check the message fields and try again.' }, 400);
     try {
-      const result = await fetchImpl('https://api.resend.com/emails', {
+      const result = await fetchImpl('https://formspree.io/f/' + formId, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json', 'Idempotency-Key': 'contact/' + body.submissionId },
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json', Origin: request.headers.get('origin') },
         signal: AbortSignal.timeout(8000),
-        body: JSON.stringify({ from: env.CONTACT_FROM, to: [env.CONTACT_TO], reply_to: body.email, subject: 'NSL Analytics website inquiry', text: `Name: ${body.name.trim()}\nEmail: ${body.email}\n\n${body.message.trim()}` }),
+        body: JSON.stringify({ name: body.name.trim(), email: body.email, message: body.message.trim(), _subject: 'NSL Analytics website inquiry' }),
       });
       if (!result.ok) throw Error('Provider did not accept the request');
       const receipt = await result.json();
-      if (typeof receipt.id !== 'string' || !receipt.id.length) throw Error('Missing acceptance receipt');
+      if (receipt.ok !== true) throw Error('Missing acceptance confirmation');
       return json({ accepted: true }, 201);
     } catch {
       // Provider errors can include the recipient, credentials or message. Never forward/log them.
-      return json({ message: 'We could not confirm delivery. Your message is still here. Please try again.' }, 502);
+      return json({ message: 'We could not confirm delivery. Your message is still here. Sending it again may create a duplicate.' }, 502);
     }
   };
 }
