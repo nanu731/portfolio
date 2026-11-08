@@ -409,3 +409,17 @@ body.standard-page[data-project='draft'] .paired-table th {
     transition: none !important;
   }
 }
+
+/* A small density adjustment for the technical reading sections. */
+body.standard-page :is(#std-method, #std-limits, #std-definitions) {
+  --reading-size: 1.0625rem;
+  --reading-gap: .625rem;
+  --reading-row: .875rem;
+}
+body.standard-page :is(#std-method, #std-limits, #std-definitions) .std-notes-copy :is(p, ul, ol, dl, dd) { font-size: var(--reading-size) !important; }
+body.standard-page :is(#std-method, #std-limits, #std-definitions) .std-notes-copy p + p { margin-top: var(--reading-gap); }
+body.standard-page :is(#std-method, #std-limits, #std-definitions) .std-disclosure > :not(summary) { margin-block: var(--reading-gap); }
+body.standard-page :is(#std-method, #std-limits, #std-definitions) .std-notes-copy h3 { font-size: 1.3rem; }
+body.standard-page :is(#std-method, #std-limits, #std-definitions) .std-notes-copy dt { font-size: 1.25rem; }
+body.standard-page #std-method .nba-variable-row { padding-block: var(--reading-row); }
+body.standard-page #std-method .nba-formula-block { padding: var(--reading-row); }
