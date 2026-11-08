@@ -1,41 +1,41 @@
 {
   "sourceSnapshot": "20261105T172239Z-e1770d",
-  "sourceLabel": "Project blueprint · NBA Game Predictor link",
+  "sourceLabel": "Project blueprint \u00b7 NBA Game Predictor link",
   "projects": [
     {
       "slug": "nba-statistical-twins",
       "sourceSha256": "a8778f892a8706d0876aa2cfbba2d469b4d4de03bbf9163912ff7ab866fbacee",
-      "pageSha256": "6327d6f1102e09e634c9de7c3b23a85247d694dbc64f3f67f93ca47670112c0f"
+      "pageSha256": "43e821bd81eb63a434c2649498825c5b2eb7cbfd44c72cfbdbcacb891f91b102"
     },
     {
       "slug": "nba-economics",
       "sourceSha256": "cb1c3f7807f6591fb10cc86ea9a1677f3fef4e2b624d897b60c05ba870c9812f",
-      "pageSha256": "5af1c2052fdb6a2c8404451a848459a6aff4f17db1587b18ac05713e5a7f4cda"
+      "pageSha256": "dade8a661317b4f3ebae5b6468b10964218089c6eadb62eace8cdc3af6f6b494"
     },
     {
       "slug": "nba-shot-selection-analytics",
       "sourceSha256": "073070b8e1fadd5803f2783926fa8c4d57e348709592c082228ac7ec7e36c2ea",
-      "pageSha256": "a0fd01af96171b32382b7d345d587cc46bbf11535ff5ca68946a90902f0d6817"
+      "pageSha256": "a0cd02cbd3f2c7f02ee10800aeaeb65fc9085fb7b494cec05b18b39a24fe90e3"
     },
     {
       "slug": "nfl-qbs-re-evaluated",
       "sourceSha256": "3f197a5d2da79b18c054f71a68fe4f9cd21e90db3041c1c302df0d2602db7fd0",
-      "pageSha256": "e8f7a7f6ca1e49f19e2e75d80e312da425151398fefaa36800d63c1bde86ed2b"
+      "pageSha256": "c6b382ca2705475958f587548fa71166c1cbf41268e3de6eb858d4a4c18ae1fb"
     },
     {
       "slug": "tennis-point-phases",
       "sourceSha256": "145e372ae61cd7251f2366997723c0f170d2d09df103e9c80078b292f9dfae8a",
-      "pageSha256": "f4844d0d1bb6c610d2e53ad3c7094e2f89cbc56ee10dbab0dc062e9dea5b5f63"
+      "pageSha256": "28c1a72a89a7bbb83d351ec96e752341031a3133c953356487ccd685c8c2cb1f"
     },
     {
       "slug": "nba-player-comparison",
       "sourceSha256": "e2a05e052417fa5d52c414671dd5addad61bc709223a9d7903029ee084b2f4e2",
-      "pageSha256": "873797b9ccfe74e20d33665b40cdd7ce29f9538e5671451bc2d819ed9d9f84fd"
+      "pageSha256": "bb774fe39a5e23710d2170077a6f1617bf7a4f18ce086618476abd0aff2982e8"
     },
     {
       "slug": "nba-draft-success",
       "sourceSha256": "585c7fbd2a579f4cbcac3281993dafaa9053d1040fe90f94db34acb1b5eb4a5d",
-      "pageSha256": "2e5648cde52dda72a2855f5a04c29fd045b59a052f09e86709a0cc454eaf74ff"
+      "pageSha256": "29d9394bb16bf3cc08f152c6c9703844b2d1495cbf004810d80690eab845240e"
     }
   ],
   "assets": {
