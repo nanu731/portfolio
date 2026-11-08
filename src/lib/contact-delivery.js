@@ -54,7 +54,7 @@ export function createContactHandler({ env = process.env, fetchImpl = globalThis
     const address = request.headers.get('x-vercel-forwarded-for') || 'unidentified';
     const key = createHash('sha256').update(address).digest('hex');
     let entry = attempts.get(key);
-    if ((!entry && attempts.size >= 2000) || (entry && entry.count >= 3)) return json({ message: 'Too many attempts. Please wait three seconds before trying again. Your message is still here.' }, 429, { 'Retry-After': String(Math.ceil(((entry?.until || time + WINDOW) - time) / 1000)) });
+    if ((!entry && attempts.size >= 2000) || (entry && entry.count >= 1)) return json({ message: 'Too many attempts. Please wait three seconds before trying again. Your message is still here.' }, 429, { 'Retry-After': String(Math.ceil(((entry?.until || time + WINDOW) - time) / 1000)) });
     if (!entry) { entry = { count: 0, until: time + WINDOW }; attempts.set(key, entry); }
     entry.count++;
 

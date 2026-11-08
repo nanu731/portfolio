@@ -48,7 +48,8 @@ for (const [label, change] of [
 });
 test('bounds declared and streamed body sizes', async () => {
   const { handler, calls } = setup(); assert.equal((await handler(request(valid, { 'content-length': '20000' }))).status, 413);
-  assert.equal((await handler(request('x'.repeat(20000)))).status, 413); assert.equal(calls.length, 0);
+  const streamed = setup();
+  assert.equal((await streamed.handler(request('x'.repeat(20000)))).status, 413); assert.equal(calls.length, 0); assert.equal(streamed.calls.length, 0);
 });
 test('provider gets only approved fields at the fixed Formspree destination', async () => {
   const { handler, calls } = setup(); const response = await handler(request({ ...valid, message: '<script>alert(1)</script>' }));
@@ -66,8 +67,8 @@ test('provider failures and timeouts never expose secrets or claim acceptance', 
 });
 test('warm-instance throttle limits attempts and resets after three seconds', async () => {
   let time = 1000; const { handler, calls } = setup({ now: () => time });
-  for (let i = 0; i < 3; i++) assert.equal((await handler(request())).status, 201);
-  const blocked = await handler(request()); assert.equal(blocked.status, 429); assert.ok(Number(blocked.headers.get('retry-after')) > 0); assert.equal(calls.length, 3);
+  assert.equal((await handler(request())).status, 201);
+  const blocked = await handler(request()); assert.equal(blocked.status, 429); assert.equal(Number(blocked.headers.get('retry-after')), 3); assert.equal(calls.length, 1);
   time += 2999; assert.equal((await handler(request())).status, 429);
   time += 1; assert.equal((await handler(request())).status, 201);
 });
