@@ -71,7 +71,12 @@ async function update(preservePoint = false) {
   document.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-pressed',String(b.dataset.mode===mode)));
   const title = mode === 'player' ? player : players.join(' vs. ');
   $('selection-title').textContent = title;
-  $('selection-meta').textContent = mode==='match' ? matchMeta(match) : format(matches.length) + (matches.length===1?' charted match':' charted matches') + (matches.length ? ' · '+matches.at(-1).date.slice(0,4)+'–'+matches[0].date.slice(0,4) : '');
+  const firstYear = matches.at(-1)?.date.slice(0,4), lastYear = matches[0]?.date.slice(0,4);
+  const years = firstYear === lastYear ? firstYear : firstYear + '–' + lastYear;
+  const unit = mode === 'h2h' ? 'meeting' : 'match';
+  const plural = mode === 'h2h' ? 'meetings' : 'matches';
+  $('selection-meta').textContent = mode === 'match' ? matchMeta(match) :
+    format(matches.length) + ' charted ' + (matches.length === 1 ? unit : plural) + (years ? ' · ' + years : '');
   const choices = $('change-selection');
   choices.replaceChildren();
   if (mode === 'match') choices.append(button('Find a match',() => find('match')));
@@ -194,7 +199,7 @@ async function ensureArchive() {
     const archiveEl = $('archive');
     const strong = document.createElement('strong'), span = document.createElement('span');
     strong.textContent = format(archive.length)+' matches';
-    span.textContent = 'Charted archive · '+archive.at(-1).date.slice(0,4)+'–'+archive[0].date.slice(0,4);
+    span.textContent = ' · '+archive.at(-1).date.slice(0,4)+'–'+archive[0].date.slice(0,4);
     archiveEl.replaceChildren(strong,span); archiveEl.hidden=false;
     return true;
   })().catch(error => {
@@ -221,7 +226,7 @@ async function boot() {
       const archiveEl = $('archive');
       const strong = document.createElement('strong'), span = document.createElement('span');
       strong.textContent = format(f.count)+' matches';
-      span.textContent = 'Charted archive · '+f.years.join('–');
+      span.textContent = ' · '+f.years.join('–');
       archiveEl.replaceChildren(strong,span); archiveEl.hidden=false;
       restore();
       return;

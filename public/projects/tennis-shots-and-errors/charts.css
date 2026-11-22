@@ -263,3 +263,13 @@
 .ta-count-rule { display: inline-flex; gap: .6rem; align-items: center; min-height: 44px; font-weight: 600; cursor: pointer; }
 .ta-count-rule input { width: 1.1rem; height: 1.1rem; accent-color: var(--green); }
 .ta-share-bar { display: block; height: 3px; margin-top: .25rem; background: var(--green); }
+.ta-finding { font: 500 clamp(1.3rem, 2.6vw, 2.05rem)/1.25 var(--display); max-width: 45ch; margin: .55rem 0 .8rem; }
+.ta-support button { border:none; background:transparent; padding:.2rem 0; min-height:44px; text-decoration:underline; text-underline-offset:.18em; color:inherit; font:inherit; }
+.ta-overflow { display:block; margin-bottom:.7rem; }
+.ta-overflow[hidden], .ta-pager button[hidden] { display:none; }
+.ta-analysis > .ta-section:first-of-type { padding-top:.8rem; }
+.ta-scroll details summary { cursor:pointer; min-height:44px; align-content:center; }
+
+@media (max-width: 42rem) {
+  [data-records] .ta-scroll table[aria-label="Charted points"] th:nth-child(2) { min-width: 9rem; }
+}

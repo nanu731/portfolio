@@ -130,3 +130,21 @@ body[data-project="rally"] .intro.wrap {
   body[data-project="rally"] .intro.wrap { --intro-gutter: 18px; }
   .project-guide > details > summary { min-height: 76px; padding-block: 22px; }
 }
+
+.portfolio-mobile-toggle { display: none; }
+@media (max-width: 48rem) {
+  .portfolio-mast:has(.portfolio-mobile-toggle) { display: flex; }
+  .portfolio-mobile-toggle:not([hidden]) {
+    display: inline-flex;
+    align-items: center;
+    padding: .45rem .75rem;
+    min-height: 44px;
+    font: inherit;
+    color: var(--shell-green);
+    background: transparent;
+    border: 1px solid currentColor;
+    cursor: pointer;
+  }
+  .portfolio-mobile-toggle + nav { flex-basis: 100%; }
+  .portfolio-mobile-toggle:not([hidden])[aria-expanded="false"] + nav { display: none; }
+}

@@ -13,7 +13,9 @@ const links = [['/blog/', 'Blog'], ['/about/', 'About'], ['/contact/', 'Contact'
   <a class="portfolio-skip" href="#main-content">Skip to main content</a>
   <div class="portfolio-mast">
     <a class="portfolio-brand" href="/"><img src="/nsl-logo.svg" width="344" height="156" alt="" />{SITE_TITLE}</a>
-    <nav aria-label="Primary navigation">
+    {path === '/projects/tennis-shots-and-errors' &&
+      <button class="portfolio-mobile-toggle" type="button" aria-expanded="false" aria-controls="portfolio-primary" hidden>Menu</button>}
+    <nav id="portfolio-primary" aria-label="Primary navigation">
       <a href="/" aria-current={current('/')}>Home</a>
       <details class="portfolio-projects">
         <summary aria-label={path.startsWith('/projects') ? 'Projects, current section' : undefined} class:list={[{ 'current-section': path.startsWith('/projects') }]}>Projects</summary>
@@ -46,6 +48,22 @@ const links = [['/blog/', 'Blog'], ['/about/', 'About'], ['/contact/', 'Contact'
         menu.open = false;
         menu.querySelector('summary')?.focus();
       }
+    });
+  }
+</script>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('.portfolio-mobile-toggle');
+  if (toggle) {
+    toggle.hidden = false;
+    toggle.addEventListener('click', () => {
+      toggle.setAttribute('aria-expanded', String(toggle.getAttribute('aria-expanded') !== 'true'));
+    });
+    toggle.closest('header')?.addEventListener('keydown', event => {
+      if (event.key !== 'Escape' || toggle.getAttribute('aria-expanded') !== 'true' ||
+          toggle.offsetParent === null || document.querySelector('.portfolio-projects[open]')) return;
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.focus();
     });
   }
 </script>
