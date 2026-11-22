@@ -824,3 +824,47 @@ dialog input {
     text-align: left;
   }
 }
+
+.player-actions {
+  display: flex;
+  gap: 8px;
+}
+.surprise {
+  white-space: nowrap;
+}
+.pixel-icon {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 28px;
+  height: 28px;
+  pointer-events: none;
+}
+.pixel-ball {
+  position: relative;
+  transform-origin: center bottom;
+}
+.pixel-burst {
+  position: absolute;
+  left: -14px;
+  top: -18px;
+  width: 56px;
+  height: 54px;
+  background: url(twin-burst.png) 0 0 / 392px 324px;
+  image-rendering: pixelated;
+  opacity: 0;
+}
+@media (max-width: 760px) {
+  .controls {
+    flex-wrap: wrap;
+  }
+  .player-actions {
+    width: 100%;
+  }
+  .player-actions .solid,
+  .player-actions .outline {
+    flex: 1;
+    padding: 8px;
+    gap: 6px;
+    font-size: 0.75rem;
+  }
+}
