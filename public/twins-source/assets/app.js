@@ -72,8 +72,8 @@
     $("selection-meta").textContent =
       `${p.team}`;
     $("player-stability").textContent = Number.isInteger(p.repeatCount)
-      ? `Across two sets of games, ${p.repeatCount} of ${p.name}’s five twins appeared in both lists.`
-      : "Too few minutes in one half to check this player’s match stability.";
+      ? `For ${p.name}, the top-five lists from odd and even games shared ${p.repeatCount} ${p.repeatCount === 1 ? "match" : "matches"}.`
+      : `There wasn’t enough data to rank ${p.name} separately in odd and even games.`;
     render();
     $("announce").textContent =
       $("first-twin").textContent;
