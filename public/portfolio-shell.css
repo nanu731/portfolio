@@ -98,22 +98,35 @@ footer.portfolio-footer {
 .portfolio-skip:not(:focus) { clip-path: inset(50%); pointer-events: none; }
 body > a.skip:focus { z-index: 11; }
 
-/* Give the standalone tennis guide the disclosure cue used in the other analyses. */
-.project-guide details > summary {
+/* Match the standard analysis intro without changing the tennis explorer width. */
+body[data-project="rally"] .intro.wrap {
+  --intro-gutter: 40px;
+  width: min(1160px, calc(100% - 2 * var(--intro-gutter)));
+}
+
+/* Top-level guide rows follow the analysis format; nested evidence stays compact. */
+.project-guide > details > summary {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  min-height: 2.75rem;
+  gap: 18px;
+  min-height: 80px;
+  padding-block: 24px;
+  font: 550 clamp(1.5rem, 2.2vw, 1.875rem)/1.15 Fraunces, Georgia, serif;
+  font-variation-settings: 'WONK' 1, 'SOFT' 90;
   list-style: none;
 }
 .project-guide details > summary::-webkit-details-marker { display: none; }
 .project-guide details > summary::before {
   content: '';
   flex: none;
-  width: .55rem;
-  height: .55rem;
+  width: 9px;
+  height: 9px;
   border: solid currentColor;
   border-width: 0 2px 2px 0;
   transform: rotate(-45deg);
 }
 .project-guide details[open] > summary::before { transform: rotate(45deg); }
+@media (max-width: 760px) {
+  body[data-project="rally"] .intro.wrap { --intro-gutter: 18px; }
+  .project-guide > details > summary { min-height: 76px; padding-block: 22px; }
+}
