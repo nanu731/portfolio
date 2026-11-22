@@ -2,6 +2,9 @@
 (() => {
   'use strict';
   const kind = document.body.dataset.project;
+  const emptySearchMessage = kind === 'twins'
+    ? 'Try a last name. Players need 750 minutes in 2023–24 to appear.'
+    : 'No match. Try a surname or change the selected scope.';
   const area = document.querySelector('.std-selection-area');
   if (!kind || !area) return;
   const one = (selector, root = document) => root.querySelector(selector);
@@ -335,12 +338,12 @@
     if (!matches.length) {
       const empty = document.createElement('p');
       empty.className = 'empty';
-      empty.textContent = 'No match. Try a surname or change the selected scope.';
+      empty.textContent = emptySearchMessage;
       fragment.append(empty);
     }
     results.replaceChildren(fragment);
     results.scrollTop = 0;
-    text(status, `${matches.length} of ${roster.length} eligible players${query && matches.length > 1 ? '. Choose a name from the list.' : ''}`);
+    text(status, kind === 'twins' ? `${matches.length} players` : `${matches.length} of ${roster.length} eligible players${query && matches.length > 1 ? '. Choose a name from the list.' : ''}`);
   }
   function commit(entry) {
     if (!activeAdapter || !picker.open) return;
@@ -364,7 +367,7 @@
       const exact = matches.filter(entry => compact(entry.name) === compact(search.value));
       if (exact.length === 1) commit(exact[0]);
       else if (matches.length === 1) commit(matches[0]);
-      else text(status, matches.length ? `${matches.length} matches. Choose a player from the list.` : 'No match. Try a surname or change the selected scope.');
+      else text(status, matches.length ? `${matches.length} matches. Choose a player from the list.` : emptySearchMessage);
     }
   });
   results.addEventListener('keydown', event => {

@@ -868,3 +868,18 @@ dialog input {
     font-size: 0.75rem;
   }
 }
+
+.twins-answer { max-width: 48rem; margin: 0 0 1rem; }
+.twins-answer h2 { font-size: clamp(1.35rem, 3vw, 2.2rem); }
+.twins-answer p { margin-top: .35rem; }
+.twins-answer p:empty { display: none; }
+.twins-results { max-width: 52rem; margin: 1rem auto; }
+.twins-scale { text-align: right; font: .8rem var(--mono); }
+.twins-map { margin-block: 1rem; }
+.twins-map summary, #stats > summary { cursor: pointer; padding-block: .65rem; }
+body.standard-page[data-project="twins"] .std-selected-row .kicker { display: none; }
+@media (max-width: 480px) {
+  body.standard-page[data-project="twins"] .std-intro { padding-block: .65rem; }
+  body.standard-page[data-project="twins"] .std-intro h1 { font-size: clamp(1.8rem, 8vw, 2.4rem); }
+  .twins-answer p { font-size: 1rem; line-height: 1.3; }
+}
