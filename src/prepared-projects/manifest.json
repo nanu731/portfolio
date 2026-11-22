@@ -5,7 +5,7 @@
     {
       "slug": "nba-statistical-twins",
       "sourceSha256": "a8778f892a8706d0876aa2cfbba2d469b4d4de03bbf9163912ff7ab866fbacee",
-      "pageSha256": "43e821bd81eb63a434c2649498825c5b2eb7cbfd44c72cfbdbcacb891f91b102"
+      "pageSha256": "0c1167e28f85a4913fa5f7939436fcc4a99eb865ef9e92fee354172c0eea34ab"
     },
     {
       "slug": "nba-economics",
@@ -45,16 +45,16 @@
   ],
   "assets": {
     "/twins-source/assets/nsl.svg": "6eb9cd42f66947d879f343be720386daace8218daf225bb9bedfd96a3d9ad3f9",
-    "/twins-source/assets/style.css": "8a3bd6c8d042fa9a4091940de7ecd1949e86943e7fb197501b24f3e51c4422e3",
+    "/twins-source/assets/style.css": "3182737e6891aeee9594c0ce27d683815da3321a99dee47b19434e63a4421238",
     "/std-assets/project-standard.css": "e84cab5f660e36586ad70ac4d6715752064c8ec6b18cddebb5196c5542da221b",
     "/std-assets/project-standard-experience.css": "598c22598a86ed32cc62eff98c8a9094296439f6f92f1dd3899476af26ab7b69",
     "/shot-court-viewport.css": "b0739a63015568f411b7ec7782da6373047a3be239f8b73bba17501d61aa69d2",
-    "/std-assets/project-standard-controls.js": "f30230b3084591f19d7f6019a98e3c3aae655f10ed3ed349d80a53fe082376c0",
+    "/std-assets/project-standard-controls.js": "cdb1f4ba2bd17270f52be80ea21622c6933dc91234d1e46a0b2f162b2d22ac4b",
     "/std-assets/project-standard-experience.js": "36f8073bbe1e0c3d71daf16132de302e920e39a9cf4d76e11331c3a01c63c493",
     "/twins-source/research/stocks-model.md": "d8c54f304cc6ac57a094f2a8ebbf3a1ce5b218633d616d831ab4966f2b32e418",
     "/twins-source/data/data.js": "d6d0d8fc05e6b77e14bd3b3c29c1b9ee74b30141582cc4f75b8f47372116cc7f",
     "/twins-source/assets/model.js": "f02a99b762e114469c6c6aab32d869285e3f99bf2a4d9154936c5da6e287fde9",
-    "/twins-source/assets/app.js": "27313c4bcbe7975cdf9cee01a8455aff735e1fc9f23d44bc54a81cb057823eef",
+    "/twins-source/assets/app.js": "4ca34b51e54976567c1e85b78e650c28b0187b444c04b81ee5a2028f4d50d21f",
     "/favicon.svg": "a12bf07c4c2ec43606bdd12ad7aca8911ab88af2453ec4c84739f2cb4a806703",
     "/favicon.ico": "f9ea1ce827b3cc1f9ffaccf76049b760e34f0eca4247e2b380f526722559b8ca",
     "/_astro/fonts/16801a6af5971d1a.woff2": "94bb7e04bb1a32237a67935c72526e42a3e52ee4aebd50299802b18a93114251",
@@ -2107,7 +2107,7 @@
     "/data/moneyball/v1/views/2012-3.json": "58b1876447428ec9f0b097fe1ed558b9d37d3dde2e42f24ba7824b0162420c12",
     "/data/moneyball/v1/views/2011-1.json": "b323f9ccadc61a1d97e5c7fb4e0c455d487ef1425d1e1b19fe235e32be7d77ee",
     "/data/moneyball/v1/views/2010-1.json": "ccc9e1b1d8b34b5937dd4aeb2043df42c5982f7af210e0216028d4c1ec14108a",
-    "/twins-source/LICENSE": "4d86cfe44cf70c29d2c976a2c274bfa26cb951adbe2bf496ad203c35dbf03319",
+    "/twins-source/LICENSE": "fe328072518bc3d3ce80dd7f2b7970ce4e663eefb7b9ae81d3b5c4b34fa3db0c",
     "/twins-source/assets/OFL.txt": "1938ad335da1622da1a7689cfc961af01877e5e367c08432b2fe8ff9e419ba93",
     "/twins-source/research/source-data-license.txt": "a578b8bc9409b00f105eea72c4bbd0c0c75d0c3f93d5d2ee8ae11f4abeab61b7",
     "/projects/tennis-shots-and-errors/data/points/000aa18a021c97770b.json": "79bf41cb3bca226ef84205c25fbb4303222d6679602b0e8e4c7640ea7c82681f",
@@ -13901,6 +13901,7 @@
     "/projects/tennis-shots-and-errors/assets/IBM-PLEX-LICENSE.txt": "d741e57d5f865e294df801f96b7b5161a88b211df65887e4358d271c9fc5fb4f",
     "/projects/tennis-shots-and-errors/assets/mono.woff2": "c36f509c0a8f9f85f29cb44bc8701d8a9e0b14c499e77a884f789ead7093a7ac",
     "/projects/tennis-shots-and-errors/assets/serif.woff2": "fafca76cdf167b2a88dd2984ca9745f0b9a0475ee82fd2ab6c36476001d0da0b",
+    "/twins-source/assets/twin-burst.png": "7616b4570b34774e771f24188adbd97b9f537e0a795178a7350bd86aad06816b",
     "/projects/tennis-shots-and-errors/rally.js": "06ed3150990b0570e29270e8744630ffb192836c7c7e86f217bee4287ff89a36",
     "/projects/tennis-shots-and-errors/assets/rally-contact.png": "8c20d4a60895cac56da521804f807475fcec72d52b3836dbb7e0a02d1cc265cf",
     "/projects/tennis-shots-and-errors/assets/PIXELFX-LICENSE.txt": "0a77565a50c3462831244452f129c38d2adc4fd07897cbeba8adc943f958604e",
@@ -13922,6 +13923,11 @@
       "path": "/projects/nba-shot-selection-analytics/",
       "reason": "Move the existing comparison link into the opening as a prominent button; preserve scientific content and engine scripts",
       "sourceSha256": "c1e9fd0b51e21fd6e4e00d42f96794ec49faeefdd93e16784740f7a7f3c56424"
+    },
+    {
+      "path": "/projects/nba-statistical-twins/",
+      "reason": "Add the tested pixel basketball Surprise me control to the existing shared player row; preserve the ranking model and other project pages",
+      "sourceCommit": "nanu731/nba-similar-player@6311e6b"
     }
   ]
 }
