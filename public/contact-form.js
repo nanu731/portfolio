@@ -49,7 +49,7 @@
     .then(result => {
       available = result.available === true;
       preview = result.preview === true; button.disabled = !available;
-      notify(!available ? 'Message delivery is unavailable. Please try again later.' : preview ? 'Local preview: messages are not emailed.' : 'All fields are required.');
+      notify(!available ? 'Message delivery is unavailable. Please try again later.' : preview ? 'Local preview: messages are not emailed.' : '');
     })
     .catch(() => notify('Message delivery is unavailable. Please try again later.', true));
 })();
