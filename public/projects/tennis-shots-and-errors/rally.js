@@ -136,7 +136,7 @@ export function mountRally(host, points, players, surface, attempt) {
     } else if (shot) {
       status.textContent = `Shot ${shot}. ${players[hitter]} ${shot === 1 ? "served" : "kept the ball in play"}.`;
     } else {
-      status.textContent = `${players[first]} to serve. Play this recorded point.`;
+      status.textContent = `${players[first]} to serve.`;
     }
     if (done && missed) status.textContent += " The chart counts " + (attempt ? total + " attempts." : inPlay + (inPlay === 1 ? " shot in play." : " shots in play."));
     switcher.hidden = choices.length < 2;
