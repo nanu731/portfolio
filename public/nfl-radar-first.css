@@ -68,15 +68,6 @@ nfl-comparison .nfl-filter-options {
   gap: 0 16px;
 }
 
-nfl-comparison .nfl-stat-counts {
-  list-style: none;
-  margin-block: 12px;
-  padding: 0;
-  font-size: .95rem;
-}
-
-nfl-comparison .nfl-stat-counts li:not([hidden]) { display: flex; flex-wrap: wrap; gap: 0 10px; }
-nfl-comparison .nfl-stat-counts [data-stat-player] { font-weight: 600; }
 nfl-comparison .nfl-stat-context { font-size: .95rem; }
 nfl-comparison .nfl-stat-context:empty { display: none; }
 nfl-comparison .profile-readout :is(th, td) { overflow-wrap: anywhere; }
@@ -123,4 +114,10 @@ body.standard-page[data-project="nfl"] .nfl-methods {
 nfl-comparison input[type="search"]:not(:focus)::-webkit-search-cancel-button {
   appearance: none;
   display: none;
+}
+
+
+body.standard-page[data-project="nfl"] .nfl-methods > details > .std-doc-summary {
+  min-height: 44px;
+  padding-block: 10px;
 }
