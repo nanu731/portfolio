@@ -442,3 +442,11 @@ body.standard-page .std-context-controls .std-compare-action {
 body.standard-page .std-compare-action svg { display: block; flex-shrink: 0; }
 body.standard-page .std-context-controls .std-compare-action:hover { background: var(--std-green); border-color: var(--std-green); }
 body.standard-page .std-context-controls .std-compare-action:focus-visible { outline: 3px solid var(--std-green); outline-offset: 4px; }
+
+/* The result panel is exposed only after the explorer validates available gains. */
+.shot-baseline-result { display: none; }
+spatial-shot-explorer:has(.shot-baseline-result):has([type="range"][aria-valuetext^="Up to 0 percent requested;"]) .shot-baseline-result { display: block; font-weight: 600; }
+spatial-shot-explorer:has(.shot-baseline-result):has([type="range"][aria-valuetext^="Up to 0 percent requested;"]) :is(.shot-baseline-result + .gain-grid, [data-actual-share], [data-moved-count]) { display: none; }
+.shot-gain-line { display: flex; align-items: baseline; flex-wrap: wrap; gap: .25rem .8rem; }
+.shot-gain-range { display: inline-flex; align-items: baseline; flex-wrap: wrap; gap: .25rem; }
+.shot-gain-line p { margin-block: 0; }
