@@ -10,7 +10,7 @@
     {
       "slug": "nba-economics",
       "sourceSha256": "cb1c3f7807f6591fb10cc86ea9a1677f3fef4e2b624d897b60c05ba870c9812f",
-      "pageSha256": "dade8a661317b4f3ebae5b6468b10964218089c6eadb62eace8cdc3af6f6b494"
+      "pageSha256": "e809584372503a36949c6852e04885fc43f7d87874d209c14cdd786d33bb0ada"
     },
     {
       "slug": "nba-shot-selection-analytics",
@@ -44,6 +44,9 @@
     }
   ],
   "assets": {
+    "moneyball-courtside.css": "f01cd79e85f21e00fc42c5a61df90ac0eaf24ab537b177ff2531b1aaa608e0f4",
+    "moneyball-courtside.js": "9c86846e1074ad179320ec0421d511302b0db068a037bd768cea8d7c296d1b10",
+    "moneyball-courtside.png": "ac23aba6cf5620693a46339c3aaf226eddc53106bea5a773f61e3c4230129449",
     "/twins-source/assets/nsl.svg": "6eb9cd42f66947d879f343be720386daace8218daf225bb9bedfd96a3d9ad3f9",
     "/twins-source/assets/style.css": "8a3bd6c8d042fa9a4091940de7ecd1949e86943e7fb197501b24f3e51c4422e3",
     "/std-assets/project-standard.css": "e84cab5f660e36586ad70ac4d6715752064c8ec6b18cddebb5196c5542da221b",
