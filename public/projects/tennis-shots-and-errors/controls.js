@@ -7,6 +7,9 @@ const modes = ['match','player','h2h'];
 let archive = [], byId, byPlayer, directory, searchMatches;
 let state, revision = 0, finderKind, options = [], pageSize = 30;
 const cache = new Map();
+let results = {}, fullLoad;
+const readParams = () => new URLSearchParams(location.hash.slice(1) || location.search);
+let attempt = readParams().get("count") !== "inplay";
 const norm = (s) => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();
 const format = (n) => n.toLocaleString('en-US');
 const matchName = (m) => m.players.join(' vs. ');
@@ -24,7 +27,8 @@ function defaultState() {
   return {mode:'match',match:match.id,player:match.players[1],opponent:match.players[0]};
 }
 function restore() {
-  const defaults = defaultState(), params = new URLSearchParams(location.hash.slice(1) || location.search);
+  const defaults = defaultState(), params = readParams();
+  attempt = params.get("count") !== "inplay";
   const mode = modes.includes(params.get('view')) ? params.get('view') : defaults.mode;
   const match = byId.get(params.get('match')) || byId.get(defaults.match);
   const player = byPlayer.has(params.get('player')) ? params.get('player') : defaults.player;
@@ -39,6 +43,7 @@ function select(next) {
   if (state.mode === 'match') params.set('match',state.match);
   else params.set('player',state.player);
   if (state.mode === 'h2h') params.set('opponent',state.opponent);
+  if (!attempt) params.set('count','inplay');
   history.pushState(null,'','#' + params);
   update();
 }
@@ -57,7 +62,7 @@ function retry(message, handler) {
   p.textContent = message;
   $('results').replaceChildren(p,button('Try again',handler));
 }
-async function update() {
+async function update(preservePoint = false) {
   const rev = ++revision;
   const {mode,match:matchId,player,opponent} = state;
   const match = byId.get(matchId);
@@ -80,15 +85,21 @@ async function update() {
   }
   $('announce').textContent = 'Selected '+title+'. '+$('selection-meta').textContent;
   $('results').setAttribute('aria-busy','true');
-  $('results').textContent = 'Loading analysis…';
+  if (!preservePoint) $('results').textContent = 'Loading analysis…';
   try {
     const points = mode==='match' ? await loadPoints(match) : [];
     if (rev !== revision) return;
-    $('results').replaceChildren();
+
     if (!matches.length) {
       $('results').textContent = 'No charted meetings in this archive. Choose another player or opponent.';
     } else {
-      renderAnalysis($('results'),{mode,matches,players,points,onMatch(id) {
+      renderAnalysis($('results'),{mode,matches,players,points,results,attempt,preservePoint,onRule(value) {
+        attempt = value;
+        const params = readParams();
+        params.set('count', attempt ? 'attempt' : 'inplay');
+        history.replaceState(null,'','#'+params);
+        update(true).then(() => $('results').querySelector('[data-count-rule]')?.focus({preventScroll:true}));
+      },onMatch(id) {
         if (byId.has(id)) {
           select({mode:'match',match:id});
           $('explorer').focus();
@@ -101,7 +112,8 @@ async function update() {
     console.error(error);
   }
 }
-function find(kind) {
+async function find(kind) {
+  if (!await ensureArchive()) return;
   finderKind = kind;
   $('finder-title').textContent = kind==='match' ? 'Find a match' : kind==='player' ? 'Find a player' : 'Find an opponent';
   $('query-label').textContent = kind==='match' ? 'Player, tournament, round or year' : 'Player name';
@@ -158,11 +170,17 @@ function choose(key) {
   }
   $('change-selection').querySelector(finderKind==='opponent'?'button:last-child':'button').focus({preventScroll:true});
 }
-async function boot() {
-  try {
-    const response = await fetch('./data/index.json');
-    if (!response.ok) throw new Error('Unavailable archive');
-    archive = await response.json();
+async function json(path) {
+  const response = await fetch(path);
+  if (!response.ok) throw new Error('Unavailable ' + path);
+  return response.json();
+}
+async function ensureArchive() {
+  if (fullLoad) return fullLoad;
+  fullLoad = (async () => {
+    const [all, scores] = await Promise.all([json('./data/index.json'), json('./data/results.json')]);
+    results = scores;
+    archive = all;
     byId = new Map(archive.map(m=>[m.id,m]));
     byPlayer = new Map();
     for (const m of archive) for (const name of m.players) {
@@ -178,14 +196,41 @@ async function boot() {
     strong.textContent = format(archive.length)+' matches';
     span.textContent = 'Charted archive · '+archive.at(-1).date.slice(0,4)+'–'+archive[0].date.slice(0,4);
     archiveEl.replaceChildren(strong,span); archiveEl.hidden=false;
-    restore();
-  } catch (error) {
-    $('selection-title').textContent='Match archive unavailable';
-    retry('We couldn’t load the match list.',boot);
+    return true;
+  })().catch(error => {
+    fullLoad = null;
+    retry('We couldn’t load the match list.', boot);
     console.error(error);
-  }
+    return false;
+  });
+  return fullLoad;
 }
-for (const b of document.querySelectorAll('[data-mode]')) b.addEventListener('click',() => {
+async function boot() {
+  const params = readParams();
+  if ((!params.has('view') || params.get('view') === 'match') &&
+      (!params.has('match') || params.get('match') === pilotId)) {
+    try {
+      const f = await json('./data/featured.json');
+      if (location.hash && readParams().toString() !== params.toString()) return boot();
+      if (!archive.length) {
+        archive = [f.match];
+        byId = new Map([[pilotId, f.match]]);
+        byPlayer = new Map(f.match.players.map(name => [name, [f.match]]));
+        if (f.result) results[pilotId] = f.result;
+      }
+      const archiveEl = $('archive');
+      const strong = document.createElement('strong'), span = document.createElement('span');
+      strong.textContent = format(f.count)+' matches';
+      span.textContent = 'Charted archive · '+f.years.join('–');
+      archiveEl.replaceChildren(strong,span); archiveEl.hidden=false;
+      restore();
+      return;
+    } catch (error) { console.warn('Featured match unavailable', error); }
+  }
+  if (await ensureArchive()) restore();
+}
+for (const b of document.querySelectorAll('[data-mode]')) b.addEventListener('click',async () => {
+  if (!state || state.mode === b.dataset.mode || !await ensureArchive()) return;
   if (state && state.mode !== b.dataset.mode) {
     const next = {mode:b.dataset.mode};
     if (state.mode==='match') {
@@ -213,7 +258,7 @@ $('finder').addEventListener('keydown',event=>{
 $('query').addEventListener('input',()=>{pageSize=30;filter()});
 $('more').addEventListener('click',()=>{const firstNew=pageSize;pageSize+=30;renderOptions();$('options').children[firstNew]?.focus()});
 $('search-form').addEventListener('submit',e=>{e.preventDefault();if(options.length)choose(options[0].key)});
-window.addEventListener('popstate',()=>{if (archive.length) restore()});
+window.addEventListener('popstate',()=>{boot()});
 boot();
 // Section jumps share the current URL with the active analysis selection.
 document.addEventListener('click',event=>{
