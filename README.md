@@ -135,8 +135,8 @@ shows the site's design settings; it stays out of the sitemap but is not
 access-controlled.
 
 The canonical address is `www.nslanalytics.com`, with Vercel as the production host.
-A push to `main` can trigger a deployment. The current Netlify configuration skips
-new builds. `astro.config.mjs` sets the canonical URL; `vercel.json` and
+A push to `main` can trigger a deployment. Netlify builds the same static site for the
+mirror at `nlekhi.netlify.app`. `astro.config.mjs` sets the canonical URL; `vercel.json` and
 `netlify.toml` define host security headers. Astro adds per-page script and style
 hashes during the build. The [security checklist](docs/security-checklist.md)
 records the distinction between browser protections and account checks.
