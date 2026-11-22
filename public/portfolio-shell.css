@@ -36,7 +36,7 @@ body > header.portfolio-header .portfolio-mast > nav {
   gap: 0;
   padding: 0;
 }
-.portfolio-header a, body > header.portfolio-header .portfolio-mast > nav a, .portfolio-header summary {
+.portfolio-header a, .portfolio-header summary {
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -48,6 +48,10 @@ body > header.portfolio-header .portfolio-mast > nav {
   font: inherit;
   text-decoration: none;
   cursor: pointer;
+}
+body > header.portfolio-header .portfolio-mast > nav > a {
+  font-size: inherit;
+  padding: .5rem var(--shell-pad);
 }
 .portfolio-header .portfolio-brand { padding-inline: 0; gap: .75rem; font-weight: 600; }
 .portfolio-brand img { width: 3.5rem; height: auto; }
