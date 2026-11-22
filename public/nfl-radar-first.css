@@ -1,0 +1,126 @@
+body.standard-page[data-project="nfl"] .std-intro {
+  padding-block: clamp(16px, 3vw, 36px) 14px;
+}
+
+body.standard-page[data-project="nfl"] .std-intro h1 {
+  margin: 0;
+  font-size: clamp(2rem, 7vw, 4.5rem);
+  letter-spacing: -.035em;
+}
+
+nfl-comparison .nfl-view-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-block: 12px 6px;
+}
+
+nfl-comparison .nfl-view-bar [data-project-views]:not([hidden]) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+}
+
+nfl-comparison .nfl-view-bar button { min-height: 44px; }
+nfl-comparison .nfl-view-bar .nfl-swap { padding-inline: 8px; gap: 4px; font-size: .8125rem; }
+nfl-comparison .nfl-swap-ball { width: 54px; height: 22px; }
+
+nfl-comparison .fan-controls {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+body.standard-page[data-project="nfl"] .std-workspace .fan-controls :is(input[type="search"], select) {
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding-block: 6px;
+  padding-inline: 9px;
+  font-size: 1rem;
+}
+
+nfl-comparison .radar-prototype { margin-top: 8px; }
+body.standard-page[data-project="nfl"] .std-workspace .radar-layout { display: block; }
+nfl-comparison .radar-figure { max-width: 40rem; margin-inline: auto; }
+nfl-comparison .radar-series-key { gap: 4px 12px; margin-block: 0 4px; }
+nfl-comparison .radar-series-key > span { min-width: 0; }
+
+nfl-comparison .radar-series-key svg { width: 30px; }
+nfl-comparison .radar-figure .chart-expand { margin: 0 0 4px; }
+nfl-comparison .radar-figure figcaption,
+nfl-comparison .stat-plot figcaption { margin-block: 8px; }
+nfl-comparison .nfl-radar-tools { margin-block: 12px; }
+nfl-comparison :is(.nfl-radar-tools details, .stat-evidence, .radar-detail) > summary {
+  display: list-item;
+  min-height: 44px;
+  padding-block: 11px;
+  box-sizing: border-box;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+nfl-comparison .nfl-filter-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 16px;
+}
+
+nfl-comparison .nfl-stat-counts {
+  list-style: none;
+  margin-block: 12px;
+  padding: 0;
+  font-size: .95rem;
+}
+
+nfl-comparison .nfl-stat-counts li:not([hidden]) { display: flex; flex-wrap: wrap; gap: 0 10px; }
+nfl-comparison .nfl-stat-counts [data-stat-player] { font-weight: 600; }
+nfl-comparison .nfl-stat-context { font-size: .95rem; }
+nfl-comparison .nfl-stat-context:empty { display: none; }
+nfl-comparison .profile-readout :is(th, td) { overflow-wrap: anywhere; }
+nfl-comparison .nfl-methods { margin-block: 16px 32px; }
+
+@media (max-width: 40rem) {
+  nfl-comparison .player-season { grid-template-columns: minmax(0, 1fr); gap: 5px; }
+  nfl-comparison .nfl-view-bar [role="tab"] { padding-inline: 8px; font-size: .8125rem !important; }
+  nfl-comparison .nfl-view-bar .nfl-swap { padding-inline: 5px; }
+  nfl-comparison .nfl-swap-ball { width: 38px; height: 16px; }
+  nfl-comparison .radar-series-key { font-size: .875rem; }
+}
+
+body.standard-page[data-project="nfl"] :is(.std-intro h1, .std-workspace > section) {
+  max-width: 50rem;
+  margin-inline: auto;
+}
+
+body.standard-page[data-project="nfl"] .std-workspace .nfl-view-bar .project-views {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+body.standard-page[data-project="nfl"] .std-workspace .radar-figure { margin-inline: auto; }
+body.standard-page[data-project="nfl"] .nfl-methods {
+  width: min(calc(100% - 36px), 50rem);
+  margin: 16px auto 32px;
+}
+
+@media (max-width: 40rem) {
+  body.standard-page[data-project="nfl"] .std-workspace .fan-controls .player-season {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  body.standard-page[data-project="nfl"] .std-workspace .nfl-view-bar button {
+    gap: 4px;
+    padding-inline: 8px;
+  }
+
+  nfl-comparison .nfl-view-bar .nfl-swap-ball { width: 28px; height: 12px; }
+}
+
+/* Leave the full field width to the selected name when the picker is closed. */
+nfl-comparison input[type="search"]:not(:focus)::-webkit-search-cancel-button {
+  appearance: none;
+  display: none;
+}

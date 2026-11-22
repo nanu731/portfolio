@@ -41,7 +41,7 @@ The five outcome spokes use radius `P / 100`; 50 describes midpoint standing, no
 
 Farther out means higher same-year standing on that outcome. Cross-year comparisons use different reference cohorts; they do not establish absolute ability or trait improvement. Equal percentile gaps need not mean equal differences in native outcomes or ability. The three depth outcomes share context and correlated evidence, so they do not count as three independent skill votes. Compare one spoke at a time: no area, aggregate score or winner combines them. Lines join adjacent available positions only. No line bridges a gap. The final edge closes only when all seven positions are available; the shape has no fill.
 
-Optional full evidence retains raw values, counts and native-unit conditional game-based ranges. **Those raw ranges are not percentile confidence intervals.** They do not form a joint confidence region, predict performance or test a player/year difference. Individual sack-avoidance uncertainty was not estimated. The negative-depth diagnostic remains outside the radar. [Read the range assumptions](#nfl-method-uncertainty), [the play populations](#nfl-definition-populations), [the sack formula](#nfl-definition-sack-avoidance), and [the scramble formula](#nfl-definition-runs).
+Optional full evidence retains raw values, counts and native-unit conditional game-based ranges. **Those raw ranges are not percentile confidence intervals.** They do not form a joint confidence region, predict performance or test a player/year difference. Individual sack-avoidance uncertainty was not estimated. The negative-depth diagnostic remains outside the radar. [Read the range assumptions](#nfl-method-uncertainty), [the play populations](#nfl-definition-populations), [the sack formula](#nfl-definition-sack-avoidance), and [the scramble formula](#nfl-definition-annual-mobility).
 
 <h3 id="nfl-unmeasured-traits" tabIndex={-1} data-reference-target>Expert assessments: source, coverage and measurement limits</h3>
 
@@ -217,7 +217,7 @@ Season statistics come from nflverse play-by-play. Percentiles compare each quar
 
 <h3 id="nfl-attribute-arm-strength" tabIndex={-1} data-reference-target>Arm strength</h3>
 
-Throwing power, including deep passes and throws into tight windows. Here, the value is an expert arm-strength rank, not a measurement of ball speed. A lower rank number is better.
+ESPN’s preseason ranking of throwing power, including deep throws and tight windows. A lower rank number is better.
 
 Source: ESPN’s 2021–2025 preseason arm-strength rankings. The selected edition is linked beside the profile. An unlisted player is not necessarily a weak thrower. [Sources and methods](#nfl-unmeasured-traits).
 
@@ -225,7 +225,7 @@ Source: ESPN’s 2021–2025 preseason arm-strength rankings. The selected editi
 
 <h3 id="nfl-attribute-processing" tabIndex={-1} data-reference-target>Processing</h3>
 
-Reading the defense and finding passing options. Here, Processing uses ESPN field vision in 2021–2023 or decision-making with the football in 2024–2025. Each describes a different part of processing. These expert opinions do not measure thinking speed or complete decision quality. A lower rank number is better within the named list.
+ESPN ranks field vision for 2021–2023 and decision-making for 2024–2025. The two lists cover different parts of reading a defense and choosing a throw. The lists provide partial evidence about processing.
 
 Source: ESPN preseason field-vision rankings (2021–2023) and decision-making rankings (2024–2025). These lists assess different parts of processing; their rank changes do not measure improvement. [Sources and methods](#nfl-unmeasured-traits).
 
@@ -233,7 +233,7 @@ Source: ESPN preseason field-vision rankings (2021–2023) and decision-making r
 
 <h3 id="nfl-attribute-pocket-presence" tabIndex={-1} data-reference-target>Pocket presence</h3>
 
-Moving in the pocket and responding to pressure. Here, the season stat is the percentage of recorded dropbacks that ended without a sack. Protection, receivers and decisions also affect it, so it does not isolate pocket movement.
+Share of passes, sacks and scrambles that ended without a sack. Pass protection, receivers and the quarterback’s decisions all affect it.
 
 Source: nflverse play-by-play. [Exact definition and formula](#nfl-definition-sack-avoidance).
 
@@ -241,7 +241,7 @@ Source: nflverse play-by-play. [Exact definition and formula](#nfl-definition-sa
 
 <h3 id="nfl-attribute-mobility" tabIndex={-1} data-reference-target>Mobility</h3>
 
-Escaping defenders and creating plays. Here, the season stat is how scramble plays changed the offense’s expected scoring outlook, spread over all included quarterback plays, not just scrambles. It combines scramble usage with shared play value. It does not measure speed or all rushing ability.
+Expected points added on scrambles, spread across all included quarterback plays. This reflects both how often the QB scrambles and the value of those plays.
 
 Source: nflverse play-by-play. An unresolved record keeps Kyle Boller’s 2007 value unavailable; 2011 is excluded. [Included plays, formula and limits](#nfl-definition-annual-mobility).
 
@@ -249,7 +249,7 @@ Source: nflverse play-by-play. An unresolved record keeps Kyle Boller’s 2007 v
 
 <h3 id="nfl-attribute-short-accuracy" tabIndex={-1} data-reference-target>Short accuracy</h3>
 
-Completing throws aimed 0 to under 10 yards beyond the line of scrimmage. Here, the stat compares completed passes with the model’s expected completions on those included throws. It does not directly measure where the ball was placed; receivers, defenders and throw choices also matter.
+Completions above or below expectation on throws aimed 0 to under 10 yards beyond the line of scrimmage. Catching, coverage and throw choice also affect the result.
 
 Source: nflverse play-by-play. [Depth bins and formula](#nfl-definition-depth).
 
@@ -257,7 +257,7 @@ Source: nflverse play-by-play. [Depth bins and formula](#nfl-definition-depth).
 
 <h3 id="nfl-attribute-medium-accuracy" tabIndex={-1} data-reference-target>Medium accuracy</h3>
 
-Completing throws aimed 10 to under 20 yards beyond the line of scrimmage. Here, the stat compares completed passes with the model’s expected completions on those included throws. It does not directly measure where the ball was placed; receivers, defenders and throw choices also matter.
+Completions above or below expectation on throws aimed 10 to under 20 yards beyond the line of scrimmage. Catching, coverage and throw choice also affect the result.
 
 Source: nflverse play-by-play. [Depth bins and formula](#nfl-definition-depth).
 
@@ -265,7 +265,7 @@ Source: nflverse play-by-play. [Depth bins and formula](#nfl-definition-depth).
 
 <h3 id="nfl-attribute-deep-accuracy" tabIndex={-1} data-reference-target>Deep accuracy</h3>
 
-Completing throws aimed 20 to under 70 yards beyond the line of scrimmage. Here, the stat compares completed passes with the model’s expected completions on those included throws. It does not directly measure where the ball was placed; receivers, defenders and throw choices also matter.
+Completions above or below expectation on throws aimed 20 to under 70 yards beyond the line of scrimmage. Catching, coverage and throw choice also affect the result.
 
 Source: nflverse play-by-play. [Depth bins and formula](#nfl-definition-depth).
 

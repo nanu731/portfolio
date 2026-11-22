@@ -22,7 +22,7 @@ function matchingPlayers(players:PlayerChoice[],value:string){
 function element(tag:string,attrs:Record<string,string|number>={},text?:string){const e=document.createElementNS(NS,tag);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,String(v));if(text!==undefined)e.textContent=text;return e;}
 function cell(tag:string,text:string){const e=document.createElement(tag);e.textContent=text;if(tag==='th')e.setAttribute('scope','row');return e;}
 type Axis={trait:string;title:string;label:string[];field?:string;bin?:string;target?:string;unit?:string;expert?:ExpertTrait|'processing';guide:string};
-type Selected={side:'a'|'b';id:string;name:string;year:number;row?:AnnualRow;legacy?:Row;mobility?:MobilityRow;depth:DepthRow[]};
+type Selected={side:'a'|'b';id:string;name:string;year:number;row?:AnnualRow;legacy?:Row;mobility?:MobilityRow;depth:DepthRow[];unavailable?:string};
 type Outcome={value:number|null;lower:number|null;upper:number|null;status:string;counts:string;reason:string};
 const AXES:Axis[]=[
  {trait:'Arm strength',guide:'nfl-attribute-arm-strength',title:'Arm strength',label:['Arm strength','Expert rank'],expert:'arm_strength',target:'nfl-unmeasured-traits'},
@@ -34,9 +34,9 @@ const AXES:Axis[]=[
  {trait:'Deep accuracy',guide:'nfl-attribute-deep-accuracy',title:'Deep completions above expectation',label:['Deep completions','above expectation','Deep accuracy proxy'],field:'deep_cpoe_pp',bin:'deep',target:'nfl-definition-depth',unit:'pp'},
 ];
 export const STATS=[
- {field:'cpoe_pp',label:'CPOE',target:'nfl-definition-cpoe',unit:'percentage points',digits:1,meaning:'Completed passes compared with the model’s expected completions on the included throws. Positive values mean more completions than expected.'},
- {field:'epa_per_dropback',label:'EPA per recorded dropback',target:'nfl-definition-epa-dropback',unit:'expected points per recorded dropback',digits:2,meaning:'Average change in the offense’s expected scoring value on recorded passes, sacks and scrambles.'},
- {field:'sack_avoidance_pct',label:'Sack avoidance',target:'nfl-definition-sack-avoidance',unit:'percent',digits:1,meaning:'The share of recorded dropbacks that ended without a sack. Protection, receivers and quarterback decisions also affect it.'},
+ {field:'cpoe_pp',label:'Completions vs. expected',target:'nfl-definition-cpoe',unit:'percentage points',digits:1,meaning:'How far the completion rate finished above or below the model’s expectation.'},
+ {field:'epa_per_dropback',label:'Value per dropback',target:'nfl-definition-epa-dropback',unit:'expected points per recorded dropback',digits:2,meaning:'Average change in expected points on passes, sacks and scrambles.'},
+ {field:'sack_avoidance_pct',label:'Plays without a sack',target:'nfl-definition-sack-avoidance',unit:'percent',digits:1,meaning:'Share of passes, sacks and scrambles that ended without a sack.'},
 ] as const;
 export function formatStatValue(field:string,value:number|null){
  if(value===null||!Number.isFinite(value))return 'Unavailable';
@@ -53,15 +53,21 @@ export function readableStatTicks(min:number,max:number){
 export function registerNFL(){
  if(customElements.get('nfl-comparison'))return;
  class NFLComparison extends HTMLElement{
-  annual?:AnnualPayload;depth?:DepthPayload;legacy?:Payload;mobility?:MobilityPayload;references?:PercentileReferences;mobilityReferences?:MobilityReferences;observer?:ResizeObserver;request=0;requiredMask=0;view:'profile'|'stats'='profile';statMetric:string='cpoe_pp';players:PlayerChoice[]=[];selectionNotice:Record<string,string>={a:"",b:""};suggestionState:Record<string,{matches:PlayerChoice[];active:number}>={a:{matches:[],active:-1},b:{matches:[],active:-1}};
+  annual?:AnnualPayload;depth?:DepthPayload;legacy?:Payload;mobility?:MobilityPayload;references?:PercentileReferences;mobilityReferences?:MobilityReferences;observer?:ResizeObserver;request=0;requiredMask=0;view:'profile'|'stats'='profile';statMetric:string='cpoe_pp';players:PlayerChoice[]=[];suggestionState:Record<string,{matches:PlayerChoice[];active:number}>={a:{matches:[],active:-1},b:{matches:[],active:-1}};
   control(key:string){return this.querySelector<HTMLSelectElement>(`[data-${key}]`)!;}
   search(side:string){return this.querySelector<HTMLInputElement>(`[data-search-${side}]`)!;}
   label(s:Selected){return s.id?`${s.name} · ${s.year||"choose season"}`:`Choose quarterback${s.year?" · "+s.year:""}`;}
   playerSeason(side:'a'|'b',id:string,year:number):Selected{
    return {side,id,year,name:this.players.find(p=>p.id===id)?.name??'',row:this.annual!.rows.find(r=>r.player_key===id&&r.season===year),legacy:this.legacy!.rows.find(r=>r.player_key===id&&r.season===year),mobility:this.mobility?.rows.find(r=>r.player_key===id&&r.season===year),depth:this.depth!.rows.filter(r=>r.player_key===id&&r.season===year)};
   }
-  selected(side:'a'|'b'):Selected{return this.playerSeason(side,this.control(side).value,Number(this.control(`season-${side}`).value));}
-  missing(s:Selected){return !s.id||!s.year?(this.selectionNotice[s.side]||'Choose a quarterback and season to compare.') : s.year===2011?'2011 is excluded from this comparison.':'No eligible player-season record: this year requires at least 200 included throws in ten games.';}
+  selected(side:'a'|'b'):Selected{
+   const id=this.control(side).value,year=Number(this.control(`season-${side}`).value);
+   const selection=this.playerSeason(side,id,year);
+   if(!id||!year||this.selectionMatches(id,year))return selection;
+   const unavailable=this.view==='stats'?'No season stats for this pick. Choose another season or quarterback.':`Missing ${this.missingRequirements(id,year)}. Clear filters or choose another season.`;
+   return {...selection,row:undefined,legacy:undefined,mobility:undefined,depth:[],unavailable};
+  }
+  missing(s:Selected){return s.unavailable??(!s.id?'Choose a quarterback.':!s.year?'Choose a season.':'No qualifying season. A QB needs 200 included throws in at least 10 games.');}
   outcome(s:Selected,a:Axis):Outcome{
    const empty=(reason:string):Outcome=>({value:null,lower:null,upper:null,status:'unavailable',counts:'',reason});
    if(!a.field)return empty('Expert assessment uses its separately attributed rank.');
@@ -76,6 +82,7 @@ export function registerNFL(){
   }
   referenceLabel(s:Selected,a:Axis){const p=this.standing(s,a);return `${s.year} · annual finite eligible peers · N=${p.n}`;}
   profilePoint(s:Selected,a:Axis):{radius:number|null;display:string;kind:string;rank:number|null;reason:string;fact?:ExpertRank}{
+   if(s.unavailable)return {radius:null,display:'Unavailable',kind:a.expert?'expert':'outcome',rank:null,reason:s.unavailable};
    if(a.expert){const fact=a.expert==='processing'?processingFor(s.year,s.id):expertFor(a.expert,s.year,s.id);return {radius:expertRadius(fact?.rank??null),display:fact?expertLabel(fact):'Unavailable',kind:'expert',rank:fact?.rank??null,fact,reason:fact?'':'No adopted expert assessment for this quarterback, category and preseason.'};}
    const p=this.standing(s,a);return {radius:p.percentile===null?null:p.percentile/100,display:displayPercentile(p.percentile),kind:'outcome',rank:null,reason:this.outcome(s,a).reason||p.reason};
   }
@@ -97,10 +104,8 @@ export function registerNFL(){
    if(navigate&&location.hash!==`#nfl-${view}-panel`)history.pushState({...history.state,nflAttributeOrigin:null},'',`#nfl-${view}-panel`);
    this.view=view;
    this.querySelectorAll<HTMLElement>('[data-view-panel]').forEach(panel=>panel.hidden=panel.dataset.viewPanel!==view);
-   this.querySelectorAll<HTMLElement>('[data-view-intro]').forEach(intro=>intro.hidden=intro.dataset.viewIntro!==view);
    this.querySelectorAll<HTMLButtonElement>('[data-project-view]').forEach(tab=>{const active=tab.dataset.projectView===view;tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;});
-   this.querySelector('[data-view-scope]')!.textContent=view==='profile'?'Attribute filters apply only to Attribute profile.':'Attribute filters are saved for Attribute profile. Stats comparison uses available season stats.';
-   if(this.annual){this.selectionNotice={a:'',b:''};for(const side of ['a','b'])this.reconcileSelection(side);this.render();}
+   if(this.annual){for(const side of ['a','b'])this.refreshPicker(side);this.render();}
   }
   readonly handleViewHistory=()=>{
    const view=location.hash==='#nfl-stats-panel'?'stats':location.hash==='#nfl-profile-panel'?'profile':null;
@@ -110,9 +115,9 @@ export function registerNFL(){
   };
   swapPlayers(){
    if(this.dataset.state!=='ready')return;
-   const pair=['a','b'].map(side=>({id:this.control(side).value,year:this.control(`season-${side}`).value,notice:this.selectionNotice[side]}));
+   const pair=['a','b'].map(side=>({id:this.control(side).value,year:this.control(`season-${side}`).value}));
    for(const [i,side] of ['a','b'].entries()){
-    const other=pair[1-i];this.control(side).value=other.id;this.selectionNotice[side]=other.notice;this.updateSeasons(side,other.year);this.refreshSearchSeason(side);
+    const other=pair[1-i];this.control(side).value=other.id;this.updateSeasons(side,other.year);this.refreshSearchSeason(side);
    }
    this.render();
    const ball=this.querySelector<HTMLElement>('[data-swap-ball]')!;
@@ -120,11 +125,11 @@ export function registerNFL(){
    if(!matchMedia('(prefers-reduced-motion: reduce)').matches)ball.animate([{backgroundPosition:'0% 0%'},{backgroundPosition:'100% 0%'}],{duration:700,easing:'steps(21)'});
   }
   loadExample(){
-   for(const [side,id]of [['a','00-0033873'],['b','00-0034857']]){this.control(side).value=id;this.updateSeasons(side,'2023');this.selectionNotice[side]='';this.refreshSearchSeason(side);}
+   for(const [side,id]of [['a','00-0033873'],['b','00-0034857']]){this.control(side).value=id;this.updateSeasons(side,'2023');this.refreshSearchSeason(side);}
    this.render();
   }
   readonly handleOutsidePointer=(event:PointerEvent)=>{
-   for(const side of ['a','b'])if(event.target instanceof Node&&!this.querySelector(`[data-combobox-${side}]`)!.contains(event.target))this.closeSuggestions(side);
+   for(const side of ['a','b'])if(event.target instanceof Node&&!this.querySelector(`[data-combobox-${side}]`)!.contains(event.target))this.dismissSearch(side);
   };
   // Preserve native fragment navigation; Back also returns keyboard focus to its chart link.
   readonly handleAttributeClick=(event:MouseEvent)=>{
@@ -157,30 +162,40 @@ export function registerNFL(){
   }
   seasonChoices(side:string){
    const id=this.control(side).value;
-   return [...this.annual!.season_catalog].sort((a,b)=>b.season-a.season).filter(y=>this.view!=='stats'&&!this.requiredMask||this.annual!.rows.some(r=>r.season===y.season&&(!id||r.player_key===id)&&this.selectionMatches(r.player_key,r.season)));
+   return [...this.annual!.season_catalog].sort((a,b)=>b.season-a.season).filter(y=>y.status==='exported'&&(
+    this.view==='profile'&&!this.requiredMask ||
+    this.annual!.rows.some(r=>r.season===y.season&&(!id||r.player_key===id)&&this.selectionMatches(r.player_key,r.season))
+   ));
   }
   updateSeasons(side:string,current=this.control(`season-${side}`).value){
    const select=this.control(`season-${side}`),choices=this.seasonChoices(side);
-   select.replaceChildren(...choices.map(y=>{const option=document.createElement('option');option.value=String(y.season);option.textContent=String(y.season)+(y.status==='source_blocked'?' · excluded':'');return option;}));
-   const available=!!current&&choices.some(y=>String(y.season)===current);
-   if(this.view==='stats'||!available){
-    const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent=choices.length?'Choose season':'No matching seasons';select.prepend(placeholder);select.value=available?current:'';
-   }else select.value=current;
-  }
-  reconcileSelection(side:string){
-   const id=this.control(side).value,year=Number(this.control(`season-${side}`).value);
-   if(id&&!(year?this.selectionMatches(id,year):this.annual!.rows.some(r=>r.player_key===id&&this.selectionMatches(id,r.season)))){
-    this.control(side).value='';this.selectionNotice[side]=this.view==='stats'?'Selection cleared: this quarterback and season has no available season-stat record. Choose an eligible player and year.':'Selection cleared: choose a quarterback and season with every checked attribute available.';
+   const options=choices.map(y=>new Option(String(y.season),String(y.season)));
+   if(this.view==='stats'||this.requiredMask||!current)options.unshift(new Option('Choose season',''));
+   // Keep the committed season visible while the active view excludes it.
+   if(current&&!choices.some(y=>String(y.season)===current)&&this.annual!.season_catalog.some(y=>y.status==='exported'&&String(y.season)===current)){
+    const retained=new Option(current+' · unavailable',current);
+    retained.disabled=true;
+    options.push(retained);
    }
-   this.updateSeasons(side);this.refreshSearchSeason(side);
+   select.replaceChildren(...options);
+   select.value=current;
+  }
+  refreshPicker(side:string){
+   this.updateSeasons(side);
+   this.refreshSearchSeason(side);
+  }
+  missingRequirements(id:string,year:number){
+   if(!year)return 'a season with the selected attributes';
+   const selected=this.playerSeason('a',id,year);
+   return AXES.filter((axis,i)=>(this.requiredMask&(1<<i))&&!Number.isFinite(this.profilePoint(selected,axis).radius)).map(axis=>axis.trait.toLowerCase()).join(', ');
   }
   changeRequirements(clear=false){
    const boxes=[...this.querySelectorAll<HTMLInputElement>('[data-require-attribute]')];
    if(clear)boxes.forEach(box=>box.checked=false);
    this.requiredMask=boxes.reduce((mask,box)=>mask|(box.checked?1<<Number(box.dataset.requireAttribute):0),0);
-   if(!this.requiredMask)this.selectionNotice={a:'',b:''};
-   for(const side of ['a','b'])this.reconcileSelection(side);
+   for(const side of ['a','b'])this.refreshPicker(side);
    this.render();
+   if(clear)this.querySelector<HTMLElement>('.nfl-filters > summary')?.focus();
   }
   seasonPlayers(side:string){
    const year=Number(this.control(`season-${side}`).value);
@@ -188,12 +203,19 @@ export function registerNFL(){
    return this.players.filter(p=>ids.has(p.id));
   }
   refreshSearchSeason(side:string){
-   this.closeSuggestions(side);this.search(side).value=this.selectedName(side);
-   const year=this.control(`season-${side}`).value;this.search(side).placeholder=year?`Search players in ${year}`:'Search eligible quarterbacks';this.suggestions(side).setAttribute('aria-label',year?`Players in ${year}`:'Players with an eligible season');
-   this.searchStatus(side,(this.selectedName(side)?`${this.selectedName(side)}, ${year||'choose a season'}.`:(this.selectionNotice[side]||`Choose a quarterback${year?' in '+year:' and season'}.`))+(!year&&this.view==='stats'?' Search across eligible seasons, then choose one season to show its stats.':''));
+   this.dismissSearch(side);
+   const year=this.control(`season-${side}`).value;
+   this.suggestions(side).setAttribute('aria-label',year?`Quarterbacks in ${year}`:'Quarterbacks across eligible seasons');
+  }
+  dismissSearch(side:string){
+   this.closeSuggestions(side);
+   const name=this.selectedName(side);
+   const input=this.search(side);
+   if(input.value!==name)input.value=name;
+   this.searchStatus(side,'Type a name or press Down Arrow to browse.');
   }
   suggestions(side:string){return this.querySelector<HTMLElement>(`[data-suggestions-${side}]`)!;}
-  searchStatus(side:string,text:string){this.querySelector(`[data-search-status-${side}]`)!.textContent=text;}
+  searchStatus(side:string,text:string){const status=this.querySelector(`[data-search-status-${side}]`)!;if(status.textContent!==text)status.textContent=text;}
   selectedName(side:string){return this.players.find(p=>p.id===this.control(side).value)?.name??'';}
   closeSuggestions(side:string){
    this.suggestions(side).hidden=true;this.search(side).setAttribute('aria-expanded','false');this.search(side).removeAttribute('aria-activedescendant');
@@ -202,15 +224,15 @@ export function registerNFL(){
   showSuggestions(side:string,all=false){
    if(this.search(side).disabled)return;
    const players=this.seasonPlayers(side);
-   this.closeSuggestions(side==='a'?'b':'a');
+   this.dismissSearch(side==='a'?'b':'a');
    const matches=all?[...players]:matchingPlayers(players,this.search(side).value);
    this.suggestionState[side]={matches,active:-1};this.search(side).removeAttribute('aria-activedescendant');this.renderSuggestions(side);this.suggestions(side).hidden=false;this.search(side).setAttribute('aria-expanded','true');
    const year=this.control(`season-${side}`).value||(this.view==='stats'?'eligible seasons; choose one season to display stats':'eligible seasons');
-   this.searchStatus(side,all?`${players.length} players in ${year}. Type to narrow the list.`:`${matches.length} ${matches.length===1?'player matches':'players match'} in ${year}.`);
+   this.searchStatus(side,all&&players.length?`${players.length} players in ${year}. Type to narrow the list.`:`${matches.length} ${matches.length===1?'player matches':'players match'} in ${year}.`);
   }
   renderSuggestions(side:string){
    const {matches,active}=this.suggestionState[side];
-   if(!matches.length){const empty=document.createElement('p');empty.className='no-results';empty.setAttribute('role','option');empty.setAttribute('aria-disabled','true');empty.setAttribute('aria-selected','false');const year=this.control(`season-${side}`).value;empty.textContent=this.view==='stats'?(year?`No players match in ${year}. Change the season, or choose “Choose season” to search across years.`:'No players match this search across eligible seasons. Try another name or choose a season to show its stats.'):'No players found. Try another name or season.';this.suggestions(side).replaceChildren(empty);return;}
+   if(!matches.length){const empty=document.createElement('p');empty.className='no-results';empty.setAttribute('role','option');empty.setAttribute('aria-disabled','true');empty.setAttribute('aria-selected','false');const year=this.control(`season-${side}`).value;empty.textContent=this.view==='profile'&&this.requiredMask?'No matches. Try another name or season, or clear filters.':year?`No matches for ${year}. Try another name or season.`:'No matches. Try another name.';this.suggestions(side).replaceChildren(empty);return;}
    this.suggestions(side).replaceChildren(...matches.map((p,i)=>{
     const option=document.createElement('div');option.id=`nfl-option-${side}-${p.id}`;option.className='suggestion-option';option.setAttribute('role','option');option.setAttribute('aria-selected',String(i===active));option.textContent=p.name;
     option.addEventListener('mousedown',e=>e.preventDefault());option.addEventListener('click',()=>this.choosePlayer(side,p));return option;
@@ -218,11 +240,11 @@ export function registerNFL(){
   }
   choosePlayer(side:string,p:PlayerChoice){
    if((this.view==='stats'||this.requiredMask)&&!this.seasonPlayers(side).some(choice=>choice.id===p.id))return;
-   this.control(side).value=p.id;this.selectionNotice[side]='';this.updateSeasons(side);this.refreshSearchSeason(side);this.render();
+   this.control(side).value=p.id;this.updateSeasons(side);this.refreshSearchSeason(side);this.render();
   }
   searchKeydown(side:string,e:KeyboardEvent){
    if(e.isComposing)return;
-   if(e.key==='Escape'||e.key==='Tab'){if(e.key==='Escape'&&!this.suggestions(side).hidden)e.preventDefault();this.closeSuggestions(side);return;}
+   if(e.key==='Escape'||e.key==='Tab'){if(e.key==='Escape')e.preventDefault();this.dismissSearch(side);return;}
    if(e.key==='ArrowDown'||e.key==='ArrowUp'){
     e.preventDefault();if(this.suggestions(side).hidden)this.showSuggestions(side,true);
     const state=this.suggestionState[side];if(!state.matches.length)return;
@@ -230,7 +252,9 @@ export function registerNFL(){
     this.renderSuggestions(side);const option=this.suggestions(side).children[state.active] as HTMLElement;this.search(side).setAttribute('aria-activedescendant',option.id);option.scrollIntoView({block:'nearest'});return;
    }
    if(e.key==='Enter'){
-    const state=this.suggestionState[side];if(!this.suggestions(side).hidden&&state.active>=0){e.preventDefault();this.choosePlayer(side,state.matches[state.active]);}
+    const {matches,active}=this.suggestionState[side];
+    const choice=active>=0?matches[active]:matches.length===1?matches[0]:undefined;
+    if(!this.suggestions(side).hidden&&choice){e.preventDefault();this.choosePlayer(side,choice);}
    }
   }
   openChart(view:'profile'|'stats'){
@@ -242,6 +266,7 @@ export function registerNFL(){
    // Copy the current vector drawing, keeping the selections and plotted values exact.
    const snapshot=source.cloneNode(true) as HTMLElement;
    snapshot.querySelector('[data-expand-chart]')?.remove();
+   if(view==='stats')snapshot.querySelector('figcaption')?.remove();
    const ids=new Map<string,string>();
    for(const node of [snapshot,...snapshot.querySelectorAll<HTMLElement|SVGElement>('*')]){
     if(node.id){ids.set(node.id,`nfl-enlarged-${node.id}`);node.id=`nfl-enlarged-${node.id}`;}
@@ -252,7 +277,7 @@ export function registerNFL(){
    snapshot.querySelectorAll('svg a').forEach(link=>{const group=document.createElementNS('http://www.w3.org/2000/svg','g');group.append(...link.childNodes);link.replaceWith(group);});
    snapshot.querySelector('svg:not([aria-hidden])')?.setAttribute('role','img');
    const metric=STATS.find(item=>item.field===this.statMetric)!;
-   this.querySelector('[data-chart-lightbox-title]')!.textContent=view==='profile'?'Attribute profile':metric.label;
+   this.querySelector('[data-chart-lightbox-title]')!.textContent=view==='profile'?'QB radar':metric.label;
    const unit=this.querySelector<HTMLElement>('[data-chart-lightbox-unit]')!;unit.hidden=view==='profile';unit.textContent=view==='stats'?metric.unit:'';
    const content=this.querySelector<HTMLElement>('[data-enlarged-content]')!;content.replaceChildren(snapshot);
    this.querySelector<HTMLButtonElement>(`[data-expand-chart="${view}"]`)!.focus({preventScroll:true});
@@ -262,10 +287,16 @@ export function registerNFL(){
    if(this.dataset.initialized)return;this.dataset.initialized='true';this.players=[...this.control('a').options].filter(o=>o.value).map(o=>({id:o.value,name:o.textContent!}));
    for(const side of ['a','b']){
     this.search(side).addEventListener('input',()=>this.showSuggestions(side));
-    this.search(side).addEventListener('focus',()=>this.showSuggestions(side,true));
+    this.search(side).addEventListener('focus',()=>this.search(side).select());
+    this.search(side).addEventListener('click',()=>{
+     if(this.suggestions(side).hidden){
+      this.search(side).select();
+      this.showSuggestions(side,true);
+     }
+    });
     this.search(side).addEventListener('keydown',e=>this.searchKeydown(side,e));
     const shell=this.querySelector<HTMLElement>(`[data-combobox-${side}]`)!;
-    shell.addEventListener('focusout',e=>{if(!(e.relatedTarget instanceof Node)||!shell.contains(e.relatedTarget))this.closeSuggestions(side);});
+    shell.addEventListener('focusout',e=>{if(!(e.relatedTarget instanceof Node)||!shell.contains(e.relatedTarget))this.dismissSearch(side);});
    }
    const dialog=this.querySelector<HTMLDialogElement>('[data-chart-lightbox]')!;
    this.querySelectorAll<HTMLElement>('[data-expandable-chart]').forEach(figure=>figure.addEventListener('click',event=>{
@@ -283,13 +314,15 @@ export function registerNFL(){
    this.querySelector<HTMLElement>('[data-project-views]')!.hidden=false;this.setView(location.hash==='#nfl-stats-panel'?'stats':'profile');
    this.querySelectorAll<HTMLInputElement>('[data-stat-metric]').forEach(input=>input.addEventListener('change',()=>{this.statMetric=input.value;this.render();}));
    document.addEventListener('pointerdown',this.handleOutsidePointer);this.addEventListener('click',this.handleAttributeClick);window.addEventListener('popstate',this.handleAttributeBack);window.addEventListener('hashchange',this.handleAttributeReturn);window.addEventListener('popstate',this.handleViewHistory);window.addEventListener('hashchange',this.handleViewHistory);
-   for(const side of ['a','b'])this.control(`season-${side}`).addEventListener('change',()=>{this.selectionNotice[side]='';this.reconcileSelection(side);this.render();});
+   for(const side of ['a','b'])this.control(`season-${side}`).addEventListener('change',()=>{this.refreshPicker(side);this.render();});
    this.querySelector('[data-retry]')!.addEventListener('click',()=>this.load());
-   this.querySelector('[data-complete-example]')!.addEventListener('click',()=>this.loadExample());
+   this.querySelector('[data-complete-example]')!.addEventListener('click',()=>{
+    this.loadExample();
+    this.querySelector<HTMLElement>('#nfl-radar-heading')!.focus();
+   });
    this.querySelector('[data-swap-players]')!.addEventListener('click',()=>this.swapPlayers());
    this.querySelectorAll('[data-require-attribute]').forEach(box=>box.addEventListener('change',()=>this.changeRequirements()));
    this.querySelector('[data-clear-requirements]')!.addEventListener('click',()=>this.changeRequirements(true));
-   this.querySelectorAll('[data-sack-section],[data-comparison-evidence]').forEach(e=>e.addEventListener('toggle',()=>{if(this.annual)this.render(false);}));
    this.observer=new ResizeObserver(()=>{if(this.annual)this.render(false);});this.querySelectorAll('[data-chart-host]').forEach(e=>this.observer!.observe(e));this.load();
   }
   disconnectedCallback(){this.observer?.disconnect();document.removeEventListener('pointerdown',this.handleOutsidePointer);this.removeEventListener('click',this.handleAttributeClick);window.removeEventListener('popstate',this.handleAttributeBack);window.removeEventListener('hashchange',this.handleAttributeReturn);window.removeEventListener('popstate',this.handleViewHistory);window.removeEventListener('hashchange',this.handleViewHistory);this.querySelector<HTMLDialogElement>('[data-chart-lightbox]')?.close();this.request++;}
@@ -299,7 +332,7 @@ export function registerNFL(){
    this.querySelectorAll('[data-selected-values],[data-radar-values],[data-selected-depth]').forEach(e=>e.replaceChildren());
    this.querySelectorAll<HTMLElement>('[data-profile-values] td').forEach(td=>{td.textContent='Unavailable';td.className='unavailable';td.removeAttribute('data-rank');td.removeAttribute('data-percentile');});
    this.querySelectorAll('[data-counts],[data-pair-legend],[data-expert-summary],[data-radar-counts],[data-radar-gaps],[data-availability-a],[data-availability-b]').forEach(e=>e.textContent='');
-   this.querySelectorAll<HTMLElement>('[data-stat-value],[data-stat-counts],[data-stat-range],[data-stat-player]').forEach(e=>{e.textContent='Unavailable';e.removeAttribute('data-value');});
+   this.querySelectorAll<HTMLElement>('[data-stat-counts],[data-stat-player]').forEach(e=>{e.textContent='Unavailable';e.removeAttribute('data-value');});
    this.querySelectorAll('[data-radar-legend-name]').forEach(e=>e.textContent='Unavailable');
    const methodNote=this.querySelector<HTMLElement>('[data-expert-method-note]')!;methodNote.textContent='';methodNote.hidden=true;
    this.querySelector('[data-radar-a]')!.textContent='Quarterback A';this.querySelector('[data-radar-b]')!.textContent='Quarterback B';
@@ -314,22 +347,23 @@ export function registerNFL(){
     if(responses.some(r=>!r.ok))throw Error('Data unavailable');const bytes=await Promise.all(responses.map(async r=>new Uint8Array(await r.arrayBuffer())));
     const [{annual,depth},legacy]=await Promise.all([validateAnnualDepth(bytes[0],bytes[1],bytes[2],bytes[3]),validatePair(bytes[4],bytes[5])]);const mobility=await validateAnnualMobility(bytes[6],bytes[7],annual,legacy);validateExpertRanks(EXPERT_RANKS);const [references,mobilityReferences]=await Promise.all([buildPercentileReferences(annual,depth,legacy),buildMobilityReferences(mobility)]);await document.fonts.ready;
     if(token!==this.request||!this.isConnected)return;this.annual=annual;this.depth=depth;this.legacy=legacy;this.mobility=mobility;this.references=references;this.mobilityReferences=mobilityReferences;this.dataset.state='ready';
-    this.querySelectorAll<HTMLSelectElement|HTMLInputElement|HTMLButtonElement>('select,input[type=search],[data-complete-example],[data-require-attribute],[data-clear-requirements],[data-stat-metric],[data-expand-chart],[data-swap-players]').forEach(e=>e.disabled=false);for(const side of ['a','b'])this.reconcileSelection(side);this.render();if(restore)this.search('a').focus();
-   }catch{if(token!==this.request)return;this.clear();this.dataset.state='error';this.querySelector('[data-comparison-status]')!.textContent='The comparison data could not be verified. Retry, or open Data and research details below for tables and downloads.';this.querySelector<HTMLButtonElement>('[data-retry]')!.hidden=false;}
+    this.querySelectorAll<HTMLSelectElement|HTMLInputElement|HTMLButtonElement>('select,input[type=search],[data-complete-example],[data-require-attribute],[data-clear-requirements],[data-stat-metric],[data-expand-chart],[data-swap-players]').forEach(e=>e.disabled=false);for(const side of ['a','b'])this.refreshPicker(side);this.render();if(restore)this.search('a').focus();
+   }catch{if(token!==this.request)return;this.clear();this.dataset.state='error';this.querySelector('[data-comparison-status]')!.textContent='Comparison data couldn’t load. Retry or open Methods & data below.';this.querySelector<HTMLButtonElement>('[data-retry]')!.hidden=false;}
   }
   render(announce=true){
    if(!this.annual||!this.depth||!this.legacy)return;
    const active=document.activeElement,focusedLink=active instanceof SVGElement&&active.matches('.radar-attribute-link')&&this.contains(active)?active.id:null;
    const pair=[this.selected('a'),this.selected('b')];
-   pair.forEach(s=>{this.querySelector(`[data-availability-${s.side}]`)!.textContent=s.row?'':`${s.side.toUpperCase()} · ${this.label(s)}: ${this.missing(s)}${s.id&&s.year?' The selection is retained.':''}`;});
+   pair.forEach(s=>{this.querySelector(`[data-availability-${s.side}]`)!.textContent=s.row?'':`${s.id&&s.year?this.label(s):'Quarterback '+s.side.toUpperCase()}: ${this.missing(s)}`;});
    this.drawRadar(pair);this.renderEvidence(pair);
-   this.querySelectorAll<SVGSVGElement>('svg[data-field]').forEach(svg=>{const main=svg.closest<HTMLDetailsElement>('[data-comparison-evidence]'),sack=svg.closest<HTMLDetailsElement>('[data-sack-section]');if(!main?.open||(sack&&!sack.open)){svg.replaceChildren();svg.setAttribute('hidden','');return;}const width=Math.round(svg.parentElement!.getBoundingClientRect().width);if(width>0)this.draw(svg,pair,svg.dataset.field!,width);});
    for(const field of ['epa_per_dropback','cpoe_pp','sack_avoidance_pct']){
     const body=this.querySelector(`[data-evidence="${field}"] [data-selected-values]`)!;body.replaceChildren();
     pair.forEach(s=>{const tr=document.createElement('tr');tr.append(cell('th',`${s.side.toUpperCase()} · ${this.label(s)}`));const r=s.row;if(!r){tr.append(cell('td','Unavailable'),cell('td',this.missing(s)));if(field==='epa_per_dropback')tr.append(cell('td','Unavailable'));}else{tr.append(cell('td',fmt(r[field])),cell('td',field==='cpoe_pp'?`${r.eligible_throws} throws in ${r.eligible_games} games`:`${r.dropbacks} dropbacks in ${r.dropback_games} games${field==='sack_avoidance_pct'?`; ${r.sacks} sacks`:''}`));if(field==='epa_per_dropback')tr.append(cell('td',`${fmt(r.epa_lower)} to ${fmt(r.epa_upper)}; ${r.epa_interval_status.replaceAll('_',' ')}`));}body.append(tr);});
    }
-   for(const [tag,field]of [['epa','dropbacks'],['cpoe','eligible_throws']])this.querySelector(`[data-counts="${tag}"]`)!.textContent=pair.map(s=>`${s.side.toUpperCase()} · ${this.label(s)}: ${s.row?`${s.row[field]} ${tag==='epa'?'dropbacks':'included throws'}`:'Unavailable'}`).join(' · ');
-   this.querySelector('[data-pair-legend]')!.textContent=`Filled circle: A, ${this.label(pair[0])}. Open diamond: B, ${this.label(pair[1])}.`;
+   const activeFilters=this.requiredMask.toString(2).replaceAll('0','').length;
+   this.querySelector('[data-filter-count]')!.textContent=activeFilters?` (${activeFilters})`:'';
+   this.querySelector<HTMLButtonElement>('[data-clear-requirements]')!.hidden=!activeFilters;
+   this.querySelector<HTMLElement>('[data-view-scope]')!.hidden=!activeFilters||this.view==='profile';
    this.renderStats(pair);
    // SVG replacement must not discard the reader's current chart-link focus.
    if(focusedLink&&this.view==='profile'&&(document.activeElement===document.body||document.activeElement===active)){
@@ -341,16 +375,14 @@ export function registerNFL(){
    const metric=STATS.find(item=>item.field===this.statMetric)!;
    this.querySelector('[data-stat-meaning]')!.textContent=metric.meaning;
    this.querySelector('[data-stat-unit]')!.textContent=metric.unit;
+   this.querySelector('[data-stat-label]')!.setAttribute('href','#'+metric.target);
+   this.querySelectorAll<HTMLDetailsElement>('[data-evidence]').forEach(detail=>{detail.hidden=detail.dataset.evidence!==metric.field;});
    pair.forEach(selected=>{
-    const card=this.querySelector(`[data-stat-side="${selected.side}"]`)!,row=selected.row,value=card.querySelector<HTMLElement>('[data-stat-value]')!;
-    card.querySelector('[data-stat-player]')!.textContent=`${selected.side.toUpperCase()} · ${this.label(selected)}`;
-    card.querySelector('[data-stat-label]')!.textContent=metric.label;card.querySelector('[data-stat-label]')!.setAttribute('href','#'+metric.target);
-    card.querySelector('[data-stat-units]')!.textContent=metric.unit;
-    value.removeAttribute('data-value');value.textContent=row?formatStatValue(metric.field,row[metric.field]):'Unavailable';
-    if(row)value.dataset.value=String(row[metric.field]);
-    card.querySelector('[data-stat-counts]')!.textContent=!row?this.missing(selected):metric.field==='cpoe_pp'?`${row.eligible_throws} included throws across ${row.eligible_games} games`:`${row.dropbacks} recorded dropbacks across ${row.dropback_games} games${metric.field==='sack_avoidance_pct'?`; ${row.sacks} sacks`:''}`;
-    const range=this.querySelector(`[data-stat-range="${selected.side}"]`)!;
-    range.textContent=`${selected.side.toUpperCase()} · ${this.label(selected)}: `+(!row?'Unavailable':metric.field==='epa_per_dropback'?(row.epa_lower!==null?`${fmt(row.epa_lower)} to ${fmt(row.epa_upper)} expected points per recorded dropback; ${row.epa_interval_status.replaceAll('_',' ')}`:row.epa_interval_status.replaceAll('_',' ')):'Individual ranges were not estimated for this statistic.');
+    const sample=this.querySelector<HTMLElement>(`[data-stat-side="${selected.side}"]`)!;
+    const row=selected.row;
+    sample.hidden=!row;
+    sample.querySelector('[data-stat-player]')!.textContent=this.label(selected);
+    sample.querySelector('[data-stat-counts]')!.textContent=!row?'':metric.field==='cpoe_pp'?`${row.eligible_throws} throws in ${row.eligible_games} games`:`${row.dropbacks} dropbacks in ${row.dropback_games} games`;
    });
    const svg=this.querySelector<SVGSVGElement>('[data-stat-plot]')!;
    if(this.view!=='stats'){svg.replaceChildren();svg.setAttribute('hidden','');return;}
@@ -405,18 +437,17 @@ export function registerNFL(){
     else if(axis.expert)this.appendExpertValue(td,selected,axis);
     else{const p=this.standing(selected,axis);td.dataset.percentile=String(p.percentile);td.append(cell('strong',point.display),cell('small','percentile'));}
    }));
-   this.querySelector('[data-profile-a]')!.textContent='A';this.querySelector('[data-profile-b]')!.textContent='B';
+   for(const selected of pair)this.querySelector(`[data-profile-${selected.side}]`)!.textContent=this.label(selected);
    const incomplete=pair.some(s=>AXES.some(a=>this.profilePoint(s,a).radius===null)),gaps=this.querySelector<HTMLElement>('[data-radar-gaps]')!;
    gaps.hidden=!incomplete;gaps.textContent=incomplete?'Unavailable attributes are left blank.':'';
    this.querySelector<HTMLButtonElement>('[data-complete-example]')!.hidden=!incomplete;
-   this.querySelector('[data-profile-window]')!.textContent='Expert ranks describe their listed preseason. Stats describe each selected regular season.';
-   const opinions=pair.flatMap(s=>[expertFor('arm_strength',s.year,s.id),processingFor(s.year,s.id)]).filter((fact):fact is ExpertRank=>!!fact),mixed=mixedExpertSources(opinions);
+   const opinions=pair.filter(s=>!s.unavailable).flatMap(s=>[expertFor('arm_strength',s.year,s.id),processingFor(s.year,s.id)]).filter((fact):fact is ExpertRank=>!!fact),mixed=mixedExpertSources(opinions);
    const notice=this.querySelector<HTMLElement>('[data-expert-method-note]')!;notice.hidden=!mixed;notice.textContent=mixed?'These expert lists use different editions or methods. Rank changes do not measure improvement.':'';
    const summary=this.querySelector('[data-expert-summary]')!;summary.replaceChildren();
    const sources=new Map<number,{fact:ExpertRank;sides:string[]}>();
-   for(const selected of pair)for(const fact of [expertFor('arm_strength',selected.year,selected.id),processingFor(selected.year,selected.id)])if(fact){const entry=sources.get(fact.year)??{fact,sides:[]};if(!entry.sides.includes(selected.side))entry.sides.push(selected.side);sources.set(fact.year,entry);}
+   for(const selected of pair.filter(s=>!s.unavailable))for(const fact of [expertFor('arm_strength',selected.year,selected.id),processingFor(selected.year,selected.id)])if(fact){const entry=sources.get(fact.year)??{fact,sides:[]};if(!entry.sides.includes(selected.side))entry.sides.push(selected.side);sources.set(fact.year,entry);}
    if(sources.size){summary.append('Expert rankings: ');let i=0;for(const {fact,sides}of sources.values()){if(i++)summary.append(' · ');const source=expertSource(fact),link=document.createElement('a');link.href=source.url;link.textContent=`${sides.length===2?'':sides.join('/').toUpperCase()+' · '}${fact.year} preseason · ${source.shortAuthors} · ${source.published}`;summary.append(link);}}
-   this.querySelector('[data-radar-a]')!.textContent=`A · ${this.label(pair[0])}`;this.querySelector('[data-radar-b]')!.textContent=`B · ${this.label(pair[1])}`;pair.forEach(s=>{this.querySelector(`[data-radar-legend-name="${s.side}"]`)!.textContent=`${s.side.toUpperCase()} · ${this.label(s)}`;});this.querySelector('[data-radar-counts]')!.textContent='All five outcomes use their own fixed same-year finite annual-eligible peers. The one blocked Mobility point is excluded from its percentile pool. Raw ranges are not percentile intervals.';
+   this.querySelector('[data-radar-a]')!.textContent=`A · ${this.label(pair[0])}`;this.querySelector('[data-radar-b]')!.textContent=`B · ${this.label(pair[1])}`;pair.forEach(s=>{this.querySelector(`[data-radar-legend-name="${s.side}"]`)!.textContent=this.label(s);});this.querySelector('[data-radar-counts]')!.textContent='Each stat uses eligible passers with data for that season. Ranges describe the recorded values.';
    const selected=this.querySelector('[data-selected-depth]')!;selected.replaceChildren();pair.forEach(s=>{if(!s.row){const tr=document.createElement('tr');tr.append(cell('th',`${s.side.toUpperCase()} · ${this.label(s)}`),cell('td','Unavailable'),cell('td',this.missing(s)),cell('td','Unavailable'));selected.append(tr);return;}s.depth.forEach(r=>{const tr=document.createElement('tr');tr.dataset.side=s.side;tr.dataset.bin=r.bin;tr.append(cell('th',`${s.side.toUpperCase()} · ${this.label(s)} · ${r.bin} [${r.air_yards_lower}, ${r.air_yards_upper})`),cell('td',fmt(r.cpoe_pp)),cell('td',`${r.bin_throws} throws; ${r.positive_bin_games} positive-bin games / ${r.eligible_games} all E games`),cell('td',`${fmt(r.lower)} to ${fmt(r.upper)} pp; ${r.interval_status.replaceAll('_',' ')}`));selected.append(tr);});});
   }
   draw(svg:SVGSVGElement,pair:Selected[],field:string,width:number,showRanges=true){
