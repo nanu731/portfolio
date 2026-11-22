@@ -1,107 +1,50 @@
 ---
 import { SITE_TITLE } from '../consts';
-import HeaderLink from './HeaderLink.astro';
+import manifest from '../prepared-projects/manifest.json';
+import { getPreparedProject } from '../lib/prepared-projects';
+
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const current = (href: string) => path === (href.replace(/\/$/, '') || '/') ? 'page' : undefined;
+const projects = manifest.projects.map(({ slug }) => getPreparedProject(slug)!);
+const comparison = projects.find(project => project.kind === 'comparison');
+const links = [['/blog/', 'Blog'], ['/about/', 'About'], ['/contact/', 'Contact'], ['https://github.com/nanu731', 'GitHub']];
 ---
-
-<header>
-	<nav>
-		<h2><a href="/"><img class="site-logo" src="/nsl-logo.svg" width="344" height="156" alt="" /><span>{SITE_TITLE}</span></a></h2>
-		<div class="internal-links">
-			<HeaderLink href="/">Home</HeaderLink>
-			<HeaderLink href="/projects">Projects</HeaderLink>
-			<HeaderLink href="/blog">Blog</HeaderLink>
-			<HeaderLink href="/about">About</HeaderLink>
-			<HeaderLink href="/contact">Contact</HeaderLink>
-		</div>
-		<div class="social-links">
-			<a href="https://github.com/nanu731" target="_blank" rel="me noopener">
-				<span class="sr-only">Narayan Lekhi on GitHub</span>
-				<svg viewBox="0 0 16 16" aria-hidden="true" width="32" height="32"
-					><path
-						fill="currentColor"
-						d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"
-					></path></svg
-				>
-			</a>
-		</div>
-	</nav>
+<header class="portfolio-header">
+  <div class="portfolio-mast">
+    <a class="portfolio-brand" href="/"><img src="/nsl-logo.svg" width="344" height="156" alt="" />{SITE_TITLE}</a>
+    <nav aria-label="Primary navigation">
+      <a href="/" aria-current={current('/')}>Home</a>
+      <details class="portfolio-projects">
+        <summary class:list={[{ 'current-section': path.startsWith('/projects') }]}>Projects</summary>
+        <div class="portfolio-menu">
+          <a href="/projects/" aria-current={current('/projects/')}>All projects</a>
+          {projects.filter(project => project.kind !== 'comparison').map(project => (
+            <>
+              <a href={`/projects/${project.slug}/`} aria-current={current(`/projects/${project.slug}/`)}>{project.title}</a>
+              {project.kind === 'shots' && comparison &&
+                <a class="subproject" href={`/projects/${comparison.slug}/`} aria-current={current(`/projects/${comparison.slug}/`)}>{comparison.title}</a>}
+            </>
+          ))}
+        </div>
+      </details>
+      {links.map(([href, label]) => <a href={href} aria-current={current(href)}>{label}</a>)}
+    </nav>
+  </div>
 </header>
-<style>
-	/* Full-width bar, but its contents align to the same inset every band below
-	   uses, so the header shares the page's left edge instead of spreading to the
-	   viewport corners. */
-	header {
-		margin: 0;
-		container-type: inline-size;
-		background: var(--cream);
-		border-bottom: var(--rule) solid var(--green);
-	}
-	h2 {
-		margin: 0;
-		margin-inline-end: auto;
-		font-family: var(--font-display);
-		font-size: var(--type-body);
-		font-variation-settings: 'opsz' 18, 'SOFT' 0, 'WONK' 0;
-	}
-
-	.site-logo {
-		width: var(--space-2xl);
-		height: auto;
-		flex: none;
-	}
-	h2 a {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: var(--space-xs);
-	}
-	h2 a,
-	h2 a.active {
-		text-decoration: none;
-	}
-	nav {
-		display: flex;
-		align-items: center;
-		gap: var(--space-m);
-		padding-inline: var(--space-m);
-	}
-	@media (min-width: 48rem) {
-		nav {
-			padding-inline: var(--space-l);
-		}
-	}
-	nav a {
-		padding: var(--space-s) var(--space-2xs);
-		color: var(--green);
-		border-bottom: var(--rule-thick) solid transparent;
-		text-decoration: none;
-	}
-	nav a:hover {
-		background: none;
-		color: var(--accent);
-	}
-	nav a.active {
-		text-decoration: none;
-		border-bottom-color: var(--accent);
-	}
-	.social-links,
-	.social-links a {
-		display: flex;
-	}
-	@media (max-width: 720px) {
-		.social-links {
-			display: none;
-		}
-	}
-	@media (max-width: 47.999rem) {
-		nav { flex-wrap: wrap; gap: 0 var(--space-s); }
-		h2 { flex-basis: 100%; }
-		.site-logo { width: var(--space-xl); }
-		.internal-links { display: flex; flex-wrap: wrap; }
-	}
-	/* Retain enlarged-text reflow on wider viewports. */
-	@container (width < 15em) {
-		nav { flex-wrap: wrap; gap: 0 var(--space-s); }
-		.internal-links { min-width: 0; width: 100%; }
-	}
-</style>
+<script>
+  const menu = document.querySelector<HTMLDetailsElement>('.portfolio-projects');
+  if (menu) {
+    document.addEventListener('click', event => {
+      if (event.target instanceof Node && !menu.contains(event.target)) menu.open = false;
+    });
+    document.addEventListener('focusin', event => {
+      if (event.target instanceof Node && !menu.contains(event.target)) menu.open = false;
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && menu.open) {
+        menu.open = false;
+        menu.querySelector('summary')?.focus();
+      }
+    });
+  }
+</script>
