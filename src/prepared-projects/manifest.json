@@ -10,12 +10,12 @@
     {
       "slug": "nba-economics",
       "sourceSha256": "cb1c3f7807f6591fb10cc86ea9a1677f3fef4e2b624d897b60c05ba870c9812f",
-      "pageSha256": "2956a67b3ea7559efc311c1d32853fe5ebe0c8c23c6efe5b904f9fd67717a0bc"
+      "pageSha256": "db144e4fb2d015309698a647c96473471bf14e8e1c683bf70977947b89af955a"
     },
     {
       "slug": "nba-shot-selection-analytics",
       "sourceSha256": "073070b8e1fadd5803f2783926fa8c4d57e348709592c082228ac7ec7e36c2ea",
-      "pageSha256": "a5e389b82ec18f8803303f02544151be52d758a75c5ac4b57d2e2e87b1ad978c"
+      "pageSha256": "a249f805db74df5b12646f46496a64196306cbe7998217fb1f64138c6f0d7403"
     },
     {
       "slug": "nfl-qbs-re-evaluated",
@@ -30,7 +30,7 @@
     {
       "slug": "nba-player-comparison",
       "sourceSha256": "e2a05e052417fa5d52c414671dd5addad61bc709223a9d7903029ee084b2f4e2",
-      "pageSha256": "bb774fe39a5e23710d2170077a6f1617bf7a4f18ce086618476abd0aff2982e8"
+      "pageSha256": "66e4a81a00284950034a8db6f76fa957cc078c9598c85104dabd39a3658b5773"
     },
     {
       "slug": "nba-draft-success",
@@ -44,10 +44,6 @@
     }
   ],
   "assets": {
-    "moneyball-courtside.LICENSE.txt": "e12ce9ce10be754827bd42ce3cafd8ccc81b0bfe7ecdaf129221a07743f5b6a4",
-    "moneyball-courtside.css": "b08bdd7b329e1b46c92fd0a1b8378c82d5ee1f20e9abdb70964029cfae42624c",
-    "moneyball-courtside.js": "1a583ad43b0a81249e9f995f78e04b0be8ad0a71242d1b584571735169c5690b",
-    "moneyball-courtside.png": "ac23aba6cf5620693a46339c3aaf226eddc53106bea5a773f61e3c4230129449",
     "/twins-source/assets/nsl.svg": "6eb9cd42f66947d879f343be720386daace8218daf225bb9bedfd96a3d9ad3f9",
     "/twins-source/assets/style.css": "9c4433f1769c982084d4760ef355833281ddc13e4b888895bf19c059c69dea8d",
     "/std-assets/project-standard.css": "e84cab5f660e36586ad70ac4d6715752064c8ec6b18cddebb5196c5542da221b",
@@ -72,9 +68,9 @@
     "/_astro/Header.DI_p7XUA.css": "71f867eab14277ed2b47a6e271fd69e657b1a5c43a643fb5702acce5ae25ccff",
     "/_astro/DefinitionHelp.cMpxuWHm.css": "814afd24536d2d6507d3d55add2be0dc1de2b3a3e102b613994bd6ab7e7c247a",
     "/_astro/nba-economics.DcKuqYx_.css": "dec19b71c8fb1486544da7afbb45a1d1c8bd1aed938473509e4f5bfd434c8baf",
-    "/_astro/MoneyballExplorer.astro_astro_type_script_index_0_lang.Di5bmY4I.js": "b3f4294acc313a5332784b6ecaaf0b18ce8f947f5a456462b6ec0e4cf1232318",
+    "/_astro/MoneyballExplorer.astro_astro_type_script_index_0_lang.Di5bmY4I.js": "289990752ad5bf17310ba11b985e1e5f74974763061754513294bbc01fed8827",
     "/_astro/SpatialShotSelection.DyiGIGt-.css": "115cdc3f10eb63688bb01816ed7b4d7e283281659b9f86b5d07a2a86be84fde8",
-    "/_astro/SpatialShotSelection.astro_astro_type_script_index_0_lang.B4yxlpAy.js": "34f75174f9782c5f7823022043ef8d382afed01fa07a7e70fa054804ef3c91f3",
+    "/_astro/SpatialShotSelection.astro_astro_type_script_index_0_lang.B4yxlpAy.js": "358099b33dd57fc2d1f16f3bdb29f8bed6433f540a82dec76d3ac81bb9754073",
     "/data/spatial-shot-selection/v4/manifest.json": "685aa02b5003cb292fbe0926b242a351200f0cd785a169c31942f8518ac03242",
     "/data/spatial-shot-selection/v4/players.json": "e78e4c68ba22e74e45b95bb5b26d6b4a7a01494a271e96016cbd9318e923732e",
     "/_astro/nfl-qbs-re-evaluated.DadfwyiH.css": "eda78a96914c60be15b201824fe39860c095787cd4bf8c4ee282f51e2bc7e874",
@@ -13906,7 +13902,7 @@
     "/projects/tennis-shots-and-errors/assets/mono.woff2": "c36f509c0a8f9f85f29cb44bc8701d8a9e0b14c499e77a884f789ead7093a7ac",
     "/projects/tennis-shots-and-errors/assets/serif.woff2": "fafca76cdf167b2a88dd2984ca9745f0b9a0475ee82fd2ab6c36476001d0da0b",
     "/twins-source/assets/twin-burst.png": "7616b4570b34774e771f24188adbd97b9f537e0a795178a7350bd86aad06816b",
-    "/projects/tennis-shots-and-errors/rally.js": "3f44c8cfbd30b87c8cb6569fd6de4847ffd1572f16a598581b4503d3729e410d",
+    "/projects/tennis-shots-and-errors/rally.js": "d80e9412bf8888aaee0cd2ea9eef4d2b5915b9f40441f5238a0ac863a085c437",
     "/projects/tennis-shots-and-errors/assets/rally-contact.png": "8c20d4a60895cac56da521804f807475fcec72d52b3836dbb7e0a02d1cc265cf",
     "/projects/tennis-shots-and-errors/assets/PIXELFX-LICENSE.txt": "0a77565a50c3462831244452f129c38d2adc4fd07897cbeba8adc943f958604e",
     "/projects/tennis-shots-and-errors/data/featured.json": "dacba8cb1d28b6fd64055086c3889be3636e0e13e446de058b711d13c2cce3ab",
@@ -13915,7 +13911,6 @@
     "/nfl-comparison-swap.ea98591f29ac.js": "ea98591f29ace2efe42589ea7b128dbba813f19bd76fa0ab95cae4335e3f8fd0",
     "/nfl-football-swap.css": "e4dfc9a2cc969717a21ebee263468d1d51ecb28628239d508f36fd2ac49beb5c",
     "/nfl-football-swap.png": "07218da34500c90262f8ccb3bd72c28fa5f405962a210a8c480282afbdb85ef3",
-    "moneyball-courtside-miss.png": "9d6bd16f3e7700223aed6474182910a8ad8c8c40cede1ce50df932080170dce1",
     "/twins-source/data/round-2021-22.json": "f84ebe7b2c337d6b8d1768592df84ae5090342a4463bd076951d3e1b5d7e7b26",
     "/twins-source/data/round-2017-18.json": "8dce450ed56c38da6ea58b37718d6df7164ed6d0d4a4fca67a1071a5421d0075",
     "/twins-source/data/round-2010-11.json": "24cd2808943341320f6300c3c823be2e7b9745228b7a39397bc111bfe08acd55",
