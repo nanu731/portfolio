@@ -102,10 +102,10 @@ export function mountRally(host, points, players, surface, attempt) {
       <canvas width="208" height="86" aria-hidden="true"></canvas>
       <span class="rally-court-action"><span data-action></span><span aria-hidden="true">→</span></span>
     </button>
-    <div class="rally-copy"><h3 id="rally-heading">Play a rally</h3>
+    <div class="rally-copy"><h3 id="rally-heading">Play one point</h3>
       <p id="rally-context"></p><p data-state role="status" aria-atomic="true"></p>
       <button class="rally-switch" type="button"></button>
-      <small>Shot order from the match. Court positions are illustrative.</small>
+      <small>Court positions are illustrative.</small>
     </div></section>`;
   const canvas = host.querySelector("canvas");
   const court = host.querySelector(".rally-court");
@@ -128,20 +128,19 @@ export function mountRally(host, points, players, surface, attempt) {
     const hitter = shot % 2 === 0 && shot > 0 ? 1 - first : first;
     const missed = done && ending === "U";
     const receiver = shot && !missed ? 1 - hitter : hitter;
-    const kind = ending === "U" ? "unforced error" : "winner";
-    context.textContent = `Point ${number} · Set ${set}, game ${game} · ${kind}`;
-    action.textContent = done ? "Replay point" : shot === 0 ? "Serve the ball" : shot === 1 ? "Play the return" : "Play next shot";
+    context.textContent = `Point ${number} · Set ${set}, game ${game}`;
+    action.textContent = done ? "Replay" : shot === 0 ? "Serve" : "Next shot";
     if (done) {
-      const result = missed ? "missed" : "hit a winner";
-      status.textContent = `${players[hitter]} ${result} on shot ${shot}. ${inPlay} ${inPlay === 1 ? "shot counts" : "shots count"} in play.`;
+      const result = missed ? "made an unforced error" : "hit a winner";
+      status.textContent = `${players[hitter]} ${result} on shot ${shot}.`;
     } else if (shot) {
-      status.textContent = `Shot ${shot} of ${total}. ${players[hitter]} ${shot === 1 ? "served" : "kept the ball in play"}.`;
+      status.textContent = `Shot ${shot}. ${players[hitter]} ${shot === 1 ? "served" : "kept the ball in play"}.`;
     } else {
-      status.textContent = `${players[first]} to serve. Play through ${total} shots to see how this point ends.`;
+      status.textContent = `${players[first]} to serve. Play this recorded point.`;
     }
-    if (done) status.textContent += " Displayed count: " + (attempt ? total : inPlay) + ".";
+    if (done && missed) status.textContent += " The chart counts " + (attempt ? total + " attempts." : inPlay + (inPlay === 1 ? " shot in play." : " shots in play."));
     switcher.hidden = choices.length < 2;
-    if (!switcher.hidden) switcher.textContent = ending === "W" ? "Try an unforced error" : "Try a winner";
+    if (!switcher.hidden) switcher.textContent = "Try another point";
     if (!moving || missed || matchMedia("(prefers-reduced-motion: reduce)").matches) {
       paint(canvas, surface, hitter, receiver, 1, missed, false);
       return;

@@ -9,8 +9,8 @@ window.NBA_MODEL = (() => {
     );
     return { distance, score: Math.max(0, 100 - distance) };
   }
-  function rank(anchor) {
-    return players
+  function rank(anchor, pool = players) {
+    return pool
       .filter((p) => p.id !== anchor.id)
       .map((player) => ({ player, ...compare(anchor, player) }))
       .sort(

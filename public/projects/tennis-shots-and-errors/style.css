@@ -70,3 +70,9 @@ dialog{width:min(37rem,calc(100vw - 2rem));max-height:min(84dvh,46rem);backgroun
 .project-guide p, .project-guide dl { max-width: 70ch; margin: 0 0 1rem; }
 .project-guide dt { font-weight: 650; margin-top: .7rem; }
 .project-guide dd { margin: .15rem 0 0; }
+.intro.wrap { display:flex; align-items:center; padding-block:1rem; gap:.75rem; }
+.intro h1 { font-size:clamp(2.15rem,5vw,4rem); }
+.intro .ta-jump { flex-shrink:0; }
+#archive { max-width:none; margin:0 0 .75rem; padding:0; border:0; font: .85rem var(--mono); }
+#archive strong, #archive span { display:inline; font:inherit; }
+.related { padding-top:1rem; }
