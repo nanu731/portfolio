@@ -30,9 +30,13 @@ try {
       await page.evaluate(() => document.fonts.ready);
       const comparison = slug === 'nba-player-comparison';
       if (!comparison) {
-        const action = page.getByRole('link', { name: 'Compare two players’ shot mixes', exact: true });
-        assert.equal(await action.count(), 1, 'One comparison action, without a duplicate below the court');
-        assert.equal(await action.evaluate(e => Boolean(e.closest('.std-intro-actions'))), true, 'Comparison belongs in the opening actions');
+        const actions = page.locator('main .std-compare-action');
+        assert.equal(await actions.count(), 2, 'Both comparison entry points are available');
+        for (const link of await actions.all()) {
+          assert.equal((await link.textContent()).trim(), 'Compare two players’ shot mixes');
+          assert.equal(await link.getAttribute('href'), '/projects/nba-player-comparison/');
+        }
+        const action = page.locator('.std-intro-actions').getByRole('link', { name: 'Compare two players’ shot mixes', exact: true });
         const box = await action.boundingBox();
         assert.ok(box && box.height >= 44 && box.x >= 0 && box.x + box.width <= width + 1, 'Comparison action must be a visible touch-sized button');
         if ([1440, 375, 320].includes(width)) {

@@ -126,6 +126,7 @@ function filter() {
       return {...row,n,detail:format(n)+' charted '+(n===1?'meeting':'meetings')+' with '+state.player};
     }).sort((a,b)=>b.n-a.n);
   }
+  if (!query && $('query').value.trim()) source = [];
   options = source.filter(x => (finderKind!=='opponent' || x.key !== state.player) && tokens.every(t=>x.search.includes(t)));
   if (finderKind!=='match' && query) {
     const rank = x => x.search===query?0:x.search.split(' ').some(w => w.startsWith(query))?1:2;
@@ -201,7 +202,7 @@ for (const b of document.querySelectorAll('[data-mode]')) b.addEventListener('cl
 });
 $('close-finder').addEventListener('click',()=> $('finder').close());
 $('finder').addEventListener('keydown',event=>{
-  if (!['ArrowDown','ArrowUp'].includes(event.key)) return;
+  if (event.isComposing || !['ArrowDown','ArrowUp'].includes(event.key)) return;
   const results = Array.from($('options').children);
   const current = results.indexOf(document.activeElement);
   if (!results.length || (current<0 && document.activeElement!==$('query'))) return;

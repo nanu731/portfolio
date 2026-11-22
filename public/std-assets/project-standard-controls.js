@@ -261,7 +261,7 @@
   const search = one('#std-picker-search', picker);
   const results = one('#std-picker-results', picker);
   const status = one('#std-picker-status', picker);
-  let activeAdapter, opener, roster = [], matches = [], request = 0;
+  let activeAdapter, opener, roster = null, matches = [], request = 0;
   function sync() {
     for (const row of rows) {
       try {
@@ -293,7 +293,7 @@
   async function openPicker(adapter, button) {
     activeAdapter = adapter;
     opener = button;
-    roster = [];
+    roster = null;
     matches = [];
     search.value = '';
     const skeleton = document.createElement('div'); skeleton.className = 'std-roster-skeleton'; skeleton.setAttribute('aria-hidden', 'true');
@@ -312,13 +312,16 @@
     } catch (error) { if (version === request && picker.open) { results.replaceChildren(); text(status, `${error.message} Close this list and try again.`); } }
   }
   function renderRoster() {
+    if (roster === null) return;
+    const blank = !search.value.trim();
     const query = normalize(search.value);
     const squeezed = compact(query);
     const parts = query.split(' ').filter(Boolean);
     matches = roster.filter(entry => {
+      if (!query) return blank;
       const name = normalize(entry.name);
       const words = name.split(' ');
-      return !query || name.includes(query) || compact(name).includes(squeezed) || parts.every(part => words.some(word => word.startsWith(part))) || squeezed.length >= 2 && words.map(word => word[0]).join('') === squeezed;
+      return name.includes(query) || compact(name).includes(squeezed) || parts.every(part => words.some(word => word.startsWith(part))) || squeezed.length >= 2 && words.map(word => word[0]).join('') === squeezed;
     });
     const fragment = document.createDocumentFragment();
     for (const entry of matches) {
@@ -355,7 +358,7 @@
   }
   search.addEventListener('input', renderRoster);
   search.addEventListener('keydown', event => {
-    if (event.isComposing) return;
+    if (event.isComposing || roster === null) return;
     if (event.key === 'ArrowDown') { event.preventDefault(); one('[data-std-option]', results)?.focus(); }
     if (event.key === 'Enter') {
       event.preventDefault();
