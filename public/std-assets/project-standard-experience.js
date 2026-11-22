@@ -85,7 +85,11 @@
   document.addEventListener('keydown', event => {
     if (!['Enter', ' '].includes(event.key) || event.repeat) return;
     const element = interactive(event.target);
-    if (element) { pressed.add(element); motion(element, true); }
+    if (!element) return;
+    // Space scrolls when a native link has focus; Enter activates it.
+    if (event.key === ' ' && element.matches('a[href]:not([role="button"])')) return;
+    pressed.add(element);
+    motion(element, true);
   }, true);
   document.addEventListener('keyup', event => { if (['Enter', ' '].includes(event.key)) release(); }, true);
   reduce.addEventListener('change', () => {
