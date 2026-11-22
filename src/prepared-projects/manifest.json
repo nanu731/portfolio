@@ -39,8 +39,8 @@
     },
     {
       "slug": "tennis-shots-and-errors",
-      "sourceSha256": "83bcb559235bb736fa574598ad9608a489e7c67d66ff7ca97ca02ca65aae18fd",
-      "pageSha256": "b25819eb165be5e18a2012b99f94a3c6d39d74e77e34de52e051291d01b0fd8d"
+      "sourceSha256": "300c1f6cb7b2fd5c52d144d8e976953956961fd912302cd3f61438274b19abc0",
+      "pageSha256": "f4013e38f3933b329a4ba2c54f7721177b0ad92cca39c07acc24fca4667d4ffe"
     }
   ],
   "assets": {
@@ -13892,7 +13892,7 @@
     "/projects/tennis-shots-and-errors/charts.css": "9c97a16b8440a742271fdd9c6eb2df209ea91652bc5bb962a3f457c158ab1155",
     "/projects/tennis-shots-and-errors/LICENSE": "4d86cfe44cf70c29d2c976a2c274bfa26cb951adbe2bf496ad203c35dbf03319",
     "/projects/tennis-shots-and-errors/controls.js": "d555944f2b5c5eb42cc75776dfa8e0df7c025c7d68b39f88b4477609bacb0977",
-    "/projects/tennis-shots-and-errors/analysis.js": "800daf87db0f2a53593700d316f18fec58a2f9ee917ef94de186ab88e56b4573",
+    "/projects/tennis-shots-and-errors/analysis.js": "f743fdb114d134930a4107c402f4e069a0652b792241543d3fa280ede76b8889",
     "/projects/tennis-shots-and-errors/style.css": "3ccf008c7b6a01be8514560a56a91d8cdcd53dea511c630e96c56cea1b7689fa",
     "/projects/tennis-shots-and-errors/scripts/build_data.py": "4af97350f211d10396760f7984d473017c4018c325842bbd93c77f0f5b9f1688",
     "/projects/tennis-shots-and-errors/data/provenance.json": "9c45abca7ca76af2b080c7e079d92a5c4a78f94305cebbaf1216f176aa111949",

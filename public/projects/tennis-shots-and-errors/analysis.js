@@ -354,7 +354,7 @@ function ledger(container, points, players) {
         ...rows.map(p => [p[0],p[1],p[2],p[3],players[p[4]-1],players[p[5]-1],outcomes[p[6]],players[actorOf(p)-1] || "",p[7] ?? ""])];
       const csv = lines.map(row => row.map(v => '"' + String(v).replaceAll('"','""') + '"').join(",")).join("\r\n");
       const url = URL.createObjectURL(new Blob([csv], {type:"text/csv;charset=utf-8"}));
-      const a = document.createElement("a"); a.href = url; a.download = "rally-ledger-points.csv"; a.click();
+      const a = document.createElement("a"); a.href = url; a.download = "rally-tracker-points.csv"; a.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     };
     paginate(
