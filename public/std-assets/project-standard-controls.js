@@ -101,8 +101,7 @@
     hide(one('[data-mb-search-shell]', moneyball));
     adapters = [{
       ready: () => !one('[data-mb-search]', moneyball)?.disabled && Boolean(one('[data-mb-season]', moneyball)?.value),
-      selected: () => one('[data-mb-selection-name]', moneyball)?.textContent.replace(/^(?:Example|Selected):?\s*/, '') || 'Choose a player',
-      context: () => one('[data-mb-selection-context]', moneyball)?.textContent || '',
+      pickerTitle: 'Find a player',
       roster: async () => {
         const season = Number(one('[data-mb-season]', moneyball).value);
         const windowSize = Number(one('[data-mb-window]', moneyball).value);
@@ -169,6 +168,7 @@
 
   const icon = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="6"></circle><path d="m15 15 6 6"></path></svg>';
   const rows = adapters.map(adapter => {
+    if (kind === 'moneyball') return { adapter, button: one('[data-mb-find-player]', area) };
     const row = document.createElement('div');
     row.className = 'std-selected-row controls';
     const identity = document.createElement('div');
@@ -247,7 +247,7 @@
     one('[data-mb-find-player]', moneyball)?.addEventListener('click', event => {
       event.preventDefault();
       event.stopImmediatePropagation();
-      openPicker(adapters[0], rows[0].button);
+      openPicker(adapters[0], event.currentTarget);
     }, true);
   }
 
@@ -265,13 +265,23 @@
   const status = one('#std-picker-status', picker);
   let activeAdapter, opener, roster = [], matches = [], request = 0;
   function sync() {
+    if (kind === 'moneyball') {
+      const state = one('[data-mb-status]', moneyball);
+      if (state.textContent === 'Reviewed export') text(state, '');
+      const period = one('[data-mb-period]', moneyball);
+      if (!state.textContent && period.textContent.startsWith(' · ')) text(period, period.textContent.slice(3));
+      const count = one('[data-mb-count]', moneyball);
+      const sameSample = count.textContent.match(/^(\d+) chart players · \1 matched league players$/);
+      if (sameSample) text(count, `${sameSample[1]} players in the league comparison`);
+    }
     for (const row of rows) {
       try {
         if (row.optimistic && row.adapter.loading?.()) {
           text(row.name, row.optimistic); text(row.context, 'Loading player data…');
         } else {
           row.optimistic = null;
-          text(row.name, row.adapter.selected()); text(row.context, row.adapter.context?.() || '');
+          if (row.name) text(row.name, row.adapter.selected());
+          text(row.context, row.adapter.context?.() || '');
         }
         const disabled = !row.adapter.ready();
         if (row.button.disabled !== disabled) row.button.disabled = disabled;
@@ -348,7 +358,18 @@
     const row = rows.find(row => row.adapter === adapter);
     if (row) { row.optimistic = entry.name; text(row.name, entry.name); text(row.context, 'Loading player data…'); }
     picker.close();
-    try { adapter.commit(entry); } catch (error) {
+    try {
+      adapter.commit(entry);
+      if (kind === 'moneyball') {
+        // The comparison engine focuses its result on selection. Preserve that handoff on close.
+        opener = null;
+        const heading = one('[data-mb-selection-name]', moneyball);
+        if (heading && !heading.hidden) {
+          heading.tabIndex = -1;
+          heading.focus({ preventScroll: true });
+        }
+      }
+    } catch (error) {
       text(status, error.message);
       picker.showModal();
       search.focus();

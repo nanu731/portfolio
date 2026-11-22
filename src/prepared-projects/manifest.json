@@ -10,7 +10,7 @@
     {
       "slug": "nba-economics",
       "sourceSha256": "cb1c3f7807f6591fb10cc86ea9a1677f3fef4e2b624d897b60c05ba870c9812f",
-      "pageSha256": "2956a67b3ea7559efc311c1d32853fe5ebe0c8c23c6efe5b904f9fd67717a0bc"
+      "pageSha256": "4b011b685762150ca47d28320d530aee1d1297beed0ff3d20a342879659e7296"
     },
     {
       "slug": "nba-shot-selection-analytics",
@@ -50,10 +50,10 @@
     "moneyball-courtside.png": "ac23aba6cf5620693a46339c3aaf226eddc53106bea5a773f61e3c4230129449",
     "/twins-source/assets/nsl.svg": "6eb9cd42f66947d879f343be720386daace8218daf225bb9bedfd96a3d9ad3f9",
     "/twins-source/assets/style.css": "3182737e6891aeee9594c0ce27d683815da3321a99dee47b19434e63a4421238",
-    "/std-assets/project-standard.css": "e84cab5f660e36586ad70ac4d6715752064c8ec6b18cddebb5196c5542da221b",
+    "/std-assets/project-standard.css": "f0ccc4b950264a0fda978dd978e9c792f9f76e5206e182cf3a52dd735af68e21",
     "/std-assets/project-standard-experience.css": "598c22598a86ed32cc62eff98c8a9094296439f6f92f1dd3899476af26ab7b69",
     "/shot-court-viewport.css": "b0739a63015568f411b7ec7782da6373047a3be239f8b73bba17501d61aa69d2",
-    "/std-assets/project-standard-controls.js": "cdb1f4ba2bd17270f52be80ea21622c6933dc91234d1e46a0b2f162b2d22ac4b",
+    "/std-assets/project-standard-controls.js": "892d6b5f21815a5016bce3c0ed25c3eaef5e36f3ee86fc1e1d7de0137c4dba7b",
     "/std-assets/project-standard-experience.js": "36f8073bbe1e0c3d71daf16132de302e920e39a9cf4d76e11331c3a01c63c493",
     "/twins-source/research/stocks-model.md": "d8c54f304cc6ac57a094f2a8ebbf3a1ce5b218633d616d831ab4966f2b32e418",
     "/twins-source/data/data.js": "d6d0d8fc05e6b77e14bd3b3c29c1b9ee74b30141582cc4f75b8f47372116cc7f",
