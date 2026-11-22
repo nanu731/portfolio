@@ -20,7 +20,7 @@
     {
       "slug": "nfl-qbs-re-evaluated",
       "sourceSha256": "3f197a5d2da79b18c054f71a68fe4f9cd21e90db3041c1c302df0d2602db7fd0",
-      "pageSha256": "20220540ba29859585fdeec78cf41723ad0a2d7c73c63f2c008e5f621af3d897"
+      "pageSha256": "907e0c92b2340b0a60b5dcbaa0e5b46672e34b753934d1064bbf4654af415e87"
     },
     {
       "slug": "tennis-point-phases",
@@ -13930,8 +13930,9 @@
     "/twins-source/data/round-2013-14.json": "242aeefe794e1eceb252a7ea639a5e600ad2f6704bc44d7c2c91b3661fd17d0a",
     "/twins-source/data/round-2011-12.json": "7acc2ee74a39ae127f556992ffb1520acd51a289446ca533ea10d1d46d321496",
     "/twins-source/assets/twin-game.js": "6f2a8e28d3aac87047a858edd05d0d180e936528fe9e7aebabd1cdd139522d9c",
-    "/nfl-radar-first.css": "6b8382835aba626198bffc733ed6adc7b01df83db975e60a7ff3169b5a33c97c",
-    "/nfl-radar-first.b4202c592279.js": "b4202c592279d83341d4a6beed1dc3294e7c58ca970ebb35cd75190139b7cabe"
+    "/nfl-radar-first.css": "65892017c42a97fdfb299d4c9e6c96f80b513a23e1cecf69fb8a3d4fd87f3f75",
+    "/nfl-radar-first.b4202c592279.js": "b4202c592279d83341d4a6beed1dc3294e7c58ca970ebb35cd75190139b7cabe",
+    "/nfl-radar-first.947a9dfc13bc.js": "947a9dfc13bc27dd9dd6a4ac9c50d180f63ac9441237899edeb5dccc90cccd8b"
   },
   "integrationChanges": [
     {
