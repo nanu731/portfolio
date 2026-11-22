@@ -1633,7 +1633,7 @@ const { comparisonSlot } = Astro.props as { comparisonSlot?: 'A' | 'B' };
 				`${oneDecimal(per100Low)} to ${oneDecimal(per100High)} points`;
 			const seasonName = this.seasonLabel(this.currentPlayer.season as SeasonId);
 			requireElement<HTMLElement>(this, '[data-moved-count]').textContent =
-				`Equal to ${result.actual_relocated_attempt_equivalents.toFixed(2)} shots in the calculation`;
+				percent === 0 ? '' : `Equal to ${result.actual_relocated_attempt_equivalents.toFixed(2)} shots in the calculation`;
 			requireElement<HTMLElement>(this, '[data-fraction-note]').hidden =
 				this.courtView !== 'combined' || Math.abs(result.actual_relocated_attempt_equivalents - Math.round(result.actual_relocated_attempt_equivalents)) < 1e-9;
 			const capNote = requireElement<HTMLElement>(this, '[data-cap-note]');
