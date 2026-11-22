@@ -70,10 +70,21 @@
     );
     $("selected").textContent = p.name;
     $("selection-meta").textContent =
-      `${p.team} · ${season} · ${p.minutes.toLocaleString()} minutes`;
+      `${p.team}`;
     $("player-stability").textContent = Number.isInteger(p.repeatCount)
       ? `Across two sets of games, ${p.repeatCount} of ${p.name}’s five twins appeared in both lists.`
       : "Too few minutes in one half to check this player’s match stability.";
+    const closest = matches[0].player;
+    const gaps = features.map((_, i) => Math.abs(p.p[i] - closest.p[i]));
+    const near = gaps.indexOf(Math.min(...gaps));
+    const three = features.findIndex(f => f.key === "three");
+    const far = near !== three && Math.abs(p.values[three] - closest.values[three]) >= 10
+      ? three : gaps.indexOf(Math.max(...gaps));
+    $("first-twin").textContent = `${p.name}’s closest box-score match was ${closest.name}.`;
+    $("first-reason").textContent = statPair(closest, near) + ".";
+    $("first-difference").textContent = far !== near && gaps[far] >= 10 ? statPair(closest, far) + "." : "";
+    $("rank-title").textContent = `${p.name}’s five closest matches`;
+    $("rank-help").textContent = `Choose a player to compare with ${p.name}.`;
     render();
     $("announce").textContent =
       `${p.name} selected. Closest match: ${matches[0].player.name}.`;
@@ -153,14 +164,6 @@
           "",
         )}${nodes}<g class="pivot" aria-hidden="true"><circle cx="${cx}" cy="${cy}" r="5"/><path d="M202 149h16m-8-8v16"/></g></svg>`;
   }
-  function standing(value) {
-    const n = Math.round(value);
-    const suffix =
-      n % 100 >= 11 && n % 100 <= 13
-        ? "th"
-        : { 1: "st", 2: "nd", 3: "rd" }[n % 10] || "th";
-    return n + suffix + " percentile";
-  }
   const units = {
     load: "estimated shooting attempts per 36 minutes",
     ast: "assists per 36 minutes",
@@ -193,31 +196,20 @@
       return `${left} posted ${a}% true shooting, ${right} ${b}%`;
     return `${left} averaged ${a} ${units[f.key]}, ${right} ${b}`;
   }
-  function sharedTrait(player) {
-    const i = features
-      .map((_, i) => i)
-      .sort(
-        (a, b) =>
-          Math.abs(anchor.p[a] - player.p[a]) -
-          Math.abs(anchor.p[b] - player.p[b]),
-      )[0];
-    return `Closest stat: ${statPair(player, i)}.`;
-  }
   function render() {
     const { player: rival } = matches[chosen];
+    $("view-pair").hidden = chosen === 0;
+    $("view-pair").textContent = `Viewing match ${chosen + 1} of 5 · ${rival.name}`;
+    $("minutes-played").textContent = `Regular-season minutes played: ${anchor.name}, ${anchor.minutes.toLocaleString()} · ${rival.name}, ${rival.minutes.toLocaleString()}.`;
     $("compare-context").textContent =
-      `Match ${chosen + 1} of 5 · ${scoreLabel(chosen)}/100 · ${season}`;
+      `Match ${chosen + 1} of 5 · ${scoreLabel(chosen)}/100`;
     $("next-match").textContent =
-      chosen === 4 ? "First match →" : "Next match →";
+      `Compare with ${matches[(chosen + 1) % matches.length].player.name} →`;
     drawMap();
     $("matches").innerHTML = matches
       .map(
         ({ player }, i) =>
-          `<li><button type="button" class="match" data-rank="${i}" aria-pressed="${chosen === i}" aria-controls="profile"><span class="number">${String(i + 1).padStart(2, "0")}</span><span><span class="player">${escape(player.name)}</span><span class="sub">${escape(player.team)}${i === 0 ? " · Closest profile" : ""}</span></span><span class="score">${scoreLabel(i)}<small>/100</small> <span class="arrow" aria-hidden="true">›</span></span>${
-            i === 0
-              ? `<span class="shared">${escape(sharedTrait(player))}</span>`
-              : ""
-          }</button></li>`,
+          `<li><button type="button" class="match" data-rank="${i}" aria-pressed="${chosen === i}" aria-controls="profile"><span class="number">${String(i + 1).padStart(2, "0")}</span><span><span class="player">${escape(player.name)}</span><span class="sub">${escape(player.team)}</span></span><span class="score">${scoreLabel(i)} <span class="arrow" aria-hidden="true">›</span></span></button></li>`,
       )
       .join("");
     const diffs = features
@@ -227,10 +219,11 @@
     const near = diffs[0],
       far = diffs.at(-1);
     $("insight").innerHTML =
-      `<strong>Where they match.</strong> ${escape(statPair(rival, near.i))}. <strong>Where they differ.</strong> ${escape(statPair(rival, far.i))}.`;
+      `<strong>Closest stat.</strong> ${escape(statPair(rival, near.i))}. <strong>Largest gap.</strong> ${escape(statPair(rival, far.i))}.`;
+    $("insight").hidden = chosen === 0;
     const repeats = anchor.pairRepeats?.[rival.id];
     $("pair-stability").textContent = Number.isInteger(repeats)
-      ? `We tried ${validation.bootstrapDraws} different mixes of the same games. ${rival.name} made the five in ${repeats} of those checks and ranked first in ${anchor.firstRepeats[rival.id]}.`
+      ? `We tried ${validation.bootstrapDraws} different mixes of the same games. ${rival.name} made ${anchor.name}’s five in ${repeats} of those checks and ranked first in ${anchor.firstRepeats[rival.id]}.`
       : "";
     const costly = diffs.reduce((best, x) =>
       x.gap * x.f.weight > best.gap * best.f.weight ? x : best,
@@ -250,14 +243,14 @@
     $("match-column").textContent = rival.name;
     const cell = (player, stat, i) => `<td>
       ${player.values[i].toFixed(1)}${stat.unit === "%" ? "%" : ""}
-      <small class="mobile-standing">${standing(player.p[i])}</small>
+
     </td>`;
     $("stat-rows").innerHTML = features
       .map((stat, i) => {
         const left = anchor.p[i],
           right = rival.p[i];
         return `<tr>
-        <th scope="row">${definitionButton(stat.key, escape(stat.label))}</th>
+        <th scope="row">${definitionButton(stat.key, escape(stat.key === "stocks" ? "Steals + blocks per 36 minutes" : stat.label))}</th>
         <td class="axis"><div class="track" aria-label="Percentiles ${Math.round(left)} and ${Math.round(right)}">
           <i class="dot" style="left:${left}%"></i>
           <i class="diamond" style="left:${right}%"></i>
@@ -362,7 +355,7 @@
   $("recenter").onclick = () => {
     selectPlayer(matches[chosen].player);
     saveSelection();
-    $("choose").focus();
+    document.querySelector(".std-change-player").focus();
   };
   document.addEventListener("click", (e) => {
     const match = e.target.closest("[data-rank]");
@@ -389,6 +382,10 @@
     }
     if (e.target.closest(".close")) e.target.closest("dialog").close();
   });
+  document.querySelector(".back-matches").onclick = (e) => {
+    e.preventDefault();
+    $("matches").querySelector('[aria-pressed="true"]').focus();
+  };
   $("map").addEventListener("keydown", (e) => {
     if (["Enter", " "].includes(e.key) && e.target.closest("[data-rank]")) {
       e.preventDefault();

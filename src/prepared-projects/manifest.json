@@ -5,7 +5,7 @@
     {
       "slug": "nba-statistical-twins",
       "sourceSha256": "a8778f892a8706d0876aa2cfbba2d469b4d4de03bbf9163912ff7ab866fbacee",
-      "pageSha256": "0c1167e28f85a4913fa5f7939436fcc4a99eb865ef9e92fee354172c0eea34ab"
+      "pageSha256": "fd24bc0e7a75674e5cf828e84b0af7698b344956024855dcd456d5463fd9b3ae"
     },
     {
       "slug": "nba-economics",
@@ -49,16 +49,16 @@
     "moneyball-courtside.js": "1a583ad43b0a81249e9f995f78e04b0be8ad0a71242d1b584571735169c5690b",
     "moneyball-courtside.png": "ac23aba6cf5620693a46339c3aaf226eddc53106bea5a773f61e3c4230129449",
     "/twins-source/assets/nsl.svg": "6eb9cd42f66947d879f343be720386daace8218daf225bb9bedfd96a3d9ad3f9",
-    "/twins-source/assets/style.css": "3182737e6891aeee9594c0ce27d683815da3321a99dee47b19434e63a4421238",
+    "/twins-source/assets/style.css": "c80eb187df0939cd51dd9ea9e5d9d7feec205d9cd00ed15713eb90f6938a2b0d",
     "/std-assets/project-standard.css": "e84cab5f660e36586ad70ac4d6715752064c8ec6b18cddebb5196c5542da221b",
     "/std-assets/project-standard-experience.css": "598c22598a86ed32cc62eff98c8a9094296439f6f92f1dd3899476af26ab7b69",
     "/shot-court-viewport.css": "b0739a63015568f411b7ec7782da6373047a3be239f8b73bba17501d61aa69d2",
-    "/std-assets/project-standard-controls.js": "cdb1f4ba2bd17270f52be80ea21622c6933dc91234d1e46a0b2f162b2d22ac4b",
+    "/std-assets/project-standard-controls.js": "71a2739944d5d122cb6b50082efbbded6bf6eb45a9bd20eb5f2e4b3a7ec34a24",
     "/std-assets/project-standard-experience.js": "36f8073bbe1e0c3d71daf16132de302e920e39a9cf4d76e11331c3a01c63c493",
     "/twins-source/research/stocks-model.md": "d8c54f304cc6ac57a094f2a8ebbf3a1ce5b218633d616d831ab4966f2b32e418",
     "/twins-source/data/data.js": "d6d0d8fc05e6b77e14bd3b3c29c1b9ee74b30141582cc4f75b8f47372116cc7f",
     "/twins-source/assets/model.js": "f02a99b762e114469c6c6aab32d869285e3f99bf2a4d9154936c5da6e287fde9",
-    "/twins-source/assets/app.js": "4ca34b51e54976567c1e85b78e650c28b0187b444c04b81ee5a2028f4d50d21f",
+    "/twins-source/assets/app.js": "c2d43815e2f36430e5d133c0144cdaba78f81ad1549dd10798c0942e5f90093e",
     "/favicon.svg": "a12bf07c4c2ec43606bdd12ad7aca8911ab88af2453ec4c84739f2cb4a806703",
     "/favicon.ico": "f9ea1ce827b3cc1f9ffaccf76049b760e34f0eca4247e2b380f526722559b8ca",
     "/_astro/fonts/16801a6af5971d1a.woff2": "94bb7e04bb1a32237a67935c72526e42a3e52ee4aebd50299802b18a93114251",

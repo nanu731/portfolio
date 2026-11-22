@@ -5,8 +5,8 @@ const base = process.argv[2] || 'http://127.0.0.1:4367';
 (async () => {
   const browser = await chromium.launch({channel:'chrome'});
   try {
-    for (const width of [320,390,768,1440]) {
-      const page = await browser.newPage({viewport:{width,height:900}});
+    for (const [width,height] of [[320,568],[375,667],[390,844],[768,900],[1440,900]]) {
+      const page = await browser.newPage({viewport:{width,height}});
       const errors=[];
       page.on('pageerror', e=>errors.push(e.message));
       page.on('console', m=>{if(m.type()==='error')errors.push(m.text());});
@@ -15,6 +15,14 @@ const base = process.argv[2] || 'http://127.0.0.1:4367';
       await surprise.waitFor();
       await page.waitForFunction(()=>document.querySelector('.std-selected-name')?.textContent.includes('Curry'));
       assert.equal(await page.locator('.std-selection-area #surprise').count(),1);
+      await page.evaluate(()=>document.fonts.ready);
+      assert.match(await page.locator('#first-twin').innerText(), /Stephen Curry.*Immanuel Quickley/);
+      assert.match(await page.locator('#first-reason').innerText(), /5.6 assists per 36 minutes.*6.0/);
+      const evidence=await page.locator('#first-difference').boundingBox();
+      assert.ok(evidence && evidence.y+evidence.height<=height);
+      assert.equal(await page.evaluate(()=>scrollY),0);
+      console.log(`Opening result and both stat sentences end at ${Math.ceil(evidence.y+evidence.height)} of ${height}px at ${width}px wide`);
+      await page.screenshot({path:`/tmp/twins-answer-${width}.png`});
       const bounds=await surprise.boundingBox();
       assert.ok(bounds.width>=44 && bounds.height>=44);
       const name=()=>page.locator('.std-selected-name').innerText();
@@ -39,7 +47,15 @@ const base = process.argv[2] || 'http://127.0.0.1:4367';
       await page.locator('#std-picker-results button').first().click();
       await page.waitForFunction(()=>document.querySelector('.std-selected-name').textContent.includes('Joki'));
       await page.locator('.match').last().click();
+      await page.reload();
+      assert.match(await page.locator('#view-pair').innerText(),/match 5 of 5/);
+      await page.locator('#stats > summary').click();
+      assert.ok(await page.locator('#stat-rows').isVisible());
       assert.equal(await page.locator('#stat-rows tr').count(),8);
+      await page.locator('.back-matches').click();
+      assert.equal(await page.evaluate(()=>document.activeElement.dataset.rank),'4');
+      await page.locator('.twins-map > summary').click();
+      assert.ok(await page.locator('#map').isVisible());
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
       assert.deepEqual(errors,[]);
       await page.evaluate(()=>scrollTo(0,0));
