@@ -644,7 +644,7 @@ export function mountMoneyball(root: HTMLElement): void {
       const data = await loader.load(desired.id); if (!data) return;
       bundle = data; active = data.views[0];
       setControls(true); get('empty').hidden = true; get('snapshot').hidden = true; get('live-table').hidden = false;
-      status.textContent = `${data.publication.status === 'private-preview' ? 'Private preview' : 'Reviewed export'}${adjustedWindow ? `. The ${requestedWindow}-season span is unavailable here; showing ${active.window} season${active.window === 1 ? '' : 's'}.` : ''}`;
+      status.textContent = `${data.publication.status === 'private-preview' ? 'Private preview. ' : ''}${adjustedWindow ? `The ${requestedWindow}-season span is unavailable here; showing ${active.window} season${active.window === 1 ? '' : 's'}.` : ''}`;
       get('view-sources').replaceChildren(...viewSourceLinks(data, active).map(source => {
         const li = document.createElement('li'), link = document.createElement('a');
         link.href = source.url; link.rel = 'noreferrer'; link.textContent = source.label;
@@ -686,7 +686,7 @@ export function mountMoneyball(root: HTMLElement): void {
     metric.options[1].textContent = 'LEBRON · impact rate';
     txt('season-label', active.window > 1 ? 'Season ending' : 'Season');
     const context = `${viewLabel(active)} · Regular season${active.window === 1 ? '' : 's · averages over available matched seasons'}`;
-    txt('period', ` · ${context}`);
+    txt('period', `${status.textContent?.trim() ? ' · ' : ''}${context}`);
     txt('metric-note', m === 'war' ? 'Zero: a readily available fill-in player.' : 'Zero: league-average impact.');
     txt('coverage-summary', `League coverage: ${active.coverage.matched} matched of ${active.coverage.eligible} eligible player records.`);
     get('selected-key').hidden = !selected; get('peer-key').dataset.hollow = String(!!selected);

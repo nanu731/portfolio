@@ -11,7 +11,7 @@ try {
   const initial = index.views.find(v => v.id === index.defaultView)!;
   const rawView = await readFile(resolve(process.cwd(), `public${initial.url}`));
   data = validateViewBundle(parseJSONBytes(rawView, VIEW_BYTE_LIMIT), initial, index.dataVersion);
-  state = data.publication.status === 'private-preview' ? 'Private preview' : 'Reviewed export';
+  state = data.publication.status === 'private-preview' ? 'Private preview' : '';
 } catch (error) {
   if ((error as NodeJS.ErrnoException).code !== 'ENOENT') state = 'The player export failed validation. No results are shown; the export must be corrected.';
 }

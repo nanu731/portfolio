@@ -10,7 +10,7 @@
     {
       "slug": "nba-economics",
       "sourceSha256": "cb1c3f7807f6591fb10cc86ea9a1677f3fef4e2b624d897b60c05ba870c9812f",
-      "pageSha256": "2956a67b3ea7559efc311c1d32853fe5ebe0c8c23c6efe5b904f9fd67717a0bc"
+      "pageSha256": "e809fe7b743f402dcf6fa1fb1a565bbd1700a23259e6a88288a9f9a439e0601c"
     },
     {
       "slug": "nba-shot-selection-analytics",
@@ -72,7 +72,7 @@
     "/_astro/Header.DI_p7XUA.css": "71f867eab14277ed2b47a6e271fd69e657b1a5c43a643fb5702acce5ae25ccff",
     "/_astro/DefinitionHelp.cMpxuWHm.css": "814afd24536d2d6507d3d55add2be0dc1de2b3a3e102b613994bd6ab7e7c247a",
     "/_astro/nba-economics.DcKuqYx_.css": "dec19b71c8fb1486544da7afbb45a1d1c8bd1aed938473509e4f5bfd434c8baf",
-    "/_astro/MoneyballExplorer.astro_astro_type_script_index_0_lang.Di5bmY4I.js": "b3f4294acc313a5332784b6ecaaf0b18ce8f947f5a456462b6ec0e4cf1232318",
+    "/_astro/MoneyballExplorer.astro_astro_type_script_index_0_lang.Di5bmY4I.js": "289990752ad5bf17310ba11b985e1e5f74974763061754513294bbc01fed8827",
     "/_astro/SpatialShotSelection.DyiGIGt-.css": "115cdc3f10eb63688bb01816ed7b4d7e283281659b9f86b5d07a2a86be84fde8",
     "/_astro/SpatialShotSelection.astro_astro_type_script_index_0_lang.B4yxlpAy.js": "34f75174f9782c5f7823022043ef8d382afed01fa07a7e70fa054804ef3c91f3",
     "/data/spatial-shot-selection/v4/manifest.json": "685aa02b5003cb292fbe0926b242a351200f0cd785a169c31942f8518ac03242",
