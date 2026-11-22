@@ -15,7 +15,6 @@ try {
 } catch (error) {
   if ((error as NodeJS.ErrnoException).code !== 'ENOENT') state = 'The player export failed validation. No results are shown; the export must be corrected.';
 }
-const courtside = await readFile(resolve(process.cwd(), 'src/components/courtside.html'), 'utf8');
 const defaultMillion = data ? millionSummary(data.views[0], DEFAULT_METRIC) : null;
 ---
 
@@ -108,7 +107,6 @@ const defaultMillion = data ? millionSummary(data.views[0], DEFAULT_METRIC) : nu
 
     <figcaption id="mb-caption" data-mb-caption hidden>League reference stays fixed under filters. Tap an underlined term for help; tap outside or press Escape to close.</figcaption>
   </figure>
-  <Fragment set:html={courtside} />
   <details data-mb-live-table hidden class="mb-records">
     <summary id="mb-ranked-records" data-reference-target>Player records</summary>
     <p class="mb-small" data-mb-table-order>Ordered by the active contribution gap, highest first.</p>

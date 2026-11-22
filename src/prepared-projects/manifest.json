@@ -10,7 +10,7 @@
     {
       "slug": "nba-economics",
       "sourceSha256": "cb1c3f7807f6591fb10cc86ea9a1677f3fef4e2b624d897b60c05ba870c9812f",
-      "pageSha256": "e809fe7b743f402dcf6fa1fb1a565bbd1700a23259e6a88288a9f9a439e0601c"
+      "pageSha256": "db144e4fb2d015309698a647c96473471bf14e8e1c683bf70977947b89af955a"
     },
     {
       "slug": "nba-shot-selection-analytics",
@@ -44,10 +44,6 @@
     }
   ],
   "assets": {
-    "moneyball-courtside.LICENSE.txt": "e12ce9ce10be754827bd42ce3cafd8ccc81b0bfe7ecdaf129221a07743f5b6a4",
-    "moneyball-courtside.css": "b08bdd7b329e1b46c92fd0a1b8378c82d5ee1f20e9abdb70964029cfae42624c",
-    "moneyball-courtside.js": "1a583ad43b0a81249e9f995f78e04b0be8ad0a71242d1b584571735169c5690b",
-    "moneyball-courtside.png": "ac23aba6cf5620693a46339c3aaf226eddc53106bea5a773f61e3c4230129449",
     "/twins-source/assets/nsl.svg": "6eb9cd42f66947d879f343be720386daace8218daf225bb9bedfd96a3d9ad3f9",
     "/twins-source/assets/style.css": "9c4433f1769c982084d4760ef355833281ddc13e4b888895bf19c059c69dea8d",
     "/std-assets/project-standard.css": "e84cab5f660e36586ad70ac4d6715752064c8ec6b18cddebb5196c5542da221b",
@@ -13915,7 +13911,6 @@
     "/nfl-comparison-swap.ea98591f29ac.js": "ea98591f29ace2efe42589ea7b128dbba813f19bd76fa0ab95cae4335e3f8fd0",
     "/nfl-football-swap.css": "e4dfc9a2cc969717a21ebee263468d1d51ecb28628239d508f36fd2ac49beb5c",
     "/nfl-football-swap.png": "07218da34500c90262f8ccb3bd72c28fa5f405962a210a8c480282afbdb85ef3",
-    "moneyball-courtside-miss.png": "9d6bd16f3e7700223aed6474182910a8ad8c8c40cede1ce50df932080170dce1",
     "/twins-source/data/round-2021-22.json": "f84ebe7b2c337d6b8d1768592df84ae5090342a4463bd076951d3e1b5d7e7b26",
     "/twins-source/data/round-2017-18.json": "8dce450ed56c38da6ea58b37718d6df7164ed6d0d4a4fca67a1071a5421d0075",
     "/twins-source/data/round-2010-11.json": "24cd2808943341320f6300c3c823be2e7b9745228b7a39397bc111bfe08acd55",
