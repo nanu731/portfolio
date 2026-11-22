@@ -5,7 +5,7 @@
     {
       "slug": "nba-statistical-twins",
       "sourceSha256": "a8778f892a8706d0876aa2cfbba2d469b4d4de03bbf9163912ff7ab866fbacee",
-      "pageSha256": "fd24bc0e7a75674e5cf828e84b0af7698b344956024855dcd456d5463fd9b3ae"
+      "pageSha256": "39e5e852c58533f023f5d01a51bd35b4d8a2d2b2fdf192709f79996bb7774fba"
     },
     {
       "slug": "nba-economics",
@@ -49,7 +49,7 @@
     "moneyball-courtside.js": "1a583ad43b0a81249e9f995f78e04b0be8ad0a71242d1b584571735169c5690b",
     "moneyball-courtside.png": "ac23aba6cf5620693a46339c3aaf226eddc53106bea5a773f61e3c4230129449",
     "/twins-source/assets/nsl.svg": "6eb9cd42f66947d879f343be720386daace8218daf225bb9bedfd96a3d9ad3f9",
-    "/twins-source/assets/style.css": "c80eb187df0939cd51dd9ea9e5d9d7feec205d9cd00ed15713eb90f6938a2b0d",
+    "/twins-source/assets/style.css": "9c4433f1769c982084d4760ef355833281ddc13e4b888895bf19c059c69dea8d",
     "/std-assets/project-standard.css": "e84cab5f660e36586ad70ac4d6715752064c8ec6b18cddebb5196c5542da221b",
     "/std-assets/project-standard-experience.css": "598c22598a86ed32cc62eff98c8a9094296439f6f92f1dd3899476af26ab7b69",
     "/shot-court-viewport.css": "b0739a63015568f411b7ec7782da6373047a3be239f8b73bba17501d61aa69d2",
@@ -57,7 +57,7 @@
     "/std-assets/project-standard-experience.js": "36f8073bbe1e0c3d71daf16132de302e920e39a9cf4d76e11331c3a01c63c493",
     "/twins-source/research/stocks-model.md": "d8c54f304cc6ac57a094f2a8ebbf3a1ce5b218633d616d831ab4966f2b32e418",
     "/twins-source/data/data.js": "d6d0d8fc05e6b77e14bd3b3c29c1b9ee74b30141582cc4f75b8f47372116cc7f",
-    "/twins-source/assets/model.js": "f02a99b762e114469c6c6aab32d869285e3f99bf2a4d9154936c5da6e287fde9",
+    "/twins-source/assets/model.js": "8077e784b3f1cb44b2a3ef5e7c0a995c52f51b4999556fd3e82f3eb16882cdfc",
     "/twins-source/assets/app.js": "c2d43815e2f36430e5d133c0144cdaba78f81ad1549dd10798c0942e5f90093e",
     "/favicon.svg": "a12bf07c4c2ec43606bdd12ad7aca8911ab88af2453ec4c84739f2cb4a806703",
     "/favicon.ico": "f9ea1ce827b3cc1f9ffaccf76049b760e34f0eca4247e2b380f526722559b8ca",
@@ -13915,7 +13915,21 @@
     "/nfl-comparison-swap.ea98591f29ac.js": "ea98591f29ace2efe42589ea7b128dbba813f19bd76fa0ab95cae4335e3f8fd0",
     "/nfl-football-swap.css": "e4dfc9a2cc969717a21ebee263468d1d51ecb28628239d508f36fd2ac49beb5c",
     "/nfl-football-swap.png": "07218da34500c90262f8ccb3bd72c28fa5f405962a210a8c480282afbdb85ef3",
-    "moneyball-courtside-miss.png": "9d6bd16f3e7700223aed6474182910a8ad8c8c40cede1ce50df932080170dce1"
+    "moneyball-courtside-miss.png": "9d6bd16f3e7700223aed6474182910a8ad8c8c40cede1ce50df932080170dce1",
+    "/twins-source/data/round-2021-22.json": "f84ebe7b2c337d6b8d1768592df84ae5090342a4463bd076951d3e1b5d7e7b26",
+    "/twins-source/data/round-2017-18.json": "8dce450ed56c38da6ea58b37718d6df7164ed6d0d4a4fca67a1071a5421d0075",
+    "/twins-source/data/round-2010-11.json": "24cd2808943341320f6300c3c823be2e7b9745228b7a39397bc111bfe08acd55",
+    "/twins-source/data/round-2019-20.json": "f1cbf884e7184bca421f9151d08075e7c21fa40f743f83105d1c6406dd520bd3",
+    "/twins-source/data/round-2014-15.json": "bc51b2e8b38ece4e98cc45b2b82509c5d5dd5246c65a16da3a81b67649b759a2",
+    "/twins-source/data/round-2022-23.json": "ab88f336d804aabeb478458ab8963390f20ff94a0c494db5c1b892d0e76ce832",
+    "/twins-source/data/round-2012-13.json": "72ad8e149a72ee0c783c91d4e9a4280e5e131806bba7f6fb8129734f51b535fe",
+    "/twins-source/data/round-2018-19.json": "bfef848ea04eb5525199f04f3331ee2f80daf38db50129408531da3577225d02",
+    "/twins-source/data/round-2015-16.json": "6b5fca9c85a0e05c8cee235145afc6ad983f36a83b56f3713adb89768d61a5c7",
+    "/twins-source/data/round-2016-17.json": "4bdb2acc9cf4e44dea56a992b8276a3adf233c118af16329b844c37c2f0422ca",
+    "/twins-source/data/round-2020-21.json": "6f7441ca8cc15f233c30b34d00986025f5c2ce9f6265505d0a6bfeddd30c2bdb",
+    "/twins-source/data/round-2013-14.json": "242aeefe794e1eceb252a7ea639a5e600ad2f6704bc44d7c2c91b3661fd17d0a",
+    "/twins-source/data/round-2011-12.json": "7acc2ee74a39ae127f556992ffb1520acd51a289446ca533ea10d1d46d321496",
+    "/twins-source/assets/twin-game.js": "31e06da20340f838a58d0b66a0c2c36f2cc36f869f50b495deaa48c671f381c6"
   },
   "integrationChanges": [
     {
