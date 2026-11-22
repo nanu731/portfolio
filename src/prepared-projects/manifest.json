@@ -20,7 +20,7 @@
     {
       "slug": "nfl-qbs-re-evaluated",
       "sourceSha256": "3f197a5d2da79b18c054f71a68fe4f9cd21e90db3041c1c302df0d2602db7fd0",
-      "pageSha256": "c6b382ca2705475958f587548fa71166c1cbf41268e3de6eb858d4a4c18ae1fb"
+      "pageSha256": "6d7c84e452a5287c2c28512a04bac6d2334f70b21a2d55498e4beee6a193d81c"
     },
     {
       "slug": "tennis-point-phases",
@@ -13900,7 +13900,10 @@
     "/projects/tennis-shots-and-errors/assets/nsl-logo.svg": "6eb9cd42f66947d879f343be720386daace8218daf225bb9bedfd96a3d9ad3f9",
     "/projects/tennis-shots-and-errors/assets/IBM-PLEX-LICENSE.txt": "d741e57d5f865e294df801f96b7b5161a88b211df65887e4358d271c9fc5fb4f",
     "/projects/tennis-shots-and-errors/assets/mono.woff2": "c36f509c0a8f9f85f29cb44bc8701d8a9e0b14c499e77a884f789ead7093a7ac",
-    "/projects/tennis-shots-and-errors/assets/serif.woff2": "fafca76cdf167b2a88dd2984ca9745f0b9a0475ee82fd2ab6c36476001d0da0b"
+    "/projects/tennis-shots-and-errors/assets/serif.woff2": "fafca76cdf167b2a88dd2984ca9745f0b9a0475ee82fd2ab6c36476001d0da0b",
+    "/nfl-comparison-swap.ea98591f29ac.js": "ea98591f29ace2efe42589ea7b128dbba813f19bd76fa0ab95cae4335e3f8fd0",
+    "/nfl-football-swap.css": "e4dfc9a2cc969717a21ebee263468d1d51ecb28628239d508f36fd2ac49beb5c",
+    "/nfl-football-swap.png": "07218da34500c90262f8ccb3bd72c28fa5f405962a210a8c480282afbdb85ef3"
   },
   "integrationChanges": [
     {
