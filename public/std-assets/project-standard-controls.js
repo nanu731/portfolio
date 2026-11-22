@@ -266,6 +266,7 @@
   const search = one('#std-picker-search', picker);
   const results = one('#std-picker-results', picker);
   const status = one('#std-picker-status', picker);
+  if (kind === 'moneyball') search.removeAttribute('placeholder');
   let activeAdapter, opener, roster = [], matches = [], request = 0;
   function sync() {
     if (kind === 'moneyball') {
@@ -308,7 +309,7 @@
   async function openPicker(adapter, button) {
     activeAdapter = adapter;
     opener = button;
-    roster = [];
+    roster = kind === 'moneyball' ? null : [];
     matches = [];
     search.value = '';
     const skeleton = document.createElement('div'); skeleton.className = 'std-roster-skeleton'; skeleton.setAttribute('aria-hidden', 'true');
@@ -327,6 +328,7 @@
     } catch (error) { if (version === request && picker.open) { results.replaceChildren(); text(status, `${error.message} Close this list and try again.`); } }
   }
   function renderRoster() {
+    if (!roster) return;
     const query = normalize(search.value);
     const squeezed = compact(query);
     const parts = query.split(' ').filter(Boolean);
@@ -345,7 +347,7 @@
       button.addEventListener('click', () => commit(entry));
       fragment.append(button);
     }
-    if (!matches.length) {
+    if (!matches.length && kind !== 'moneyball') {
       const empty = document.createElement('p');
       empty.className = 'empty';
       empty.textContent = emptySearchMessage;
@@ -353,7 +355,11 @@
     }
     results.replaceChildren(fragment);
     results.scrollTop = 0;
-    text(status, kind === 'twins' ? `${matches.length} players` : `${matches.length} of ${roster.length} eligible players${query && matches.length > 1 ? '. Choose a name from the list.' : ''}`);
+    if (kind === 'moneyball') {
+      text(status, matches.length ? (query ? `${matches.length} ${matches.length === 1 ? 'match' : 'matches'}` : '') : emptySearchMessage);
+    } else {
+      text(status, kind === 'twins' ? `${matches.length} players` : `${matches.length} of ${roster.length} eligible players${query && matches.length > 1 ? '. Choose a name from the list.' : ''}`);
+    }
   }
   function commit(entry) {
     if (!activeAdapter || !picker.open) return;
@@ -381,7 +387,7 @@
   }
   search.addEventListener('input', renderRoster);
   search.addEventListener('keydown', event => {
-    if (event.isComposing) return;
+    if (event.isComposing || !roster) return;
     if (event.key === 'ArrowDown') { event.preventDefault(); one('[data-std-option]', results)?.focus(); }
     if (event.key === 'Enter') {
       event.preventDefault();

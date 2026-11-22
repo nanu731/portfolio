@@ -68,7 +68,7 @@ const defaultMillion = data ? millionSummary(data.views[0], DEFAULT_METRIC) : nu
       <div class="mb-plot">
         <p class="mb-axis mb-y"><span data-mb-war-help hidden><DefinitionHelp id="mb-war" label="WAR" detailTarget="mb-metric-definitions" detailLabel="Why these metrics and formulas">LEBRON WAR is BBall Index's estimated wins above a readily available fill-in player, including playing time. Zero is that replacement baseline, not the team's actual wins. We use the provider's value.</DefinitionHelp></span><span data-mb-lebron-help><DefinitionHelp id="mb-lebron" label="LEBRON" detailTarget="mb-metric-definitions" detailLabel="Why these metrics and formulas">BBall Index's estimated on-court impact per 100 possessions, combining box-score and adjusted on/off information. Zero means league-average impact; this is a rate, not points actually scored.</DefinitionHelp></span><span class="mb-axis-copy"><span data-mb-y-label>Impact points per 100 possessions</span><span data-mb-metric-note>Zero: league-average impact.</span></span></p>
         <div class="mb-stage">
-          <svg role="img" data-mb-chart aria-label="Salary and measured contribution" viewBox="0 0 300 420"><title>No interactive records loaded</title></svg>
+          <svg role="group" data-mb-chart aria-label="Salary and measured contribution" viewBox="0 0 300 420"><title>No interactive records loaded</title></svg>
           <div class="mb-empty" data-mb-empty><h3 data-mb-empty-title>Player comparison unavailable</h3><p data-mb-empty-copy>Load a validated view or read the saved records below.</p><button type="button" data-mb-retry>Retry data</button></div>
         </div>
         <p class="mb-small mb-match-count" data-mb-count role="status" aria-live="polite"></p>
@@ -80,20 +80,20 @@ const defaultMillion = data ? millionSummary(data.views[0], DEFAULT_METRIC) : nu
         <p class="mb-small" data-mb-selection-context hidden></p>
         <p data-mb-selection>Select a dot, choose an example or search for a player.</p>
         <div data-mb-comparison hidden>
-          <dl class="mb-answer"><dt><DefinitionHelp id="mb-residual" label="Above / below salary reference">The player's measured contribution minus the league line at that pay. Positive is above the line; negative is below it.</DefinitionHelp></dt><dd><span data-mb-selected-gap></span> <small data-mb-selected-direction></small><small class="mb-gap-unit" data-mb-selected-unit></small></dd></dl>
-          <div class="mb-gap-context">
-            <p class="mb-gap-size"><DefinitionHelp id="mb-gap-size" label="Gap in context" detailTarget="mb-gap-size-calculation" detailLabel="Full calculation">Divide the player's signed gap by the median distance from the line for all matched league players in this view. −2× means twice that typical distance below the line; +2× means twice it above.</DefinitionHelp><br /><span data-mb-selected-magnitude></span></p>
-            <p class="mb-small">The number counts typical league gaps from the line. Minus means below; plus means above. It describes size, not statistical significance.</p>
-            <p class="mb-small" data-mb-selected-scale></p>
-            <p class="mb-small" data-mb-selected-cohort></p>
-          </div>
+          <p class="mb-answer" data-mb-selected-gap></p>
           <dl class="mb-comparison">
             <div><dt>Measured contribution</dt><dd data-mb-selected-contribution></dd></div>
             <div><dt>Reference at this pay</dt><dd data-mb-selected-reference></dd></div>
             <div><dt>Reported pay</dt><dd class="mb-pay-value"><span data-mb-selected-salary></span><p class="mb-small mb-pay-basis" data-mb-selected-salary-basis></p></dd></div>
           </dl>
           <p class="mb-small" data-mb-selected-observed hidden></p>
-          <details class="mb-comparison-details" data-mb-comparison-details><summary>More comparison details</summary>
+          <details class="mb-comparison-details" data-mb-comparison-details><summary>How big is this gap?</summary>
+            <div class="mb-gap-context">
+              <p class="mb-gap-size"><DefinitionHelp id="mb-gap-size" label="Gap in context" detailTarget="mb-gap-size-calculation" detailLabel="Full calculation">Divide the player's signed gap by the median distance from the line for all matched league players in this view. −2× means twice that typical distance below the line; +2× means twice it above.</DefinitionHelp><br /><span data-mb-selected-magnitude></span></p>
+              <p class="mb-small">This describes size, not statistical significance.</p>
+              <p class="mb-small" data-mb-selected-scale></p>
+              <p class="mb-small" data-mb-selected-cohort></p>
+            </div>
             <dl class="mb-pay-rank"><div><dt><DefinitionHelp id="mb-value-percentile" label="League gap percentile" detailTarget="mb-percentile-calculation" detailLabel="Full calculation">Ranks this gap relative to eligible matched league gaps, not as a player grade. Tied gaps share a midpoint rank.</DefinitionHelp></dt><dd data-mb-selected-percentile></dd></div></dl>
             <p class="mb-small">This ranks league gaps, not player quality. It does not tell you how unusual the gap is among players at similar pay.</p>
             <details class="mb-player-details"><summary>Playing time and records</summary><p class="mb-small" data-mb-selected-details></p></details>
@@ -306,6 +306,9 @@ const defaultMillion = data ? millionSummary(data.views[0], DEFAULT_METRIC) : nu
   .moneyball :global(svg .mb-selected-name) { font-weight: 600; }
   .mb-axis { font-family: var(--font-body); font-size: .875rem; margin: 0; font-variant-numeric: tabular-nums; }
   .mb-x { text-align: right; }
+  .mb-plot:has([data-salary-axis-top]) { display: flex; flex-direction: column; }
+  .mb-plot:has([data-salary-axis-top]) .mb-y { order: -2; }
+  .mb-plot:has([data-salary-axis-top]) .mb-x { order: -1; text-align: left; margin-top: .5rem; }
   .mb-stage { position: relative; min-height: 420px; }
   [data-mb-chart] { width: 100%; height: 420px; display: block; }
   .moneyball :global(svg text) { font: 14px var(--font-numeric); fill: var(--green); font-variant-numeric: tabular-nums; }
@@ -335,13 +338,8 @@ const defaultMillion = data ? millionSummary(data.views[0], DEFAULT_METRIC) : nu
 
   .mb-selection { padding: var(--space-s) var(--space-xs); border-top: var(--mb-rule); }
   .mb-selection h3 { font-size: 1.5rem; line-height: 1.2; margin: 0 0 var(--space-2xs); }
-  .mb-answer { margin: 0 0 var(--space-xs); }
-  .mb-answer dt { font-size: var(--type-small); }
-  .mb-answer dd small { font: 1rem/1.35 var(--font-body); }
-  .mb-answer .mb-gap-unit { display: block; margin-top: var(--space-3xs); }
   .mb-pay-basis { display: block; margin: var(--space-3xs) 0 0; font: var(--type-small)/1.35 var(--font-body); }
   .mb-controls-return, #mb-scroll-help a, .mb-ranked-link { display: inline-flex; align-items: center; min-height: 44px; font-size: var(--type-small); }
-  .mb-answer dd { margin: var(--space-2xs) 0 0; font: 600 1.5rem/1.25 var(--font-numeric); }
   .mb-selection > p { font-size: 1rem; margin: 0; }
   .mb-selection > .mb-small { font-size: var(--type-small); line-height: 1.35; margin: var(--space-2xs) 0 0; }
   .mb-comparison { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-s); margin: 0; }
@@ -358,9 +356,10 @@ const defaultMillion = data ? millionSummary(data.views[0], DEFAULT_METRIC) : nu
   .mb-million-evidence code { white-space: normal; overflow-wrap: anywhere; }
   /* Result paragraphs must not inherit the article's long prose margins. */
   .mb-selection [data-mb-comparison] > p { font-size: var(--type-small); line-height: 1.35; margin: var(--space-3xs) 0; }
+  .mb-selection [data-mb-comparison] > .mb-answer { font-size: 1.125rem; font-weight: 600; margin: var(--space-2xs) 0 var(--space-xs); }
   .mb-selection .mb-player-details { margin: var(--space-3xs) 0 0; }
   .mb-selection .mb-player-details > summary { min-height: 44px; padding-block: var(--space-3xs); font: 1rem/1.3 var(--font-body); }
-  .mb-comparison :global(.definition-trigger), .mb-answer :global(.definition-trigger), .mb-pay-rank :global(.definition-trigger) { min-height: 44px; padding: 0; border: 0; background: transparent; }
+  .mb-comparison :global(.definition-trigger), .mb-pay-rank :global(.definition-trigger) { min-height: 44px; padding: 0; border: 0; background: transparent; }
   .mb-legend { display: flex; flex-wrap: wrap; gap: var(--space-xs) var(--space-m); font-size: var(--type-small); padding-block: var(--space-xs); }
   .mb-legend > span { display: flex; align-items: center; gap: var(--space-2xs); }
   .mb-dot-key { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--green); }

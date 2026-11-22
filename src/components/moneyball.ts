@@ -358,17 +358,18 @@ export function resolveSearchChoice(view: View | null, team: string, query: stri
 export function playerComparisonCopy(p: Player, metric: Metric, view: View, units: 'usd' | 'share' = 'usd') {
   const reference = interpolate(view.models[metric].curve, p.salaryCapShare);
   const gap = p[metric] - reference;
-  const contributionUnit = metric === 'war' ? view.window > 1 ? 'estimated wins per observed season' : 'estimated wins' : 'impact points/100 possessions';
-  const values = { contribution: decimal(p[metric]), reference: decimal(reference), gap: `${gap > 0 ? '+' : gap < 0 ? '−' : ''}${decimal(Math.abs(gap))}` };
+  const contributionUnit = metric === 'war' ? view.window > 1 ? 'estimated wins per observed season' : 'estimated wins' : 'impact points per 100 possessions';
+  const values = { contribution: decimal(p[metric]), reference: decimal(reference) };
+  const distance = decimal(Math.abs(gap));
   return {
     name: p.name, values,
-    unit: metric === 'war' ? `WAR · ${contributionUnit} · includes playing time` : `LEBRON · ${view.window > 1 ? 'average ' : ''}impact points/100 possessions`,
-    direction: gap > 0 ? 'Above salary reference' : gap < 0 ? 'Below salary reference' : 'On salary reference',
     salary: units === 'share' ? `${decimal(p.salaryCapShare * 100)}%` : compactMoneyFormatter.format(p.salaryUsd),
     salaryBasis: units === 'share' ? view.window > 1 ? 'Average share of each observed season’s cap' : 'Share of the season cap' : view.window > 1 ? `Average annual pay, adjusted to the ${seasonLabel(view.endSeason)} salary cap` : 'Season pay in US dollars',
     contribution: `${values.contribution} ${contributionUnit}`,
     reference: `${values.reference} ${contributionUnit}`,
-    gap: `${values.gap} ${contributionUnit}`,
+    gap: gap === 0 ? `Matches the league estimate at this pay (${values.contribution} ${contributionUnit}).`
+      : Number(distance) === 0 ? `Within 0.01 ${contributionUnit} of the league estimate at this pay.`
+      : `${distance} ${contributionUnit} ${gap > 0 ? 'above' : 'below'} the league estimate at this pay.`,
     percentile: percentile(p.valuePercentile[metric]),
     magnitude: gapMultiple(p.gapMultiple[metric]), scale: gapScaleCopy(metric, view),
     cohort: `Among ${view.players.length} eligible matched players`,
@@ -559,7 +560,7 @@ export function mountMoneyball(root: HTMLElement): void {
   function searchStatus() {
     const chosen = active?.players.find(p => p.id === selected);
     const count = active ? filterPlayers(active, team.value, search.value).length : 0;
-    const message = chosen ? `${chosen.id === exampleSelection ? 'Example' : 'Selected'} ${chosen.name} · ${playerComparisonCopy(chosen, metric.value as Metric, active!).gap} vs salary reference.` : !suggestionsReady(search.value) ?
+    const message = chosen ? `${chosen.id === exampleSelection ? 'Example' : 'Selected'} ${chosen.name} · ${playerComparisonCopy(chosen, metric.value as Metric, active!).gap}` : !suggestionsReady(search.value) ?
       '' : count === 0 ?
       'No players found. Try another name, team or season.' : suggestionModel.state.open ?
       `${count} ${count === 1 ? 'match' : 'matches'}. Use the arrow keys and Enter, or choose a name.` : 'Choose a suggested name to select a player.';
@@ -592,8 +593,8 @@ export function mountMoneyball(root: HTMLElement): void {
     txt('empty-copy', message.startsWith('Loading') ? 'The selected records are being checked.' : 'Retry or change the season. Saved records are available below.');
     get('retry').hidden = message.startsWith('Loading');
     txt('selection-name', 'Player comparison'); get('selection-name').hidden = true; txt('selection-context', ''); get('selection-context').hidden = true; get('selection').hidden = false; get('comparison').hidden = true;
-    for (const key of ['selected-unit', 'selected-direction', 'selected-salary-basis', 'selected-salary', 'selected-contribution', 'selected-reference', 'selected-gap', 'selected-percentile', 'selected-magnitude', 'selected-scale', 'selected-cohort', 'selected-observed', 'selected-details']) txt(key, '');
-    for (const key of ['gap', 'contribution', 'reference', 'salary']) get(`selected-${key}`).closest('dd')!.removeAttribute('aria-label');
+    for (const key of ['selected-salary-basis', 'selected-salary', 'selected-contribution', 'selected-reference', 'selected-gap', 'selected-percentile', 'selected-magnitude', 'selected-scale', 'selected-cohort', 'selected-observed', 'selected-details']) txt(key, '');
+    for (const key of ['contribution', 'reference', 'salary']) get(`selected-${key}`).closest('dd')!.removeAttribute('aria-label');
     txt('selection', 'Player details unavailable.'); txt('team-summary', ''); get('team-context').hidden = true; txt('team-scope', ''); txt('team-basis', ''); get('team-audit-panel').hidden = true; txt('team-audit', 'No team audit is loaded.');
     for (const field of ['summary', 'context', 'anchor', 'difference', 'range', 'support', 'precision']) txt(`million-${field}`, '');
     txt('count', 'No interactive player records');
@@ -721,8 +722,8 @@ export function mountMoneyball(root: HTMLElement): void {
     txt('selection-name', p ? `${p.id === exampleSelection ? 'Example: ' : ''}${p.name}` : 'Player comparison'); get('selection-name').hidden = !p; get('selection').hidden = !!p; get('comparison').hidden = !p;
     if (p) {
       const copy = playerComparisonCopy(p, m, active, units.value as 'usd' | 'share');
-      for (const field of ['salary', 'salaryBasis', 'unit', 'direction', 'percentile', 'magnitude', 'scale', 'cohort', 'observed', 'details'] as const) txt(`selected-${field === 'salaryBasis' ? 'salary-basis' : field}`, copy[field]);
-      for (const field of ['contribution', 'reference', 'gap'] as const) { txt(`selected-${field}`, copy.values[field]); get(`selected-${field}`).closest('dd')!.setAttribute('aria-label', copy[field]); }
+      for (const field of ['salary', 'salaryBasis', 'gap', 'percentile', 'magnitude', 'scale', 'cohort', 'observed', 'details'] as const) txt(`selected-${field === 'salaryBasis' ? 'salary-basis' : field}`, copy[field]);
+      for (const field of ['contribution', 'reference'] as const) { txt(`selected-${field}`, copy.values[field]); get(`selected-${field}`).closest('dd')!.setAttribute('aria-label', copy[field]); }
       get('selected-salary').closest('dd')!.setAttribute('aria-label', `${copy.salary}. ${copy.salaryBasis}`);
       get('selected-observed').hidden = active.window === 1;
     } else { txt('selection', 'Select a dot, choose an example or search for a player.'); txt('selected-magnitude', ''); txt('selected-scale', ''); }
@@ -753,7 +754,9 @@ export function mountMoneyball(root: HTMLElement): void {
     if (!active) return;
     const m = metric.value as Metric, curve = active.models[m].curve, all = active.players, shown = rows();
     const bounds = chart.getBoundingClientRect(), width = Math.max(260, Math.round(bounds.width)), height = Math.max(340, Math.round(bounds.height));
+    const topSalaryAxis = width < 500;
     chart.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    chart.toggleAttribute('data-salary-axis-top', topSalaryAxis);
     const L = 46, R = 14, T = 26, B = 40, xmax = curve[curve.length - 1].x, xmin = Math.min(0, curve[0].x);
     const values = [...all.map(p => p[m]), ...curve.flatMap(k => [k.y, k.low ?? k.y, k.high ?? k.y])];
     const min = Math.min(0, ...values), max = Math.max(0, ...values), span = max - min || 1, ymin = min - span * .08, ymax = max + span * .08;
@@ -761,13 +764,17 @@ export function mountMoneyball(root: HTMLElement): void {
     chart.setAttribute('aria-label', `Salary and ${metricLabel(m, active)}`);
     const children: SVGElement[] = [svg('desc', {}, 'Dots represent matched players. The solid line is the fixed salary reference. A selected player has a vertical contribution gap. Use search or the table for keyboard access.')];
     for (const v of niceTicks(ymin, ymax)) children.push(svg('line', { x1: L, x2: width - R, y1: y(v), y2: y(v), class: 'mb-grid' }), svg('text', { x: L - 7, y: y(v) + 4, 'text-anchor': 'end' }, String(Number(v.toPrecision(8)))));
-    for (const tick of salaryTicks(xmin, xmax, active.referenceCapUsd, units.value, width < 500 ? 3 : 5)) children.push(svg('text', { x: x(tick.x), y: height - 13, 'text-anchor': tick.x === xmin ? 'start' : x(tick.x) > width - 40 ? 'end' : 'middle' }, tick.label));
+    if (topSalaryAxis) children.push(svg('line', { x1: L, x2: width - R, y1: T - 4, y2: T - 4, class: 'mb-grid' }));
+    for (const tick of salaryTicks(xmin, xmax, active.referenceCapUsd, units.value, topSalaryAxis ? 3 : 5)) children.push(svg('text', { x: x(tick.x), y: topSalaryAxis ? 16 : height - 13, class: 'mb-salary-tick', 'text-anchor': tick.x === xmin ? 'start' : x(tick.x) > width - 40 ? 'end' : 'middle' }, tick.label));
     children.push(svg('line', { x1: L, x2: width - R, y1: y(0), y2: y(0), class: 'mb-zero' }));
     const path = (points: [number, number][]) => points.map(([a, b], i) => `${i ? 'L' : 'M'}${x(a)},${y(b)}`).join(' ');
     if (curve[0].low !== null) children.push(svg('path', { d: `${path(curve.map(k => [k.x, k.low!]))} ${curve.slice().reverse().map(k => `L${x(k.x)},${y(k.high!)}`).join(' ')} Z`, class: 'mb-band' }));
+    const salaryUnit = units.value === 'share'
+      ? active.window === 1 ? 'of the season salary cap' : 'of the salary cap on average across observed seasons'
+      : active.window === 1 ? 'in season salary' : `in average annual pay, adjusted to the ${seasonLabel(active.endSeason)} salary cap`;
     const playerDot = (p: Player) => {
-      const dot = svg('circle', { cx: x(p.salaryCapShare), cy: y(p[m]), r: p.id === selected ? 6 : 3.5, class: p.id === selected ? 'mb-dot mb-selected' : selected ? 'mb-dot mb-peer' : 'mb-dot', 'data-player': p.id, role: 'img', 'aria-label': `${p.name}: ${decimal(p[m])}; ${money(p.salaryUsd)}` });
-      return dot;
+      const salary = units.value === 'share' ? `${decimal(p.salaryCapShare * 100)}%` : money(p.salaryUsd);
+      return svg('circle', { cx: x(p.salaryCapShare), cy: y(p[m]), r: p.id === selected ? 6 : 3.5, class: p.id === selected ? 'mb-dot mb-selected' : selected ? 'mb-dot mb-peer' : 'mb-dot', 'data-player': p.id, role: 'img', 'aria-label': `${p.name}: ${decimal(p[m])} ${m.toUpperCase()}, ${salary} ${salaryUnit}` });
     };
     for (const p of shown) if (p.id !== selected) children.push(playerDot(p));
     const referencePath = path(curve.map(k => [k.x, k.y]));

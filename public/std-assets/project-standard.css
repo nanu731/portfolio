@@ -675,6 +675,19 @@ body.standard-page[data-project='moneyball'] .mb-filter-actions {
 body.standard-page[data-project='moneyball'] .mb-filter-actions .mb-filters { flex: 1; border: 0; }
 body.standard-page[data-project='moneyball'] .mb-chart-tools { margin-block: 4px; }
 body.standard-page[data-project='moneyball'] #mb-salary-help { margin: 0; }
+body.standard-page[data-project='moneyball'] #std-picker-status:empty { margin: 0; }
+body.standard-page[data-project='moneyball'] .mb-plot:has([data-salary-axis-top]) { display: flex; flex-direction: column; }
+body.standard-page[data-project='moneyball'] .mb-plot:has([data-salary-axis-top]) .mb-y { order: -2; }
+body.standard-page[data-project='moneyball'] .mb-plot:has([data-salary-axis-top]) .mb-x {
+  order: -1;
+  text-align: left;
+  margin-top: .5rem;
+}
+body.standard-page[data-project='moneyball'] .mb-selection [data-mb-comparison] > .mb-answer {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: var(--space-2xs) 0 var(--space-xs);
+}
 @media (max-width: 44rem) {
   body.standard-page[data-project='moneyball'] .mb-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

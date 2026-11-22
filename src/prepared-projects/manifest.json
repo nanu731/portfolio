@@ -10,7 +10,7 @@
     {
       "slug": "nba-economics",
       "sourceSha256": "cb1c3f7807f6591fb10cc86ea9a1677f3fef4e2b624d897b60c05ba870c9812f",
-      "pageSha256": "4b011b685762150ca47d28320d530aee1d1297beed0ff3d20a342879659e7296"
+      "pageSha256": "76077d6cf4d4291700dee3536b76d4ccf713911168adc4309d728d6eb9cdb9dd"
     },
     {
       "slug": "nba-shot-selection-analytics",
@@ -50,10 +50,10 @@
     "moneyball-courtside.png": "ac23aba6cf5620693a46339c3aaf226eddc53106bea5a773f61e3c4230129449",
     "/twins-source/assets/nsl.svg": "6eb9cd42f66947d879f343be720386daace8218daf225bb9bedfd96a3d9ad3f9",
     "/twins-source/assets/style.css": "9c4433f1769c982084d4760ef355833281ddc13e4b888895bf19c059c69dea8d",
-    "/std-assets/project-standard.css": "f0ccc4b950264a0fda978dd978e9c792f9f76e5206e182cf3a52dd735af68e21",
+    "/std-assets/project-standard.css": "2abee3bf2a5854d7da09f7d2055e1a008085f78916243e8973b0b0206e3860ff",
     "/std-assets/project-standard-experience.css": "598c22598a86ed32cc62eff98c8a9094296439f6f92f1dd3899476af26ab7b69",
     "/shot-court-viewport.css": "b0739a63015568f411b7ec7782da6373047a3be239f8b73bba17501d61aa69d2",
-    "/std-assets/project-standard-controls.js": "8d497f7889c81f195c414dd874356a94ae7a4089872299e4b1a6d08af28dc9ff",
+    "/std-assets/project-standard-controls.js": "d4b673e47df3f721c6f4703bb9c403e520c585e93f3d6c05329fe019bbe05ae7",
     "/std-assets/project-standard-experience.js": "36f8073bbe1e0c3d71daf16132de302e920e39a9cf4d76e11331c3a01c63c493",
     "/twins-source/research/stocks-model.md": "d8c54f304cc6ac57a094f2a8ebbf3a1ce5b218633d616d831ab4966f2b32e418",
     "/twins-source/data/data.js": "d6d0d8fc05e6b77e14bd3b3c29c1b9ee74b30141582cc4f75b8f47372116cc7f",
@@ -72,7 +72,7 @@
     "/_astro/Header.DI_p7XUA.css": "71f867eab14277ed2b47a6e271fd69e657b1a5c43a643fb5702acce5ae25ccff",
     "/_astro/DefinitionHelp.cMpxuWHm.css": "814afd24536d2d6507d3d55add2be0dc1de2b3a3e102b613994bd6ab7e7c247a",
     "/_astro/nba-economics.DcKuqYx_.css": "dec19b71c8fb1486544da7afbb45a1d1c8bd1aed938473509e4f5bfd434c8baf",
-    "/_astro/MoneyballExplorer.astro_astro_type_script_index_0_lang.Di5bmY4I.js": "b3f4294acc313a5332784b6ecaaf0b18ce8f947f5a456462b6ec0e4cf1232318",
+    "/_astro/MoneyballExplorer.astro_astro_type_script_index_0_lang.Di5bmY4I.js": "a03c6f3634f7585c3ba032a7973c1a5d90e0936099c90a848ca6fbf4d0904a68",
     "/_astro/SpatialShotSelection.DyiGIGt-.css": "115cdc3f10eb63688bb01816ed7b4d7e283281659b9f86b5d07a2a86be84fde8",
     "/_astro/SpatialShotSelection.astro_astro_type_script_index_0_lang.B4yxlpAy.js": "34f75174f9782c5f7823022043ef8d382afed01fa07a7e70fa054804ef3c91f3",
     "/data/spatial-shot-selection/v4/manifest.json": "685aa02b5003cb292fbe0926b242a351200f0cd785a169c31942f8518ac03242",
