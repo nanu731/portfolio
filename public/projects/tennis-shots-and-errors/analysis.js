@@ -334,27 +334,91 @@ function chanceOutcome(holders, winner, players) {
   }).join(" · ");
 }
 
-function mountPressure(host, points, players, chances, uncertain, selected, onExplore) {
+export function collectPressure(matches, firstPlayer, data) {
+  const points = [], uncertain = [0, 0, 0, 0];
+  for (const match of matches) {
+    const key = match.file.split("/").pop().replace(/\.json$/, "");
+    const record = data[key];
+    if (!record) throw new Error("Missing pressure record for " + match.id);
+    const reverse = match.players[1] === firstPlayer;
+    const side = n => reverse && (n === 1 || n === 2) ? 3 - n : n;
+    record.uncertain.forEach((n, i) => { uncertain[i] += n; });
+    for (const [number, bp, sp, mp, winner, ending, shots] of record.rows) {
+      points.push({number, match, holders: [side(bp), side(sp), side(mp)], winner: side(winner), ending, shots});
+    }
+  }
+  return {points, uncertain};
+}
+
+function exploreAcrossMatches(firstPlayer, kind, band, group, list) {
+  list.querySelectorAll(".ta-scroll").forEach(el => tableObserver?.unobserve(el));
+  list.innerHTML = '<h3 tabindex="-1">' + html(pressureTypes[kind]) +
+    (band ? " · " + (band === "Unknown" ? "Length unknown" : html(band) + " shots") : "") +
+    '</h3><div data-list></div>' + pager();
+  paginate(list, group, head(["Match", "Point", "Opportunity", "Shots in play", "Ending", "Point won by"]), p => {
+    const match = p.match, opponent = match.players.find(n => n !== firstPlayer);
+    const names = [firstPlayer, opponent];
+    const link = new URLSearchParams({view: "match", match: match.id, pressure: kind});
+    if (band) link.set("length", band);
+    if (new URLSearchParams(location.hash.slice(1)).get("count") === "inplay") link.set("count", "inplay");
+    return bodyRow(['<a href="#' + html(link) + '">' + html(match.date + " · " + match.event + " · " + match.round) +
+      "</a><br>vs. " + html(opponent), count(p.number), html(chanceOutcome(p.holders, p.winner, names)),
+      p.shots ?? "Unknown", html(outcomes[p.ending]), html(names[p.winner - 1])]);
+  }, "Pressure points across charted matches");
+  list.querySelector("h3").focus();
+}
+
+function mountArchivePressure(section, matches, players, loadData, previous) {
+  const host = section.querySelector("[data-pressure-body]");
+  const names = [players[0], players[1] || "Opponents"];
+  let loading = false;
+  async function load() {
+    if (!section.open || loading || host.querySelector("[data-chance-kind]")) return;
+    loading = true;
+    host.innerHTML = '<p role="status">Loading pressure points…</p>';
+    try {
+      const data = await loadData(players[0]);
+      if (!section.isConnected) return;
+      const {points, uncertain} = collectPressure(matches, players[0], data);
+      mountPressure(host, points, names, uncertain, previous?.querySelector("select")?.value,
+        (kind, band, group, list) => exploreAcrossMatches(players[0], kind, band, group, list));
+    } catch (error) {
+      host.innerHTML = '<p role="status">Pressure points could not be loaded.</p><button type="button">Try again</button>';
+      host.querySelector("button").onclick = load;
+      console.error(error);
+    } finally {
+      loading = false;
+    }
+  }
+  section.ontoggle = load;
+  section.open = Boolean(previous?.open);
+  if (section.open) load();
+}
+
+function mountPressure(host, points, players, uncertain, selected, onExplore) {
   host.innerHTML = '<div class="ta-filters"><label>Opportunity<select data-chance-kind>' +
     options(Object.entries(pressureTypes).map(([key,label]) =>
-      [key, label + " (" + count(points.filter(p => hasChance(chances.get(p[0]), key)).length) + ")"])) +
+      [key, label + " (" + count(points.filter(p => hasChance(p.holders, key)).length) + ")"])) +
     '</select></label></div><div data-pressure-result></div>' +
-    note("Only charted points are included. On a break point, the receiver can win the game. A set or match point can decide the set or match. One rally can count in several categories and appears once in the combined view.");
+    '<div data-chance-list></div>' + note("Only charted points are included. On a break point, the receiver can win the game. A set or match point can decide the set or match. One rally can count in several categories and appears once in the combined view.");
   const choice = host.querySelector("select");
   if (Object.hasOwn(pressureTypes, selected)) choice.value = selected;
   const panel = host.querySelector("[data-pressure-result]");
   function paint() {
     const kind = choice.value;
-    const group = points.filter(p => hasChance(chances.get(p[0]), kind));
+    const list = host.querySelector("[data-chance-list]");
+    list.querySelectorAll(".ta-scroll").forEach(el => tableObserver?.unobserve(el));
+    list.replaceChildren();
+    const group = points.filter(p => hasChance(p.holders, kind));
     const missing = uncertain[kind === "any" ? 3 : chanceKeys.indexOf(kind)];
-    const measured = group.filter(p => p[7] != null);
-    const mean = measured.length ? (measured.reduce((sum,p) => sum+p[7], 0) / measured.length).toFixed(1) : null;
+    const measured = group.filter(p => p.shots != null);
+    const mean = measured.length ? (measured.reduce((sum,p) => sum+p.shots, 0) / measured.length).toFixed(1) : null;
     const summary = mean ? note("<strong>" + mean + " shots in play</strong> on average across " +
       count(measured.length) + " measured " + (measured.length === 1 ? "point." : "points.")) :
       note(group.length ? "Rally length is unavailable for these points." : "No confirmed points of this kind in the chart.");
-    const wins = rows => players.map((_,i) => count(rows.filter(p => p[5] === i + 1).length));
+    const wins = rows => players.map((_,i) => count(rows.filter(p => p.winner === i + 1).length));
     const rows = bands.flatMap(band => {
-      const bucket = group.filter(p => bandOf(p[7]) === band);
+      const bucket = group.filter(p => bandOf(p.shots) === band);
       if (!bucket.length) return [];
       const pick = '<button type="button" data-pressure-band="' + html(band) + '" aria-label="Show ' +
         (band === "Unknown" ? "points of unknown length" : html(band) + ' shots in play') + ' for this category">' +
@@ -366,19 +430,26 @@ function mountPressure(host, points, players, chances, uncertain, selected, onEx
       "<tbody>" + rows.join("") + "</tbody><tfoot>" + bodyRow(["Total", count(group.length), ...wins(group)]) + "</tfoot>") : "";
     panel.querySelectorAll(".ta-scroll").forEach(el => tableObserver?.unobserve(el));
     const endingCounts = Object.entries(outcomes).flatMap(([key,label]) => {
-      const n = group.filter(p => p[6] === key).length;
+      const n = group.filter(p => p.ending === key).length;
       return n ? [html(label) + " (" + count(n) + ")"] : [];
     });
+    const holderIndex = chanceKeys.indexOf(kind);
+    const conversions = holderIndex < 0 ? [] : players.flatMap((name, i) => {
+      const held = group.filter(p => p.holders[holderIndex] & (i + 1));
+      if (!held.length) return [];
+      return [html(name) + " converted " + count(held.filter(p => p.winner === i + 1).length) + " of " + count(held.length)];
+    });
     panel.innerHTML = summary + table +
+      (conversions.length ? note(conversions.join(" · ")) : "") +
       (endingCounts.length ? note("Point endings · " + endingCounts.join(" · ")) : "") +
       (missing ? note("The available score or format leaves " + count(missing) + " additional " +
         (missing === 1 ? "point unclassified." : "points unclassified.")) : "") +
       (group.length ? '<button type="button" data-show-chances>View ' + count(group.length) + (group.length === 1 ? " point" : " points") + '</button>' : "");
     watchTables(panel);
     const show = panel.querySelector("[data-show-chances]");
-    if (show) show.onclick = () => onExplore(kind);
+    if (show) show.onclick = () => onExplore(kind, "", group, list);
     for (const button of panel.querySelectorAll("[data-pressure-band]")) {
-      button.onclick = () => onExplore(kind, button.dataset.pressureBand);
+      button.onclick = () => onExplore(kind, button.dataset.pressureBand, group.filter(p => bandOf(p.shots) === button.dataset.pressureBand), list);
     }
   }
   choice.onchange = paint;
@@ -713,7 +784,7 @@ function coverage(matches, points) {
 
 export function renderAnalysis(
   root,
-  { mode, matches, players, points = [], pressureData = null, onMatch, attempt = true, onRule, results = {}, preservePoint = false },
+  { mode, matches, players, points = [], pressureData = null, loadPlayerPressure, onMatch, attempt = true, onRule, results = {}, preservePoint = false },
 ) {
   if (!matches?.length) {
     root.innerHTML = "<p>No charted matches for this selection.</p>";
@@ -733,7 +804,7 @@ export function renderAnalysis(
     page: Number(previousRecords.dataset.pageIndex),
   } : null;
   const countOptionsOpen = preservePoint && root.querySelector("[data-count-options]")?.open;
-  const savedPressure = preservePoint && root.querySelector("[data-pressure-section]");
+  const savedPressure = preservePoint ? root.querySelector("[data-pressure-section]") : null;
   const savedLedger = preservePoint && isMatch && root.querySelector("[data-records]");
   const recordSection = '<section class="ta-section" id="point-records" tabindex="-1" data-records></section>';
   const score = m => {
@@ -752,9 +823,9 @@ export function renderAnalysis(
     (isMatch ? note(score(matches[0])) : "") +
     (alerts.length ? note(alerts.join(" ")) : "") +
     profile(matches, players, mode, attempt) +
-    (isMatch ? rallyBreakdown(points, players) +
-      '<details class="ta-method" data-pressure-section><summary>High-pressure points</summary><div data-pressure-body></div></details>' +
-      '<div data-opportunities></div>' :
+    (isMatch ? rallyBreakdown(points, players) : "") +
+    '<details class="ta-method" data-pressure-section><summary>High-pressure points</summary><div data-pressure-body></div></details>' +
+    (isMatch ? '<div data-opportunities></div>' :
       (extra ? '<details class="ta-method"><summary>Do winner and error rallies lengthen together?</summary>' + extra + "</details>" : "")) +
     recordSection + coverage(matches, points) + "</div>";
   root.querySelector("[data-count-options]").open = Boolean(countOptionsOpen);
@@ -777,7 +848,9 @@ export function renderAnalysis(
     const pressureSection = root.querySelector("[data-pressure-section]");
     const pressureHost = pressureSection.querySelector("[data-pressure-body]");
     if (chances) {
-      mountPressure(pressureHost, points, players, chances, pressureData.uncertain,
+      const confirmed = points.filter(p => chances.has(p[0])).map(p =>
+        ({holders: chances.get(p[0]), winner: p[5], ending: p[6], shots: p[7]}));
+      mountPressure(pressureHost, confirmed, players, pressureData.uncertain,
         savedPressure?.querySelector?.("select")?.value || records.querySelector("[data-pressure]").value, explore);
       pressureSection.open = Boolean(savedPressure?.open);
     } else pressureHost.innerHTML = note("The pressure-point data could not be loaded. Reload the page to retry.");
@@ -790,6 +863,7 @@ export function renderAnalysis(
     }
     return;
   }
+  mountArchivePressure(root.querySelector("[data-pressure-section]"), matches, players, loadPlayerPressure, savedPressure);
   const preview = mode === "player" && matches.length > 3;
   records.innerHTML =
     "<h2>" + (mode === "h2h" ? "Their meetings" : "Charted match history") + "</h2>" +

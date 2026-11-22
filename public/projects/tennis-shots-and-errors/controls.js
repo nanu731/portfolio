@@ -70,6 +70,20 @@ async function loadPressure(match) {
   const data = await pressureCache.get(bucket);
   return data?.[key] || null;
 }
+const playerPressureCache = new Map();
+async function loadPlayerPressure(name) {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(name));
+  const bucket = new Uint8Array(digest)[0].toString(16).padStart(2, '0');
+  if (!playerPressureCache.has(bucket)) {
+    if (playerPressureCache.size >= 4) playerPressureCache.delete(playerPressureCache.keys().next().value);
+    const pending = json('./data/player-pressure/' + bucket + '.json').catch(error => {
+      if (playerPressureCache.get(bucket) === pending) playerPressureCache.delete(bucket);
+      throw error;
+    });
+    playerPressureCache.set(bucket, pending);
+  }
+  return playerPressureCache.get(bucket);
+}
 function retry(message, handler) {
   $('results').removeAttribute('aria-busy');
   const p = document.createElement('p');
@@ -112,7 +126,7 @@ async function update(preservePoint = false) {
     if (!matches.length) {
       $('results').textContent = 'No charted meetings in this archive. Choose another player or opponent.';
     } else {
-      renderAnalysis($('results'),{mode,matches,players,points,pressureData,results,attempt,preservePoint,onRule(value) {
+      renderAnalysis($('results'),{mode,matches,players,points,pressureData,loadPlayerPressure,results,attempt,preservePoint,onRule(value) {
         attempt = value;
         const params = readParams();
         params.set('count', attempt ? 'attempt' : 'inplay');

@@ -92,6 +92,21 @@ def pressure(score, server, sets, games, best_of, code, observed_tiebreak=None):
     return (bp, sp, mp)
 
 
+def build_player_pressure(data, archive, buckets):
+    """Group confirmed point outcomes by player lookup bucket for on-demand comparisons."""
+    groups = defaultdict(dict)
+    for match in archive.values():
+        key = Path(match["file"]).stem
+        overlay = buckets[key[:2]][key]
+        points = {p[0]: p for p in json.loads((data / "points" / (key + ".json")).read_text())}
+        rows = [[number, *holders, *points[number][5:8]] for number, *holders in overlay["rows"]]
+        record = {"rows": rows, "uncertain": overlay["uncertain"]}
+        for bucket in {hashlib.sha256(name.encode()).hexdigest()[:2] for name in match["players"]}:
+            groups[bucket][key] = record
+    for bucket, matches in groups.items():
+        save(data / "player-pressure" / (bucket + ".json"), matches)
+
+
 def build(source, data):
     provenance = json.loads((data / "provenance.json").read_text())
     archive = {m["id"]: m for m in json.loads((data / "index.json").read_text())}
@@ -162,6 +177,7 @@ def build(source, data):
         raise ValueError("Pressure overlay does not cover the full archive")
     for key, bucket in buckets.items():
         save(data / "pressure" / (key + ".json"), bucket)
+    build_player_pressure(data, archive, buckets)
     print(f"Built pressure coverage for {len(archive):,} matches in {len(buckets)} files.")
 
 
