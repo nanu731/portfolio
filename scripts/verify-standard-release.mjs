@@ -34,5 +34,6 @@ for (const {slug} of primary) {
 }
 for (const html of [home, projects]) {
   if (!/<a\b(?=[^>]*href="https:\/\/nbapredictions\.happybuddha1008\.workers\.dev\/")(?=[^>]*target="_blank")(?=[^>]*rel="noopener noreferrer")[^>]*>/.test(html)) throw Error('NBA Game Predictor new-tab link missing.');
+  if (!/<a\b(?=[^>]*href="https:\/\/mlbpredictions\.happybuddha1008\.workers\.dev\/")(?=[^>]*target="_blank")(?=[^>]*rel="noopener noreferrer")[^>]*>/.test(html)) throw Error('MLB Game Predictor new-tab link missing.');
 }
 console.log(`Verified ${manifest.projects.length} project pages, inline CSP hashes, ${Object.keys(manifest.assets).length} built assets and both project listings.`);

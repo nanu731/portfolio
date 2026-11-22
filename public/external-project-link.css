@@ -36,3 +36,11 @@
 @media (prefers-reduced-motion: reduce) {
   .external-project-link { transition: none; }
 }
+
+.predictor-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs, 16px);
+  margin-top: var(--space-m, 26px);
+}
+.predictor-links .external-project-link { margin-top: 0; }

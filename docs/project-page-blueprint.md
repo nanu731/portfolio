@@ -62,9 +62,12 @@ this rule. A question can retain its question mark.
 
 ### Externally hosted project
 
-**NBA Game Predictor** is a button in the Home Projects section and Projects
-directory. Its destination is `https://nbapredictions.happybuddha1008.workers.dev/`.
-It opens a new tab with `target="_blank"` and `rel="noopener noreferrer"`, an
+**NBA Game Predictor** and **MLB Game Predictor** are matching buttons in the Home
+Projects section and Projects directory. Their destinations are
+`https://nbapredictions.happybuddha1008.workers.dev/` and
+`https://mlbpredictions.happybuddha1008.workers.dev/`, respectively.
+Keep them together with wrapping on narrow screens.
+Each opens a new tab with `target="_blank"` and `rel="noopener noreferrer"`, an
 external-link SVG and an accessible new-tab label. Reuse `GamePredictorLink.astro`
 and `public/external-project-link.css` for both placements. Keep hover, focus,
 press and reduced-motion behavior. It has no local analysis route, fabricated
