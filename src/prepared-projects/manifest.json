@@ -10,7 +10,7 @@
     {
       "slug": "nba-economics",
       "sourceSha256": "cb1c3f7807f6591fb10cc86ea9a1677f3fef4e2b624d897b60c05ba870c9812f",
-      "pageSha256": "e809584372503a36949c6852e04885fc43f7d87874d209c14cdd786d33bb0ada"
+      "pageSha256": "2956a67b3ea7559efc311c1d32853fe5ebe0c8c23c6efe5b904f9fd67717a0bc"
     },
     {
       "slug": "nba-shot-selection-analytics",
@@ -45,8 +45,8 @@
   ],
   "assets": {
     "moneyball-courtside.LICENSE.txt": "e12ce9ce10be754827bd42ce3cafd8ccc81b0bfe7ecdaf129221a07743f5b6a4",
-    "moneyball-courtside.css": "f01cd79e85f21e00fc42c5a61df90ac0eaf24ab537b177ff2531b1aaa608e0f4",
-    "moneyball-courtside.js": "9c86846e1074ad179320ec0421d511302b0db068a037bd768cea8d7c296d1b10",
+    "moneyball-courtside.css": "b08bdd7b329e1b46c92fd0a1b8378c82d5ee1f20e9abdb70964029cfae42624c",
+    "moneyball-courtside.js": "1a583ad43b0a81249e9f995f78e04b0be8ad0a71242d1b584571735169c5690b",
     "moneyball-courtside.png": "ac23aba6cf5620693a46339c3aaf226eddc53106bea5a773f61e3c4230129449",
     "/twins-source/assets/nsl.svg": "6eb9cd42f66947d879f343be720386daace8218daf225bb9bedfd96a3d9ad3f9",
     "/twins-source/assets/style.css": "3182737e6891aeee9594c0ce27d683815da3321a99dee47b19434e63a4421238",
@@ -13914,7 +13914,8 @@
     "/projects/tennis-shots-and-errors/scripts/build_results.py": "e86ebb23f0d43afc160cafe55edb2e232335a1b74663343ecf4d38343586f18a",
     "/nfl-comparison-swap.ea98591f29ac.js": "ea98591f29ace2efe42589ea7b128dbba813f19bd76fa0ab95cae4335e3f8fd0",
     "/nfl-football-swap.css": "e4dfc9a2cc969717a21ebee263468d1d51ecb28628239d508f36fd2ac49beb5c",
-    "/nfl-football-swap.png": "07218da34500c90262f8ccb3bd72c28fa5f405962a210a8c480282afbdb85ef3"
+    "/nfl-football-swap.png": "07218da34500c90262f8ccb3bd72c28fa5f405962a210a8c480282afbdb85ef3",
+    "moneyball-courtside-miss.png": "9d6bd16f3e7700223aed6474182910a8ad8c8c40cede1ce50df932080170dce1"
   },
   "integrationChanges": [
     {

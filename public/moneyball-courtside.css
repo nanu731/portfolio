@@ -7,4 +7,5 @@
 .courtside-scene img { position: absolute; left: 0; top: 0; width: 576px; height: 512px; max-width: none; image-rendering: pixelated; }
 .courtside-copy { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 #courtside-label { font-weight: 600; }
-#courtside-status { font-size: .875rem; line-height: 1.4; }
+.courtside-scene img[hidden] { display: none; }
+#courtside-status, #courtside-odds { font-size: .875rem; line-height: 1.4; }
