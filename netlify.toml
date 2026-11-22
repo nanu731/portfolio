@@ -1,6 +1,9 @@
-# Vercel is the production host; skip this unused Netlify build pipeline.
 [build]
-  ignore = "exit 0"
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
 
 # Astro supplies script/style hashes in each built page's CSP meta element.
 # Do not add default-src or script-src here: a second policy would block those
