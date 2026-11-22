@@ -20,7 +20,7 @@
     {
       "slug": "nfl-qbs-re-evaluated",
       "sourceSha256": "3f197a5d2da79b18c054f71a68fe4f9cd21e90db3041c1c302df0d2602db7fd0",
-      "pageSha256": "c6b382ca2705475958f587548fa71166c1cbf41268e3de6eb858d4a4c18ae1fb"
+      "pageSha256": "6d7c84e452a5287c2c28512a04bac6d2334f70b21a2d55498e4beee6a193d81c"
     },
     {
       "slug": "tennis-point-phases",
@@ -13911,7 +13911,10 @@
     "/projects/tennis-shots-and-errors/assets/PIXELFX-LICENSE.txt": "0a77565a50c3462831244452f129c38d2adc4fd07897cbeba8adc943f958604e",
     "/projects/tennis-shots-and-errors/data/featured.json": "dacba8cb1d28b6fd64055086c3889be3636e0e13e446de058b711d13c2cce3ab",
     "/projects/tennis-shots-and-errors/data/results.json": "7115c0e82115ee1015f262e3bc0ed66f9aeb2b10f29fc216cce6e828fec5f1df",
-    "/projects/tennis-shots-and-errors/scripts/build_results.py": "e86ebb23f0d43afc160cafe55edb2e232335a1b74663343ecf4d38343586f18a"
+    "/projects/tennis-shots-and-errors/scripts/build_results.py": "e86ebb23f0d43afc160cafe55edb2e232335a1b74663343ecf4d38343586f18a",
+    "/nfl-comparison-swap.ea98591f29ac.js": "ea98591f29ace2efe42589ea7b128dbba813f19bd76fa0ab95cae4335e3f8fd0",
+    "/nfl-football-swap.css": "e4dfc9a2cc969717a21ebee263468d1d51ecb28628239d508f36fd2ac49beb5c",
+    "/nfl-football-swap.png": "07218da34500c90262f8ccb3bd72c28fa5f405962a210a8c480282afbdb85ef3"
   },
   "integrationChanges": [
     {
