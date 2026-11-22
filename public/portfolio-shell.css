@@ -28,7 +28,7 @@ header.portfolio-header {
   gap: .25rem 1.5rem;
   padding: .5rem var(--shell-inset);
 }
-.portfolio-header .portfolio-mast > nav {
+body > header.portfolio-header .portfolio-mast > nav {
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -36,7 +36,7 @@ header.portfolio-header {
   gap: 0;
   padding: 0;
 }
-.portfolio-header a, .portfolio-header nav > a, .portfolio-header summary {
+.portfolio-header a, body > header.portfolio-header .portfolio-mast > nav a, .portfolio-header summary {
   box-sizing: border-box;
   display: flex;
   align-items: center;
