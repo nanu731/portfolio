@@ -22,7 +22,7 @@ for (const hash of page.styleHashes) Astro.csp?.insertStyleHash(hash);
     <Fragment set:html={beforeHeader} />
     <Header />
     <Fragment set:html={content.replace('<main>', '<main id="main-content" tabindex="-1">')} />
-    <Footer project={page.title} credit={page.kind === 'rally'} />
+    <Footer project={page.title} credit={page.kind === 'rally'} showProjectTitle={page.kind !== 'nfl'} />
     <Fragment set:html={afterFooter} />
   </body>
 </html>

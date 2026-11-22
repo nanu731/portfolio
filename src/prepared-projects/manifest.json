@@ -20,7 +20,7 @@
     {
       "slug": "nfl-qbs-re-evaluated",
       "sourceSha256": "3f197a5d2da79b18c054f71a68fe4f9cd21e90db3041c1c302df0d2602db7fd0",
-      "pageSha256": "6d7c84e452a5287c2c28512a04bac6d2334f70b21a2d55498e4beee6a193d81c"
+      "pageSha256": "8ba3bbe80d3db6d3bd8d0516b8760434ec6054e3f621ceb963dd5a793da557c5"
     },
     {
       "slug": "tennis-point-phases",
@@ -13915,7 +13915,9 @@
     "/nfl-comparison-swap.ea98591f29ac.js": "ea98591f29ace2efe42589ea7b128dbba813f19bd76fa0ab95cae4335e3f8fd0",
     "/nfl-football-swap.css": "e4dfc9a2cc969717a21ebee263468d1d51ecb28628239d508f36fd2ac49beb5c",
     "/nfl-football-swap.png": "07218da34500c90262f8ccb3bd72c28fa5f405962a210a8c480282afbdb85ef3",
-    "moneyball-courtside-miss.png": "9d6bd16f3e7700223aed6474182910a8ad8c8c40cede1ce50df932080170dce1"
+    "moneyball-courtside-miss.png": "9d6bd16f3e7700223aed6474182910a8ad8c8c40cede1ce50df932080170dce1",
+    "/nfl-radar-first.bddb53bb4901.js": "bddb53bb490153b87db1401168e95659e000467595f7ba76fbc9759edca758a8",
+    "/nfl-radar-first.css": "09524717361314f1212e268c409d911e706aa27edf2bec208319c6d6d0d772e0"
   },
   "integrationChanges": [
     {

@@ -1,6 +1,5 @@
 ---
 import {readFile} from 'node:fs/promises';
-import DefinitionHelp from './DefinitionHelp.astro';
 import {STATS,formatStatValue} from '../lib/nfl-charts';
 import {validatePair,DATA_URL,MANIFEST_URL,fmt,evidence,interval,studyLabel} from '../lib/nfl-comparison';
 const data=await validatePair(await readFile('public'+DATA_URL),await readFile('public'+MANIFEST_URL));
@@ -35,143 +34,117 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
 
 ---
 <link rel="stylesheet" href="/nfl-football-swap.css" />
+<link rel="stylesheet" href="/nfl-radar-first.css" />
 <nfl-comparison data-state="loading">
  <section aria-label="Compare two quarterbacks">
-  <div class="project-views" role="tablist" aria-label="Explore quarterback data" data-project-views hidden>
-   <button id="nfl-profile-tab" type="button" role="tab" data-project-view="profile" aria-controls="nfl-profile-panel" aria-selected="true">Attribute profile</button>
-   <button id="nfl-stats-tab" type="button" role="tab" data-project-view="stats" aria-controls="nfl-stats-panel" aria-selected="false" tabindex="-1">Stats comparison</button>
-  </div>
-  <noscript><nav aria-label="Explore quarterback data"><a href="#nfl-profile-panel">Attribute profile</a> · <a href="#nfl-stats-panel">Stats comparison</a></nav></noscript>
-  <p class="view-intro" data-view-intro="profile">Each line shows one quarterback season across seven attributes. Farther out means a better expert rank or a higher standing in that season’s stats. Arm strength and processing use expert rankings; the rest use season results. The overall shape is not a talent rating.</p>
-  <p class="view-intro" data-view-intro="stats" hidden>Compare two quarterback seasons using CPOE (completions above expectation), EPA (scoring value per pass, sack or scramble), or sack avoidance. Each point represents one player; farther right means a higher value. Teammates, opponents and play choices also affect the results.</p>
-  <p class="view-scope visually-hidden" data-view-scope>Attribute filters apply only to Attribute profile.</p>
   <div class="fan-controls">
    <div class="comparison-side" role="group" aria-label="Quarterback A and season">
     <div class="player-season">
      <div class="player-combobox">
       <label class="visually-hidden" for="nfl-search-a">Quarterback A</label>
       <div class="combobox-shell" data-combobox-a>
-       <input id="nfl-search-a" type="search" data-search-a value={players.find(r=>r.player_key==='00-0033873')!.display_name} placeholder="Search players in 2023" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="nfl-suggestions-a" aria-describedby="nfl-search-status-a" autocomplete="off" disabled />
+       <input id="nfl-search-a" type="search" data-search-a value={players.find(r=>r.player_key==='00-0033873')!.display_name} placeholder="Search quarterbacks" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="nfl-suggestions-a" aria-describedby="nfl-search-status-a" autocomplete="off" disabled />
        <div id="nfl-suggestions-a" class="suggestion-menu" role="listbox" aria-label="Quarterbacks for A" data-suggestions-a hidden></div>
       </div>
       <select id="nfl-player-a" name="nfl-player-a" data-a aria-label="Selected quarterback A" hidden disabled><option value="">Choose quarterback</option>{players.map(r=><option value={r.player_key} selected={r.player_key==='00-0033873'}>{r.display_name}</option>)}</select>
      </div>
-     <label class="label season-control" for="nfl-season-a">Season<span class="visually-hidden"> A</span><select id="nfl-season-a" name="nfl-season-a" data-season-a disabled>{seasons.map(y=><option value={y.season} selected={y.season===2023}>{y.season}{y.status==='source_blocked'?' · excluded':''}</option>)}</select></label>
+     <label class="label season-control" for="nfl-season-a"><span class="visually-hidden">Season for quarterback A</span><select id="nfl-season-a" name="nfl-season-a" data-season-a disabled>{seasons.map(y=><option value={y.season} selected={y.season===2023}>{y.season}{y.status==='source_blocked'?' · excluded':''}</option>)}</select></label>
     </div>
     <p class="search-status visually-hidden" id="nfl-search-status-a" data-search-status-a role="status" aria-live="polite"></p>
    </div>
-   <button type="button" class="nfl-swap" data-swap-players disabled><span class="nfl-swap-ball" data-swap-ball aria-hidden="true"></span><span>Swap players</span></button>
    <div class="comparison-side" role="group" aria-label="Quarterback B and season">
     <div class="player-season">
      <div class="player-combobox">
       <label class="visually-hidden" for="nfl-search-b">Quarterback B</label>
       <div class="combobox-shell" data-combobox-b>
-       <input id="nfl-search-b" type="search" data-search-b value={players.find(r=>r.player_key==='00-0034857')!.display_name} placeholder="Search players in 2023" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="nfl-suggestions-b" aria-describedby="nfl-search-status-b" autocomplete="off" disabled />
+       <input id="nfl-search-b" type="search" data-search-b value={players.find(r=>r.player_key==='00-0034857')!.display_name} placeholder="Search quarterbacks" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="nfl-suggestions-b" aria-describedby="nfl-search-status-b" autocomplete="off" disabled />
        <div id="nfl-suggestions-b" class="suggestion-menu" role="listbox" aria-label="Quarterbacks for B" data-suggestions-b hidden></div>
       </div>
       <select id="nfl-player-b" name="nfl-player-b" data-b aria-label="Selected quarterback B" hidden disabled><option value="">Choose quarterback</option>{players.map(r=><option value={r.player_key} selected={r.player_key==='00-0034857'}>{r.display_name}</option>)}</select>
      </div>
-     <label class="label season-control" for="nfl-season-b">Season<span class="visually-hidden"> B</span><select id="nfl-season-b" name="nfl-season-b" data-season-b disabled>{seasons.map(y=><option value={y.season} selected={y.season===2023}>{y.season}{y.status==='source_blocked'?' · excluded':''}</option>)}</select></label>
+     <label class="label season-control" for="nfl-season-b"><span class="visually-hidden">Season for quarterback B</span><select id="nfl-season-b" name="nfl-season-b" data-season-b disabled>{seasons.map(y=><option value={y.season} selected={y.season===2023}>{y.season}{y.status==='source_blocked'?' · excluded':''}</option>)}</select></label>
     </div>
     <p class="search-status visually-hidden" id="nfl-search-status-b" data-search-status-b role="status" aria-live="polite"></p>
    </div>
   </div>
-  <p class="coverage">Regular season · 2006–2025, excluding 2011 · <a href="#nfl-definition-annual">Data coverage</a></p>
+  <div class="nfl-view-bar">
+  <div class="project-views" role="tablist" aria-label="Explore quarterback data" data-project-views hidden>
+   <button id="nfl-profile-tab" type="button" role="tab" data-project-view="profile" aria-controls="nfl-profile-panel" aria-selected="true">QB radar</button>
+   <button id="nfl-stats-tab" type="button" role="tab" data-project-view="stats" aria-controls="nfl-stats-panel" aria-selected="false" tabindex="-1">Season stats</button>
+  </div>
+   <button type="button" class="nfl-swap" data-swap-players disabled><span class="nfl-swap-ball" data-swap-ball aria-hidden="true"></span><span>Swap sides</span></button>
+  </div>
+  <noscript><nav aria-label="Explore quarterback data"><a href="#nfl-profile-panel">QB radar</a> · <a href="#nfl-stats-panel">Season stats</a></nav></noscript>
+  <p class="view-scope" data-view-scope hidden>Filters only apply to QB radar.</p>
   <div class="selection-availability" aria-label="Selected player-season availability"><p data-availability-a role="status" aria-live="polite"></p><p data-availability-b role="status" aria-live="polite"></p></div>
-  <p class="limit" hidden>Season comparisons also reflect teammates, opponents and model differences; they do not isolate improvement.</p>
-  <p class="availability" data-comparison-status role="status" aria-live="polite">Checking comparison data…</p><button type="button" data-retry hidden>Retry comparison data</button>
+  <p class="availability" data-comparison-status role="status" aria-live="polite">Checking comparison data…</p><button type="button" data-retry hidden>Retry</button>
   <section id="nfl-profile-panel" class="radar-prototype" role="tabpanel" aria-labelledby="nfl-profile-tab" data-view-panel="profile">
    <h2 id="nfl-radar-heading" class="visually-hidden">Quarterback attribute profile</h2>
-   <p class="profile-window visually-hidden" data-profile-window>Expert ranks describe their listed preseason. Stats describe each selected regular season.</p>
-   <button type="button" data-complete-example hidden disabled>Try Mahomes vs Allen (2023)</button>
-   <noscript><p>The radar requires JavaScript. All seven default positions appear below: Patrick Mahomes · 2023 (A) and Josh Allen · 2023 (B). Expert assessments predate the season; outcome values describe the regular season.</p><div class="table-scroll" role="region" aria-label="Static default seven-attribute comparison" tabindex="0"><table data-static-default><thead><tr><th scope="col">Position / evidence</th><th scope="col">A · Patrick Mahomes · 2023</th><th scope="col">B · Josh Allen · 2023</th></tr></thead><tbody>
+   <noscript><p>The radar requires JavaScript. All seven default positions appear below: Patrick Mahomes · 2023 (A) and Josh Allen · 2023 (B). Expert assessments predate the season; outcome values describe the regular season.</p><div class="table-scroll" role="region" aria-label="Static default seven-attribute comparison" tabindex="0"><table data-static-default><thead><tr><th scope="col">Attribute / measure</th><th scope="col">A · Patrick Mahomes · 2023</th><th scope="col">B · Josh Allen · 2023</th></tr></thead><tbody>
     {(['arm_strength','field_vision'] as const).map(trait=><tr><th scope="row">{trait==='arm_strength'?'Arm strength':'Processing proxy · field vision'}</th>{defaults.map(d=><td data-static-expert={trait}>{expertLabel(expertFor(trait,2023,d.annual.player_key)!)} expert rank<br/>{expertFor(trait,2023,d.annual.player_key)!.category} · 2023 preseason<br/><a href={EXPERT_SOURCE.url}>ESPN · {EXPERT_SOURCE.published}</a><br/>{EXPERT_SOURCE.shortAuthors}. Preseason editorial assessment; drawing index only.</td>)}</tr>)}
     {staticOutcomes.map((label,i)=><tr><th scope="row">{label}</th>{[0,1].map(j=><td>{displayPercentile(staticRank(i,j).percentile)} percentile<br/>2023 · annual finite eligible peers · N={staticRank(i,j).n}<br/>Recorded value: {fmt(staticValue(i,j),i===0?1:3)}<br/>{staticEvidence(i,j)} Raw ranges are not percentile intervals.</td>)}</tr>)}</tbody></table></div></noscript>
    <div class="radar-layout">
     <figure class="radar-figure" data-expandable-chart="profile">
-     <button class="chart-expand" type="button" data-expand-chart="profile" aria-haspopup="dialog" aria-controls="nfl-chart-lightbox" disabled>Enlarge chart</button>
      <div class="radar-series-key" data-radar-legend><span><svg viewBox="0 0 44 20" aria-hidden="true"><line x1="0" y1="10" x2="44" y2="10" class="series-a"/><circle cx="22" cy="10" r="4.5" class="mark-a"/></svg><span data-radar-legend-name="a">A · Patrick Mahomes · 2023</span></span><span><svg viewBox="0 0 44 20" aria-hidden="true"><line x1="0" y1="10" x2="44" y2="10" class="series-b"/><path d="M22 4.5 L27.5 10 L22 15.5 L16.5 10 Z" class="mark-b"/></svg><span data-radar-legend-name="b">B · Josh Allen · 2023</span></span></div>
 
      <div data-chart-host><svg id="nfl-radar" class="radar-chart" data-radar hidden role="group" aria-labelledby="nfl-radar-title nfl-radar-description"></svg></div>
-     <figcaption>Read one attribute at a time; shape size is not an overall rating.</figcaption>
+     <figcaption>Arm strength and processing use preseason expert ranks. The other five compare each QB with eligible passers from that season. There’s no overall score.</figcaption>
+     <button class="chart-expand" type="button" data-expand-chart="profile" aria-haspopup="dialog" aria-controls="nfl-chart-lightbox" disabled>Enlarge chart</button>
     </figure>
-    <div class="profile-readout">
-     <p class="requirement-help" id="nfl-requirement-help">Only show seasons with every checked attribute.</p>
-     <button type="button" data-clear-requirements disabled>Clear filters</button>
-     <table aria-label="Selected attribute values"><thead><tr><th scope="col">Attribute</th><th scope="col" data-profile-a>A</th><th scope="col" data-profile-b>B</th></tr></thead><tbody data-profile-values>{profileAttributes.map((name,i)=><tr data-attribute-index={i}><th scope="row"><label class="attribute-requirement"><input type="checkbox" data-require-attribute={i} aria-describedby="nfl-requirement-help" disabled/>{name}</label></th><td data-side="a">Unavailable</td><td data-side="b">Unavailable</td></tr>)}</tbody></table>
-    </div>
    </div>
-   <p class="expert-sources" data-expert-summary></p>
    <p class="expert-method-note" data-expert-method-note hidden></p>
    <p class="evidence-gaps" data-radar-gaps hidden></p>
-   <details class="radar-detail"><summary>Values and sources</summary>
-    <p>EPA/O means expected points added per included quarterback play. D means recorded dropbacks; O includes those dropbacks and non-scramble quarterback runs. A raw conditional range describes game-sampling variation in the original units under study assumptions. It is not a percentile interval, every source of uncertainty or a test of the difference between players.</p>
+   <button type="button" data-complete-example hidden disabled>Try Mahomes vs. Allen (2023)</button>
+   <div class="nfl-radar-tools">
+    <details class="profile-readout" data-exact-values><summary>View exact values</summary>
+     <table aria-label="Selected attribute values"><thead><tr><th scope="col">Attribute</th><th scope="col" data-profile-a>Quarterback A</th><th scope="col" data-profile-b>Quarterback B</th></tr></thead><tbody data-profile-values>{profileAttributes.map((name,i)=><tr data-attribute-index={i}><th scope="row">{name}</th><td data-side="a">Unavailable</td><td data-side="b">Unavailable</td></tr>)}</tbody></table>
+    </details>
+    <details class="nfl-filters"><summary>Filter by available data<span data-filter-count></span></summary>
+     <p class="requirement-help" id="nfl-requirement-help">Show only seasons with all selected attributes.</p>
+     <div class="nfl-filter-options">{profileAttributes.map((name,i)=><label class="attribute-requirement"><input type="checkbox" data-require-attribute={i} aria-describedby="nfl-requirement-help" disabled/>{name}</label>)}</div>
+     <button type="button" data-clear-requirements hidden disabled>Clear filters</button>
+    </details>
+   </div>
+   <details class="radar-detail"><summary>Values &amp; sources</summary>
+    <p class="expert-sources" data-expert-summary></p>
+    <p>Ranges describe game-to-game variation in the original units. See the <a href="#nfl-method-uncertainty">range assumptions</a> and <a href="#nfl-definition-populations">which plays count</a>.</p>
     <div class="radar-values table-scroll" role="region" aria-label="Clockwise evidence map and selected values in original units" tabindex="0">
-     <table class="radar-table"><caption>Clockwise evidence map · original units</caption><thead><tr><th scope="col">Position / evidence</th><th scope="col" data-radar-a>Quarterback A</th><th scope="col" data-radar-b>Quarterback B</th></tr></thead><tbody data-radar-values></tbody></table>
+     <table class="radar-table"><caption>Selected results in their original units</caption><thead><tr><th scope="col">Attribute / measure</th><th scope="col" data-radar-a>Quarterback A</th><th scope="col" data-radar-b>Quarterback B</th></tr></thead><tbody data-radar-values></tbody></table>
     </div>
     <p class="radar-counts" data-radar-counts></p>
     <p>All five outcomes use their own fixed same-year finite annual-eligible peers. Equal percentile gaps need not mean equal outcome or ability gaps. The three depth outcomes share context and correlated evidence, so they are not independent skill votes. Raw game-based ranges are not percentile intervals.</p>
     <p>Teammates, opponents and model versions can differ across seasons. These observed summaries do not measure isolated skill or improvement. Model versions and calibration are unknown across eras.</p>
     <p class="radar-limits">The pocket-presence and mobility traits are not directly measured. Sack avoidance also reflects protection and receivers; scramble contribution combines usage with shared play value and omits other runs and athletic movement.</p>
-   <p class="radar-scale"><DefinitionHelp id="nfl-radar-radius" label="How the radius works" detailTarget="nfl-radar-scaling" detailLabel="Two drawing scales, sources and limits">Expert ranks use (11 − rank) / 10 as an ordinal drawing index. The other five spokes use their accepted outcome percentile divided by 100. Equal distances across these scales do not mean equal skill. Missing ranks and outcomes stay unavailable; neither scale gives an overall grade.</DefinitionHelp> · <a href="#nfl-radar-scaling">Two scales, sources and limitations</a></p>
-   </details>
-   <details class="selected-depth"><summary>Passing-distance details</summary><p>Four bins per available player-season. Negative air yards are diagnostic only and do not appear on the radar. Raw E-game ranges include games with no throws in that bin. They are not percentile intervals.</p><div class="table-scroll" role="region" aria-label="Selected depth records" tabindex="0"><table><thead><tr><th scope="col">Side / player / year / bin</th><th scope="col">CPOE (pp)</th><th scope="col">Throws / games</th><th scope="col">Raw conditional range / status</th></tr></thead><tbody data-selected-depth></tbody></table></div></details>
+   <p class="radar-scale"><a href="#nfl-radar-scaling">How the radar scale works</a> · <a href="#nfl-radar-scaling">Two scales, sources and limitations</a></p>
+   <details class="selected-depth"><summary>Passing-distance details</summary><p>The radar uses short, medium and deep throws. This table also includes throws behind the line of scrimmage. Ranges include games with zero throws at that depth.</p><div class="table-scroll" role="region" aria-label="Selected depth records" tabindex="0"><table><thead><tr><th scope="col">Side / player / year / bin</th><th scope="col">CPOE (pp)</th><th scope="col">Throws / games</th><th scope="col">Raw conditional range / status</th></tr></thead><tbody data-selected-depth></tbody></table></div></details>
 
+   </details>
   </section>
   <section id="nfl-stats-panel" class="stats-comparison" role="tabpanel" aria-labelledby="nfl-stats-tab" data-view-panel="stats">
-   <h2 class="visually-hidden">Stats comparison</h2>
+   <h2 class="visually-hidden">Season stats</h2>
    <fieldset class="stat-choices"><legend class="visually-hidden">Compare a season stat</legend>{STATS.map((metric,i)=><label><input type="radio" name="nfl-stat-metric" value={metric.field} data-stat-metric checked={i===0} disabled/>{metric.label}</label>)}</fieldset>
    <p class="stat-meaning" data-stat-meaning>{STATS[0].meaning}</p>
-   <div class="stat-players">{['a','b'].map(side=><section class="stat-player" data-stat-side={side} aria-label={`Quarterback ${side.toUpperCase()} statistic`}><h3 data-stat-player>Quarterback {side.toUpperCase()}</h3><dl><dt><a data-stat-label href={"#"+STATS[0].target}>{STATS[0].label}</a></dt><dd><strong data-stat-value>Unavailable</strong><span data-stat-units>{STATS[0].unit}</span></dd></dl><p data-stat-counts></p></section>)}</div>
-   <figure class="stat-plot" data-expandable-chart="stats"><button class="chart-expand" type="button" data-expand-chart="stats" aria-haspopup="dialog" aria-controls="nfl-chart-lightbox" disabled>Enlarge chart</button><div data-chart-host><svg id="nfl-stat-plot" data-stat-plot hidden role="img" aria-labelledby="nfl-stat-plot-title nfl-stat-plot-description"></svg></div><figcaption>Higher values sit farther right.<span class="visually-hidden" data-stat-unit>{STATS[0].unit}</span></figcaption></figure>
-   <details class="stat-evidence"><summary>About these numbers</summary><p>These results also reflect teammates, opponents and play choices. Comparing seasons does not isolate skill. Sack avoidance and EPA share some of the same information.</p><p data-stat-range="a"></p><p data-stat-range="b"></p><p>EPA ranges describe conditional game-sampling variation under the study assumptions. They are not probabilities of winning, intervals for the difference between these selections, or all sources of uncertainty. <a href="#nfl-method-uncertainty">Range assumptions and limits</a>.</p><p>Completion percentage is available as context in the full annual table below. It is not another skill score.</p></details>
+   <figure class="stat-plot" data-expandable-chart="stats"><button class="chart-expand" type="button" data-expand-chart="stats" aria-haspopup="dialog" aria-controls="nfl-chart-lightbox" disabled>Enlarge chart</button><div data-chart-host><svg id="nfl-stat-plot" data-stat-plot hidden role="img" aria-labelledby="nfl-stat-plot-title nfl-stat-plot-description"></svg></div><figcaption><span data-stat-unit>{STATS[0].unit}</span> · <a data-stat-label href={"#"+STATS[0].target}>Definition &amp; formula</a></figcaption></figure>
+   <ul class="nfl-stat-counts" aria-label="Sample sizes">
+    {['a','b'].map(side=><li data-stat-side={side}><span data-stat-player></span><span data-stat-counts></span></li>)}
+   </ul>
+   <p class="nfl-stat-context">Teammates, opponents and play calls also affect these numbers.</p>
+   <details class="stat-evidence"><summary>Values, counts &amp; ranges</summary>
+    <p>EPA ranges describe game-to-game variation under the study assumptions. <a href="#nfl-method-uncertainty">Range assumptions and limits</a>.</p>
+    <details class="pair-evidence" data-evidence="epa_per_dropback"><summary>Values, counts and ranges</summary><div class="table-scroll" role="region" aria-label="Selected value per dropback records" tabindex="0"><table><caption>Expected points per recorded dropback. Source counts and marginal conditional ranges.</caption><thead><tr><th scope="col">Quarterback</th><th scope="col">Value</th><th scope="col">Included dropbacks</th><th scope="col">Range / status</th></tr></thead><tbody data-selected-values></tbody></table></div></details>
+    <details class="pair-evidence" data-evidence="cpoe_pp"><summary>Values and included throws</summary><div class="table-scroll" role="region" aria-label="Selected completions above expectation records" tabindex="0"><table><caption>Percentage points on the same included throws used for completion rate.</caption><thead><tr><th scope="col">Quarterback</th><th scope="col">CPOE (pp)</th><th scope="col">Included throws</th></tr></thead><tbody data-selected-values></tbody></table></div></details>
+    <details class="pair-evidence" data-evidence="sack_avoidance_pct"><summary>Values, sacks and dropbacks</summary><div class="table-scroll" role="region" aria-label="Selected sack avoidance records" tabindex="0"><table><caption>Percent. The denominator is recorded dropbacks, not pressures or included throws.</caption><thead><tr><th scope="col">Quarterback</th><th scope="col">Without a sack (%)</th><th scope="col">Sacks / dropbacks</th></tr></thead><tbody data-selected-values></tbody></table></div></details>
+   </details>
    <noscript><p>Without JavaScript, the fixed comparison is Patrick Mahomes 2023 (A) and Josh Allen 2023 (B).</p><div class="table-scroll" role="region" aria-label="Static default season statistics" tabindex="0"><table data-static-stats><thead><tr><th scope="col">Season stat</th><th scope="col">A · Patrick Mahomes · 2023</th><th scope="col">B · Josh Allen · 2023</th></tr></thead><tbody>{STATS.map(metric=><tr><th scope="row"><a href={"#"+metric.target}>{metric.label}</a></th>{defaults.map(d=><td>{formatStatValue(metric.field,d.annual[metric.field])} {metric.unit}<br/>{metric.field==='cpoe_pp'?`${d.annual.eligible_throws} included throws across ${d.annual.eligible_games} games`:`${d.annual.dropbacks} recorded dropbacks across ${d.annual.dropback_games} games`}</td>)}</tr>)}</tbody></table></div></noscript>
   </section>
-  <details class="research-data"><summary>Data and research details</summary>
-  <details class="comparison-evidence" data-comparison-evidence>
-   <summary>Additional stat comparisons</summary>
-  <section class="reading-guide" aria-labelledby="nfl-reading-heading">
-   <h2 id="nfl-reading-heading">How to read</h2>
-   <p>Filled circle: A. Open diamond: B. Farther right means a higher value on that stat’s scale. Zero means no modeled net gain for EPA, or matching expected completions for CPOE. EPA bars show uncertainty around each summary; individual CPOE ranges were not estimated. These descriptive season summaries use each stat’s own units and do not give an overall quarterback rating.</p>
-  </section>
-  <div class="primary-comparisons">
-   <figure class="fan-comparison" aria-labelledby="nfl-value-heading">
-    <h2 id="nfl-value-heading"><DefinitionHelp id="nfl-value" label="Value per dropback" detailTarget="nfl-definition-epa-dropback" detailLabel="Formula and limits">How much the offense’s scoring outlook improved, on average, on this quarterback’s passes, sacks and scrambles.</DefinitionHelp></h2>
-    <p class="explanation">How much the offense’s scoring outlook improved, on average, on this quarterback’s passes, sacks and scrambles.</p>
-    <p class="unit"><DefinitionHelp id="nfl-expected-points" label="Expected points" detailTarget="nfl-definition-ep" detailLabel="Model and limits">The model's value of a game situation, based on chances of the next scoring event in the half.</DefinitionHelp> per <DefinitionHelp id="nfl-dropback" label="recorded dropback" detailTarget="nfl-definition-populations" detailLabel="Definition and limits">Recorded passes, sacks and scrambles.</DefinitionHelp> (<DefinitionHelp id="nfl-epa" label="EPA" detailTarget="nfl-definition-epa" detailLabel="Formula and limits">How much a play improved or worsened the offense's expected points.</DefinitionHelp> per dropback). Higher means more recorded scoring value.</p>
-    <div data-chart-host><svg id="nfl-epa-plot" data-field="epa_per_dropback" hidden role="img" aria-labelledby="nfl-epa-plot-title nfl-epa-plot-description"></svg></div>
-    <figcaption>Bars show a <DefinitionHelp id="nfl-range" label="95% game-based range" detailTarget="nfl-method-uncertainty" detailLabel="Formula and limits">An approximate range based on game-to-game variation, under the study's assumptions. These conditional ranges are not probabilities for true talent, predictions for next season or bounds on every source of uncertainty.</DefinitionHelp> around each summary. They do not test the difference between players.</figcaption>
-    <p class="counts" data-counts="epa"></p>
-    <details class="pair-evidence" data-evidence="epa_per_dropback"><summary>Values, counts and ranges</summary><div class="table-scroll" role="region" aria-label="Selected value per dropback records" tabindex="0"><table><caption>Expected points per recorded dropback. Source counts and marginal conditional ranges.</caption><thead><tr><th scope="col">Quarterback</th><th scope="col">Value</th><th scope="col">Included dropbacks</th><th scope="col">Range / status</th></tr></thead><tbody data-selected-values></tbody></table></div></details>
-   </figure>
-   <figure class="fan-comparison" aria-labelledby="nfl-completion-heading">
-    <h2 id="nfl-completion-heading"><DefinitionHelp id="nfl-completions" label="Completions above expectation" detailTarget="nfl-definition-cpoe" detailLabel="Formula and limits">How many more or fewer passes were completed per 100 included throws than the model expected.</DefinitionHelp></h2>
-    <p class="explanation">How many more or fewer passes were completed per 100 included throws than the model expected.</p>
-    <p class="unit"><DefinitionHelp id="nfl-percentage-points" label="Percentage points" detailTarget="nfl-definition-percentage-points" detailLabel="Definition and formula">Percentage points are differences between percentages, not percent improvement or a percentile.</DefinitionHelp> (<DefinitionHelp id="nfl-cpoe" label="CPOE" detailTarget="nfl-definition-cpoe" detailLabel="Formula and limits">How far the player's completion rate finished above or below the model's expectation for the included throws.</DefinitionHelp>). Higher means more completions above expectation.</p>
-    <div data-chart-host><svg id="nfl-cpoe-plot" data-field="cpoe_pp" hidden role="img" aria-labelledby="nfl-cpoe-plot-title nfl-cpoe-plot-description"></svg></div>
-    <figcaption>Drops, defenders and throw choices also affect this value. Individual uncertainty not estimated.</figcaption>
-    <p class="counts" data-counts="cpoe"></p>
-    <details class="pair-evidence" data-evidence="cpoe_pp"><summary>Values and included throws</summary><div class="table-scroll" role="region" aria-label="Selected completions above expectation records" tabindex="0"><table><caption>Percentage points on the same included throws used for completion rate.</caption><thead><tr><th scope="col">Quarterback</th><th scope="col">CPOE (pp)</th><th scope="col">Included throws</th></tr></thead><tbody data-selected-values></tbody></table></div></details>
-   </figure>
-  </div>
-  <p class="scale-note"><span data-pair-legend></span> Each stat keeps its own fixed scale across all 560 qualifying annual records. Zero means matching the model's completion expectation for CPOE, or no modeled net gain for EPA.</p>
-  <details class="optional-sacks" data-sack-section><summary>How often did they avoid sacks?</summary>
-   <figure class="fan-comparison" aria-labelledby="nfl-sack-heading"><h2 id="nfl-sack-heading"><DefinitionHelp id="nfl-sack-avoidance" label="Dropbacks without a sack" detailTarget="nfl-definition-sack-avoidance" detailLabel="Formula and limits">The percentage of recorded dropbacks that did not end in a recorded sack.</DefinitionHelp></h2>
-    <p>The percentage of recorded dropbacks that did not end in a recorded sack. Protection and receiver availability matter.</p><p class="unit">Percent of recorded dropbacks</p>
-    <div data-chart-host><svg id="nfl-sack-plot" data-field="sack_avoidance_pct" hidden role="img" aria-labelledby="nfl-sack-plot-title nfl-sack-plot-description"></svg></div><figcaption>Individual uncertainty not estimated. Interceptions, incompletions and low-value escapes can count as avoiding a sack.</figcaption>
-    <details class="pair-evidence" data-evidence="sack_avoidance_pct"><summary>Values, sacks and dropbacks</summary><div class="table-scroll" role="region" aria-label="Selected sack avoidance records" tabindex="0"><table><caption>Percent. The denominator is recorded dropbacks, not pressures or included throws.</caption><thead><tr><th scope="col">Quarterback</th><th scope="col">Without a sack (%)</th><th scope="col">Sacks / dropbacks</th></tr></thead><tbody data-selected-values></tbody></table></div></details>
-   </figure>
-  </details>
-
-  </details>
-
+  <details class="research-data"><summary>Data tables &amp; downloads</summary>
   <details class="annual-records"><summary>Season data table</summary>
    <p>Each year qualifies independently with at least 200 included throws in ten games. These are recorded passers, not a position-certified list. No eligible record means unavailable, not zero. 2011 is excluded. Individual completion and sack ranges were not estimated.</p>
    <div class="table-scroll" role="region" aria-label="All 560 annual player-season records" tabindex="0"><table data-all-annual><caption>2006–2025 regular seasons, excluding 2011. Values use display rounding; downloads retain source precision.</caption><thead><tr><th scope="col">Player / season</th><th scope="col">Included throws / games</th><th scope="col">Whole CPOE (pp)</th><th scope="col">Completion (%)</th><th scope="col">Sacks / dropbacks</th><th scope="col">Without a sack (%)</th><th scope="col">EPA / dropback</th><th scope="col">EPA range / status</th></tr></thead><tbody>{annual.rows.map(r=><tr><th scope="row">{r.display_name}<br/>{r.season}</th><td>{r.eligible_throws} throws / {r.eligible_games} games</td><td>{fmt(r.cpoe_pp)}</td><td>{fmt(r.completion_pct)}</td><td>{r.sacks} sacks / {r.dropbacks} dropbacks in {r.dropback_games} games</td><td>{fmt(r.sack_avoidance_pct,1)}</td><td>{fmt(r.epa_per_dropback)}</td><td>{fmt(r.epa_lower)} to {fmt(r.epa_upper)}; {r.epa_interval_status.replaceAll('_',' ')}</td></tr>)}</tbody></table></div>
   </details>
 
   <details class="research-depth"><summary>Original 2023–2024 study</summary>
-    <details class="complete-table"><summary>All 40 player-season records · works without JavaScript</summary>
+    <details class="complete-table"><summary>All 40 player-season records</summary>
       <p>CPOE uses percentage points (pp); completion and sack avoidance use percent. D means recorded dropbacks; O combines D with recorded non-scramble runs. EPA means expected points added. Intervals are marginal conditional sensitivities, not tests of differences. Values below use display rounding; the downloadable data retain source precision.</p>
       <div class="table-scroll" role="region" aria-label="All 40 player-season records" tabindex="0">
         <table data-all-players><caption>Original fixed 20-ID cohort, 2023 and 2024; separate from the new 560 annual records. Each metric cell names its denominator and uncertainty status.</caption>
@@ -183,7 +156,7 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
         </table>
       </div>
     </details>
-    <details class="complete-table"><summary>All 10 study rows · works without JavaScript</summary>
+    <details class="complete-table"><summary>All 10 study rows</summary>
       <div class="table-scroll" role="region" aria-label="All ten study associations" tabindex="0"><table data-all-studies>
         <caption>Approximate 95% conditional working-model sensitivities. Annual CPOE uses full-estimate centering; sack/run studies center each season on its own replicate mean. Games are deletion/sampling units. Annual strata contain 223 + 208 games where reported; these are not 431 independent quarterback pairs. Approximate game independence remains a working assumption.</caption>
         <thead><tr><th scope="col">Study</th><th scope="col">Estimate</th><th scope="col">Interval</th><th scope="col">Passers / contributing games</th><th scope="col">Status / influence</th></tr></thead>
