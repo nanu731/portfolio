@@ -13,8 +13,8 @@ const bands = ["0–4", "5–8", "9+", "Unknown"];
 const bandOf = (n) =>
   n == null ? "Unknown" : n < 5 ? bands[0] : n < 9 ? bands[1] : bands[2];
 const ratio = (a, b) => (b > 0 ? a / b : null);
-const decimal = (n) => (n == null ? "—" : n.toFixed(2));
-const percent = (n) => (n == null ? "—" : (n * 100).toFixed(1) + "%");
+const decimal = (n) => (n == null ? "Unavailable" : n.toFixed(2));
+const percent = (n) => (n == null ? "Unavailable" : (n * 100).toFixed(1) + "%");
 const count = (n) => n.toLocaleString("en-US");
 const html = (value) =>
   String(value ?? "").replace(
@@ -52,14 +52,24 @@ export function summarize(matches, name) {
   return total;
 }
 
+function shotAverage(value, total, ending) {
+  if (value != null) return decimal(value) + " shots";
+  return total ? "Length unavailable" : "No charted " + ending;
+}
+
 const scrollTable = (label, content) =>
-  '<div class="ta-scroll" role="region" tabindex="0" aria-label="' +
-  html(label) +
-  '"><table aria-label="' +
-  html(label) +
-  '">' +
-  content +
-  "</table></div>";
+  '<div class="ta-table-block"><small class="ta-overflow" hidden>Scroll sideways for more columns.</small><div class="ta-scroll" role="region" tabindex="0" aria-label="' + html(label) +
+  '"><table aria-label="' + html(label) + '">' + content +
+  '</table></div></div>';
+
+const tableObserver = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(entries => {
+  for (const { target } of entries) {
+    target.previousElementSibling.hidden = target.scrollWidth <= target.clientWidth + 1;
+  }
+});
+function watchTables(root) {
+  root.querySelectorAll(".ta-scroll").forEach(el => tableObserver?.observe(el));
+}
 const head = (labels) =>
   "<thead><tr>" +
   labels.map((x) => '<th scope="col">' + html(x) + "</th>").join("") +
@@ -87,10 +97,19 @@ function profile(matches, players, mode, attempt) {
     return { name, s, win, err: inPlay == null ? null : inPlay + Number(attempt), inPlay };
   });
   const scale = Math.ceil(Math.max(1, ...series.flatMap(v => [v.win, v.err])));
-  const flips = series.filter(v => v.win != null && v.inPlay != null &&
-    v.win - v.inPlay > 1e-9 && v.win - v.inPlay < 1 - 1e-9);
-  const takeaway = flips.length ? note(flips.map(v => html(v.name)).join(" and ") +
-    (flips.length === 1 ? " has" : " have") + " longer winner rallies by shots in play, but later misses when the final attempt counts.") : "";
+  let finding = "";
+  if (match) {
+    const ranked = series.filter(v => v.win != null).sort((a,b) => b.win - a.win);
+    if (ranked.length === 2) {
+      const [a, b] = ranked;
+      finding = '<p class="ta-finding">' + html(a.name) + " hit winners on shot <strong>" +
+        a.win.toFixed(1) + "</strong> on average, compared with <strong>" + b.win.toFixed(1) +
+        "</strong> for " + html(b.name) + ".</p>";
+    } else {
+      finding = note(ranked.length ? "Only " + html(ranked[0].name) + " has winners with a recorded rally length in this match." :
+        "This match has no winners with a recorded rally length.");
+    }
+  }
   const bars = series
     .map(
       ({ name, s, win, err }) =>
@@ -110,13 +129,14 @@ function profile(matches, players, mode, attempt) {
               '" style="width:' +
               ((v || 0) / scale) * 100 +
               '%"></i></div><strong>' +
-              (v == null ? "—" : decimal(v) + " shots") +
+              shotAverage(v, i ? s.u : s.w, i ? "unforced errors" : "winners") +
               "</strong></div>" +
               '<div class="ta-support">' +
-              count(n) +
-              " measured " +
-              (n === 1 ? "ending" : "endings") +
-              (match ? "" : " · " + count(g) + " contributing games") +
+              (match && n ? '<button type="button" data-ending="' + (i ? "U" : "W") + '" data-player="' +
+                (players.indexOf(name) + 1) + '" aria-label="Show ' + count(n) + ' ' + (i ? 'unforced error' : 'winner') + (n === 1 ? '' : 's') + ' by ' + html(name) + '">' : "") +
+              (n === 0 ? "" : count(n) + " " + (i ? (n === 1 ? "unforced error" : "unforced errors") : (n === 1 ? "winner" : "winners"))) +
+              (match && n ? "</button>" : "") +
+              (match || !n ? "" : " · " + count(g) + (g === 1 ? " game" : " games")) +
               "</div>",
           )
           .join("") +
@@ -124,19 +144,15 @@ function profile(matches, players, mode, attempt) {
     )
     .join("");
   const timing = sub(
-    "How long were the rallies?",
-    '<label class="ta-count-rule"><input type="checkbox" data-count-rule ' + (attempt ? 'checked' : '') + '> Count the final miss</label>' +
-      note((attempt ? "Average shot number of the winner or miss." : "Average shots put in play before the point ended.") +
-        (match ? " Each measured ending counts once." : " Each game with that ending counts once.")) +
-      takeaway +
-      '<div class="ta-bars">' +
-      bars +
-      "</div>" +
-      (match ? '<div data-rally></div>' : "") +
-      '<details class="ta-method"><summary>Reading the chart</summary>' +
-      note("Each bar uses the counting rule selected above. The count under it shows how many recorded endings contributed.") +
-      note("A winner on shot five counts as five either way. A miss on shot five leaves four shots in play. We count aces and double faults separately.") +
-      "</details>",
+    "When did the points end?",
+    finding + '<label class="ta-count-rule"><input type="checkbox" data-count-rule ' + (attempt ? 'checked' : '') +
+      '> Count the final miss</label>' +
+      note((attempt ? "Average shot number, including the final attempt." : "Average shots in play, excluding a missed stroke.") +
+        (match ? "" : " Each game with a measured ending of that kind counts equally.")) +
+      '<div class="ta-bars">' + bars + "</div>" +
+      '<details class="ta-method"><summary>How shots are counted</summary>' +
+      note("A miss on shot five leaves four shots in play. Aces and double faults are counted separately. The chartist judges whether a miss was forced.") +
+      "</details>" + (match ? '<div data-rally></div>' : ""),
   );
   const rows = [
     ...(!match
@@ -175,11 +191,10 @@ function profile(matches, players, mode, attempt) {
   );
   if (mode === "player") {
     const {s} = series[0];
-    const shares = sub("In an average game", note("<strong>" + percent(ratio(s.gw, s.games)) +
-      "</strong> of points ended with this player’s winner and <strong>" + percent(ratio(s.gu, s.games)) +
-      "</strong> with their unforced error. Each of the " + count(s.games) + " service or return games gets one vote, including tiebreaks.") +
-      note(count(s.w) + " winners · " + count(s.u) + " unforced errors · " + count(matches.length) +
-        (matches.length === 1 ? " charted match. This profile covers one match." : " charted matches.")));
+    const shares = sub("In an average game",
+      '<p class="ta-finding"><strong>' + percent(ratio(s.gw, s.games)) + "</strong> of points ended with " +
+      html(players[0]) + "’s winner and <strong>" + percent(ratio(s.gu, s.games)) + "</strong> with their unforced error.</p>" +
+      note("Each game counts equally. " + (matches.length === 1 ? "This profile covers one charted match." : "The archive covers selected matches.")));
     const spread = ["gw","gu"].map((key, i) => {
       const vals = matches.map(m => m.stats[m.players.indexOf(players[0])][key] / m.games).sort((a,b) => a-b);
       const q = fraction => {
@@ -191,7 +206,7 @@ function profile(matches, players, mode, attempt) {
     const typical = matches.length < 4 ? "" : '<details class="ta-method"><summary>How much did it vary by match?</summary>' +
       note("Each match counts once. The middle half runs from the 25th to the 75th percentile of game-average shares.") +
       scrollTable("Variation across charted matches", head(["Ending","Median match","Middle half"]) + "<tbody>" + spread.join("") + "</tbody>") + "</details>";
-    return shares + typical + timing + frequency;
+    return shares + timing + '<details class="ta-method"><summary>More player stats</summary>' + frequency + typical + "</details>";
   }
   return timing + frequency;
 }
@@ -213,7 +228,7 @@ function rallyBreakdown(points, players) {
         '" aria-label="Show points with ' +
         html(band) +
         ' shots in play">' +
-        html(band) +
+        html(band) + " · See points" +
         "</button>";
       return bodyRow([
         pick,
@@ -253,7 +268,7 @@ function rallyBreakdown(points, players) {
         "</tbody>",
     ) +
       note(
-        "Select a rally length to see those points. Each percentage shows who won the points in that row. Short points include aces and double faults.",
+        "Each row shows who won the points of that length. Short points include aces and double faults.",
       ) +
       '<details class="ta-method"><summary>Compare serving and returning</summary>' +
       scrollTable(
@@ -287,12 +302,15 @@ function paginate(section, rows, header, draw, label, size = 15) {
   function paint() {
     const first = page * size;
     const visible = rows.slice(first, first + size);
-    section.querySelector("[data-list]").innerHTML = rows.length
+    const list = section.querySelector("[data-list]");
+    list.querySelectorAll(".ta-scroll").forEach(el => tableObserver?.unobserve(el));
+    list.innerHTML = rows.length
       ? scrollTable(
           label,
           header + "<tbody>" + visible.map(draw).join("") + "</tbody>",
         )
-      : "<p>No entries match these filters.</p>";
+      : "<p>No points match these filters.</p>";
+    watchTables(section);
     section.querySelector("[data-page]").textContent = rows.length
       ? first +
         1 +
@@ -301,6 +319,7 @@ function paginate(section, rows, header, draw, label, size = 15) {
         " of " +
         count(rows.length)
       : "0 entries";
+    prev.hidden = next.hidden = rows.length <= size;
     prev.disabled = page === 0;
     next.disabled = first + size >= rows.length;
   }
@@ -317,7 +336,7 @@ function paginate(section, rows, header, draw, label, size = 15) {
 
 function ledger(container, points, players) {
   container.innerHTML =
-    "<h2>Point by point</h2>" +
+    '<h2>Point by point</h2><a class="ta-jump" href="#timing-comparison">Back to comparison</a>' +
     note(
       "The score is from before the point, with the server’s score first.",
     ) +
@@ -329,7 +348,7 @@ function ledger(container, points, players) {
     options([["", "Either player"], ...players.map((p, i) => [i + 1, p])]) +
     "</select></label><label>Final hitter<select data-actor>" +
     options([["", "Either player"], ...players.map((p,i) => [i + 1, p])]) +
-    '</select></label></div><button type="button" data-export>Download filtered points (CSV)</button><p class="ta-pan">Scroll sideways for more columns.</p><div data-list></div>' +
+    '</select></label></div><button type="button" data-export>Download points (CSV)</button> <button type="button" data-clear hidden>Clear filters</button><div data-list></div>' +
     pager();
   const band = container.querySelector("[data-band]"),
     end = container.querySelector("[data-end]"),
@@ -349,6 +368,14 @@ function ledger(container, points, players) {
         (!server.value || Number(server.value) === p[4]) &&
         (!actor.value || Number(actor.value) === actorOf(p)),
     );
+    const clear = container.querySelector("[data-clear]");
+    clear.hidden = !Object.values(selectors).some(select => select.value);
+    clear.onclick = () => {
+      Object.values(selectors).forEach(select => { select.value = ""; });
+      container.onchange();
+      band.focus();
+    };
+    container.querySelector("[data-export]").disabled = !rows.length;
     container.querySelector("[data-export]").onclick = () => {
       const lines = [["Point", "Set", "Game", "Score", "Server", "Point winner", "Ending", "Final hitter", "Shots in play"],
         ...rows.map(p => [p[0],p[1],p[2],p[3],players[p[4]-1],players[p[5]-1],outcomes[p[6]],players[actorOf(p)-1] || "",p[7] ?? ""])];
@@ -362,11 +389,11 @@ function ledger(container, points, players) {
       rows,
       head([
         "Point",
+        "Ending",
         "Set · game",
         "Score",
         "Server",
         "Shots in play",
-        "Ending",
         "Point won by",
       ]),
       (p) => {
@@ -377,10 +404,6 @@ function ledger(container, points, players) {
             : "";
         return bodyRow([
           html(p[0]),
-          html(p[1]) + " · " + html(p[2]),
-          html(p[3]),
-          html(players[p[4] - 1]),
-          p[7] ?? "—",
           html(
             p[6] === "O" && p[7] === 1
               ? "Unreturned serve"
@@ -388,12 +411,26 @@ function ledger(container, points, players) {
           ) +
             attempt +
             (actor ? " · " + html(actor) : ""),
+          html(p[1]) + " · " + html(p[2]),
+          html(p[3]),
+          html(players[p[4] - 1]),
+          p[7] ?? "Unknown",
           html(players[p[5] - 1]),
         ]);
       },
       "Charted points",
     );
   };
+  for (const button of container.parentElement.querySelectorAll("[data-ending]")) {
+    button.onclick = () => {
+      band.value = server.value = "";
+      end.value = button.dataset.ending;
+      actor.value = button.dataset.player;
+      container.onchange();
+      band.focus();
+      container.scrollIntoView({block:"start"});
+    };
+  }
   container.onchange = () => {
     const params = new URLSearchParams(location.hash.slice(1) || location.search);
     for (const [key, select] of Object.entries(selectors)) {
@@ -525,7 +562,7 @@ function association(matches, players, attempt) {
   if (!pairs.some(pair => pair.length >= 5)) return "";
   const hi = Math.max(2, Math.ceil(Math.max(...pairs.flat(2)) / 2) * 2);
   return sub(
-    "Do winner and error rallies lengthen together?",
+    "Patterns across matches",
     note(
       "Each dot represents one match. " + (attempt ? "The final miss counts. " : "Only shots in play count. ") + "Read across for the player’s average shots on winners and up for their average on unforced errors. Both averages give each measured ending equal weight.",
     ) +
@@ -551,7 +588,7 @@ function association(matches, players, attempt) {
       note(
         "A match needs at least one measured ending of each kind to qualify. We report Pearson’s r once five matches qualify and both averages vary. With few matches, one result can shift the pattern.",
       ) +
-      sensitivity(matches, players),
+      note("Pearson’s r measures whether the two averages rise or fall together across matches. Values near zero show little linear relationship.") + sensitivity(matches, players),
   );
 }
 
@@ -583,30 +620,16 @@ function selectionCoverage(matches, points) {
   return '<p class="ta-exposure">' + text + "</p>";
 }
 
-function coverage(matches) {
-  const partial = matches.filter((m) => m.partial).length;
+function coverage(matches, points) {
   const unknown = matches.reduce((n, m) => n + m.other, 0);
-  const total = matches.reduce((n, m) => n + m.points, 0);
   const credit =
     matches.length === 1 && matches[0].chartist
       ? " Match chartist: " + html(matches[0].chartist) + "."
       : "";
-  const partialNote = partial
-    ? " " +
-      count(partial) +
-      " selected " +
-      (partial === 1 ? "chart has" : "charts have") +
-      " a gap in point numbering. Figures use the recorded points."
-    : "";
   return (
-    '<details class="ta-method"><summary>Coverage &amp; counting notes</summary>' +
-    note(
-      count(total) +
-        " charted points. " +
-        count(unknown) +
-        " points have other or unclear endings, including unreturned serves outside the ace category. We include them in game shares and leave them out of winner and error rally averages." +
-        partialNote,
-    ) +
+    '<details class="ta-method"><summary>Which points are included?</summary>' +
+    selectionCoverage(matches, points) +
+    note(count(unknown) + " points have other or unclear endings. They count toward game totals and are excluded from winner and error averages.") +
     note(
       "The archive can miss meetings or the last points of a match." +
         credit,
@@ -626,6 +649,7 @@ export function renderAnalysis(
     root.innerHTML = "<p>No charted matches for this selection.</p>";
     return;
   }
+  tableObserver?.disconnect();
   if (mode === "match") players = matches[0].players;
   const isMatch = mode === "match";
   const shortGame = isMatch && points.some((p,i) => {
@@ -637,16 +661,28 @@ export function renderAnalysis(
   const history = '<section class="ta-section" id="point-records" tabindex="-1" data-records></section>';
   const score = m => {
     const r = results[m.id];
-    return r ? html(m.players[r[0] - 1]) + " · " + html(r[1]) : "Result unverified";
+    return r ? html(m.players[r[0] - 1]) + " won · " + html(r[1]) : "Final score unavailable";
   };
-  root.innerHTML = '<div class="ta-analysis">' + selectionCoverage(matches, points) +
-    (isMatch ? note(score(matches[0]) + (shortGame ? " · At least one game has fewer than four recorded points." : "")) : "") +
-    (mode === "h2h" ? history : '<a class="ta-jump" href="#point-records">' +
-      (isMatch ? "Jump to point-by-point" : "Jump to match history") + "</a>") +
-    profile(matches, players, mode, attempt) +
-    (isMatch ? rallyBreakdown(points, players) + '<div data-opportunities></div>' : association(matches, players, attempt)) +
-    (mode === "h2h" ? "" : history) + coverage(matches) + "</div>";
+  const unresolved = matches.reduce((sum, m) => sum + (m.unresolved || 0), 0);
+  const totalPoints = matches.reduce((sum, m) => sum + m.points, 0);
+  const alerts = [];
+  if (shortGame || matches.some(m => m.partial)) alerts.push("The point record may be incomplete.");
+  if (totalPoints && unresolved / totalPoints >= .10)
+    alerts.push("Rally length is missing for " + percent(unresolved / totalPoints) + " of these points.");
+  if (mode === "h2h") alerts.push("Only charted meetings are included. Other career meetings may be missing.");
+  const extra = isMatch ? "" : association(matches, players, attempt);
+  root.innerHTML = '<div class="ta-analysis">' +
+    (isMatch ? note(score(matches[0])) : "") +
+    (alerts.length ? note(alerts.join(" ")) : "") +
+    (mode === "h2h" ? history : "") + profile(matches, players, mode, attempt) +
+    (isMatch ? rallyBreakdown(points, players) + '<div data-opportunities></div>' :
+      (extra ? '<details class="ta-method"><summary>Do winner and error rallies lengthen together?</summary>' + extra + "</details>" : "")) +
+    (mode === "h2h" ? "" : history) + coverage(matches, points) + "</div>";
   root.querySelector("[data-count-rule]").onchange = e => onRule?.(e.target.checked);
+  const timingTitle = root.querySelector("[data-count-rule]").closest("section").querySelector("h2");
+  timingTitle.id = "timing-comparison";
+  timingTitle.tabIndex = -1;
+  watchTables(root);
   const records = root.querySelector("[data-records]");
   if (isMatch) {
     const rally = root.querySelector("[data-rally]");
@@ -664,59 +700,33 @@ export function renderAnalysis(
     return;
   }
   records.innerHTML =
-    "<h2>Charted match history</h2>" +
-    note(
-      "Newest meetings first. Scores list the match winner first. The paired numbers are average shots on winners and unforced errors. " + (attempt ? "The final miss counts." : "Only shots in play count.") + "",
-    ) +
-    '<p class="ta-pan">Scroll sideways for more columns.</p><div data-list></div>' +
-    pager();
+    "<h2>" + (mode === "h2h" ? "Their meetings" : "Charted match history") + "</h2>" +
+    '<div data-list></div>' + pager();
   const sorted = [...matches].sort(
     (a, b) => b.date.localeCompare(a.date) || a.id.localeCompare(b.id),
   );
   paginate(
     records,
     sorted,
-    head([
-      "Date",
-      "Event",
-      "Surface",
-      "Round",
-      "Players",
-      "Winner · score",
-      "Shots per winner / error",
-      "Charted points",
-    ]),
-    (m) =>
-      bodyRow([
-        html(m.date),
-        '<button type="button" data-match="' +
-          html(m.id) +
-          '" aria-label="' +
-          html(
-            "Open " + m.date + " " + m.event + " " + m.players.join(" versus "),
-          ) +
-          '">' +
-          html(m.event) +
-          "</button>",
-        html(m.surface || "—"),
-        html(m.round),
-        m.players.map(html).join(" vs "),
-        score(m),
-        players
-          .map((name) => {
-            const a = m.stats[m.players.indexOf(name)];
-            return (
-              html(name) +
-              " · " +
-              decimal(ratio(a.sw, a.nw)) +
-              " / " +
-              decimal(errorLength(a.su, a.nu, attempt))
-            );
-          })
-          .join("<br>"),
-        count(m.points),
-      ]),
+    head(["Date", "Event", "Winner and score", "Details"]),
+    m => {
+      const info = players.map(name => {
+        const a = m.stats[m.players.indexOf(name)];
+        return html(name) + " · " + (a.w ? "Winners: " : "") + shotAverage(ratio(a.sw, a.nw), a.w, "winners") +
+          " · " + (a.u ? "Unforced errors: " : "") + shotAverage(errorLength(a.su, a.nu, attempt), a.u, "unforced errors");
+      }).join("<br>");
+      const details = '<details><summary>Stats</summary>' + note(html(m.surface || "Surface unknown") +
+        " · " + count(m.points) + " charted points") +
+        (m.points && m.unresolved / m.points >= .1 ? note("Rally length is missing for " + count(m.unresolved) + " of " + count(m.points) + " points.") : "") +
+        note("Average across individual endings, " + (attempt ? "including the final miss." : "counting shots in play.") + "<br>" + info) + "</details>";
+      return bodyRow([html(m.date), '<button type="button" data-match="' + html(m.id) +
+        '" aria-label="Open ' + html(m.date + " " + m.event + " " + m.players.join(" versus ")) + '">' +
+        html(m.event + " · " + m.round) + "</button>" +
+        (mode === "player" ? "<br>vs. " + html(m.players.find(n => n !== players[0])) : ""),
+        score(m), details]);
+    },
     "Charted match history",
+    mode === "h2h" ? 3 : 15,
   );
   records.onclick = (e) => {
     const b = e.target.closest("[data-match]");
@@ -753,10 +763,12 @@ function opportunityTable(host, points, players) {
   function update() {
     const side = Number(host.querySelector("[data-side]").value);
     const rows = opportunities(points, side, host.querySelector("[data-role]").value);
+    table.querySelectorAll(".ta-scroll").forEach(el => tableObserver?.unobserve(el));
     table.innerHTML = rows.length ? scrollTable("Outcomes per shot opportunity",
       head(["Shot", "Chances", "Winner", "Unforced error", "Forced error", "Kept in play"]) + "<tbody>" +
       rows.map(([shot,r]) => bodyRow([shot, r.total, ...["W","U","F","kept"].map(key => percent(r[key]/r.total) + '<span aria-hidden="true" class="ta-share-bar" style="width:' + (r[key]/r.total*100) + '%"></span>')])).join("") +
       "</tbody>") : note("No measured opportunities for this selection.");
+    watchTables(table);
   }
   host.onchange = update;
   host.querySelector("details").ontoggle = e => { if (e.currentTarget.open) update(); };

@@ -39,8 +39,8 @@
     },
     {
       "slug": "tennis-shots-and-errors",
-      "sourceSha256": "300c1f6cb7b2fd5c52d144d8e976953956961fd912302cd3f61438274b19abc0",
-      "pageSha256": "f4013e38f3933b329a4ba2c54f7721177b0ad92cca39c07acc24fca4667d4ffe"
+      "sourceSha256": "1ed649dc1275fb16ad35173f953939d66c33310461297bbdd932b8aa9a21ec5d",
+      "pageSha256": "9f5bc44240280dd91ee9e6415313b66cf2d5a08deb54789df60f0945295367b3"
     }
   ],
   "assets": {
@@ -13889,11 +13889,11 @@
     "/projects/tennis-shots-and-errors/data/points/ffd641e9335f354275.json": "0c5ba0c9338535c2ba86c2bab2ea7211797069a197d81cde1d3682335f613d04",
     "/projects/tennis-shots-and-errors/data/points/ffd83ece00f33853e1.json": "c9cd15a96eb256d2398fe0ee1aefb2cae7115af0c3a9b695afd51dc86eb6464b",
     "/projects/tennis-shots-and-errors/data/points/fff3e1e05b17159944.json": "990c77a93e8f09a70d1022c4e793ec2385b1c7d33432332e2f1bc21a22b350f5",
-    "/projects/tennis-shots-and-errors/charts.css": "9c97a16b8440a742271fdd9c6eb2df209ea91652bc5bb962a3f457c158ab1155",
+    "/projects/tennis-shots-and-errors/charts.css": "7ea9fde8b13e69b3abe9cfc37bcbcafda0fa8cfb870f1796663e0fec634c6350",
     "/projects/tennis-shots-and-errors/LICENSE": "4d86cfe44cf70c29d2c976a2c274bfa26cb951adbe2bf496ad203c35dbf03319",
-    "/projects/tennis-shots-and-errors/controls.js": "d555944f2b5c5eb42cc75776dfa8e0df7c025c7d68b39f88b4477609bacb0977",
-    "/projects/tennis-shots-and-errors/analysis.js": "f743fdb114d134930a4107c402f4e069a0652b792241543d3fa280ede76b8889",
-    "/projects/tennis-shots-and-errors/style.css": "3ccf008c7b6a01be8514560a56a91d8cdcd53dea511c630e96c56cea1b7689fa",
+    "/projects/tennis-shots-and-errors/controls.js": "6aaf88e93ed37d580d94c243b499ead25afdf31d49ad8f3a9121e6b0a2bdb66f",
+    "/projects/tennis-shots-and-errors/analysis.js": "a84ed20f88ab253f92d6c21a91d4bcb477cb00ae5dc340d4f96537ab7762c76c",
+    "/projects/tennis-shots-and-errors/style.css": "0ae2b5dc6c7fca2997260fac3cf4948ad6a954dd35a3b76a31967af8cbe3734e",
     "/projects/tennis-shots-and-errors/scripts/build_data.py": "4af97350f211d10396760f7984d473017c4018c325842bbd93c77f0f5b9f1688",
     "/projects/tennis-shots-and-errors/data/provenance.json": "9c45abca7ca76af2b080c7e079d92a5c4a78f94305cebbaf1216f176aa111949",
     "/projects/tennis-shots-and-errors/data/index.json": "2b795675a785ed2a282b248a21e14a3d4bd6da38881c0921ef918aa0fcad9fdb",
@@ -13906,7 +13906,7 @@
     "/projects/tennis-shots-and-errors/assets/mono.woff2": "c36f509c0a8f9f85f29cb44bc8701d8a9e0b14c499e77a884f789ead7093a7ac",
     "/projects/tennis-shots-and-errors/assets/serif.woff2": "fafca76cdf167b2a88dd2984ca9745f0b9a0475ee82fd2ab6c36476001d0da0b",
     "/twins-source/assets/twin-burst.png": "7616b4570b34774e771f24188adbd97b9f537e0a795178a7350bd86aad06816b",
-    "/projects/tennis-shots-and-errors/rally.js": "06ed3150990b0570e29270e8744630ffb192836c7c7e86f217bee4287ff89a36",
+    "/projects/tennis-shots-and-errors/rally.js": "3f44c8cfbd30b87c8cb6569fd6de4847ffd1572f16a598581b4503d3729e410d",
     "/projects/tennis-shots-and-errors/assets/rally-contact.png": "8c20d4a60895cac56da521804f807475fcec72d52b3836dbb7e0a02d1cc265cf",
     "/projects/tennis-shots-and-errors/assets/PIXELFX-LICENSE.txt": "0a77565a50c3462831244452f129c38d2adc4fd07897cbeba8adc943f958604e",
     "/projects/tennis-shots-and-errors/data/featured.json": "dacba8cb1d28b6fd64055086c3889be3636e0e13e446de058b711d13c2cce3ab",
