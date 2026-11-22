@@ -97,62 +97,43 @@ function profile(matches, players, mode, attempt) {
     return { name, s, win, err: inPlay == null ? null : inPlay + Number(attempt), inPlay };
   });
   const scale = Math.ceil(Math.max(1, ...series.flatMap(v => [v.win, v.err])));
+  const timingCells = series.map(({name, s, win, err}, side) => {
+    const cells = [[win, s.nw, s.w, s.egw], [err, s.nu, s.u, s.egu]].map(([value, measured, total, games], i) => {
+      const noun = i ? "unforced error" : "winner";
+      const label = count(measured) + " " + noun + (measured === 1 ? "" : "s");
+      const mean = value == null ? shotAverage(null, total, noun + "s") : value.toFixed(1) + " shots";
+      const bar = value == null ? "" : '<span class="ta-track" aria-hidden="true"><i class="ta-bar style-' +
+        i + '" style="width:' + (100 * value / scale) + '%"></i></span>';
+      let sample = "";
+      if (match && measured) {
+        sample = '<button type="button" data-ending="' + (i ? "U" : "W") + '" data-player="' + (side + 1) +
+          '" aria-label="Show ' + label + ' by ' + html(name) + '">' + label + '</button>';
+      } else if (measured) {
+        sample = label + " · " + count(games) + (games === 1 ? " game" : " games");
+      }
+      return '<td><strong>' + mean + '</strong>' + bar + '<div class="ta-support">' + sample + '</div></td>';
+    });
+    return '<tr><th scope="row">' + html(name) + '</th>' + cells.join("") + '</tr>';
+  });
   let finding = "";
-  if (match) {
-    const ranked = series.filter(v => v.win != null).sort((a,b) => b.win - a.win);
-    if (ranked.length === 2) {
-      const [a, b] = ranked;
-      finding = '<p class="ta-finding">' + html(a.name) + " hit winners on shot <strong>" +
-        a.win.toFixed(1) + "</strong> on average, compared with <strong>" + b.win.toFixed(1) +
-        "</strong> for " + html(b.name) + ".</p>";
-    } else {
-      finding = note(ranked.length ? "Only " + html(ranked[0].name) + " has winners with a recorded rally length in this match." :
-        "This match has no winners with a recorded rally length.");
+  if (match && series.every(row => row.win != null && row.err != null)) {
+    const directions = series.map(row => Math.sign(Number(row.win.toFixed(1)) - Number(row.err.toFixed(1))));
+    if (directions[0] * directions[1] === -1) {
+      const later = series[directions[0] === 1 ? 0 : 1], earlier = series[directions[0] === 1 ? 1 : 0];
+      finding = '<p class="ta-finding">' + html(later.name) + " averaged longer rallies on winners than on unforced errors. " +
+        html(earlier.name) + " averaged longer rallies on unforced errors.</p>";
     }
   }
-  const bars = series
-    .map(
-      ({ name, s, win, err }) =>
-        '<div class="ta-series"><h3>' +
-        html(name) +
-        "</h3>" +
-        [
-          [win, "Winner", s.nw, s.egw],
-          [err, "Unforced error", s.nu, s.egu],
-        ]
-          .map(
-            ([v, label, n, g], i) =>
-              '<div class="ta-bar-row"><span>' +
-              label +
-              '</span><div class="ta-track" aria-hidden="true"><i class="ta-bar style-' +
-              i +
-              '" style="width:' +
-              ((v || 0) / scale) * 100 +
-              '%"></i></div><strong>' +
-              shotAverage(v, i ? s.u : s.w, i ? "unforced errors" : "winners") +
-              "</strong></div>" +
-              '<div class="ta-support">' +
-              (match && n ? '<button type="button" data-ending="' + (i ? "U" : "W") + '" data-player="' +
-                (players.indexOf(name) + 1) + '" aria-label="Show ' + count(n) + ' ' + (i ? 'unforced error' : 'winner') + (n === 1 ? '' : 's') + ' by ' + html(name) + '">' : "") +
-              (n === 0 ? "" : count(n) + " " + (i ? (n === 1 ? "unforced error" : "unforced errors") : (n === 1 ? "winner" : "winners"))) +
-              (match && n ? "</button>" : "") +
-              (match || !n ? "" : " · " + count(g) + (g === 1 ? " game" : " games")) +
-              "</div>",
-          )
-          .join("") +
-        "</div>",
-    )
-    .join("");
   const timing = sub(
-    "When did the points end?",
-    finding + '<label class="ta-count-rule"><input type="checkbox" data-count-rule ' + (attempt ? 'checked' : '') +
-      '> Count the final miss</label>' +
-      note((attempt ? "Average shot number, including the final attempt." : "Average shots in play, excluding a missed stroke.") +
+    "How long were winner and unforced-error rallies?",
+    finding + '<table class="ta-timing"><caption class="sr-only">Average rally length in shots by player and ending</caption>' +
+      head(["Player", "Winner", "Unforced error"]) + '<tbody>' + timingCells.join("") + '</tbody></table>' +
+      note((attempt ? "Averages include the final miss." : "Averages count only shots put in play.") +
         (match ? "" : " Each game with a measured ending of that kind counts equally.")) +
-      '<div class="ta-bars">' + bars + "</div>" +
-      '<details class="ta-method"><summary>How shots are counted</summary>' +
-      note("A miss on shot five leaves four shots in play. Aces and double faults are counted separately. The chartist judges whether a miss was forced.") +
-      "</details>" + (match ? '<div data-rally></div>' : ""),
+      '<details class="ta-method" data-count-options><summary>How shots are counted</summary>' +
+      '<label class="ta-count-rule"><input type="checkbox" data-count-rule ' + (attempt ? 'checked' : '') +
+      '> Count the final miss</label>' + note("A miss on shot five leaves four shots in play. Aces and double faults count separately.") +
+      '</details>' + (match ? '<div data-rally></div>' : ""),
   );
   const rows = [
     ...(!match
@@ -167,15 +148,15 @@ function profile(matches, players, mode, attempt) {
           ],
         ]
       : []),
-    ["Winners", (s) => count(s.w)],
-    ["Unforced errors", (s) => count(s.u)],
+    ...(!match || series.some(row => row.s.w !== row.s.nw) ? [["All charted winners", s => count(s.w)]] : []),
+    ...(!match || series.some(row => row.s.u !== row.s.nu) ? [["All charted unforced errors", s => count(s.u)]] : []),
     ["Winners per game played", (s) => decimal(ratio(s.w, s.games))],
     ["Unforced errors per game played", (s) => decimal(ratio(s.u, s.games))],
     ["Game-average winner share", (s) => percent(ratio(s.gw, s.games))],
     ["Game-average unforced error share", (s) => percent(ratio(s.gu, s.games))],
   ];
   const frequency = sub(
-    "How often did each ending happen?",
+    match ? "In an average game" : "How often did each ending happen?",
     scrollTable(
       "Point-ending frequencies",
       head(["Measure", ...players]) +
@@ -186,7 +167,7 @@ function profile(matches, players, mode, attempt) {
         "</tbody>",
     ) +
       note(
-        "For each share, we average the player’s percentage across games. A four-point hold, a long deuce game and a tiebreak each count once. Longer matches contribute more games.",
+        "For each share, we average the player’s percentage across games. A four-point hold, a long deuce game and a tiebreak each count once." + (match ? "" : " Longer matches contribute more games."),
       ),
   );
   if (mode === "player") {
@@ -295,11 +276,12 @@ function pager() {
   return '<div class="ta-pager"><button type="button" data-prev>Previous</button><span data-page aria-live="polite"></span><button type="button" data-next>Next</button></div>';
 }
 
-function paginate(section, rows, header, draw, label, size = 15) {
-  let page = 0;
+function paginate(section, rows, header, draw, label, size = 15, startPage = 0) {
+  let page = Math.max(0, Math.min(startPage, Math.ceil(rows.length / size) - 1));
   const next = section.querySelector("[data-next]"),
     prev = section.querySelector("[data-prev]");
   function paint() {
+    section.dataset.pageIndex = String(page);
     const first = page * size;
     const visible = rows.slice(first, first + size);
     const list = section.querySelector("[data-list]");
@@ -334,9 +316,9 @@ function paginate(section, rows, header, draw, label, size = 15) {
   paint();
 }
 
-function ledger(container, points, players) {
+function ledger(container, points, players, savedOpen) {
   container.innerHTML =
-    '<h2>Point by point</h2><a class="ta-jump" href="#timing-comparison">Back to comparison</a>' +
+    '<details class="ta-method" data-point-log><summary>Explore ' + count(points.length) + ' charted ' + (points.length === 1 ? 'point' : 'points') + '</summary><a class="ta-jump" href="#timing-comparison">Back to comparison</a>' +
     note(
       "The score is from before the point, with the server’s score first.",
     ) +
@@ -349,7 +331,8 @@ function ledger(container, points, players) {
     "</select></label><label>Final hitter<select data-actor>" +
     options([["", "Either player"], ...players.map((p,i) => [i + 1, p])]) +
     '</select></label></div><button type="button" data-export>Download points (CSV)</button> <button type="button" data-clear hidden>Clear filters</button><div data-list></div>' +
-    pager();
+    pager() + "</details>";
+  const log = container.querySelector("[data-point-log]");
   const band = container.querySelector("[data-band]"),
     end = container.querySelector("[data-end]"),
     server = container.querySelector("[data-server]"),
@@ -359,6 +342,13 @@ function ledger(container, points, players) {
   for (const [key, select] of Object.entries(selectors)) {
     const value = initial.get(key);
     if ([...select.options].some(o => o.value === value)) select.value = value;
+  }
+  log.open = savedOpen ?? (location.hash === "#point-records" || Object.values(selectors).some(select => select.value));
+  function showSelection() {
+    log.open = true;
+    container.onchange();
+    band.focus({preventScroll:true});
+    log.scrollIntoView({block:"start"});
   }
   const filter = () => {
     const rows = points.filter(
@@ -426,9 +416,7 @@ function ledger(container, points, players) {
       band.value = server.value = "";
       end.value = button.dataset.ending;
       actor.value = button.dataset.player;
-      container.onchange();
-      band.focus();
-      container.scrollIntoView({block:"start"});
+      showSelection();
     };
   }
   container.onchange = () => {
@@ -447,8 +435,7 @@ function ledger(container, points, players) {
       end.value = "";
       server.value = "";
       actor.value = "";
-      container.onchange();
-      band.focus();
+      showSelection();
     };
   }
   filter();
@@ -657,8 +644,14 @@ export function renderAnalysis(
     return i < 3 || p[1] !== points[i-3][1] || p[2] !== points[i-3][2];
   });
   const savedRally = preservePoint && root.querySelector("[data-rally]");
+  const previousRecords = preservePoint && root.querySelector("[data-records]");
+  const previousHistory = previousRecords ? {
+    expanded: previousRecords.querySelector("[data-history-toggle]")?.getAttribute("aria-expanded") === "true",
+    page: Number(previousRecords.dataset.pageIndex),
+  } : null;
+  const countOptionsOpen = preservePoint && root.querySelector("[data-count-options]")?.open;
   const savedLedger = preservePoint && isMatch && root.querySelector("[data-records]");
-  const history = '<section class="ta-section" id="point-records" tabindex="-1" data-records></section>';
+  const recordSection = '<section class="ta-section" id="point-records" tabindex="-1" data-records></section>';
   const score = m => {
     const r = results[m.id];
     return r ? html(m.players[r[0] - 1]) + " won · " + html(r[1]) : "Final score unavailable";
@@ -669,15 +662,16 @@ export function renderAnalysis(
   if (shortGame || matches.some(m => m.partial)) alerts.push("The point record may be incomplete.");
   if (totalPoints && unresolved / totalPoints >= .10)
     alerts.push("Rally length is missing for " + percent(unresolved / totalPoints) + " of these points.");
-  if (mode === "h2h") alerts.push("Only charted meetings are included. Other career meetings may be missing.");
+  if (mode === "h2h") alerts.push('Other meetings may be missing. <a href="#point-records">See charted meetings</a>.');
   const extra = isMatch ? "" : association(matches, players, attempt);
   root.innerHTML = '<div class="ta-analysis">' +
     (isMatch ? note(score(matches[0])) : "") +
     (alerts.length ? note(alerts.join(" ")) : "") +
-    (mode === "h2h" ? history : "") + profile(matches, players, mode, attempt) +
+    profile(matches, players, mode, attempt) +
     (isMatch ? rallyBreakdown(points, players) + '<div data-opportunities></div>' :
       (extra ? '<details class="ta-method"><summary>Do winner and error rallies lengthen together?</summary>' + extra + "</details>" : "")) +
-    (mode === "h2h" ? "" : history) + coverage(matches, points) + "</div>";
+    recordSection + coverage(matches, points) + "</div>";
+  root.querySelector("[data-count-options]").open = Boolean(countOptionsOpen);
   root.querySelector("[data-count-rule]").onchange = e => onRule?.(e.target.checked);
   const timingTitle = root.querySelector("[data-count-rule]").closest("section").querySelector("h2");
   timingTitle.id = "timing-comparison";
@@ -692,22 +686,27 @@ export function renderAnalysis(
     } else mountRally(rally, points, players, matches[0].surface, attempt);
     opportunityTable(root.querySelector("[data-opportunities]"), points, players);
     const oldFilters = savedLedger ? [...savedLedger.querySelectorAll("select")].map(el => el.value) : [];
-    ledger(records, points, players);
+    ledger(records, points, players, savedLedger ? savedLedger.querySelector("[data-point-log]").open : undefined);
     if (oldFilters.length) {
       records.querySelectorAll("select").forEach((el,i) => { el.value = oldFilters[i]; });
       records.onchange();
     }
+    if (!preservePoint && (location.hash === "#point-records" || records.querySelector("[data-point-log]").open)) {
+      records.scrollIntoView({block:"start"});
+    }
     return;
   }
+  const preview = mode === "player" && matches.length > 3;
   records.innerHTML =
     "<h2>" + (mode === "h2h" ? "Their meetings" : "Charted match history") + "</h2>" +
-    '<div data-list></div>' + pager();
+    (preview ? '<button type="button" data-history-toggle aria-expanded="false" aria-controls="history-list"></button>' : "") +
+    '<div data-list id="history-list"></div>' + pager();
   const sorted = [...matches].sort(
     (a, b) => b.date.localeCompare(a.date) || a.id.localeCompare(b.id),
   );
-  paginate(
+  const drawHistory = (visible, pageSize, startPage) => paginate(
     records,
-    sorted,
+    visible,
     head(["Date", "Event", "Winner and score", "Details"]),
     m => {
       const info = players.map(name => {
@@ -726,11 +725,34 @@ export function renderAnalysis(
         score(m), details]);
     },
     "Charted match history",
-    mode === "h2h" ? 3 : 15,
+    pageSize, startPage,
   );
+  const toggle = records.querySelector("[data-history-toggle]");
+  function showHistory(expanded, page = 0) {
+    if (toggle) {
+      toggle.setAttribute("aria-expanded", String(expanded));
+      toggle.textContent = expanded ? "Show latest 3" : "See all " + count(matches.length) + " charted matches";
+    }
+    const recentOnly = preview && !expanded;
+    drawHistory(recentOnly ? sorted.slice(0, 3) : sorted, mode === "h2h" ? 3 : 15, page);
+    if (recentOnly) records.querySelector("[data-page]").textContent = "Latest 3 of " + count(matches.length);
+  }
+  const savedHistory = previousHistory || window.history.state;
+  showHistory(Boolean(savedHistory?.expanded), savedHistory?.page || 0);
+  if (toggle) toggle.onclick = () => showHistory(toggle.getAttribute("aria-expanded") !== "true");
+  const previousMatch = savedHistory?.returnMatch;
+  if (previousMatch && !preservePoint) {
+    const origin = [...records.querySelectorAll("[data-match]")].find(el => el.dataset.match === previousMatch);
+    origin?.focus();
+  }
   records.onclick = (e) => {
     const b = e.target.closest("[data-match]");
-    if (b) onMatch?.(b.dataset.match);
+    if (!b) return;
+    window.history.replaceState({
+      expanded: toggle?.getAttribute("aria-expanded") === "true",
+      page: Number(records.dataset.pageIndex), returnMatch: b.dataset.match,
+    }, "");
+    onMatch?.(b.dataset.match);
   };
 }
 
