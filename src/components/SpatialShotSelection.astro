@@ -49,6 +49,16 @@ const { comparisonSlot } = Astro.props as { comparisonSlot?: 'A' | 'B' };
 			</div>
 		</div>
 
+		{!comparisonSlot && <p class="compare-entry">
+			<a class="compare-action" href="/projects/nba-player-comparison/">
+				<span class="compare-art" aria-hidden="true">
+					<svg viewBox="0 0 48 40" width="48" height="40" fill="none"><path d="M2 6h18v28H2zM28 6h18v28H28zM2 20h18M28 20h18M8 6v6h6V6M34 6v6h6V6" stroke="currentColor" stroke-width="2"/><circle cx="11" cy="24" r="3" fill="currentColor"/><circle cx="37" cy="17" r="3" fill="currentColor"/></svg>
+					<span class="compare-spark"></span>
+				</span>
+				<span>Compare two players’ shot mixes</span>
+				<svg class="compare-arrow" aria-hidden="true" viewBox="0 0 24 24" width="24" height="24" fill="none"><path d="M4 12h16m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2"/></svg>
+			</a>
+		</p>}
 		<div class="status-row">
 			<p id="player-status" class="status" role="status" aria-live="polite" data-status>
 				Loading seasons and players…
@@ -251,7 +261,6 @@ const { comparisonSlot } = Astro.props as { comparisonSlot?: 'A' | 'B' };
 		</div>
 
 		{comparisonSlot && <section class="comparison-metrics" aria-label={`Player ${comparisonSlot} estimates`} data-comparison-metrics hidden><h3>Points per 100 attempts</h3><dl data-comparison-values></dl><p>Ranges cover the middle 90% of this model’s estimates. They do not cover all real-game uncertainty or measure a head-to-head advantage.</p><a href="/projects/nba-shot-selection-analytics/#definitions">Definitions and uncertainty</a></section>}
-		{!comparisonSlot && <p><a href="/projects/nba-player-comparison/">Compare two players’ shot mixes</a></p>}
 		<noscript>
 			<p class="noscript">Turn on JavaScript to use the player search and shot charts. The explanations below remain available.</p>
 		</noscript>
@@ -1722,6 +1731,18 @@ const { comparisonSlot } = Astro.props as { comparisonSlot?: 'A' | 'B' };
 </script>
 
 <style>
+	.compare-entry { margin-block: var(--space-s); }
+	.compare-action { display: inline-flex; align-items: center; gap: var(--space-s); max-width: 100%; min-height: 3.5rem; padding: var(--space-xs) var(--space-s); border: 2px solid var(--green); color: var(--green); background: var(--cream); font-weight: 600; text-decoration: none; }
+	.compare-action:hover, .compare-action:focus-visible { background: var(--green); color: var(--cream); }
+	.compare-action:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+	.compare-action:active { outline: 2px solid currentColor; outline-offset: -6px; }
+	.compare-art { position: relative; display: block; width: 48px; height: 40px; flex: 0 0 48px; }
+	.compare-arrow { flex-shrink: 0; }
+	.compare-spark { position: absolute; inset: -7px -4px; width: 56px; height: 54px; opacity: 0; pointer-events: none; background: url('/comparison-spark.png') 0 0 / 1568px 54px no-repeat; image-rendering: pixelated; }
+	@media (prefers-reduced-motion: no-preference) {
+		.compare-action:hover .compare-spark, .compare-action:focus-visible .compare-spark { opacity: 1; animation: comparison-spark 1.35s steps(27) both; }
+	}
+	@keyframes comparison-spark { to { background-position: -1512px 0; } }
 	.movement-view[hidden], .court[hidden], [data-cell-detail][hidden], [data-flow-positive][hidden], [data-flow-empty][hidden] { display: none; }
 	.movement-empty { padding: var(--space-m); border-block: var(--rule) solid var(--green); }
 	.movement-courts { display: grid; gap: var(--space-s); }
