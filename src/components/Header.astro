@@ -10,12 +10,13 @@ const comparison = projects.find(project => project.kind === 'comparison');
 const links = [['/blog/', 'Blog'], ['/about/', 'About'], ['/contact/', 'Contact'], ['https://github.com/nanu731', 'GitHub']];
 ---
 <header class="portfolio-header">
+  <a class="portfolio-skip" href="#main-content">Skip to main content</a>
   <div class="portfolio-mast">
     <a class="portfolio-brand" href="/"><img src="/nsl-logo.svg" width="344" height="156" alt="" />{SITE_TITLE}</a>
     <nav aria-label="Primary navigation">
       <a href="/" aria-current={current('/')}>Home</a>
       <details class="portfolio-projects">
-        <summary class:list={[{ 'current-section': path.startsWith('/projects') }]}>Projects</summary>
+        <summary aria-label={path.startsWith('/projects') ? 'Projects, current section' : undefined} class:list={[{ 'current-section': path.startsWith('/projects') }]}>Projects</summary>
         <div class="portfolio-menu">
           <a href="/projects/" aria-current={current('/projects/')}>All projects</a>
           {projects.filter(project => project.kind !== 'comparison').map(project => (
