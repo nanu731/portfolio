@@ -1,3 +1,5 @@
+import { mountRally } from "./rally.js";
+
 // All indexes in the point export are one-based. Errors belong to the point loser.
 const outcomes = {
   W: "Winner",
@@ -74,32 +76,21 @@ const sub = (label, text) =>
   '<section class="ta-section"><h2>' + label + "</h2>" + text + "</section>";
 const note = (s) => '<p class="ta-note">' + s + "</p>";
 
-function profile(matches, players, mode) {
+const errorLength = (sum, n, attempt) => n ? sum / n + Number(attempt) : null;
+
+function profile(matches, players, mode, attempt) {
   const match = mode === "match";
   const series = players.map((name) => {
     const s = summarize(matches, name);
-    return {
-      name,
-      s,
-      win: match ? ratio(s.sw, s.nw) : ratio(s.grw, s.egw),
-      err: match ? ratio(s.su, s.nu) : ratio(s.gru, s.egu),
-    };
+    const win = match ? ratio(s.sw, s.nw) : ratio(s.grw, s.egw);
+    const inPlay = match ? ratio(s.su, s.nu) : ratio(s.gru, s.egu);
+    return { name, s, win, err: inPlay == null ? null : inPlay + Number(attempt), inPlay };
   });
-  const max = Math.max(1, ...series.flatMap((v) => [v.win, v.err]));
-  const scale = Math.ceil(max);
-  const comparable = series.filter((x) => x.win != null && x.err != null);
-  const greatest = comparable.sort(
-    (a, b) => Math.abs(b.win - b.err) - Math.abs(a.win - a.err),
-  )[0];
-  let takeaway = "";
-  if (greatest) {
-    const gap = greatest.win - greatest.err;
-    const direction = gap > 0 ? "longer" : "shorter";
-    const contrast = Math.abs(gap) < 0.005
-      ? "winner and unforced-error rallies had the same average length"
-      : "winner rallies averaged " + decimal(Math.abs(gap)) + " shots " + direction + " than unforced-error rallies";
-    takeaway = note(html(greatest.name) + "’s " + contrast + " (" + decimal(greatest.win) + " vs. " + decimal(greatest.err) + " shots in play). The winning stroke counts. Add one to the error average to include the missed stroke.");
-  }
+  const scale = Math.ceil(Math.max(1, ...series.flatMap(v => [v.win, v.err])));
+  const flips = series.filter(v => v.win != null && v.inPlay != null &&
+    v.win - v.inPlay > 1e-9 && v.win - v.inPlay < 1 - 1e-9);
+  const takeaway = flips.length ? note(flips.map(v => html(v.name)).join(" and ") +
+    (flips.length === 1 ? " has" : " have") + " longer winner rallies by shots in play, but later misses when the final attempt counts.") : "";
   const bars = series
     .map(
       ({ name, s, win, err }) =>
@@ -132,21 +123,19 @@ function profile(matches, players, mode) {
         "</div>",
     )
     .join("");
-  let b = sub(
+  const timing = sub(
     "How long were the rallies?",
-    note(
-      match
-        ? "Average shots in play when each player hit a winner or made an unforced error."
-        : "Each bar averages games with that player’s winner or unforced error, depending on the bar.",
-    ) +
-      note("A measured ending is a point with enough recorded strokes to count its rally length.") +
+    '<label class="ta-count-rule"><input type="checkbox" data-count-rule ' + (attempt ? 'checked' : '') + '> Count the final miss</label>' +
+      note((attempt ? "Average shot number of the winner or miss." : "Average shots put in play before the point ended.") +
+        (match ? " Each measured ending counts once." : " Each game with that ending counts once.")) +
       takeaway +
       '<div class="ta-bars">' +
       bars +
       "</div>" +
+      (match ? '<div data-rally></div>' : "") +
       '<details class="ta-method"><summary>Reading the chart</summary>' +
-      note("Each bar gives the average shots in play. The measured ending count tells you how many points went into that average.") +
-      note("A winner on shot five counts as five shots in play. A miss on shot five counts as four. We count aces and double faults separately.") +
+      note("Each bar uses the counting rule selected above. The count under it shows how many recorded endings contributed.") +
+      note("A winner on shot five counts as five either way. A miss on shot five leaves four shots in play. We count aces and double faults separately.") +
       "</details>",
   );
   const rows = [
@@ -158,7 +147,7 @@ function profile(matches, players, mode) {
           ],
           [
             "Shots per error · all measured unforced errors",
-            (s) => decimal(ratio(s.su, s.nu)),
+            (s) => decimal(errorLength(s.su, s.nu, attempt)),
           ],
         ]
       : []),
@@ -169,7 +158,7 @@ function profile(matches, players, mode) {
     ["Game-average winner share", (s) => percent(ratio(s.gw, s.games))],
     ["Game-average unforced error share", (s) => percent(ratio(s.gu, s.games))],
   ];
-  b += sub(
+  const frequency = sub(
     "How often did each ending happen?",
     scrollTable(
       "Point-ending frequencies",
@@ -184,7 +173,27 @@ function profile(matches, players, mode) {
         "For each share, we average the player’s percentage across games. A four-point hold, a long deuce game and a tiebreak each count once. Longer matches contribute more games.",
       ),
   );
-  return b;
+  if (mode === "player") {
+    const {s} = series[0];
+    const shares = sub("In an average game", note("<strong>" + percent(ratio(s.gw, s.games)) +
+      "</strong> of points ended with this player’s winner and <strong>" + percent(ratio(s.gu, s.games)) +
+      "</strong> with their unforced error. Each of the " + count(s.games) + " service or return games gets one vote, including tiebreaks.") +
+      note(count(s.w) + " winners · " + count(s.u) + " unforced errors · " + count(matches.length) +
+        (matches.length === 1 ? " charted match. This profile covers one match." : " charted matches.")));
+    const spread = ["gw","gu"].map((key, i) => {
+      const vals = matches.map(m => m.stats[m.players.indexOf(players[0])][key] / m.games).sort((a,b) => a-b);
+      const q = fraction => {
+        const x = fraction * (vals.length - 1), n = Math.floor(x);
+        return vals[n] + (vals[Math.ceil(x)] - vals[n]) * (x - n);
+      };
+      return bodyRow([i ? "Unforced error" : "Winner", percent(q(.5)), percent(q(.25)) + "–" + percent(q(.75))]);
+    });
+    const typical = matches.length < 4 ? "" : '<details class="ta-method"><summary>How much did it vary by match?</summary>' +
+      note("Each match counts once. The middle half runs from the 25th to the 75th percentile of game-average shares.") +
+      scrollTable("Variation across charted matches", head(["Ending","Median match","Middle half"]) + "<tbody>" + spread.join("") + "</tbody>") + "</details>";
+    return shares + typical + timing + frequency;
+  }
+  return timing + frequency;
 }
 
 function actorOf(p) {
@@ -318,18 +327,36 @@ function ledger(container, points, players) {
     options([["", "All endings"], ...Object.entries(outcomes)]) +
     "</select></label><label>Server<select data-server>" +
     options([["", "Either player"], ...players.map((p, i) => [i + 1, p])]) +
-    '</select></label></div><p class="ta-pan">Scroll sideways for more columns.</p><div data-list></div>' +
+    "</select></label><label>Final hitter<select data-actor>" +
+    options([["", "Either player"], ...players.map((p,i) => [i + 1, p])]) +
+    '</select></label></div><button type="button" data-export>Download filtered points (CSV)</button><p class="ta-pan">Scroll sideways for more columns.</p><div data-list></div>' +
     pager();
   const band = container.querySelector("[data-band]"),
     end = container.querySelector("[data-end]"),
-    server = container.querySelector("[data-server]");
+    server = container.querySelector("[data-server]"),
+    actor = container.querySelector("[data-actor]");
+  const selectors = { length: band, ending: end, server, hitter: actor };
+  const initial = new URLSearchParams(location.hash.slice(1) || location.search);
+  for (const [key, select] of Object.entries(selectors)) {
+    const value = initial.get(key);
+    if ([...select.options].some(o => o.value === value)) select.value = value;
+  }
   const filter = () => {
     const rows = points.filter(
       (p) =>
         (!band.value || band.value === bandOf(p[7])) &&
         (!end.value || end.value === p[6]) &&
-        (!server.value || Number(server.value) === p[4]),
+        (!server.value || Number(server.value) === p[4]) &&
+        (!actor.value || Number(actor.value) === actorOf(p)),
     );
+    container.querySelector("[data-export]").onclick = () => {
+      const lines = [["Point", "Set", "Game", "Score", "Server", "Point winner", "Ending", "Final hitter", "Shots in play"],
+        ...rows.map(p => [p[0],p[1],p[2],p[3],players[p[4]-1],players[p[5]-1],outcomes[p[6]],players[actorOf(p)-1] || "",p[7] ?? ""])];
+      const csv = lines.map(row => row.map(v => '"' + String(v).replaceAll('"','""') + '"').join(",")).join("\r\n");
+      const url = URL.createObjectURL(new Blob([csv], {type:"text/csv;charset=utf-8"}));
+      const a = document.createElement("a"); a.href = url; a.download = "rally-ledger-points.csv"; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    };
     paginate(
       container,
       rows,
@@ -367,7 +394,14 @@ function ledger(container, points, players) {
       "Charted points",
     );
   };
-  container.onchange = filter;
+  container.onchange = () => {
+    const params = new URLSearchParams(location.hash.slice(1) || location.search);
+    for (const [key, select] of Object.entries(selectors)) {
+      if (select.value) params.set(key, select.value); else params.delete(key);
+    }
+    history.replaceState(null, "", location.pathname + location.search + (params.size ? "#" + params : ""));
+    filter();
+  };
   for (const button of container.parentElement.querySelectorAll(
     "[data-pick-band]",
   )) {
@@ -375,7 +409,8 @@ function ledger(container, points, players) {
       band.value = button.dataset.pickBand;
       end.value = "";
       server.value = "";
-      filter();
+      actor.value = "";
+      container.onchange();
       band.focus();
     };
   }
@@ -407,18 +442,7 @@ function pairedMeans(matches, name, minEvents = 1) {
 function scatter(pairs, name, hi) {
   if (pairs.length < 5) return "";
   const r = correlation(pairs);
-  const size = Math.abs(r);
-  const strength = size >= 0.7 ? "strong" : size >= 0.4 ? "moderate" : "weak";
-  const description =
-    r === null
-      ? "One of the two averages was constant."
-      : size < 0.1
-        ? "The two lengths showed little linear relationship."
-        : "The two lengths showed a " +
-          strength +
-          " " +
-          (r > 0 ? "positive" : "negative") +
-          " relationship.";
+  const description = r == null ? "One average was constant." : "Pearson’s r = " + decimal(r) + " across " + pairs.length + " charted matches.";
   const ticks = [0.25, 0.5, 0.75].map(fraction => {
     const x = 44 + 218 * fraction, y = 160 - 135 * fraction;
     const tick = Number((hi * fraction).toFixed(1));
@@ -496,13 +520,14 @@ function sensitivity(matches, players) {
   );
 }
 
-function association(matches, players) {
-  const pairs = players.map((name) => pairedMeans(matches, name));
+function association(matches, players, attempt) {
+  const pairs = players.map(name => pairedMeans(matches, name).map(([w,u]) => [w, u + Number(attempt)]));
+  if (!pairs.some(pair => pair.length >= 5)) return "";
   const hi = Math.max(2, Math.ceil(Math.max(...pairs.flat(2)) / 2) * 2);
   return sub(
     "Do winner and error rallies lengthen together?",
     note(
-      "Each dot represents one match. Read across for the player’s average shots on winners and up for their average on unforced errors. Both averages give each measured ending equal weight.",
+      "Each dot represents one match. " + (attempt ? "The final miss counts. " : "Only shots in play count. ") + "Read across for the player’s average shots on winners and up for their average on unforced errors. Both averages give each measured ending equal weight.",
     ) +
       scrollTable(
         "Observed association across matches",
@@ -595,7 +620,7 @@ function coverage(matches) {
 
 export function renderAnalysis(
   root,
-  { mode, matches, players, points = [], onMatch },
+  { mode, matches, players, points = [], onMatch, attempt = true, onRule, results = {}, preservePoint = false },
 ) {
   if (!matches?.length) {
     root.innerHTML = "<p>No charted matches for this selection.</p>";
@@ -603,28 +628,45 @@ export function renderAnalysis(
   }
   if (mode === "match") players = matches[0].players;
   const isMatch = mode === "match";
-  root.innerHTML =
-    '<div class="ta-analysis">' +
-    selectionCoverage(matches, points) +
-    '<a class="ta-jump" href="#point-records">' +
-    (isMatch ? "Jump to point-by-point" : "Jump to match history") +
-    "</a>" +
-    profile(matches, players, mode) +
-    (isMatch
-      ? rallyBreakdown(points, players)
-      : association(matches, players)) +
-    '<section class="ta-section" id="point-records" tabindex="-1" data-records></section>' +
-    coverage(matches) +
-    "</div>";
+  const shortGame = isMatch && points.some((p,i) => {
+    if (i + 1 < points.length && p[1] === points[i+1][1] && p[2] === points[i+1][2]) return false;
+    return i < 3 || p[1] !== points[i-3][1] || p[2] !== points[i-3][2];
+  });
+  const savedRally = preservePoint && root.querySelector("[data-rally]");
+  const savedLedger = preservePoint && isMatch && root.querySelector("[data-records]");
+  const history = '<section class="ta-section" id="point-records" tabindex="-1" data-records></section>';
+  const score = m => {
+    const r = results[m.id];
+    return r ? html(m.players[r[0] - 1]) + " · " + html(r[1]) : "Result unverified";
+  };
+  root.innerHTML = '<div class="ta-analysis">' + selectionCoverage(matches, points) +
+    (isMatch ? note(score(matches[0]) + (shortGame ? " · At least one game has fewer than four recorded points." : "")) : "") +
+    (mode === "h2h" ? history : '<a class="ta-jump" href="#point-records">' +
+      (isMatch ? "Jump to point-by-point" : "Jump to match history") + "</a>") +
+    profile(matches, players, mode, attempt) +
+    (isMatch ? rallyBreakdown(points, players) + '<div data-opportunities></div>' : association(matches, players, attempt)) +
+    (mode === "h2h" ? "" : history) + coverage(matches) + "</div>";
+  root.querySelector("[data-count-rule]").onchange = e => onRule?.(e.target.checked);
   const records = root.querySelector("[data-records]");
   if (isMatch) {
+    const rally = root.querySelector("[data-rally]");
+    if (savedRally) {
+      rally.replaceWith(savedRally);
+      savedRally.dispatchEvent(new CustomEvent("rally-rule", { detail: attempt }));
+    } else mountRally(rally, points, players, matches[0].surface, attempt);
+    opportunityTable(root.querySelector("[data-opportunities]"), points, players);
+    const oldFilters = savedLedger ? [...savedLedger.querySelectorAll("select")].map(el => el.value) : [];
     ledger(records, points, players);
+    if (oldFilters.length) {
+      records.querySelectorAll("select").forEach((el,i) => { el.value = oldFilters[i]; });
+      records.onchange();
+    }
     return;
   }
   records.innerHTML =
     "<h2>Charted match history</h2>" +
     note(
-      "Open a match to see its points. The paired numbers give each player’s average shots on winners, then on unforced errors.",
+      "Newest meetings first. Scores list the match winner first. The paired numbers are average shots on winners and unforced errors. " + (attempt ? "The final miss counts." : "Only shots in play count.") + "",
     ) +
     '<p class="ta-pan">Scroll sideways for more columns.</p><div data-list></div>' +
     pager();
@@ -640,6 +682,7 @@ export function renderAnalysis(
       "Surface",
       "Round",
       "Players",
+      "Winner · score",
       "Shots per winner / error",
       "Charted points",
     ]),
@@ -658,6 +701,7 @@ export function renderAnalysis(
         html(m.surface || "—"),
         html(m.round),
         m.players.map(html).join(" vs "),
+        score(m),
         players
           .map((name) => {
             const a = m.stats[m.players.indexOf(name)];
@@ -666,7 +710,7 @@ export function renderAnalysis(
               " · " +
               decimal(ratio(a.sw, a.nw)) +
               " / " +
-              decimal(ratio(a.su, a.nu))
+              decimal(errorLength(a.su, a.nu, attempt))
             );
           })
           .join("<br>"),
@@ -678,4 +722,42 @@ export function renderAnalysis(
     const b = e.target.closest("[data-match]");
     if (b) onMatch?.(b.dataset.match);
   };
+}
+
+// Once a measured exchange reaches a player's next contact, classify that
+// opportunity once, including each nonterminal stroke that kept play going.
+export function opportunities(points, player, role) {
+  const rows = new Map();
+  for (const point of points) {
+    const [, , , , server, , kind, inPlay] = point;
+    if (!["W", "U", "F"].includes(kind) || !Number.isInteger(inPlay)) continue;
+    if (role === "serve" && server !== player || role === "return" && server === player) continue;
+    const last = inPlay + Number(kind !== "W");
+    for (let n = server === player ? 3 : 2; n <= last; n += 2) {
+      if (!rows.has(n)) rows.set(n, { total: 0, W: 0, U: 0, F: 0, kept: 0 });
+      const row = rows.get(n);
+      row.total++;
+      row[n === last ? kind : "kept"]++;
+    }
+  }
+  return [...rows].sort(([a], [b]) => a - b);
+}
+
+function opportunityTable(host, points, players) {
+  host.innerHTML = '<details class="ta-method"><summary>What happened on each shot?</summary>' +
+    note("Follow one player after the serve. Each opportunity is one turn to hit in a measured rally ending in a winner, unforced error or forced error. Aces, double faults and other endings are excluded.") +
+    '<div class="ta-filters"><label>Player<select data-side>' + options(players.map((p,i) => [i + 1, p])) +
+    '</select></label><label>Service role<select data-role>' + options([["all","Both"],["serve","Serving"],["return","Returning"]]) +
+    '</select></label></div><div data-shot-table></div></details>';
+  const table = host.querySelector("[data-shot-table]");
+  function update() {
+    const side = Number(host.querySelector("[data-side]").value);
+    const rows = opportunities(points, side, host.querySelector("[data-role]").value);
+    table.innerHTML = rows.length ? scrollTable("Outcomes per shot opportunity",
+      head(["Shot", "Chances", "Winner", "Unforced error", "Forced error", "Kept in play"]) + "<tbody>" +
+      rows.map(([shot,r]) => bodyRow([shot, r.total, ...["W","U","F","kept"].map(key => percent(r[key]/r.total) + '<span aria-hidden="true" class="ta-share-bar" style="width:' + (r[key]/r.total*100) + '%"></span>')])).join("") +
+      "</tbody>") : note("No measured opportunities for this selection.");
+  }
+  host.onchange = update;
+  host.querySelector("details").ontoggle = e => { if (e.currentTarget.open) update(); };
 }

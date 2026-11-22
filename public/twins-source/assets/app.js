@@ -296,6 +296,41 @@
     $("roster").scrollTop = 0;
   }
   $("choose").disabled = false;
+  $("surprise").disabled = players.length < 2;
+  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+  const ball = document.querySelector(".pixel-ball");
+  const burst = document.querySelector(".pixel-burst");
+  function stopSurpriseMotion() {
+    for (const element of [ball, burst])
+      element.getAnimations().forEach((animation) => animation.cancel());
+  }
+  reducedMotion.addEventListener("change", stopSurpriseMotion);
+  $("surprise").onclick = () => {
+    const others = players.filter((p) => p.id !== anchor.id);
+    if (!others.length) return;
+    selectPlayer(others[Math.floor(Math.random() * others.length)]);
+    saveSelection();
+    stopSurpriseMotion();
+    if (reducedMotion.matches) return;
+    ball.animate(
+      [
+        { transform: "translateY(0) scale(1)", offset: 0 },
+        { transform: "translateY(3px) scale(1.15, .8)", offset: 0.15 },
+        { transform: "translateY(-10px) rotate(-20deg)", offset: 0.45 },
+        { transform: "translateY(2px) scale(1.1, .9)", offset: 0.8 },
+        { transform: "translateY(0) scale(1)", offset: 1 },
+      ],
+      { duration: 520, easing: "ease-out" },
+    );
+    // Exported pixelfx sheet: 42 frames, seven columns, shown at half size.
+    burst.animate(
+      Array.from({ length: 42 }, (_, i) => ({
+        backgroundPosition: `${-(i % 7) * 56}px ${-Math.floor(i / 7) * 54}px`,
+        opacity: 1,
+      })),
+      { duration: 1400, easing: "steps(41, end)" },
+    );
+  };
   $("choose").onclick = () => {
     $("search").value = "";
     renderRoster();
