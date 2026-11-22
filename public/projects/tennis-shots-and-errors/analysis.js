@@ -316,7 +316,76 @@ function paginate(section, rows, header, draw, label, size = 15, startPage = 0) 
   paint();
 }
 
-function ledger(container, points, players, savedOpen) {
+const pressureTypes = { any: "All pressure points", break: "Break points", set: "Set points", match: "Match points" };
+const chanceKeys = ["break", "set", "match"];
+
+function hasChance(holders, kind) {
+  return holders && (kind === "any" || Boolean(holders[chanceKeys.indexOf(kind)]));
+}
+
+function chanceOutcome(holders, winner, players) {
+  return [1, 2, 3].flatMap(holder => {
+    const types = chanceKeys.filter((_, i) => holders[i] === holder);
+    if (!types.length) return [];
+    const labels = types.length > 1 ? types.slice(0, -1).join(", ") + " and " + types.at(-1) : types[0];
+    if (holder === 3) return [labels + " point for both players"];
+    return [labels + " point for " + players[holder - 1] +
+      (holder === winner ? " (converted)" : " (saved by " + players[winner - 1] + ")")];
+  }).join(" · ");
+}
+
+function mountPressure(host, points, players, chances, uncertain, selected, onExplore) {
+  host.innerHTML = '<div class="ta-filters"><label>Opportunity<select data-chance-kind>' +
+    options(Object.entries(pressureTypes).map(([key,label]) =>
+      [key, label + " (" + count(points.filter(p => hasChance(chances.get(p[0]), key)).length) + ")"])) +
+    '</select></label></div><div data-pressure-result></div>' +
+    note("Only charted points are included. On a break point, the receiver can win the game. A set or match point can decide the set or match. One rally can count in several categories and appears once in the combined view.");
+  const choice = host.querySelector("select");
+  if (Object.hasOwn(pressureTypes, selected)) choice.value = selected;
+  const panel = host.querySelector("[data-pressure-result]");
+  function paint() {
+    const kind = choice.value;
+    const group = points.filter(p => hasChance(chances.get(p[0]), kind));
+    const missing = uncertain[kind === "any" ? 3 : chanceKeys.indexOf(kind)];
+    const measured = group.filter(p => p[7] != null);
+    const mean = measured.length ? (measured.reduce((sum,p) => sum+p[7], 0) / measured.length).toFixed(1) : null;
+    const summary = mean ? note("<strong>" + mean + " shots in play</strong> on average across " +
+      count(measured.length) + " measured " + (measured.length === 1 ? "point." : "points.")) :
+      note(group.length ? "Rally length is unavailable for these points." : "No confirmed points of this kind in the chart.");
+    const wins = rows => players.map((_,i) => count(rows.filter(p => p[5] === i + 1).length));
+    const rows = bands.flatMap(band => {
+      const bucket = group.filter(p => bandOf(p[7]) === band);
+      if (!bucket.length) return [];
+      const pick = '<button type="button" data-pressure-band="' + html(band) + '" aria-label="Show ' +
+        (band === "Unknown" ? "points of unknown length" : html(band) + ' shots in play') + ' for this category">' +
+        (band === "Unknown" ? "Length unknown" : html(band)) + '</button>';
+      return bodyRow([pick, count(bucket.length), ...wins(bucket)]);
+    });
+    const table = group.length ? scrollTable("Pressure points won by rally length",
+      head(["Shots in play", "Points", ...players.map(name => name + " won")]) +
+      "<tbody>" + rows.join("") + "</tbody><tfoot>" + bodyRow(["Total", count(group.length), ...wins(group)]) + "</tfoot>") : "";
+    panel.querySelectorAll(".ta-scroll").forEach(el => tableObserver?.unobserve(el));
+    const endingCounts = Object.entries(outcomes).flatMap(([key,label]) => {
+      const n = group.filter(p => p[6] === key).length;
+      return n ? [html(label) + " (" + count(n) + ")"] : [];
+    });
+    panel.innerHTML = summary + table +
+      (endingCounts.length ? note("Point endings · " + endingCounts.join(" · ")) : "") +
+      (missing ? note("The available score or format leaves " + count(missing) + " additional " +
+        (missing === 1 ? "point unclassified." : "points unclassified.")) : "") +
+      (group.length ? '<button type="button" data-show-chances>View ' + count(group.length) + (group.length === 1 ? " point" : " points") + '</button>' : "");
+    watchTables(panel);
+    const show = panel.querySelector("[data-show-chances]");
+    if (show) show.onclick = () => onExplore(kind);
+    for (const button of panel.querySelectorAll("[data-pressure-band]")) {
+      button.onclick = () => onExplore(kind, button.dataset.pressureBand);
+    }
+  }
+  choice.onchange = paint;
+  paint();
+}
+
+function ledger(container, points, players, savedOpen, chances) {
   container.innerHTML =
     '<details class="ta-method" data-point-log><summary>Explore ' + count(points.length) + ' charted ' + (points.length === 1 ? 'point' : 'points') + '</summary><a class="ta-jump" href="#timing-comparison">Back to comparison</a>' +
     note(
@@ -330,7 +399,9 @@ function ledger(container, points, players, savedOpen) {
     options([["", "Either player"], ...players.map((p, i) => [i + 1, p])]) +
     "</select></label><label>Final hitter<select data-actor>" +
     options([["", "Either player"], ...players.map((p,i) => [i + 1, p])]) +
-    '</select></label></div><button type="button" data-export>Download points (CSV)</button> <button type="button" data-clear hidden>Clear filters</button><div data-list></div>' +
+    '</select></label>' + (chances ? '<label>Pressure<select data-pressure>' +
+      options([["", "Any point"], ...Object.entries(pressureTypes)]) + '</select></label>' : '') +
+    '</div><button type="button" data-export>Download points (CSV)</button> <button type="button" data-clear hidden>Clear filters</button><div data-list></div>' +
     pager() + "</details>";
   const log = container.querySelector("[data-point-log]");
   const band = container.querySelector("[data-band]"),
@@ -338,6 +409,8 @@ function ledger(container, points, players, savedOpen) {
     server = container.querySelector("[data-server]"),
     actor = container.querySelector("[data-actor]");
   const selectors = { length: band, ending: end, server, hitter: actor };
+  const pressure = container.querySelector("[data-pressure]");
+  if (pressure) selectors.pressure = pressure;
   const initial = new URLSearchParams(location.hash.slice(1) || location.search);
   for (const [key, select] of Object.entries(selectors)) {
     const value = initial.get(key);
@@ -353,6 +426,7 @@ function ledger(container, points, players, savedOpen) {
   const filter = () => {
     const rows = points.filter(
       (p) =>
+        (!pressure?.value || hasChance(chances.get(p[0]), pressure.value)) &&
         (!band.value || band.value === bandOf(p[7])) &&
         (!end.value || end.value === p[6]) &&
         (!server.value || Number(server.value) === p[4]) &&
@@ -367,8 +441,8 @@ function ledger(container, points, players, savedOpen) {
     };
     container.querySelector("[data-export]").disabled = !rows.length;
     container.querySelector("[data-export]").onclick = () => {
-      const lines = [["Point", "Set", "Game", "Score", "Server", "Point winner", "Ending", "Final hitter", "Shots in play"],
-        ...rows.map(p => [p[0],p[1],p[2],p[3],players[p[4]-1],players[p[5]-1],outcomes[p[6]],players[actorOf(p)-1] || "",p[7] ?? ""])];
+      const lines = [["Point", "Set", "Game", "Score", "Server", "Point winner", "Ending", "Final hitter", "Shots in play", "Pressure opportunities"],
+        ...rows.map(p => [p[0],p[1],p[2],p[3],players[p[4]-1],players[p[5]-1],outcomes[p[6]],players[actorOf(p)-1] || "",p[7] ?? "",chanceOutcome(chances?.get(p[0]) || [],p[5],players)])];
       const csv = lines.map(row => row.map(v => '"' + String(v).replaceAll('"','""') + '"').join(",")).join("\r\n");
       const url = URL.createObjectURL(new Blob([csv], {type:"text/csv;charset=utf-8"}));
       const a = document.createElement("a"); a.href = url; a.download = "rally-tracker-points.csv"; a.click();
@@ -400,7 +474,8 @@ function ledger(container, points, players, savedOpen) {
               : outcomes[p[6]] || "Other",
           ) +
             attempt +
-            (actor ? " · " + html(actor) : ""),
+            (actor ? " · " + html(actor) : "") +
+            (pressure?.value ? "<br><small>" + html(chanceOutcome(chances.get(p[0]), p[5], players)) + "</small>" : ""),
           html(p[1]) + " · " + html(p[2]),
           html(p[3]),
           html(players[p[4] - 1]),
@@ -413,6 +488,7 @@ function ledger(container, points, players, savedOpen) {
   };
   for (const button of container.parentElement.querySelectorAll("[data-ending]")) {
     button.onclick = () => {
+      if (pressure) pressure.value = "";
       band.value = server.value = "";
       end.value = button.dataset.ending;
       actor.value = button.dataset.player;
@@ -431,6 +507,7 @@ function ledger(container, points, players, savedOpen) {
     "[data-pick-band]",
   )) {
     button.onclick = () => {
+      if (pressure) pressure.value = "";
       band.value = button.dataset.pickBand;
       end.value = "";
       server.value = "";
@@ -439,6 +516,12 @@ function ledger(container, points, players, savedOpen) {
     };
   }
   filter();
+  return (kind, length = "") => {
+    for (const select of Object.values(selectors)) select.value = "";
+    pressure.value = kind;
+    band.value = length;
+    showSelection();
+  };
 }
 
 export function correlation(xy) {
@@ -630,7 +713,7 @@ function coverage(matches, points) {
 
 export function renderAnalysis(
   root,
-  { mode, matches, players, points = [], onMatch, attempt = true, onRule, results = {}, preservePoint = false },
+  { mode, matches, players, points = [], pressureData = null, onMatch, attempt = true, onRule, results = {}, preservePoint = false },
 ) {
   if (!matches?.length) {
     root.innerHTML = "<p>No charted matches for this selection.</p>";
@@ -650,6 +733,7 @@ export function renderAnalysis(
     page: Number(previousRecords.dataset.pageIndex),
   } : null;
   const countOptionsOpen = preservePoint && root.querySelector("[data-count-options]")?.open;
+  const savedPressure = preservePoint && root.querySelector("[data-pressure-section]");
   const savedLedger = preservePoint && isMatch && root.querySelector("[data-records]");
   const recordSection = '<section class="ta-section" id="point-records" tabindex="-1" data-records></section>';
   const score = m => {
@@ -668,7 +752,9 @@ export function renderAnalysis(
     (isMatch ? note(score(matches[0])) : "") +
     (alerts.length ? note(alerts.join(" ")) : "") +
     profile(matches, players, mode, attempt) +
-    (isMatch ? rallyBreakdown(points, players) + '<div data-opportunities></div>' :
+    (isMatch ? rallyBreakdown(points, players) +
+      '<details class="ta-method" data-pressure-section><summary>High-pressure points</summary><div data-pressure-body></div></details>' +
+      '<div data-opportunities></div>' :
       (extra ? '<details class="ta-method"><summary>Do winner and error rallies lengthen together?</summary>' + extra + "</details>" : "")) +
     recordSection + coverage(matches, points) + "</div>";
   root.querySelector("[data-count-options]").open = Boolean(countOptionsOpen);
@@ -686,7 +772,15 @@ export function renderAnalysis(
     } else mountRally(rally, points, players, matches[0].surface, attempt);
     opportunityTable(root.querySelector("[data-opportunities]"), points, players);
     const oldFilters = savedLedger ? [...savedLedger.querySelectorAll("select")].map(el => el.value) : [];
-    ledger(records, points, players, savedLedger ? savedLedger.querySelector("[data-point-log]").open : undefined);
+    const chances = pressureData ? new Map(pressureData.rows.map(([n,...holders]) => [n, holders])) : null;
+    const explore = ledger(records, points, players, savedLedger ? savedLedger.querySelector("[data-point-log]").open : undefined, chances);
+    const pressureSection = root.querySelector("[data-pressure-section]");
+    const pressureHost = pressureSection.querySelector("[data-pressure-body]");
+    if (chances) {
+      mountPressure(pressureHost, points, players, chances, pressureData.uncertain,
+        savedPressure?.querySelector?.("select")?.value || records.querySelector("[data-pressure]").value, explore);
+      pressureSection.open = Boolean(savedPressure?.open);
+    } else pressureHost.innerHTML = note("The pressure-point data could not be loaded. Reload the page to retry.");
     if (oldFilters.length) {
       records.querySelectorAll("select").forEach((el,i) => { el.value = oldFilters[i]; });
       records.onchange();

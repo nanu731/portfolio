@@ -7,6 +7,7 @@ const modes = ['match','player','h2h'];
 let archive = [], byId, byPlayer, directory, searchMatches;
 let state, revision = 0, finderKind, options = [], pageSize = 30;
 const cache = new Map();
+const pressureCache = new Map();
 let results = {}, fullLoad;
 const readParams = () => new URLSearchParams(location.hash.slice(1) || location.search);
 let attempt = readParams().get("count") !== "inplay";
@@ -56,6 +57,19 @@ async function loadPoints(match) {
   }
   return cache.get(match.id);
 }
+async function loadPressure(match) {
+  const key = match.file.split('/').pop().replace(/\.json$/, '');
+  const bucket = key.slice(0, 2);
+  if (!pressureCache.has(bucket)) {
+    if (pressureCache.size >= 8) pressureCache.delete(pressureCache.keys().next().value);
+    pressureCache.set(bucket, json('./data/pressure/' + bucket + '.json').catch(() => {
+      pressureCache.delete(bucket);
+      return null;
+    }));
+  }
+  const data = await pressureCache.get(bucket);
+  return data?.[key] || null;
+}
 function retry(message, handler) {
   $('results').removeAttribute('aria-busy');
   const p = document.createElement('p');
@@ -92,13 +106,13 @@ async function update(preservePoint = false) {
   $('results').setAttribute('aria-busy','true');
   if (!preservePoint) $('results').textContent = 'Loading analysis…';
   try {
-    const points = mode==='match' ? await loadPoints(match) : [];
+    const [points, pressureData] = mode === 'match' ? await Promise.all([loadPoints(match), loadPressure(match)]) : [[], null];
     if (rev !== revision) return;
 
     if (!matches.length) {
       $('results').textContent = 'No charted meetings in this archive. Choose another player or opponent.';
     } else {
-      renderAnalysis($('results'),{mode,matches,players,points,results,attempt,preservePoint,onRule(value) {
+      renderAnalysis($('results'),{mode,matches,players,points,pressureData,results,attempt,preservePoint,onRule(value) {
         attempt = value;
         const params = readParams();
         params.set('count', attempt ? 'attempt' : 'inplay');

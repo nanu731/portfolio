@@ -267,3 +267,7 @@
 
 [data-records]:has(> [data-point-log]) { padding: 0; border-top: 0; }
 .ta-timing .ta-support { margin-bottom: 0; }
+
+[data-pressure-section] [data-pressure-body] { max-width: 48rem; }
+[data-pressure-section] .ta-filters { margin: .5rem 0; }
+[data-pressure-section] tfoot { font-weight: 650; }
