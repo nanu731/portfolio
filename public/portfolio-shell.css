@@ -130,3 +130,18 @@ body[data-project="rally"] .intro.wrap {
   body[data-project="rally"] .intro.wrap { --intro-gutter: 18px; }
   .project-guide > details > summary { min-height: 76px; padding-block: 22px; }
 }
+
+/* The standalone tennis explorer uses native buttons for its match and player pickers. */
+body[data-project="rally"] .selection button:enabled:active {
+  background-color: var(--green);
+  color: var(--cream);
+  border-color: var(--green);
+}
+body[data-project="rally"] .selection button:focus-visible {
+  outline-color: var(--green);
+}
+@media (forced-colors: active) {
+  body[data-project="rally"] .selection button:enabled:active {
+    text-decoration: underline double;
+  }
+}
