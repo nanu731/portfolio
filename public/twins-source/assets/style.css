@@ -901,6 +901,6 @@ body.standard-page[data-project="twins"] .std-selected-row .kicker { display: no
 #game-clues td { font: .85rem var(--mono); }
 #guess-form label { display: block; }
 #guess-name { width: 100%; border: 1px solid var(--green); background: var(--cream); padding: .55rem; border-radius: 4px; }
-#guess-form button, #game-next { margin-top: .6rem; }
+#guess-form button, #game-next, #game-replay { margin-top: .6rem; }
 #game-result h4 { margin: .8rem 0 .2rem; }
 #game-five { padding-left: 1.7rem; }

@@ -228,20 +228,21 @@ const { comparisonSlot } = Astro.props as { comparisonSlot?: 'A' | 'B' };
 
 
 			<div class="result-panel metrics-panel" hidden data-metrics-result>
+					{!comparisonSlot && <p class="shot-baseline-result">No shots moved. Estimated change: 0 points.</p>}
 					<div class="gain-grid">
 						<div>
 							<div class="label"><DefinitionHelp id="season-gain" detailTarget="formula-season-gain" detailLabel="See the formula" label="Extra Points in 2025–26">The model estimates 0 extra points over the same recorded shots. This compares possible shot mixes, not a future season forecast.</DefinitionHelp></div>
-							<p class="gain-value numeric" data-season-gain></p>
-							<div class="interval"><DefinitionHelp id="range" detailTarget="formula-range" detailLabel="See the formula" label="Estimated Range (90%)">This range covers the middle 90% of the model’s estimates. It does not include every uncertainty in a real game.</DefinitionHelp></div>
-							<p class="interval numeric" data-season-interval></p>
+							<div class="shot-gain-line"><p class="gain-value numeric" data-season-gain></p>
+							<div class="shot-gain-range"><div class="interval"><DefinitionHelp id="range" detailTarget="formula-range" detailLabel="See the formula" label="Estimated Range (90%)">This range covers the middle 90% of the model’s estimates. It does not include every uncertainty in a real game.</DefinitionHelp></div>
+							<p class="interval numeric" data-season-interval></p></div></div>
 							<p class="measure-note" data-season-note></p>
 							<p class="measure-note">The middle 90% of estimates within this model. Real games can differ for reasons the model does not include.</p>
 						</div>
 						<div>
 							<div class="label"><DefinitionHelp id="per-100" detailTarget="formula-per-100" detailLabel="See the formula" label="Extra Points per 100 Shots">The model estimates 0.0 extra points for every 100 attempts at this slider setting. This puts players with different shot counts on the same scale.</DefinitionHelp></div>
-							<p class="gain-value numeric" data-per-100-gain></p>
-							<p class="interval">Estimated Range (90%)</p>
-							<p class="interval numeric" data-per-100-interval></p>
+							<div class="shot-gain-line"><p class="gain-value numeric" data-per-100-gain></p>
+							<div class="shot-gain-range"><p class="interval">Estimated Range (90%)</p>
+							<p class="interval numeric" data-per-100-interval></p></div></div>
 							<p class="measure-note">The estimated difference for every 100 attempts.</p>
 						</div>
 					</div>

@@ -332,7 +332,6 @@ export function registerNFL(){
    this.querySelectorAll('[data-selected-values],[data-radar-values],[data-selected-depth]').forEach(e=>e.replaceChildren());
    this.querySelectorAll<HTMLElement>('[data-profile-values] td').forEach(td=>{td.textContent='Unavailable';td.className='unavailable';td.removeAttribute('data-rank');td.removeAttribute('data-percentile');});
    this.querySelectorAll('[data-counts],[data-pair-legend],[data-expert-summary],[data-radar-counts],[data-radar-gaps],[data-availability-a],[data-availability-b]').forEach(e=>e.textContent='');
-   this.querySelectorAll<HTMLElement>('[data-stat-counts],[data-stat-player]').forEach(e=>{e.textContent='Unavailable';e.removeAttribute('data-value');});
    this.querySelectorAll('[data-radar-legend-name]').forEach(e=>e.textContent='Unavailable');
    const methodNote=this.querySelector<HTMLElement>('[data-expert-method-note]')!;methodNote.textContent='';methodNote.hidden=true;
    this.querySelector('[data-radar-a]')!.textContent='Quarterback A';this.querySelector('[data-radar-b]')!.textContent='Quarterback B';
@@ -356,10 +355,6 @@ export function registerNFL(){
    const pair=[this.selected('a'),this.selected('b')];
    pair.forEach(s=>{this.querySelector(`[data-availability-${s.side}]`)!.textContent=s.row?'':`${s.id&&s.year?this.label(s):'Quarterback '+s.side.toUpperCase()}: ${this.missing(s)}`;});
    this.drawRadar(pair);this.renderEvidence(pair);
-   for(const field of ['epa_per_dropback','cpoe_pp','sack_avoidance_pct']){
-    const body=this.querySelector(`[data-evidence="${field}"] [data-selected-values]`)!;body.replaceChildren();
-    pair.forEach(s=>{const tr=document.createElement('tr');tr.append(cell('th',`${s.side.toUpperCase()} · ${this.label(s)}`));const r=s.row;if(!r){tr.append(cell('td','Unavailable'),cell('td',this.missing(s)));if(field==='epa_per_dropback')tr.append(cell('td','Unavailable'));}else{tr.append(cell('td',fmt(r[field])),cell('td',field==='cpoe_pp'?`${r.eligible_throws} throws in ${r.eligible_games} games`:`${r.dropbacks} dropbacks in ${r.dropback_games} games${field==='sack_avoidance_pct'?`; ${r.sacks} sacks`:''}`));if(field==='epa_per_dropback')tr.append(cell('td',`${fmt(r.epa_lower)} to ${fmt(r.epa_upper)}; ${r.epa_interval_status.replaceAll('_',' ')}`));}body.append(tr);});
-   }
    const activeFilters=this.requiredMask.toString(2).replaceAll('0','').length;
    this.querySelector('[data-filter-count]')!.textContent=activeFilters?` (${activeFilters})`:'';
    this.querySelector<HTMLButtonElement>('[data-clear-requirements]')!.hidden=!activeFilters;
@@ -372,20 +367,36 @@ export function registerNFL(){
    if(announce)this.querySelector('[data-comparison-status]')!.textContent=pair.map(s=>`${s.side.toUpperCase()} · ${this.label(s)}${s.row?'':' · unavailable'}`).join(' versus ');
   }
   renderStats(pair:Selected[]){
+   const svg=this.querySelector<SVGSVGElement>('[data-stat-plot]')!;
+   if(this.view!=='stats'){svg.replaceChildren();svg.setAttribute('hidden','');return;}
    const metric=STATS.find(item=>item.field===this.statMetric)!;
+   const field=metric.field;
    this.querySelector('[data-stat-meaning]')!.textContent=metric.meaning;
    this.querySelector('[data-stat-unit]')!.textContent=metric.unit;
    this.querySelector('[data-stat-label]')!.setAttribute('href','#'+metric.target);
-   this.querySelectorAll<HTMLDetailsElement>('[data-evidence]').forEach(detail=>{detail.hidden=detail.dataset.evidence!==metric.field;});
-   pair.forEach(selected=>{
-    const sample=this.querySelector<HTMLElement>(`[data-stat-side="${selected.side}"]`)!;
+   const evidence=[...this.querySelectorAll<HTMLElement>('[data-evidence]')];
+   for(const section of evidence)section.hidden=section.dataset.evidence!==field;
+   const body=evidence.find(section=>!section.hidden)!.querySelector('[data-selected-values]')!;
+   body.replaceChildren();
+   for(const selected of pair){
+    const tr=document.createElement('tr');
+    tr.append(cell('th',this.label(selected)));
     const row=selected.row;
-    sample.hidden=!row;
-    sample.querySelector('[data-stat-player]')!.textContent=this.label(selected);
-    sample.querySelector('[data-stat-counts]')!.textContent=!row?'':metric.field==='cpoe_pp'?`${row.eligible_throws} throws in ${row.eligible_games} games`:`${row.dropbacks} dropbacks in ${row.dropback_games} games`;
-   });
-   const svg=this.querySelector<SVGSVGElement>('[data-stat-plot]')!;
-   if(this.view!=='stats'){svg.replaceChildren();svg.setAttribute('hidden','');return;}
+    tr.append(cell('td',row?fmt(row[field]):'Unavailable'));
+    let count='—';
+    if(row){
+     count=field==='cpoe_pp'
+      ? `${row.eligible_throws} throws in ${row.eligible_games} games`
+      : `${row.dropbacks} dropbacks in ${row.dropback_games} games`;
+     if(field==='sack_avoidance_pct')count+=`; ${row.sacks} sacks`;
+    }
+    tr.append(cell('td',count));
+    if(field==='epa_per_dropback'){
+     const range=row?`${fmt(row.epa_lower)} to ${fmt(row.epa_upper)}; ${row.epa_interval_status.replaceAll('_',' ')}`:'—';
+     tr.append(cell('td',range));
+    }
+    body.append(tr);
+   }
    const width=Math.round(svg.parentElement!.getBoundingClientRect().width);if(width>0)this.draw(svg,pair,metric.field,width,false);
   }
   drawRadar(pair:Selected[]){

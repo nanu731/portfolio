@@ -5,7 +5,7 @@
     {
       "slug": "nba-statistical-twins",
       "sourceSha256": "a8778f892a8706d0876aa2cfbba2d469b4d4de03bbf9163912ff7ab866fbacee",
-      "pageSha256": "0736c98b9802ded6eae87a395742f1d867d4cfcc0db1f94d5bea3261dab7d3fa"
+      "pageSha256": "f721921abda4679c3d3acbc2f73d13de1c83a3f2e38e6e1fa3c68e469a9d6994"
     },
     {
       "slug": "nba-economics",
@@ -15,12 +15,12 @@
     {
       "slug": "nba-shot-selection-analytics",
       "sourceSha256": "073070b8e1fadd5803f2783926fa8c4d57e348709592c082228ac7ec7e36c2ea",
-      "pageSha256": "f8aa8fff9c2c337fd6c051b131523d10a89b78d72dee0aaa83fac16d4b445a27"
+      "pageSha256": "3b165fc8b381ca851cce1ebbdc70a361827480483fcb34d86b0a22be513c0903"
     },
     {
       "slug": "nfl-qbs-re-evaluated",
       "sourceSha256": "3f197a5d2da79b18c054f71a68fe4f9cd21e90db3041c1c302df0d2602db7fd0",
-      "pageSha256": "20220540ba29859585fdeec78cf41723ad0a2d7c73c63f2c008e5f621af3d897"
+      "pageSha256": "907e0c92b2340b0a60b5dcbaa0e5b46672e34b753934d1064bbf4654af415e87"
     },
     {
       "slug": "tennis-point-phases",
@@ -49,16 +49,16 @@
     "moneyball-courtside.js": "1a583ad43b0a81249e9f995f78e04b0be8ad0a71242d1b584571735169c5690b",
     "moneyball-courtside.png": "ac23aba6cf5620693a46339c3aaf226eddc53106bea5a773f61e3c4230129449",
     "/twins-source/assets/nsl.svg": "6eb9cd42f66947d879f343be720386daace8218daf225bb9bedfd96a3d9ad3f9",
-    "/twins-source/assets/style.css": "9c4433f1769c982084d4760ef355833281ddc13e4b888895bf19c059c69dea8d",
+    "/twins-source/assets/style.css": "ba5978f260633b79b752fe29014d6290e98b23d7ca217af4a824bc541595158c",
     "/std-assets/project-standard.css": "2abee3bf2a5854d7da09f7d2055e1a008085f78916243e8973b0b0206e3860ff",
-    "/std-assets/project-standard-experience.css": "598c22598a86ed32cc62eff98c8a9094296439f6f92f1dd3899476af26ab7b69",
+    "/std-assets/project-standard-experience.css": "0eb931a86af8efe5ad9ab8381410dec0b0a23d6ea718bd795f2bdf529d85fe22",
     "/shot-court-viewport.css": "b0739a63015568f411b7ec7782da6373047a3be239f8b73bba17501d61aa69d2",
     "/std-assets/project-standard-controls.js": "d4b673e47df3f721c6f4703bb9c403e520c585e93f3d6c05329fe019bbe05ae7",
     "/std-assets/project-standard-experience.js": "36f8073bbe1e0c3d71daf16132de302e920e39a9cf4d76e11331c3a01c63c493",
     "/twins-source/research/stocks-model.md": "d8c54f304cc6ac57a094f2a8ebbf3a1ce5b218633d616d831ab4966f2b32e418",
     "/twins-source/data/data.js": "d6d0d8fc05e6b77e14bd3b3c29c1b9ee74b30141582cc4f75b8f47372116cc7f",
     "/twins-source/assets/model.js": "8077e784b3f1cb44b2a3ef5e7c0a995c52f51b4999556fd3e82f3eb16882cdfc",
-    "/twins-source/assets/app.js": "4c6963e1aac01818de7b32f76a8b4690ae4ccafe0dde9ba058f6c91163b81661",
+    "/twins-source/assets/app.js": "848d4daffa6e94a6727e731b59386014cb6e9757141a43dc7526905ea157f311",
     "/favicon.svg": "a12bf07c4c2ec43606bdd12ad7aca8911ab88af2453ec4c84739f2cb4a806703",
     "/favicon.ico": "f9ea1ce827b3cc1f9ffaccf76049b760e34f0eca4247e2b380f526722559b8ca",
     "/_astro/fonts/16801a6af5971d1a.woff2": "94bb7e04bb1a32237a67935c72526e42a3e52ee4aebd50299802b18a93114251",
@@ -13889,10 +13889,10 @@
     "/projects/tennis-shots-and-errors/data/points/ffd641e9335f354275.json": "0c5ba0c9338535c2ba86c2bab2ea7211797069a197d81cde1d3682335f613d04",
     "/projects/tennis-shots-and-errors/data/points/ffd83ece00f33853e1.json": "c9cd15a96eb256d2398fe0ee1aefb2cae7115af0c3a9b695afd51dc86eb6464b",
     "/projects/tennis-shots-and-errors/data/points/fff3e1e05b17159944.json": "990c77a93e8f09a70d1022c4e793ec2385b1c7d33432332e2f1bc21a22b350f5",
-    "/projects/tennis-shots-and-errors/charts.css": "7ea9fde8b13e69b3abe9cfc37bcbcafda0fa8cfb870f1796663e0fec634c6350",
+    "/projects/tennis-shots-and-errors/charts.css": "b980fd5f1d88fb4f7e88491adb0c197ed48d65c8b2ea80fe7c6f0218968a60c7",
     "/projects/tennis-shots-and-errors/LICENSE": "4d86cfe44cf70c29d2c976a2c274bfa26cb951adbe2bf496ad203c35dbf03319",
     "/projects/tennis-shots-and-errors/controls.js": "6aaf88e93ed37d580d94c243b499ead25afdf31d49ad8f3a9121e6b0a2bdb66f",
-    "/projects/tennis-shots-and-errors/analysis.js": "a84ed20f88ab253f92d6c21a91d4bcb477cb00ae5dc340d4f96537ab7762c76c",
+    "/projects/tennis-shots-and-errors/analysis.js": "2f0306cc5bc34b9a991c9632d735bb61f18d3154107d1f9f95c173bcf6de5a89",
     "/projects/tennis-shots-and-errors/style.css": "0ae2b5dc6c7fca2997260fac3cf4948ad6a954dd35a3b76a31967af8cbe3734e",
     "/projects/tennis-shots-and-errors/scripts/build_data.py": "4af97350f211d10396760f7984d473017c4018c325842bbd93c77f0f5b9f1688",
     "/projects/tennis-shots-and-errors/data/provenance.json": "9c45abca7ca76af2b080c7e079d92a5c4a78f94305cebbaf1216f176aa111949",
@@ -13929,9 +13929,10 @@
     "/twins-source/data/round-2020-21.json": "6f7441ca8cc15f233c30b34d00986025f5c2ce9f6265505d0a6bfeddd30c2bdb",
     "/twins-source/data/round-2013-14.json": "242aeefe794e1eceb252a7ea639a5e600ad2f6704bc44d7c2c91b3661fd17d0a",
     "/twins-source/data/round-2011-12.json": "7acc2ee74a39ae127f556992ffb1520acd51a289446ca533ea10d1d46d321496",
-    "/twins-source/assets/twin-game.js": "31e06da20340f838a58d0b66a0c2c36f2cc36f869f50b495deaa48c671f381c6",
-    "/nfl-radar-first.css": "6b8382835aba626198bffc733ed6adc7b01df83db975e60a7ff3169b5a33c97c",
-    "/nfl-radar-first.b4202c592279.js": "b4202c592279d83341d4a6beed1dc3294e7c58ca970ebb35cd75190139b7cabe"
+    "/twins-source/assets/twin-game.js": "6f2a8e28d3aac87047a858edd05d0d180e936528fe9e7aebabd1cdd139522d9c",
+    "/nfl-radar-first.css": "65892017c42a97fdfb299d4c9e6c96f80b513a23e1cecf69fb8a3d4fd87f3f75",
+    "/nfl-radar-first.b4202c592279.js": "b4202c592279d83341d4a6beed1dc3294e7c58ca970ebb35cd75190139b7cabe",
+    "/nfl-radar-first.947a9dfc13bc.js": "947a9dfc13bc27dd9dd6a4ac9c50d180f63ac9441237899edeb5dccc90cccd8b"
   },
   "integrationChanges": [
     {

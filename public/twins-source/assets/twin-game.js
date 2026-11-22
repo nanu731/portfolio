@@ -29,6 +29,7 @@
     });
   }
   async function drawRound() {
+    el('game-next').hidden = false;
     el('game-next').disabled = true;
     el('game-round').hidden = true;
     el('game-result').hidden = true;
@@ -56,7 +57,6 @@
       el('game-roster').replaceChildren(...candidates.map(p => new Option(p.team, p.name + ' · ' + p.team)));
       input.value = ''; input.setCustomValidity('');
       form.hidden = false;
-      el('game-next').textContent = 'Draw another player';
       el('game-round').hidden = false;
       el('game-status').textContent = '';
       if (dialog.open) el('game-subject').focus();
@@ -87,7 +87,7 @@
       li.textContent = player.name + ' · ' + score.toFixed(1) + '/100' + (player.id === guess.id ? ' · Your guess' : '');
       return li;
     }));
-    el('game-next').textContent = 'Play another round';
+    el('game-next').hidden = true;
     el('game-rule').hidden = true;
     el('game-result').hidden = false;
     el('result-title').focus();
@@ -98,4 +98,5 @@
     if (!subject && !el('game-next').disabled) drawRound();
   };
   el('game-next').onclick = drawRound;
+  el('game-replay').onclick = drawRound;
 })();
