@@ -65,6 +65,11 @@ projects.sort((a, b) => Number(b.id === 'nba-statistical-twins') - Number(a.id =
 	.headline-band {
 		padding-block: var(--space-2xl) var(--space-xl);
 	}
+	@media (max-width: 40rem) {
+		.headline-band {
+			padding-block: var(--space-l);
+		}
+	}
 	.display {
 		margin-bottom: 0;
 	}
