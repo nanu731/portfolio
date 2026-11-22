@@ -5,7 +5,7 @@
     {
       "slug": "nba-statistical-twins",
       "sourceSha256": "a8778f892a8706d0876aa2cfbba2d469b4d4de03bbf9163912ff7ab866fbacee",
-      "pageSha256": "39e5e852c58533f023f5d01a51bd35b4d8a2d2b2fdf192709f79996bb7774fba"
+      "pageSha256": "0736c98b9802ded6eae87a395742f1d867d4cfcc0db1f94d5bea3261dab7d3fa"
     },
     {
       "slug": "nba-economics",
@@ -58,7 +58,7 @@
     "/twins-source/research/stocks-model.md": "d8c54f304cc6ac57a094f2a8ebbf3a1ce5b218633d616d831ab4966f2b32e418",
     "/twins-source/data/data.js": "d6d0d8fc05e6b77e14bd3b3c29c1b9ee74b30141582cc4f75b8f47372116cc7f",
     "/twins-source/assets/model.js": "8077e784b3f1cb44b2a3ef5e7c0a995c52f51b4999556fd3e82f3eb16882cdfc",
-    "/twins-source/assets/app.js": "c2d43815e2f36430e5d133c0144cdaba78f81ad1549dd10798c0942e5f90093e",
+    "/twins-source/assets/app.js": "4c6963e1aac01818de7b32f76a8b4690ae4ccafe0dde9ba058f6c91163b81661",
     "/favicon.svg": "a12bf07c4c2ec43606bdd12ad7aca8911ab88af2453ec4c84739f2cb4a806703",
     "/favicon.ico": "f9ea1ce827b3cc1f9ffaccf76049b760e34f0eca4247e2b380f526722559b8ca",
     "/_astro/fonts/16801a6af5971d1a.woff2": "94bb7e04bb1a32237a67935c72526e42a3e52ee4aebd50299802b18a93114251",
