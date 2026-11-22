@@ -32,7 +32,7 @@ try {
       if (!comparison) {
         const action = page.getByRole('link', { name: 'Compare two players’ shot mixes', exact: true });
         assert.equal(await action.count(), 1, 'One comparison action, without a duplicate below the court');
-        assert.equal(await action.evaluate(e => Boolean(e.closest('.std-intro-actions'))), true, 'Comparison belongs in the opening actions');
+        assert.equal(await action.evaluate(e => Boolean(e.closest('.compare-entry'))), true, 'Comparison belongs beside the player controls');
         const box = await action.boundingBox();
         assert.ok(box && box.height >= 44 && box.x >= 0 && box.x + box.width <= width + 1, 'Comparison action must be a visible touch-sized button');
         if ([1440, 375, 320].includes(width)) {

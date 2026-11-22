@@ -89,7 +89,7 @@ const { comparisonSlot } = Astro.props as { comparisonSlot?: 'A' | 'B' };
 							<DefinitionHelp id="shots-to-move" detailTarget="definition-shots-to-move" detailLabel="See all definitions" label="Shots to Move" compact>Your 0% setting allows up to 0 of every 100 shots to move. The amount moved can be lower because suitable shots or room in receiving areas can run out.</DefinitionHelp>
 							<output class="numeric" for="relocation-share" data-slider-output>Up to 0%</output>
 						</div>
-						<p class="measure-note" id="slider-help">Choose the largest share of shots you want to move, from 0% to 25%.</p>
+						<p class="measure-note" id="slider-help">Move the slider to see how the shot mix and estimated points change.</p>
 						<input type="range" id="relocation-share" min="0" max="25" step="5" value="0" disabled data-slider aria-describedby="slider-help" />
 						<div class="slider-ends label numeric" aria-hidden="true"><span>0%</span><span>25%</span></div>
 						<p class="actual-share numeric" data-actual-share></p>
