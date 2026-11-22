@@ -1,6 +1,6 @@
 {
   "sourceSnapshot": "20261105T172239Z-e1770d",
-  "sourceLabel": "Project blueprint \u00b7 NBA Game Predictor link",
+  "sourceLabel": "Project blueprint · NBA Game Predictor link",
   "projects": [
     {
       "slug": "nba-statistical-twins",
@@ -20,7 +20,7 @@
     {
       "slug": "nfl-qbs-re-evaluated",
       "sourceSha256": "3f197a5d2da79b18c054f71a68fe4f9cd21e90db3041c1c302df0d2602db7fd0",
-      "pageSha256": "8ba3bbe80d3db6d3bd8d0516b8760434ec6054e3f621ceb963dd5a793da557c5"
+      "pageSha256": "20220540ba29859585fdeec78cf41723ad0a2d7c73c63f2c008e5f621af3d897"
     },
     {
       "slug": "tennis-point-phases",
@@ -13916,8 +13916,8 @@
     "/nfl-football-swap.css": "e4dfc9a2cc969717a21ebee263468d1d51ecb28628239d508f36fd2ac49beb5c",
     "/nfl-football-swap.png": "07218da34500c90262f8ccb3bd72c28fa5f405962a210a8c480282afbdb85ef3",
     "moneyball-courtside-miss.png": "9d6bd16f3e7700223aed6474182910a8ad8c8c40cede1ce50df932080170dce1",
-    "/nfl-radar-first.bddb53bb4901.js": "bddb53bb490153b87db1401168e95659e000467595f7ba76fbc9759edca758a8",
-    "/nfl-radar-first.css": "09524717361314f1212e268c409d911e706aa27edf2bec208319c6d6d0d772e0"
+    "/nfl-radar-first.css": "6b8382835aba626198bffc733ed6adc7b01df83db975e60a7ff3169b5a33c97c",
+    "/nfl-radar-first.b4202c592279.js": "b4202c592279d83341d4a6beed1dc3294e7c58ca970ebb35cd75190139b7cabe"
   },
   "integrationChanges": [
     {

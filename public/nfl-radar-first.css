@@ -75,7 +75,7 @@ nfl-comparison .nfl-stat-counts {
   font-size: .95rem;
 }
 
-nfl-comparison .nfl-stat-counts li { display: flex; flex-wrap: wrap; gap: 0 10px; }
+nfl-comparison .nfl-stat-counts li:not([hidden]) { display: flex; flex-wrap: wrap; gap: 0 10px; }
 nfl-comparison .nfl-stat-counts [data-stat-player] { font-weight: 600; }
 nfl-comparison .nfl-stat-context { font-size: .95rem; }
 nfl-comparison .nfl-stat-context:empty { display: none; }

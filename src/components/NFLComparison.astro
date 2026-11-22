@@ -15,7 +15,7 @@ const references=await buildPercentileReferences(annual,depth,data);
 const staticMetrics=['sack_avoidance_pct','scramble_contribution','short_cpoe_pp','medium_cpoe_pp','deep_cpoe_pp'];
 const staticRank=(i:number,j:number)=>i===1?mobilityPercentileFor(mobilityReferences,2023,defaults[j].annual.player_key):percentileFor(references,staticMetrics[i],2023,defaults[j].annual.player_key);
 const players=[...new Map(annual.rows.map(r=>[r.player_key,r])).values()].sort((a,b)=>a.display_name.localeCompare(b.display_name));
-const seasons=[...annual.season_catalog].sort((a,b)=>b.season-a.season);
+const seasons=annual.season_catalog.filter(y=>y.status==='exported').sort((a,b)=>b.season-a.season);
 const defaults=['00-0033873','00-0034857'].map(id=>({annual:annual.rows.find(r=>r.player_key===id&&r.season===2023)!,legacy:data.rows.find(r=>r.player_key===id&&r.season===2023)!,mobility:mobility.rows.find(r=>r.player_key===id&&r.season===2023)!,depth:depth.rows.filter(r=>r.player_key===id&&r.season===2023)}));
 const profileAttributes=['Arm strength','Processing','Pocket presence','Mobility','Short accuracy','Medium accuracy','Deep accuracy'];
 const staticOutcomes=['Dropbacks without a sack (%)','Scramble expected points per included QB play','Short completions above expectation (pp)','Medium completions above expectation (pp)','Deep completions above expectation (pp)'];
@@ -48,7 +48,7 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
       </div>
       <select id="nfl-player-a" name="nfl-player-a" data-a aria-label="Selected quarterback A" hidden disabled><option value="">Choose quarterback</option>{players.map(r=><option value={r.player_key} selected={r.player_key==='00-0033873'}>{r.display_name}</option>)}</select>
      </div>
-     <label class="label season-control" for="nfl-season-a"><span class="visually-hidden">Season for quarterback A</span><select id="nfl-season-a" name="nfl-season-a" data-season-a disabled>{seasons.map(y=><option value={y.season} selected={y.season===2023}>{y.season}{y.status==='source_blocked'?' · excluded':''}</option>)}</select></label>
+     <label class="label season-control" for="nfl-season-a"><span class="visually-hidden">Season for quarterback A</span><select id="nfl-season-a" name="nfl-season-a" data-season-a disabled>{seasons.map(y=><option value={y.season} selected={y.season===2023}>{y.season}</option>)}</select></label>
     </div>
     <p class="search-status visually-hidden" id="nfl-search-status-a" data-search-status-a role="status" aria-live="polite"></p>
    </div>
@@ -62,7 +62,7 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
       </div>
       <select id="nfl-player-b" name="nfl-player-b" data-b aria-label="Selected quarterback B" hidden disabled><option value="">Choose quarterback</option>{players.map(r=><option value={r.player_key} selected={r.player_key==='00-0034857'}>{r.display_name}</option>)}</select>
      </div>
-     <label class="label season-control" for="nfl-season-b"><span class="visually-hidden">Season for quarterback B</span><select id="nfl-season-b" name="nfl-season-b" data-season-b disabled>{seasons.map(y=><option value={y.season} selected={y.season===2023}>{y.season}{y.status==='source_blocked'?' · excluded':''}</option>)}</select></label>
+     <label class="label season-control" for="nfl-season-b"><span class="visually-hidden">Season for quarterback B</span><select id="nfl-season-b" name="nfl-season-b" data-season-b disabled>{seasons.map(y=><option value={y.season} selected={y.season===2023}>{y.season}</option>)}</select></label>
     </div>
     <p class="search-status visually-hidden" id="nfl-search-status-b" data-search-status-b role="status" aria-live="polite"></p>
    </div>
@@ -79,7 +79,7 @@ const nameOf=(r:typeof data.rows[number])=>displayNames[r.player_key]??r.observe
   <div class="selection-availability" aria-label="Selected player-season availability"><p data-availability-a role="status" aria-live="polite"></p><p data-availability-b role="status" aria-live="polite"></p></div>
   <p class="availability" data-comparison-status role="status" aria-live="polite">Checking comparison data…</p><button type="button" data-retry hidden>Retry</button>
   <section id="nfl-profile-panel" class="radar-prototype" role="tabpanel" aria-labelledby="nfl-profile-tab" data-view-panel="profile">
-   <h2 id="nfl-radar-heading" class="visually-hidden">Quarterback attribute profile</h2>
+   <h2 id="nfl-radar-heading" class="visually-hidden" tabindex="-1">Quarterback attribute profile</h2>
    <noscript><p>The radar requires JavaScript. All seven default positions appear below: Patrick Mahomes · 2023 (A) and Josh Allen · 2023 (B). Expert assessments predate the season; outcome values describe the regular season.</p><div class="table-scroll" role="region" aria-label="Static default seven-attribute comparison" tabindex="0"><table data-static-default><thead><tr><th scope="col">Attribute / measure</th><th scope="col">A · Patrick Mahomes · 2023</th><th scope="col">B · Josh Allen · 2023</th></tr></thead><tbody>
     {(['arm_strength','field_vision'] as const).map(trait=><tr><th scope="row">{trait==='arm_strength'?'Arm strength':'Processing proxy · field vision'}</th>{defaults.map(d=><td data-static-expert={trait}>{expertLabel(expertFor(trait,2023,d.annual.player_key)!)} expert rank<br/>{expertFor(trait,2023,d.annual.player_key)!.category} · 2023 preseason<br/><a href={EXPERT_SOURCE.url}>ESPN · {EXPERT_SOURCE.published}</a><br/>{EXPERT_SOURCE.shortAuthors}. Preseason editorial assessment; drawing index only.</td>)}</tr>)}
     {staticOutcomes.map((label,i)=><tr><th scope="row">{label}</th>{[0,1].map(j=><td>{displayPercentile(staticRank(i,j).percentile)} percentile<br/>2023 · annual finite eligible peers · N={staticRank(i,j).n}<br/>Recorded value: {fmt(staticValue(i,j),i===0?1:3)}<br/>{staticEvidence(i,j)} Raw ranges are not percentile intervals.</td>)}</tr>)}</tbody></table></div></noscript>
