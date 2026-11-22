@@ -191,7 +191,9 @@
     const warmRoster = () => { if (adapter.ready()) void adapter.roster().catch(() => {}); };
     button.addEventListener('pointerenter', warmRoster, { passive: true });
     button.addEventListener('focus', warmRoster);
-    row.append(identity, button);
+    const actions = kind === 'twins' && one('.player-actions', area);
+    if (actions) actions.prepend(button);
+    row.append(identity, actions || button);
     area.append(row);
     return { adapter, name, context, button };
   });
