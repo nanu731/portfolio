@@ -1,0 +1,132 @@
+@font-face {
+  font-family: Portfolio Serif;
+  src: url('/projects/tennis-shots-and-errors/assets/serif.woff2') format('woff2');
+  font-weight: 200 900;
+  font-display: swap;
+}
+.portfolio-header, .portfolio-footer {
+  --shell-cream: #f2e9ce;
+  --shell-green: #14532d;
+  --shell-rust: #9c3d1e;
+  --shell-wash: rgb(20 83 45 / 7%);
+  --shell-inset: clamp(1rem, 3vw, 2.5rem);
+  --shell-pad: .625rem;
+  font: 500 1.125rem/1.3 'Portfolio Serif', Georgia, serif;
+}
+header.portfolio-header {
+  position: relative;
+  z-index: 10;
+  background: var(--shell-cream);
+  color: var(--shell-green);
+  border-bottom: 2px solid currentColor;
+}
+.portfolio-mast, .portfolio-footer > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .25rem 1.5rem;
+  padding: .5rem var(--shell-inset);
+}
+.portfolio-header nav { display: flex; align-items: center; flex-wrap: wrap; }
+.portfolio-header a, .portfolio-header summary {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: .5rem var(--shell-pad);
+  border: 0;
+  border-bottom: 3px solid transparent;
+  color: var(--shell-green);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.portfolio-header .portfolio-brand { padding-inline: 0; gap: .75rem; font-weight: 600; }
+.portfolio-brand img { width: 3.5rem; height: auto; }
+.portfolio-header :is(a, summary):hover, .portfolio-projects[open] > summary { background: var(--shell-wash); }
+.portfolio-header [aria-current="page"], .portfolio-header .current-section {
+  border-bottom-color: var(--shell-rust);
+  color: var(--shell-rust);
+  font-weight: 600;
+}
+.portfolio-header .current-section { background: var(--shell-wash); }
+.portfolio-header :focus-visible, .portfolio-footer a:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; }
+.portfolio-projects { position: relative; }
+.portfolio-projects summary { list-style: none; gap: .5rem; }
+.portfolio-projects summary::-webkit-details-marker { display: none; }
+.portfolio-projects summary::after {
+  content: '';
+  width: .4em;
+  height: .4em;
+  border: solid currentColor;
+  border-width: 0 2px 2px 0;
+  transform: translateY(-.1em) rotate(45deg);
+}
+.portfolio-projects[open] summary::after { transform: translateY(.1em) rotate(225deg); }
+.portfolio-menu {
+  position: absolute;
+  inset: 100% auto auto 0;
+  width: 18rem;
+  max-height: 65svh;
+  overflow: auto;
+  background: var(--shell-cream);
+  border: 1px solid var(--shell-green);
+}
+.portfolio-menu .subproject { padding-inline-start: 1.75rem; }
+footer.portfolio-footer {
+  margin: 0;
+  padding: 1.5rem 0;
+  background: var(--shell-green);
+  color: var(--shell-cream);
+  font-size: 1rem;
+}
+.portfolio-footer a { display: inline-flex; align-items: center; min-height: 2.75rem; color: inherit; text-decoration: underline; text-underline-offset: .2em; }
+@media (max-width: 48rem) {
+  .portfolio-mast { display: block; }
+  .portfolio-header .portfolio-brand { width: fit-content; }
+  .portfolio-projects { position: static; }
+  .portfolio-menu { inset-inline: var(--shell-inset); width: auto; }
+}
+
+.portfolio-header .portfolio-skip {
+  position: absolute;
+  inset: .25rem auto auto var(--shell-inset);
+  z-index: 1;
+  background: var(--shell-cream);
+}
+.portfolio-skip:not(:focus) { clip-path: inset(50%); pointer-events: none; }
+body > a.skip:focus { z-index: 11; }
+
+/* Match the standard analysis intro without changing the tennis explorer width. */
+body[data-project="rally"] .intro.wrap {
+  --intro-gutter: 40px;
+  width: min(1160px, calc(100% - 2 * var(--intro-gutter)));
+}
+
+/* Top-level guide rows follow the analysis format; nested evidence stays compact. */
+.project-guide > details > summary {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-height: 80px;
+  padding-block: 24px;
+  font: 550 clamp(1.5rem, 2.2vw, 1.875rem)/1.15 Fraunces, Georgia, serif;
+  font-variation-settings: 'WONK' 1, 'SOFT' 90;
+  list-style: none;
+}
+.project-guide details > summary::-webkit-details-marker { display: none; }
+.project-guide details > summary::before {
+  content: '';
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border: solid currentColor;
+  border-width: 0 2px 2px 0;
+  transform: rotate(-45deg);
+}
+.project-guide details[open] > summary::before { transform: rotate(45deg); }
+@media (max-width: 760px) {
+  body[data-project="rally"] .intro.wrap { --intro-gutter: 18px; }
+  .project-guide > details > summary { min-height: 76px; padding-block: 22px; }
+}

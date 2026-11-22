@@ -29,7 +29,7 @@ const projects = await readFile(join(root,'dist/projects/index.html'),'utf8');
 const primary = manifest.projects.filter(p => p.slug !== 'nba-player-comparison');
 for (const {slug} of primary) {
   const href = `/projects/${slug}/`;
-  if (![home, projects].every(html => html.includes(`href="${href}"`))) throw Error(`Missing Home or Projects listing: ${slug}`);
+  if (![home, projects].every(html => html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/)?.[1].includes(`href="${href}"`))) throw Error(`Missing Home or Projects listing: ${slug}`);
 }
 for (const html of [home, projects]) {
   if (!/<a\b(?=[^>]*href="https:\/\/nbapredictions\.happybuddha1008\.workers\.dev\/")(?=[^>]*target="_blank")(?=[^>]*rel="noopener noreferrer")[^>]*>/.test(html)) throw Error('NBA Game Predictor new-tab link missing.');
