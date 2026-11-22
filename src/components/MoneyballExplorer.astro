@@ -32,7 +32,7 @@ const defaultMillion = data ? millionSummary(data.views[0], DEFAULT_METRIC) : nu
             <div id="mb-player-suggestions" class="suggestion-menu" data-mb-suggestions role="listbox" aria-label="Matched players in this view" hidden></div>
           </div>
         </div>
-        <label>Contribution<select data-mb-metric><option value="war">Estimated wins (WAR)</option><option value="lebron" selected>LEBRON · impact rate</option></select></label>
+        <label>Contribution<select data-mb-metric><option value="war">Estimated wins (WAR)</option><option value="lebron" selected>LEBRON · rate</option></select></label>
       </div>
       <div class="mb-visible-context">
         <label><span data-mb-season-label>Season</span><select data-mb-season aria-label="Season ending"><option value="">Awaiting data</option></select></label>
@@ -71,8 +71,8 @@ const defaultMillion = data ? millionSummary(data.views[0], DEFAULT_METRIC) : nu
           <svg role="group" data-mb-chart aria-label="Salary and measured contribution" viewBox="0 0 300 420"><title>No interactive records loaded</title></svg>
           <div class="mb-empty" data-mb-empty><h3 data-mb-empty-title>Player comparison unavailable</h3><p data-mb-empty-copy>Load a validated view or read the saved records below.</p><button type="button" data-mb-retry>Retry data</button></div>
         </div>
-        <p class="mb-small mb-match-count" data-mb-count role="status" aria-live="polite"></p>
         <p class="mb-axis mb-x" data-mb-x-label>Salary · US dollars</p>
+        <p class="mb-small mb-match-count" data-mb-count role="status" aria-live="polite"></p>
       </div>
     <div class="mb-legend" aria-label="Chart legend"><button type="button" data-mb-find-player disabled>Find a player</button><span><i class="mb-dot-key" data-mb-peer-key aria-hidden="true"></i><DefinitionHelp id="mb-matched" label="Matched player">One player whose salary and contribution records cover the same seasons and pass the inclusion rules. Missing or ineligible records stay out of the comparison.</DefinitionHelp></span><span data-mb-selected-key hidden><i class="mb-selected-key" aria-hidden="true"></i>Selected player</span><span><i class="mb-line-key" aria-hidden="true"></i><DefinitionHelp id="mb-reference" label="Salary reference">The fitted league line estimates contribution at each salary. A player's comparison is the vertical gap from that line.</DefinitionHelp></span><span><i class="mb-band-key" aria-hidden="true"></i><DefinitionHelp id="mb-band" label="Reference range">The shading describes uncertainty in the fitted league line while treating player scores as fixed. It is not uncertainty in an individual player's impact.</DefinitionHelp></span></div>
       <section id="mb-player-comparison" class="mb-selection" aria-label="Selected player" data-mb-selection-panel tabindex="-1">

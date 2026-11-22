@@ -4,7 +4,7 @@
   const kind = document.body.dataset.project;
   const emptySearchMessage = kind === 'twins'
     ? 'Try a last name. Players need 750 minutes in 2023–24 to appear.'
-    : 'No match. Try a surname or change the selected scope.';
+    : kind === 'moneyball' ? 'No players found. Try another name.' : 'No match. Try a surname or change the selected scope.';
   const area = document.querySelector('.std-selection-area');
   if (!kind || !area) return;
   const one = (selector, root = document) => root.querySelector(selector);

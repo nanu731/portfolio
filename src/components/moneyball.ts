@@ -684,7 +684,7 @@ export function mountMoneyball(root: HTMLElement): void {
     get('no-matches').hidden = shown.length > 0;
     get('war-help').hidden = m !== 'war'; get('lebron-help').hidden = m !== 'lebron';
     metric.options[0].textContent = warOptionLabel(active.window);
-    metric.options[1].textContent = 'LEBRON · impact rate';
+    metric.options[1].textContent = 'LEBRON · rate';
     txt('season-label', active.window > 1 ? 'Season ending' : 'Season');
     const context = `${viewLabel(active)} · Regular season${active.window === 1 ? '' : 's · averages over available matched seasons'}`;
     txt('period', ` · ${context}`);
@@ -755,6 +755,7 @@ export function mountMoneyball(root: HTMLElement): void {
     const m = metric.value as Metric, curve = active.models[m].curve, all = active.players, shown = rows();
     const bounds = chart.getBoundingClientRect(), width = Math.max(260, Math.round(bounds.width)), height = Math.max(340, Math.round(bounds.height));
     const topSalaryAxis = width < 500;
+    const salaryTickCount = !topSalaryAxis ? 5 : units.value === 'share' ? 4 : 3;
     chart.setAttribute('viewBox', `0 0 ${width} ${height}`);
     chart.toggleAttribute('data-salary-axis-top', topSalaryAxis);
     const L = 46, R = 14, T = 26, B = 40, xmax = curve[curve.length - 1].x, xmin = Math.min(0, curve[0].x);
@@ -765,7 +766,7 @@ export function mountMoneyball(root: HTMLElement): void {
     const children: SVGElement[] = [svg('desc', {}, 'Dots represent matched players. The solid line is the fixed salary reference. A selected player has a vertical contribution gap. Use search or the table for keyboard access.')];
     for (const v of niceTicks(ymin, ymax)) children.push(svg('line', { x1: L, x2: width - R, y1: y(v), y2: y(v), class: 'mb-grid' }), svg('text', { x: L - 7, y: y(v) + 4, 'text-anchor': 'end' }, String(Number(v.toPrecision(8)))));
     if (topSalaryAxis) children.push(svg('line', { x1: L, x2: width - R, y1: T - 4, y2: T - 4, class: 'mb-grid' }));
-    for (const tick of salaryTicks(xmin, xmax, active.referenceCapUsd, units.value, topSalaryAxis ? 3 : 5)) children.push(svg('text', { x: x(tick.x), y: topSalaryAxis ? 16 : height - 13, class: 'mb-salary-tick', 'text-anchor': tick.x === xmin ? 'start' : x(tick.x) > width - 40 ? 'end' : 'middle' }, tick.label));
+    for (const tick of salaryTicks(xmin, xmax, active.referenceCapUsd, units.value, salaryTickCount)) children.push(svg('text', { x: x(tick.x), y: topSalaryAxis ? 16 : height - 13, class: 'mb-salary-tick', 'text-anchor': tick.x === xmin ? 'start' : x(tick.x) > width - 40 ? 'end' : 'middle' }, tick.label));
     children.push(svg('line', { x1: L, x2: width - R, y1: y(0), y2: y(0), class: 'mb-zero' }));
     const path = (points: [number, number][]) => points.map(([a, b], i) => `${i ? 'L' : 'M'}${x(a)},${y(b)}`).join(' ');
     if (curve[0].low !== null) children.push(svg('path', { d: `${path(curve.map(k => [k.x, k.low!]))} ${curve.slice().reverse().map(k => `L${x(k.x)},${y(k.high!)}`).join(' ')} Z`, class: 'mb-band' }));
