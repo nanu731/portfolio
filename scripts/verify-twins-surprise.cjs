@@ -91,13 +91,30 @@ const base = process.argv[2] || 'http://127.0.0.1:4367';
       assert.deepEqual(errors,[]);
       await page.evaluate(()=>scrollTo(0,0));
       await page.screenshot({path:`/tmp/twins-integrated-${width}.png`});
+      assert.equal(await page.locator('.std-section-menu').count(),0);
+      await page.locator('.rank-note a').click();
+      await page.locator('#std-method[open] details[open] #ranking-margin').waitFor();
+      assert.match(await page.locator('#pair-stability').innerText(), /different mixes/);
+      await page.locator('#stat-rows .term').first().click();
+      await page.getByRole('link',{name:'Browse all definitions'}).press('Enter');
+      assert.ok(await page.locator('#std-definitions[open] #terms').isVisible());
+      assert.equal(await page.evaluate(()=>document.activeElement.id),'def-load');
+      for (const [player, expected] of [['Stephen Curry', /Stephen Curry.*shared 2 matches/],['Cody Martin', /enough data to rank Cody Martin/]]) {
+        await page.locator('.std-change-player').click();
+        await page.locator('#std-picker-search').fill(player);
+        await page.locator('#std-picker-results button').first().click();
+        assert.match(await page.locator('.rank-note').innerText(),expected);
+      }
       await page.close();
       console.log(`Twins interaction passed at ${width}px`);
     }
     const page=await browser.newPage();
-    for(const slug of ['nba-economics','nba-shot-selection-analytics','nfl-qbs-re-evaluated','tennis-point-phases']) {
+    for(const [slug,control] of Object.entries({
+      'nba-economics':'[data-mb-find-player]', 'nba-shot-selection-analytics':'.std-change-player',
+      'nfl-qbs-re-evaluated':'#nfl-search-a', 'tennis-point-phases':'.std-change-player',
+    })) {
       await page.goto(base+'/projects/'+slug+'/');
-      await page.locator('.std-change-player').first().waitFor();
+      await page.locator(control).first().waitFor();
       assert.equal(await page.locator('#surprise').count(),0);
     }
     console.log('Other project player controls remain present; no Surprise me outside Twins.');

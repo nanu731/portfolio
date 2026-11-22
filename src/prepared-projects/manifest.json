@@ -5,7 +5,7 @@
     {
       "slug": "nba-statistical-twins",
       "sourceSha256": "a8778f892a8706d0876aa2cfbba2d469b4d4de03bbf9163912ff7ab866fbacee",
-      "pageSha256": "0736c98b9802ded6eae87a395742f1d867d4cfcc0db1f94d5bea3261dab7d3fa"
+      "pageSha256": "f721921abda4679c3d3acbc2f73d13de1c83a3f2e38e6e1fa3c68e469a9d6994"
     },
     {
       "slug": "nba-economics",
@@ -49,7 +49,7 @@
     "moneyball-courtside.js": "1a583ad43b0a81249e9f995f78e04b0be8ad0a71242d1b584571735169c5690b",
     "moneyball-courtside.png": "ac23aba6cf5620693a46339c3aaf226eddc53106bea5a773f61e3c4230129449",
     "/twins-source/assets/nsl.svg": "6eb9cd42f66947d879f343be720386daace8218daf225bb9bedfd96a3d9ad3f9",
-    "/twins-source/assets/style.css": "9c4433f1769c982084d4760ef355833281ddc13e4b888895bf19c059c69dea8d",
+    "/twins-source/assets/style.css": "ba5978f260633b79b752fe29014d6290e98b23d7ca217af4a824bc541595158c",
     "/std-assets/project-standard.css": "f0ccc4b950264a0fda978dd978e9c792f9f76e5206e182cf3a52dd735af68e21",
     "/std-assets/project-standard-experience.css": "598c22598a86ed32cc62eff98c8a9094296439f6f92f1dd3899476af26ab7b69",
     "/shot-court-viewport.css": "b0739a63015568f411b7ec7782da6373047a3be239f8b73bba17501d61aa69d2",
@@ -58,7 +58,7 @@
     "/twins-source/research/stocks-model.md": "d8c54f304cc6ac57a094f2a8ebbf3a1ce5b218633d616d831ab4966f2b32e418",
     "/twins-source/data/data.js": "d6d0d8fc05e6b77e14bd3b3c29c1b9ee74b30141582cc4f75b8f47372116cc7f",
     "/twins-source/assets/model.js": "8077e784b3f1cb44b2a3ef5e7c0a995c52f51b4999556fd3e82f3eb16882cdfc",
-    "/twins-source/assets/app.js": "4c6963e1aac01818de7b32f76a8b4690ae4ccafe0dde9ba058f6c91163b81661",
+    "/twins-source/assets/app.js": "848d4daffa6e94a6727e731b59386014cb6e9757141a43dc7526905ea157f311",
     "/favicon.svg": "a12bf07c4c2ec43606bdd12ad7aca8911ab88af2453ec4c84739f2cb4a806703",
     "/favicon.ico": "f9ea1ce827b3cc1f9ffaccf76049b760e34f0eca4247e2b380f526722559b8ca",
     "/_astro/fonts/16801a6af5971d1a.woff2": "94bb7e04bb1a32237a67935c72526e42a3e52ee4aebd50299802b18a93114251",
@@ -13929,7 +13929,7 @@
     "/twins-source/data/round-2020-21.json": "6f7441ca8cc15f233c30b34d00986025f5c2ce9f6265505d0a6bfeddd30c2bdb",
     "/twins-source/data/round-2013-14.json": "242aeefe794e1eceb252a7ea639a5e600ad2f6704bc44d7c2c91b3661fd17d0a",
     "/twins-source/data/round-2011-12.json": "7acc2ee74a39ae127f556992ffb1520acd51a289446ca533ea10d1d46d321496",
-    "/twins-source/assets/twin-game.js": "31e06da20340f838a58d0b66a0c2c36f2cc36f869f50b495deaa48c671f381c6",
+    "/twins-source/assets/twin-game.js": "6f2a8e28d3aac87047a858edd05d0d180e936528fe9e7aebabd1cdd139522d9c",
     "/nfl-radar-first.css": "6b8382835aba626198bffc733ed6adc7b01df83db975e60a7ff3169b5a33c97c",
     "/nfl-radar-first.b4202c592279.js": "b4202c592279d83341d4a6beed1dc3294e7c58ca970ebb35cd75190139b7cabe"
   },
