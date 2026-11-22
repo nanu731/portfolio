@@ -81,7 +81,13 @@ for(const [name,pair,counts,closing] of [
 const html=readFileSync(new URL('dist/projects/nfl-qbs-re-evaluated/index.html',root),'utf8');
 assert.ok(html.includes('2006–2025, excluding 2011'));
 assert.ok(!/source[- ]blocked/i.test(html),'Visitor copy describes 2011 as excluded');
-assert.equal((html.match(/data-view-intro=/g)??[]).length,2,'One introductory paragraph is available for each comparison view');
+assert.match(html,/href="#nfl-definition-annual-mobility">the scramble formula/);
+for(const side of ['a','b']){
+ const picker=html.match(new RegExp('<select[^>]*id="nfl-season-'+side+'"[^>]*>[\\s\\S]*?</select>'))?.[0];
+ assert.ok(picker);
+ assert.match(picker,/<option value="2006"/);
+ assert.doesNotMatch(picker,/<option value="2011"/);
+}
 const table=html.match(/<table data-static-default[\s\S]*?<\/table>/)[0];
 const expertCells=[...table.matchAll(/<td\b[^>]*data-static-expert[^>]*>([\s\S]*?)<\/td>/g)];
 assert.equal(expertCells.length,4);
@@ -135,7 +141,22 @@ assert.ok(host.seasonPlayers('a').length>0,'Cleared year can search eligible pla
 host.requiredMask=127;
 assert.deepEqual(host.seasonPlayers('a').map(p=>p.id).sort(),[...new Set(complete.map(([id])=>id))].sort());
 controls.a.value=a.id;assert.deepEqual(host.seasonChoices('a').map(y=>y.season),complete.filter(([id])=>id===a.id).map(([,year])=>year).sort((a,b)=>b-a));
-host.requiredMask=0;assert.equal(host.seasonChoices('a').length,20);assert.ok(host.seasonChoices('a').some(y=>y.season===2011));
+controls.a.value=orton.player_key;controls['season-a'].value='2008';
+const filteredPick=host.selected('a');
+assert.equal(filteredPick.id,orton.player_key);
+assert.equal(filteredPick.year,2008);
+assert.match(filteredPick.unavailable,/clear filters/i);
+assert.equal(filteredPick.row,undefined,'Filtered player keeps their identity but does not plot');
+assert.notEqual(host.selected('b').row,undefined,'Opposite eligible side remains visible');
+host.view='stats';assert.equal(host.selected('a').row.player_key,orton.player_key);
+host.view='profile';host.requiredMask=0;
+assert.equal(host.selected('a').row.player_key,orton.player_key);
+assert.deepEqual(host.seasonChoices('a').map(y=>y.season),[...annual.season_catalog].reverse().filter(y=>y.status==='exported').map(y=>y.season));
+controls['season-a'].value='2023';host.view='stats';
+assert.match(host.selected('a').unavailable,/No season stats/);
+assert.equal(host.selected('a').id,orton.player_key);
+assert.equal(host.selected('a').year,2023);
+host.view='profile';
 assert.equal(JSON.stringify(host.references),referencesBefore,'Requirements never alter reference pools');
 assert.equal(JSON.stringify([annual,depth,legacy]),sourcesBefore,'Requirements never alter input records');
 assert.equal((html.match(/type="checkbox"[^>]*data-require-attribute=/g)??[]).length,7);

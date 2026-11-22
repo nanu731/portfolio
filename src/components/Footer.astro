@@ -1,13 +1,13 @@
 ---
 import { SITE_TITLE } from '../consts';
 import Analytics from '@vercel/analytics/astro';
-const { project, credit = false } = Astro.props;
+const { project, credit = false, showProjectTitle = true } = Astro.props;
 const enableAnalytics = process.env.VERCEL_ENV === 'production';
 ---
 <footer class="portfolio-footer">
   <div>
     <span>© {new Date().getFullYear()} {SITE_TITLE}</span>
-    {project && <span>{project}</span>}
+    {project && showProjectTitle && <span>{project}</span>}
     {credit && <a href="https://github.com/JeffSackmann/tennis_MatchChartingProject">Data · Tennis Abstract Match Charting Project</a>}
     {project && <a href="/projects/">More portfolio projects</a>}
   </div>

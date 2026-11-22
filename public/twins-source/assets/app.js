@@ -74,20 +74,9 @@
     $("player-stability").textContent = Number.isInteger(p.repeatCount)
       ? `Across two sets of games, ${p.repeatCount} of ${p.name}’s five twins appeared in both lists.`
       : "Too few minutes in one half to check this player’s match stability.";
-    const closest = matches[0].player;
-    const gaps = features.map((_, i) => Math.abs(p.p[i] - closest.p[i]));
-    const near = gaps.indexOf(Math.min(...gaps));
-    const three = features.findIndex(f => f.key === "three");
-    const far = near !== three && Math.abs(p.values[three] - closest.values[three]) >= 10
-      ? three : gaps.indexOf(Math.max(...gaps));
-    $("first-twin").textContent = `${p.name}’s closest box-score match was ${closest.name}.`;
-    $("first-reason").textContent = statPair(closest, near) + ".";
-    $("first-difference").textContent = far !== near && gaps[far] >= 10 ? statPair(closest, far) + "." : "";
-    $("rank-title").textContent = `${p.name}’s five closest matches`;
-    $("rank-help").textContent = `Choose a player to compare with ${p.name}.`;
     render();
     $("announce").textContent =
-      `${p.name} selected. Closest match: ${matches[0].player.name}.`;
+      $("first-twin").textContent;
   }
   function saveSelection() {
     const url = new URL(location.href);
@@ -97,6 +86,7 @@
     if (url.href !== location.href) history.pushState(null, "", url.href);
   }
   function restoreSelection() {
+    const focusedRow = $("matches").contains(document.activeElement);
     const params = new URLSearchParams(location.search);
     selectPlayer(
       players.find((p) => p.id === params.get("player")) ||
@@ -104,6 +94,7 @@
         players[0],
       params.get("match"),
     );
+    if (focusedRow) $("matches").querySelector('[aria-pressed="true"]').focus();
   }
   function chooseMatch(i) {
     chosen = i;
@@ -198,8 +189,6 @@
   }
   function render() {
     const { player: rival } = matches[chosen];
-    $("view-pair").hidden = chosen === 0;
-    $("view-pair").textContent = `Viewing match ${chosen + 1} of 5 · ${rival.name}`;
     $("minutes-played").textContent = `Regular-season minutes played: ${anchor.name}, ${anchor.minutes.toLocaleString()} · ${rival.name}, ${rival.minutes.toLocaleString()}.`;
     $("compare-context").textContent =
       `Match ${chosen + 1} of 5 · ${scoreLabel(chosen)}/100`;
@@ -216,11 +205,17 @@
       .map((f, i) => ({ f, i, gap: Math.abs(anchor.p[i] - rival.p[i]) }))
       .sort((a, b) => a.gap - b.gap);
     $("comparison").textContent = `${anchor.name} & ${rival.name}`;
-    const near = diffs[0],
-      far = diffs.at(-1);
-    $("insight").innerHTML =
-      `<strong>Closest stat.</strong> ${escape(statPair(rival, near.i))}. <strong>Largest gap.</strong> ${escape(statPair(rival, far.i))}.`;
-    $("insight").hidden = chosen === 0;
+    const near = diffs[0];
+    const three = diffs.find(({ f }) => f.key === "three");
+    const far = near !== three && Math.abs(anchor.values[three.i] - rival.values[three.i]) >= 10
+      ? three : diffs.at(-1);
+    const rank = ["closest", "second-closest", "third-closest", "fourth-closest", "fifth-closest"][chosen];
+    $("first-twin").textContent = `${anchor.name}’s ${rank} box-score match was ${rival.name}.`;
+    const reason = statPair(rival, near.i) + ".";
+    const difference = far.gap >= 10 ? statPair(rival, far.i) + "." : "";
+    $("first-reason").textContent = reason;
+    $("first-difference").textContent = difference;
+    $("insight").textContent = [reason, difference].filter(Boolean).join(" ");
     const repeats = anchor.pairRepeats?.[rival.id];
     $("pair-stability").textContent = Number.isInteger(repeats)
       ? `We tried ${validation.bootstrapDraws} different mixes of the same games. ${rival.name} made ${anchor.name}’s five in ${repeats} of those checks and ranked first in ${anchor.firstRepeats[rival.id]}.`
@@ -360,16 +355,9 @@
   document.addEventListener("click", (e) => {
     const match = e.target.closest("[data-rank]");
     if (match) {
-      const map = match.closest("svg");
       chooseMatch(Number(match.dataset.rank));
-      const group = map ? $("map") : $("matches");
-      if ($("comparison").getBoundingClientRect().bottom > innerHeight) {
-        $("comparison").focus({ preventScroll: true });
-        $("profile").scrollIntoView({ block: "start" });
-      } else
-        group
-          .querySelector(`[data-rank="${chosen}"]`)
-          .focus({ preventScroll: true });
+      $("comparison").focus({ preventScroll: true });
+      $("profile").scrollIntoView({ block: "start" });
       return;
     }
     const term = e.target.closest("[data-term]");

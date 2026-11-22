@@ -36,17 +36,30 @@ assert.equal(selected.value,'new');assert.equal(input.value,'Ben Roethlisberger'
 const subset=method('seasonPlayers','refreshSearchSeason').call({annual,control:()=>({value:'2024'}),players:[...new Map(annual.rows.map(r=>[r.player_key,{id:r.player_key,name:r.display_name}])).values()]},'a');
 assert.equal(subset.length,annual.rows.filter(r=>r.season===2024).length);
 assert.ok(!subset.some(p=>p.name==='Tom Brady'));
-assert.match(nfl,/addEventListener\('focus',\(\)=>this.showSuggestions\(side,true\)\)/);
+const dismissed={value:'Unfinished query'};
+method('dismissSearch','suggestions').call({
+ search:()=>dismissed,selectedName:()=> 'Patrick Mahomes',closeSuggestions(){},searchStatus(){}
+},'a');
+assert.equal(dismissed.value,'Patrick Mahomes');
+const keydown=method('searchKeydown','openChart');
+const first={id:'a',name:'First'},second={id:'b',name:'Second'};
+for(const [matches,active,hidden,wanted] of [[[first],-1,false,first],[[first,second],-1,false,undefined],[[first,second],1,false,second],[[first],-1,true,undefined],[[],-1,false,undefined]]){
+ let chosen,prevented=false;
+ keydown.call({suggestionState:{a:{matches,active}},suggestions:()=>({hidden}),choosePlayer:(side,choice)=>{assert.equal(side,'a');chosen=choice;}},'a',{key:'Enter',preventDefault(){prevented=true;}});
+ assert.equal(chosen,wanted);assert.equal(prevented,Boolean(wanted));
+}
+assert.match(nfl,/addEventListener\('focus',\(\)=>this.search\(side\).select\(\)\)/);
 assert.match(nfl,/document.addEventListener\('pointerdown',this.handleOutsidePointer\)/);
-assert.match(nfl,/No players found\. Try another name or season\./);
 assert.equal((source.match(/Open the list or type a name\. Accents and punctuation are optional\./g)||[]).length,0);
 for(const side of ['a','b'])assert.ok(source.includes(`<label class="visually-hidden" for="nfl-search-${side}">Quarterback ${side.toUpperCase()}</label>`),'Search retains an accessible label without repeated visible instructions');
 assert.match(source,/padding:var\(--space-2xs\) var\(--space-s\)/);
 assert.match(source,/--control-height:3rem/);
 const menuFeedback={};const feedback=method('renderSuggestions','choosePlayer',{document:{createElement(){return {attrs:{},setAttribute(k,v){this.attrs[k]=v;}};}}});
-for(const [year,view]of [['2023','stats'],['','stats'],['2023','profile']]){
- feedback.call({suggestionState:{a:{matches:[],active:-1}},view,control:()=>({value:year}),suggestions:()=>({replaceChildren(node){menuFeedback[view+year]=node;}})},'a');
+for(const [year,view,requiredMask]of [['2023','stats',0],['','stats',0],['2023','profile',8]]){
+ feedback.call({suggestionState:{a:{matches:[],active:-1}},view,requiredMask,control:()=>({value:year}),suggestions:()=>({replaceChildren(node){menuFeedback[view+year]=node;}})},'a');
 }
-assert.match(menuFeedback.stats2023.textContent,/2023/);assert.match(menuFeedback.stats2023.textContent,/Choose season/);assert.match(menuFeedback.stats2023.textContent,/across years/);
-assert.match(menuFeedback.stats.textContent,/across eligible seasons/);assert.match(menuFeedback.stats.textContent,/another name/);assert.equal(menuFeedback.stats2023.attrs['aria-disabled'],'true');
-console.log(JSON.stringify({sourceChecks:'passed',nbaFilterComparisons:comparisons,noResultsFeedbackCases:3,seasons:annual.season_catalog.length,additional:'close preserves text, selection retains name, season scoping, focus/outside-pointer wiring and UI contract',browserChecks:'not performed by this script'}));
+assert.match(menuFeedback.stats2023.textContent,/2023.*another name or season/);
+assert.match(menuFeedback.stats.textContent,/another name/);
+assert.match(menuFeedback.profile2023.textContent,/clear filters/);
+assert.equal(menuFeedback.stats2023.attrs['aria-disabled'],'true');
+console.log(JSON.stringify({sourceChecks:'passed',nbaFilterComparisons:comparisons,noResultsFeedbackCases:3,eligibleEnterCases:5,searchDismissal:'restores committed name',browserChecks:'separate'}));
