@@ -1,0 +1,16 @@
+# Chart data and reuse
+
+The point records and summaries in this directory adapt data from the **Tennis Abstract Match Charting Project**, Jeff Sackmann and the volunteer chartists named on each match record. Both the source data and these adaptations are licensed under **Creative Commons Attribution–NonCommercial–ShareAlike 4.0 International**. The repository's software license applies to code. [Source snapshot](https://github.com/JeffSackmann/tennis_MatchChartingProject/tree/1813a1309b7ed7ebf1c7e884b32bf675d00e4edf) · [Data license](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+
+## Reproduce
+
+Download the two charting match inventories and six charting point CSVs from that snapshot into one folder. From the project root run `python3 scripts/build_data.py /path/to/csv-folder` using Python 3.9 or later. The research vault's prefixed filenames also work. Input hashes, retained observations, outcome totals and exclusions are in [provenance.json](provenance.json).
+
+## Transformations
+
+- Select the decisive serve sequence, ignore recorded lets and first-serve faults, and count the legal serve and strokes put in play. The winning stroke counts. A final missed stroke is excluded. A missed return therefore has one shot in play.
+- The parser measures contacts and terminal outcomes. It accepts direction/depth digits and positioning annotations before or after digits where the stroke identity and outcome are unambiguous. For instance, `4f18f39+*` contains a legal serve and two forehands and ends in a winner on shot three. These simplified measurements do not validate the placement of any shot. Conflicting endings and unsupported letters stay unclassified.
+- Use the shot sequence and the independently recorded point winner and server to check the final actor. Label non-ace winners, unforced errors, forced errors, aces and double faults separately. Other includes unreturnable serves without a recorded return stroke, administrative endings, ambiguous codes and inconsistent actor attribution. Unknown lengths remain null. Winner/error interpretations reflect individual chartists.
+- Use the source's pre-point score and server. Derive set and game numbers from games and sets won before each point. A tiebreak is one game. The game denominator counts observed games. A continuous run of point numbers does not establish that the match finished.
+- Deduplicate identical displayed point observations. Withhold a chart if competing rows still disagree for one point number, if its game identity cannot be recovered, or if its inventory metadata are missing. Retain only matches represented by usable point records. The source inventories contain some records without point rows.
+- Produce one summary per match and side and one ordered point file per match. Each file row holds point number, set, game within set, pre-point score, server slot, point-winner slot, ending code and shots in play. Dates are chart-source labels, including dates recovered from source match IDs. Tournament, surface and player names use the source's labels. Chart coverage and identities are selective.

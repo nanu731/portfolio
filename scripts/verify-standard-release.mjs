@@ -12,7 +12,7 @@ for (const project of manifest.projects) {
   if (sha(bytes) !== project.pageSha256) throw Error(`Reviewed page changed without updating its manifest: ${project.slug}`);
   const page = JSON.parse(bytes);
   const html = page.head + page.body;
-  const method = page.body.match(/<details class="std-disclosure"><summary>Method<\/summary>([\s\S]*?)<\/details>/);
+  const method = page.body.match(/<details class="std-disclosure"><summary>Method<\/summary>([\s\S]*?)<\/details>/) ?? page.body.match(/<details><summary id="method">How the analysis works<\/summary>([\s\S]*?)<\/details>/);
   if (!method || method[1].replace(/<[^>]+>/g, '').trim().length < 20) throw Error(`Method disclosure has no explanatory content: ${project.slug}`);
   const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].filter(m => !/(?:^|\s)src\s*=/i.test(m[1])).map(m => cspHash(m[2]));
   const styles = [...html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)].map(m => cspHash(m[1]));
